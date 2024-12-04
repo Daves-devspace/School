@@ -4,18 +4,30 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="added teachers crud">
-      <change afterPath="$PROJECT_DIR$/apps/management/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/performance/performance.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/teachers/add_department.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/teachers/assign_department.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/teachers/departments.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/teachers/record_marks.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/teachers/teacher_department.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="added departments">
+      <change afterPath="$PROJECT_DIR$/apps/accounts/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/management/forms.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/js/ajax.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/accounts/add_fee_record.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/accounts/payment_records.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/accounts/students_with_balances.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/performance/add_results.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/performance/add_subject.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/performance/class_performance.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/performance/student_performance.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/performance/subjects.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/teachers/assign_class_teachers.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/teachers/class_teachers.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/teachers/teacher_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/teachers/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/forms.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/teachers/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/performance/performance.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/add_department.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/add_department.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/assign_department.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/assign_department.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/departments.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/departments.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/teacher_department.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teacher_department.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,12 +40,14 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="JavaScript File" />
         <option value="Python Script" />
         <option value="HTML File" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="PUSH_TAGS">
       <GitPushTagMode>
         <option name="argument" value="--tags" />
@@ -51,7 +65,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Daves-devspace/Schools.git&quot;,
-    &quot;accountId&quot;: &quot;539b5538-39dd-4ac6-a9eb-b3e95a74c0ba&quot;
+    &quot;accountId&quot;: &quot;1a4a75ca-3cbb-4760-b8eb-85273a4d0e5c&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -65,32 +79,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Django Server.DjangoProject4.executor": "Run",
-    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/HP/PycharmProjects/DjangoProject4",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Django Server.DjangoProject4.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.pycharm.django.structure.promotion.once.per.project&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/HP/PycharmProjects/DjangoProject4&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\performance" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\apps" />
+      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\performance" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\Apps" />
     </key>
   </component>
@@ -138,7 +152,7 @@
       <option name="presentableId" value="Default" />
       <updated>1733217810133</updated>
       <workItem from="1733217811722" duration="21712000" />
-      <workItem from="1733293717212" duration="13860000" />
+      <workItem from="1733293717212" duration="116773000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -148,7 +162,15 @@
       <option name="project" value="LOCAL" />
       <updated>1733233502938</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="added departments">
+      <option name="closed" value="true" />
+      <created>1733310776593</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1733310776593</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -157,6 +179,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="students crud" />
     <MESSAGE value="added teachers crud" />
-    <option name="LAST_COMMIT_MESSAGE" value="added teachers crud" />
+    <MESSAGE value="added departments" />
+    <option name="LAST_COMMIT_MESSAGE" value="added departments" />
   </component>
 </project>

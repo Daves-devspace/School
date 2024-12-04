@@ -8,10 +8,10 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">Add Department</h3>
+                        <h3 class="page-title">Assign Class</h3>
                         <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Department</a></li>
-                            <li class="breadcrumb-item active">Add Department</li>
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Classes</a></li>
+                            <li class="breadcrumb-item active">Assign Class</li>
                         </ul>
                     </div>
                 </div>
@@ -21,14 +21,19 @@
                     <div class="card">
                         <div class="card-body">
 
-
-                            <form method="post" class="d-flex align-items-center gap-3 shadow-sm rounded ">
+                            <h4>Assign Class to {{ teacher.user_name }}</h4>
+                            <form method="post">
                                 {% csrf_token %}
-                                <div class="form-group mb-0">
-                                <label class="form-label fw-bold" for="name">Department Name:</label>
-                                <input  class="form-control mb-2 " type="text" id="name" name="name" placeholder="Enter department name">
-                                </div>
-                                <button class="btn-info mt-4 rounded" type="submit">Add</button>
+                            <div class="mb-3">
+                                <label for="assigned_class">Assign Grade:</label>
+                                <select name="assigned_class" id="assigned_class" class="form-select" required>
+                                    {% for grade in grades %}
+                                        <option value="{{ grade.id }}">{{ grade.name }} (Section: {{ grade.section }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                                <button class="btn-info rounded" type="submit">Assign</button>
                             </form>
 
                         </div>

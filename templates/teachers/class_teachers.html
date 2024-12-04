@@ -1,0 +1,102 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Assign Class</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Class</li>
+                        </ul>
+                    </div>
+                    <div class="col-auto text-right float-right ml-auto">
+                        <a href="#" class="btn btn-outline-info mr-2"><i class="fas fa-download"></i> Download</a>
+                        <a href="{% url 'add_teacher' %}" class="btn btn-outline-info"><i class="fas fa-plus"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-center mb-0 datatable">
+                                    <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+
+                                        <th>Class </th>
+                                        <th>Section</th>
+                                        <th>Mobile Number</th>
+
+
+                                        <th class="text-right">Assign</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for teacher in teachers %}
+
+                                        <td>{{ teacher.id }}</td>
+                                        <td>{{ teacher.user_name }}</td>
+                                        <td>
+                                            {% if teacher.assigned_class %}
+                                                {{ teacher.assigned_class.name }}
+                                            {% else %}
+                                                No class assigned
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if teacher.assigned_class and teacher.assigned_class.section %}
+                                                {{ teacher.assigned_class.section }}
+                                            {% else %}
+                                                No section assigned
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ teacher.phone_no|default:"No phone number" }}</td>
+            
+
+                                        <td class="text-right">
+                                            <div class="actions">
+                                                {#                                    <a href="#"#}
+                                                {#                                       class="btn btn-sm bg-success-light mr-2">#}
+                                                {#                                       <i class="fas fa-eye"></i>#}
+                                                {#                                    </a>#}
+                                                <a href="{% url 'assign_class' teacher.id %}"
+                                                   class="btn btn-sm bg-success-light mr-2">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+
+                                            </div>
+                                        </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <p>Copyright © 2024 Davedev</p>
+        </footer>
+    </div>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+
+
+{% endblock %}

@@ -3,51 +3,54 @@
 {% load static %}
 {% block body %}
 
-<div class="page-wrapper">
-   <div class="content container-fluid">
-      <div class="page-header">
-         <div class="row align-items-center">
-            <div class="col">
-               <h3 class="page-title">Add Department</h3>
-               <ul class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="{% url 'students' %}">Departments</a></li>
-                  <li class="breadcrumb-item active">Add Department</li>
-               </ul>
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Asign Department</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Departments</a></li>
+                            <li class="breadcrumb-item active">Assign Department</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="card">
-               <div class="card-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
 
-                <h4>Assign Department to {{ teacher.user_name }}</h4>
-<form method="post">
-    {% csrf_token %}
-    <label for="department">Choose Department:</label>
-    <select  name="department" id="department">
-        {% for department in departments %}
-        <option value="{{ department.id }}" {% if department == teacher.department %}selected{% endif %}>
-            {{ department.name }}
-        </option>
-        {% endfor %}
-    </select>
-    <button type="submit">Save</button>
-</form>
+                            <h4>Assign to {{ teacher.user_name }}</h4>
+                            <form method="post" class="p-4 shadow-sm rounded">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold" for="department">Choose Department:</label>
+                                    <select name="department" id="department" class="form-select w-50">
+                                        {% for department in departments %}
+                                            <option value="{{ department.id }}"
+                                                    {% if department == teacher.department %}selected{% endif %}>
+                                                {{ department.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button class="btn-info rounded" type="submit">Save</button>
+                            </form>
 
-               </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-         </div>
-      </div>
-   </div>
-</div>
-</div>
-<script src="{%static 'assets/js/jquery-3.6.0.min.js' %}"></script>
-<script src="{%static 'assets/js/popper.min.js' %}"></script>
-<script src="{%static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
-<script src="{%static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
-<script src="{%static 'assets/js/script.js' %}"></script>
-</body>
+        </div>
+    </div>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
 
-</html>
+    </html>
 {% endblock %}

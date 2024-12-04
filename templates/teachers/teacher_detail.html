@@ -1,0 +1,70 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h3 class="page-title">Teacher Details</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Teacher</a></li>
+                            <li class="breadcrumb-item active">Teacher Details</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="about-info">
+
+                                <div class="media-body">
+                                    <h4>{{ teacher.user_name }} <a href="{% url 'teachers' %}" class="btn btn-outline-info"> <i class="fas fa-arrow-left"></i> </a> </h4>
+                                    <p>Subjects: </p>
+                                    <ul>
+                                        {% for subject in teacher.subjects.all %}
+                                            <li>{{ subject.name }}</li>
+                                        {% empty %}
+                                            <li>No subjects assigned yet.</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Copyright © 2024 davedev</p>
+    </footer>
+
+    </div>
+
+    </div>
+
+
+    <script data-cfasync="false" src="../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    <!-- Mirrored from preschool.dreamguystech.com/html-template/student-details.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 28 Oct 2021 11:11:50 GMT -->
+
+    </html>
+{% endblock %}
