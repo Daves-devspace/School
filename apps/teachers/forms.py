@@ -2,7 +2,7 @@ from django import forms
 from phonenumber_field.formfields import PhoneNumberField
 
 
-from ..management.models import Performance, Subject, Teacher
+from ..management.models import  Subject, Teacher
 
 
 class TeacherForm(forms.ModelForm):
@@ -20,12 +20,12 @@ class TeacherForm(forms.ModelForm):
             raise forms.ValidationError("At least one subject is required.")
         return subjects
 
-class PerformanceForm(forms.ModelForm):
-    class Meta:
-        model = Performance
-        fields = ['student', 'marks', 'total_marks']
-        widgets = {
-            'student': forms.Select(attrs={'class': 'form-control'}),
-            'marks': forms.NumberInput(attrs={'class': 'form-control'}),
-            'total_marks': forms.NumberInput(attrs={'class': 'form-control'}),
-        }
+# class PerformanceForm(forms.ModelForm):
+#     class Meta:
+#         model = Performance
+#         fields = ['student', 'marks', 'total_marks']
+#         widgets = {
+#             'student': forms.Select(attrs={'class': 'form-control'}),
+#             'marks': forms.NumberInput(attrs={'class': 'form-control'}),
+#             'total_marks': forms.NumberInput(attrs={'class': 'form-control'}),
+#         }

@@ -23,16 +23,24 @@ urlpatterns = [
     path('subjects_by_grade/<int:grade_id>/', views.subjects_by_grade, name='subjects_by_grade'),
 
     # URL for teachers to key in results for a specific subject
-    path('results/add/<int:subject_id>/', views.add_results, name='add_results'),
+    #path('results/add/<int:subject_id>/', views.add_results, name='add_results'),
 
     # URL to view the class performance and top 5 students
-    path('performance/class/<int:class_id>/', views.class_performance, name='class_performance'),
+    path('performance/class/', views.class_performance, name='class_performance'),
 
     # URL to view a single student's performance
-    path('performance/student/<int:student_id>/', views.student_performance, name='student_performance'),
+    # path('performance/student/<int:student_id>/', views.student_performance, name='student_performance'),
 
 
 path('revenue/line-chart/',views.line_chart, name='line_chart'),
-    path('path-to-your-gender-data/', views.gender_data, name='gender_data'),
+
+
+    path('path-to-your-gender-data/', views.gender_pie_data, name='gender_pie_data'),
+path('data-trends/', views.data_trends, name='data_trends'),
+path('trends/bar-chart-data/', views.trends_bar_chart_data, name='trends_bar_chart_data'),
+path('revenue-trend/',views.revenue_line_chart, name='revenue_line_chart'),
+
+    path('add/', views.add_results, name='add_results'),
+    path('view/', views.view_results, name='view_results'),
 
     ]

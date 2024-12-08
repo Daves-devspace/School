@@ -1,0 +1,95 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+<div class="page-wrapper">
+   <div class="content container-fluid">
+      <div class="page-header">
+         <div class="row align-items-center">
+            <div class="col">
+               <h3 class="page-title">Students</h3>
+               <ul class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                  <li class="breadcrumb-item active">Students</li>
+               </ul>
+            </div>
+            <div class="col-auto text-right float-right ml-auto">
+               <a href="#" class="btn btn-outline-info mr-2"><i class="fas fa-download"></i> Download</a>
+               <a href="{% url 'add_student' %}" class="btn btn-info"><i class="fas fa-plus"></i></a>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="card card-table">
+               <div class="card-body">
+                
+                    <div id="bar-chart"></div>
+                   
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <footer>
+      <p>Copyright © 2024 Davedev</p>
+   </footer>
+</div>
+</div>
+   <script>
+document.addEventListener("DOMContentLoaded", function () {
+    if (document.querySelector("#bar-chart")) {
+        // Fetch bar chart data from the server
+        fetch("{% url 'trends_bar_chart_data' %}")
+            .then(response => response.json())
+            .then(data => {
+                // Configure the bar chart
+                const optionsBar = {
+                    chart: {
+                        type: 'bar',
+                        height: 350
+                    },
+                    series: data.datasets.map(dataset => ({
+                        name: dataset.label,
+                        data: dataset.data
+                    })),
+                    xaxis: {
+                        categories: data.labels // Months
+                    },
+                    colors: ["rgba(78, 115, 223, 1)", "rgba(28, 200, 138, 1)"],
+                    legend: {
+                        position: 'top'
+                    },
+                    title: {
+                        text: "Monthly Trends for Boys and Girls - {{ current_year }}",
+                        align: 'center'
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    grid: {
+                        borderColor: '#f1f1f1'
+                    }
+                };
+
+                // Render the chart
+                const chartBar = new ApexCharts(document.querySelector("#bar-chart"), optionsBar);
+                chartBar.render();
+            })
+            .catch(error => console.error("Error loading bar chart data:", error));
+    }
+});
+</script>
+
+<script src="{%static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{%static 'assets/js/popper.min.js' %}"></script>
+<script src="{%static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{%static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{%static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+<script src="{%static 'assets/js/script.js' %}"></script>
+</body>
+
+</html>
+
+
+{% endblock %}

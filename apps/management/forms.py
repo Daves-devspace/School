@@ -1,5 +1,7 @@
 from django import forms
-from .models import Subject
+from .models import Subject, TeacherSubject, Term
+from ..students.models import Student
+
 
 class SubjectForm(forms.ModelForm):
     class Meta:
@@ -10,3 +12,26 @@ class SubjectForm(forms.ModelForm):
             'grade_assigned': forms.Select(attrs={'class': 'form-control'}),
             'teacher': forms.Select(attrs={'class': 'form-control'}),
         }
+
+class AddResultForm(forms.Form):
+    student = forms.ModelChoiceField(
+        queryset=Student.objects.all(),
+        label="Student",
+        widget=forms.Select(attrs={"class": "form-control"})
+    )
+    teacher_subject = forms.ModelChoiceField(
+        queryset=TeacherSubject.objects.all(),
+        label="Teacher and Subject",
+        widget=forms.Select(attrs={"class": "form-control"})
+    )
+    term = forms.ModelChoiceField(
+        queryset=Term.objects.all(),
+        label="Term",
+        widget=forms.Select(attrs={"class": "form-control"})
+    )
+    score = forms.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        label="Score",
+        widget=forms.NumberInput(attrs={"class": "form-control"})
+    )

@@ -7,7 +7,7 @@ urlpatterns = [
     path('add-teacher',views.add_teacher,name='add_teacher'),
     path('teachers/edit<int:teacher_id>',views.edit_teacher,name='edit_teacher'),
 path('teachers/<int:id>/', views.teacher_detail, name='teacher_detail'),  # URL pattern for teacher details
-    path('record-marks/<int:subject_id>/<int:term_id>/', views.record_marks_view, name='record_marks'),
+    # path('record-marks/<int:subject_id>/<int:term_id>/', views.record_marks_view, name='record_marks'),
 
     path('department-asign/edit<int:teacher_id>',views.assign_department,name='assign_department'),
 

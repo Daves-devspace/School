@@ -1,0 +1,83 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    <title>Collect Fees</title>
+{% endblock %}
+
+{% block body %}
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table">
+                        <div class="card-body">
+
+                            <h1>Revenue and Expenses for {{ current_year }}</h1>
+                            <div id="chart"></div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+                <p>add more details</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data from the Django JsonResponse (Assume this is provided as a context variable)
+        const chartData = {{ chart_data | safe }};
+
+        // Prepare chart options and configuration
+        const options = {
+            chart: {
+                height: 350,
+                type: 'line',
+                zoom: {
+                    enabled: false
+                },
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            title: {
+                text: chartData.title,
+                align: 'left'
+            },
+            xaxis: {
+                categories: chartData.data.labels, // Months
+            },
+            yaxis: {
+                title: {
+                    text: 'Amount'
+                },
+            },
+            series: [
+                {
+                    name: 'Revenue',
+                    data: chartData.data.datasets[0].data, // Revenue data points
+                    color: 'rgba(78, 115, 223, 1)', // Customize the color
+                },
+                {
+                    name: 'Expenses',
+                    data: chartData.data.datasets[1].data, // Expenses data points
+                    color: 'rgba(255, 99, 132, 1)', // Customize the color
+                }
+            ],
+        };
+
+        // Render the chart
+        const chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+    </script>
+
+
+
+{% endblock %}
