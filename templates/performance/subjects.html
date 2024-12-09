@@ -14,8 +14,8 @@
                         </ul>
                     </div>
                     <div class="col-auto text-right float-right ml-auto">
-                        <a href="#" class="btn btn-outline-info mr-2"><i class="fas fa-download"></i> Download</a>
-                        <a href="{% url 'add_subject' %}" class="btn btn-info"><i class="fas fa-plus"></i></a>
+                        <a href="#" class="btn btn accent-background text-white mr-2"><i class="fas fa-download"></i> Download</a>
+                        <a href="{% url 'add_subject' %}" class="btn btn accent-background text-white"><i class="fas fa-plus"></i></a>
                     </div>
                 </div>
             </div>
@@ -30,7 +30,7 @@
                                         <th>ID</th>
                                         <th>Subject Name</th>
                                         <th>Assigned Grade</th>
-                                        <th>Assigned Teacher</th>
+
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -39,7 +39,7 @@
                                             <td>{{ subject.id }}</td>
                                             <td>{{ subject.name }}</td>
                                             <td>{{ subject.grade }}</td>
-                                            <td>{{ subject.teacher.user_name }}</td>
+
                                         </tr>
                                     {% empty %}
                                         <tr>

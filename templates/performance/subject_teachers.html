@@ -7,15 +7,15 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">Departments</h3>
+                        <h3 class="page-title">Subjects</h3>
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item"><a href="">Dashboard</a></li>
-                            <li class="breadcrumb-item active">departments</li>
+                            <li class="breadcrumb-item active">Subjects</li>
                         </ul>
                     </div>
                     <div class="col-auto text-right float-right ml-auto">
                         <a href="#" class="btn btn accent-background text-white mr-2"><i class="fas fa-download"></i> Download</a>
-                        <a href="{% url 'add_department' %}" class="btn btn accent-background text-white"><i class="fas fa-plus"></i></a>
+                        <a href="{% url 'add_subject' %}" class="btn btn accent-background text-white"><i class="fas fa-plus"></i></a>
                     </div>
                 </div>
             </div>
@@ -28,46 +28,22 @@
                                     <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Name</th>
-
-                                        <th>Teacher Incharge</th>
-                                        
-                                        
-
-
-{#                                        <th class="#">Action</th>#}
+                                        <th>Subject Name</th>
+                                        <th>Assigned Grade</th>
+                                        <th>Assigned Teacher</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for department in departments %}
+                                    {% for record in teacher_subjects %}
                                         <tr>
-
-                                            <td>{{ department.id }}</td>
-                                            <td>{{ department.name }}</td>
-
-                                            <td>  {% if department.teachers.all %}
-                                                <ul>
-                                                    {% for teacher in department.teachers.all %}
-                                                        <li>{{ teacher.user_name }} </li>
-                                                        
-                                                    {% endfor %}
-                                                </ul>
-                                            {% else %}
-                                                <p>No teacher assigned yet.</p>
-                                            {% endif %}
-                                            </td>
-
-
-{#                                            <td class="#">#}
-{#                                                <div class="actions">#}
-{##}
-{#                                                    <a href="#"#}
-{#                                                       class="btn btn-sm bg-success-light mr-2">#}
-{#                                                        <i class="fas fa-trash"></i>#}
-{#                                                    </a>#}
-{##}
-{#                                                </div>#}
-{#                                            </td>#}
+                                            <td>{{ record.id }}</td>
+                                            <td>{{ record.subject.name }}</td>
+                                            <td>{{ record.grade_assigned.name}}</td>
+                                            <td>{{ record.teacher.full_name }}</td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="4">No subjects found.</td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>

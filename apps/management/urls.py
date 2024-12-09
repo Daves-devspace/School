@@ -20,6 +20,7 @@ urlpatterns = [
 
     # URL for listing all subjects (optional, to display all subjects)
      path('subjects/', views.list_subjects, name='subjects_list'),
+     path('subject_teachers/', views.subject_teachers, name='subject_teachers'),
     path('subjects_by_grade/<int:grade_id>/', views.subjects_by_grade, name='subjects_by_grade'),
 
     # URL for teachers to key in results for a specific subject
@@ -36,6 +37,8 @@ path('revenue/line-chart/',views.line_chart, name='line_chart'),
 
 
     path('path-to-your-gender-data/', views.gender_pie_data, name='gender_pie_data'),
+   # path('gender-pie-chart/', views.pie_chart, name='gender_pie_chart'),
+
 path('data-trends/', views.data_trends, name='data_trends'),
 path('trends/bar-chart-data/', views.trends_bar_chart_data, name='trends_bar_chart_data'),
 path('revenue-trend/',views.revenue_line_chart, name='revenue_line_chart'),

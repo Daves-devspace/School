@@ -19,12 +19,8 @@
                                 <div class="row w-100">
                                      <h1>Expenses</h1>
                                     <!-- Expenses Summary -->
-                                    <div class="col-md-6 d-flex flex-column ">
-                                        <div class="summary">
-                                            <p><strong>Total Revenue:</strong> {{ total_revenue }}</p>
-                                            <p><strong>Total Expenses:</strong> {{ total_expenses }}</p>
-                                            <p><strong>Net Revenue:</strong> {{ net_revenue }}</p>
-                                        </div>
+                                    <div class="col-md-6 card d-flex flex-column ">
+
                                         <!-- Add Expense Form -->
                                         <form method="POST" class="mt-3">
                                             {% csrf_token %}
@@ -35,13 +31,16 @@
                                     
 
                                     <!-- Spending Trends -->
-                                    <div class="col-md-6 d-flex border-left flex-column align-items-center justify-content-center">
-                                        <h3>Spending Trends</h3>
-                                                  <canvas id="expensesChart"></canvas>
+                                    <div class="col-md-6 card d-flex border-left flex-column ">
 
 
+                                                  <canvas id="revenue_chart"></canvas>
 
-
+                                          <div class="summary mt-2">
+                                            <p><strong>Revenue:</strong> {{ total_revenue }}</p>
+                                            <p><strong>Expenses:</strong> {{ total_expenses }}</p>
+                                            <p><strong>Net Revenue:</strong> {{ net_revenue }}</p>
+                                        </div>
 
                                     </div>
                                 </div>
@@ -50,7 +49,7 @@
                         </div>
 
                         <!-- Expense List -->
-                        <h2>Expense List</h2>
+
                         <div class="table-responsive">
                             <table class="table table-hover table-center mb-0 datatable">
                                 <thead>
@@ -84,8 +83,8 @@
             </div>
 
 
-            <p>add more details</p>
-        <div id="chart"></div>
+
+
         </div>
     </div>
     </div>
@@ -96,7 +95,7 @@
 
 <script>
     function renderChart(data) {
-        const ctx = document.getElementById('expensesChart').getContext('2d');
+        const ctx = document.getElementById('revenue_chart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -114,7 +113,7 @@
 
     // Fetch the chart data
     $.ajax({
-        url: "/management/revenue-trend/", // URL to fetch data
+        url: "{% url 'revenue_line_chart' %}", // URL to fetch data
         type: "GET",
         dataType: "json",
         success: function (response) {
@@ -126,86 +125,19 @@
     });
 </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
 
-
-
-
-
-
-{##}
-{#    <script>#}
-{#    $(document).ready(function () {#}
-{#        // Fetch the data from the API#}
-{#        $.ajax({#}
-{#            url: "{% url 'line_chart' %}",  // Ensure the URL points to your updated `line_chart` view#}
-{#            type: "GET",#}
-{#            dataType: "json",#}
-{#            success: function (response) {#}
-{#                var options = {#}
-{#                    chart: {#}
-{#                        height: 350,#}
-{#                        type: "area", // Chart type: "area" or "line"#}
-{#                        toolbar: {#}
-{#                            show: false#}
-{#                        }#}
-{#                    },#}
-{#                    title: {#}
-{#                        text: response.title, // Set the chart title from JSON#}
-{#                        align: 'center', // Align title to center#}
-{#                        style: {#}
-{#                            fontSize: '16px', // Font size for title#}
-{#                        },#}
-{#                    },#}
-{#                    dataLabels: {#}
-{#                        enabled: false // Disable data labels#}
-{#                    },#}
-{#                    stroke: {#}
-{#                        curve: "smooth" // Smooth line curves#}
-{#                    },#}
-{#                    series: [#}
-{#                        {#}
-{#                            name: response.data.datasets[0].label, // Use the first dataset's label#}
-{#                            data: response.data.datasets[0].data  // Use the first dataset's data#}
-{#                        },#}
-{#                        {#}
-{#                            name: response.data.datasets[1].label, // Use the second dataset's label#}
-{#                            data: response.data.datasets[1].data  // Use the second dataset's data#}
-{#                        }#}
-{#                    ],#}
-{#                    xaxis: {#}
-{#                        categories: response.data.labels // Set the X-axis categories#}
-{#                    },#}
-{#                    colors: [#}
-{#                        "rgba(78, 115, 223, 1)", // Color for Revenue#}
-{#                        "rgba(255, 99, 132, 1)"  // Color for Expenses#}
-{#                    ],#}
-{#                    fill: {#}
-{#                        opacity: 0.1,#}
-{#                        type: "gradient",#}
-{#                        gradient: {#}
-{#                            shadeIntensity: 1,#}
-{#                            opacityFrom: 0.7,#}
-{#                            opacityTo: 0.1,#}
-{#                            stops: [0, 90, 100]#}
-{#                        }#}
-{#                    }#}
-{#                };#}
-{##}
-{#                // Render the chart#}
-{#                var chart = new ApexCharts(#}
-{#                    document.querySelector("#charts-area"), // Ensure this ID matches your HTML container#}
-{#                    options#}
-{#                );#}
-{#                chart.render();#}
-{#            },#}
-{#            error: function (error) {#}
-{#                console.error("Error fetching chart data:", error);#}
-{#            }#}
-{#        });#}
-{#    });#}
-{#</script>#}
+    </html>
 
 
 

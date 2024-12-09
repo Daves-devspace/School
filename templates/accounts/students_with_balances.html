@@ -13,25 +13,26 @@
                             <li class="breadcrumb-item active">Students with balances</li>
                         </ul>
                     </div>
-{#                    <div class="top-nav-search">#}
-{##}
-{#                        <form class="d-flex" method="get" action="">#}
-{#                            <input class="form-control mb-2" type="text" name="search_fee" placeholder="Search">#}
-{#                            <button class=" btn btn-outline-info">Search</button>#}
-{#                        </form>#}
-{#                        #}
-{#             #}
-{##}
-{#                    </div>#}
+                    {#                    <div class="top-nav-search">#}
+                    {##}
+                    {#                        <form class="d-flex" method="get" action="">#}
+                    {#                            <input class="form-control mb-2" type="text" name="search_fee" placeholder="Search">#}
+                    {#                            <button class=" btn btn-outline-info">Search</button>#}
+                    {#                        </form>#}
+                    {#                        #}
+                    {#             #}
+                    {##}
+                    {#                    </div>#}
                     <div class="col-auto top-nav-search text-right float-right ml-auto">
-                                   <form  method="get" action="{% url 'search_student_fees' %}">
-               <input type="text" class="form-control" name="search_fee" placeholder="Search by name, grade,adm" value="{{ request.GET.search_fee }}">
-               <button class="btn" type="submit"><i class="fas fa-search text-white"></i></button>
-            </form>
+                        <form method="get" action="{% url 'search_student_fees' %}">
+                            <input type="text" class="form-control" name="search_fee"
+                                   placeholder="Search by name, grade,adm" value="{{ request.GET.search_fee }}">
+                            <button class="btn" type="submit"><i class="fas fa-search text-white"></i></button>
+                        </form>
 
-{#                        <a href="#" class="btn btn-outline-info mr-2"><i class="fas fa-arrow-alt-circle-down"></i>Filter#}
-{#                            Grade</a>#}
-{#                        <a href="{% url 'add_student' %}" class="btn btn-outline-info"><i class="fas fa-plus"></i></a>#}
+                        {#                        <a href="#" class="btn btn-outline-info mr-2"><i class="fas fa-arrow-alt-circle-down"></i>Filter#}
+                        {#                            Grade</a>#}
+                        {#                        <a href="{% url 'add_student' %}" class="btn btn-outline-info"><i class="fas fa-plus"></i></a>#}
                     </div>
                 </div>
             </div>
@@ -73,7 +74,8 @@
                                             <td>{{ record.paid_amount }}</td>
                                             <td>{{ record.balance_due }}</td>
                                             <td>
-                                                <a href="{% url 'student_payments' record.student.id %}" class=" btn btn-sm accent-background text-white mr-2"><i
+                                                <a href="{% url 'student_payments' record.student.id %}"
+                                                   class=" btn btn-sm accent-background text-white mr-2"><i
                                                         class="fas fa-eye  "></i></a>
                                             </td>
 
