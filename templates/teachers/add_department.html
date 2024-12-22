@@ -24,18 +24,43 @@
 
                             <form method="post" class="d-flex align-items-center gap-3 shadow-sm rounded ">
                                 {% csrf_token %}
-                                <div class="form-group mb-0">
-                                <label class="form-label fw-bold" for="name">Department Name:</label>
-                                <input  class="form-control mb-2 " type="text" id="name" name="name" placeholder="Enter department name">
-                                </div>
-                                <button class="btn btn accent-background text-white mt-4 rounded" type="submit">Add</button>
-                            </form>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h5 class="form-title"><span>Department Details</span></h5>
+                                    </div>
+                                    <div class="col-12 col-sm-4">
+                                        <div class="form-group local-forms">
+                                            <label class="form-label fw-bold" for="name">Department Name:</label>
+                                            <input class="form-control mb-2 " type="text" id="name" name="name"
+                                                   placeholder="Enter department name">
+                                        </div>
+                                    </div>
 
+{#                                    <div class="col-12 col-sm-4">#}
+{#                                        <div class="form-group local-forms">#}
+{#                                            <label class="form-label fw-bold" for="hod">Head of Department:</label>#}
+{#                                            <input class="form-control mb-2 " type="text" id="hod" name="hod"#}
+{#                                                   placeholder="Enter department hod">#}
+{#                                        </div>#}
+{#                                    </div>#}
+                               
+                                <div class="col-12">
+                                    <div class="student-submit">
+                                        <button class="btn btn custom-bg  text-white mt-4 rounded" type="submit">
+                                            Add Department
+                                        </button>
+                                    </div>
+                                </div>
+                                </div>
+
+                            </form>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     </div>
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>

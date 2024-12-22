@@ -1,0 +1,83 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}
+<title>Books In Store</title>
+{% endblock %}
+
+
+{% block body %}
+
+<div class="page-wrapper">
+    <div class="content container-fluid">
+       <div class="page-header">
+          <div class="row align-items-center">
+             <div class="col">
+                <h3 class="page-title">Library</h3>
+                <ul class="breadcrumb">
+                   <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                   <li class="breadcrumb-item active">Books</li>
+                </ul>
+             </div>
+             <div class="col-auto text-right float-right ml-auto">
+                <a href="#" class="btn btn accent-background text-white mr-2"><i class="fas fa-download"></i> Download List</a>
+                <a href="{% url 'add_student' %}" class="btn btn accent-background text-white"><i class="fas fa-plus mr-2 "></i>Add Book</a>
+             </div>
+          </div>
+       </div>
+       <div class="row">
+          <div class="col-sm-12">
+             <div class="card card-table">
+                <div class="card-body">
+                   <div class="table-responsive">
+                           <table class="table table-hover table-center mb-0 datatable">
+                                <thead>
+                                    <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Year</th>
+                                    <th>Subject</th>
+                                    <th>ISBN</th>
+                                    <th>Issue</th>
+                                    
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    {% for book in books %}
+                                    <tr>
+                                        <td>{{ book.title }}</td>
+                                        <td> {{ book.author }} </td>
+                                        <td> {{book.year}} </td>
+                                        <td> {{book.subject}} </td>
+                                        <td> {{book.isbn}} </td>
+                                        <td> <a href="{% url 'issue_book' book.id %}" Class="btn btn  btn-sm  accent-background text-white" >Issue</a> </td>
+                                    </tr>
+
+                                    {% endfor %}
+                
+                                </tbody>
+                           </table>
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+    <footer>
+       <p>Copyright © 2024 Davedev</p>
+    </footer>
+ </div>
+ </div>
+ <script src="{%static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+ <script src="{%static 'assets/js/popper.min.js' %}"></script>
+ <script src="{%static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+ <script src="{%static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+ <script src="{%static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+ <script src="{%static 'assets/js/script.js' %}"></script>
+ </body>
+ 
+ </html>
+
+
+{% endblock %}

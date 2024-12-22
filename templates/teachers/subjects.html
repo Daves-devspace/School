@@ -1,0 +1,92 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+<div class="page-wrapper">
+   <div class="content container-fluid">
+      <div class="page-header">
+         <div class="row align-items-center">
+            <div class="col">
+               <h3 class="page-title">Subjects</h3>
+               <ul class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                  <li class="breadcrumb-item active">subjects</li>
+               </ul>
+            </div>
+            <div class="col-auto text-right float-right ml-auto">
+               <a href="#" class="btn btn-outline-primary mr-2"><i class="fas fa-download"></i> Download</a>
+               <a href="{% url 'add_student' %}" class="btn btn-primary"><i class="fas fa-plus"></i></a>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="card card-table">
+               <div class="card-body">
+                  <div class="table-responsive">
+                     <table class="table table-hover table-center mb-0 datatable">
+                        <thead>
+                           <tr>
+                             <th>ID</th>
+                              <th>Name</th>
+                              <th>Teacher</th>
+                              
+                
+                              <th class="text-right">Action</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {% for teacher in teachers %}
+                           <tr>
+                             
+                              <td>{{teacher.id}}</td>
+                              <td>{{ teacher.first_name }} &nbsp; {{ teacher.last_name }}</td>
+                               <td>{{ teacher.subject }}</td>
+                               <td>{{ teacher.teacher_class }}</td>
+                              <td>{{ teacher.phone_number }}</td>
+                              <td>{{ teacher.date_joined|date:"d M Y" }}</td>
+                            
+                              <td class="text-right">
+                                 <div class="actions">
+                                    <a href="#"
+                                       class="btn btn-sm bg-success-light mr-2">
+                                       <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="#"
+                                       class="btn btn-sm bg-success-light mr-2">
+                                       <i class="fas fa-pen"></i>
+                                    </a>
+                                    <a href="#"
+                                       class="btn btn-sm bg-success-light mr-2">
+                                       <i class="fas fa-trash"></i>
+                                    </a>
+                                    
+                                 </div>
+                              </td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <footer>
+      <p>Copyright © 2024 Davedev</p>
+   </footer>
+</div>
+</div>
+<script src="{%static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{%static 'assets/js/popper.min.js' %}"></script>
+<script src="{%static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{%static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{%static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+<script src="{%static 'assets/js/script.js' %}"></script>
+</body>
+
+</html>
+
+
+{% endblock %}

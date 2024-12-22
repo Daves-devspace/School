@@ -21,23 +21,82 @@
                     <div class="card">
                         <div class="card-body">
 
-                            <h4>Assign to {{ teacher.user_name }}</h4>
-                            <form method="post" class="p-4 shadow-sm rounded">
-                                {% csrf_token %}
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold" for="department">Choose Department:</label>
-                                    <select name="department" id="department" class="form-select w-50">
-                                        {% for department in departments %}
-                                            <option value="{{ department.id }}"
-                                                    {% if department == teacher.department %}selected{% endif %}>
-                                                {{ department.name }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <button class="btn accent-background text-white rounded" type="submit">Save</button>
-                            </form>
+                            <h2>Assign HOD and Teachers to {{ department.name }}</h2>
 
+                            <form method="post">
+                                {% csrf_token %}
+
+
+                                <div class="form-group">
+                                    <label for="hod">Assign HOD</label>
+                                    <div class="#">
+                                        <div class="selectBox">
+                                            <p class="mb-0">Select Teacher</p>
+                                            <span class="down-icon"><i class="fas fa-chevron-down"></i></span>
+                                        </div>
+                                        <div id="checkBoxes-one">
+                                            <p class="checkbox-title">Search Teachers</p>
+                                            <div class="form-custom">
+                                                <input type="text" id="searchTeacher" class="form-control bg-grey"
+                                                       placeholder="Enter Teacher Name">
+                                            </div>
+                                            <div class="selectBox-cont" id="teacherList">
+                                                <!-- Example teacher entries -->
+                                                {% for teacher in teachers %}
+                                                    <label class="custom_check w-100">
+                                                        <input type="radio" name="hod" value="{{ teacher.id }}">
+                                                        <span class="checkmark"></span> {{ teacher.full_name }}
+                                                    </label>
+                                                {% endfor %}
+                                            </div>
+                                            <button type="submit" class="btn w-100 btn custom-bg text-white">Assign</button>
+                                            <button type="reset" class="btn w-100 btn custom-bg text-white  " onclick="resetSearch()">
+                                                Reset
+                                            </button>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+                                <p>allll</p>
+
+
+                                {#                                <!-- Assign HOD -->#}
+                                {#                                <div class="form-group">#}
+                                {#                                    <label for="hod">Select HOD:</label>#}
+                                {#                                    <select name="hod" id="hod" class="form-control">#}
+                                {#                                        <option value="" {% if not department.hod %}selected{% endif %}>-- Select HOD#}
+                                {#                                            --#}
+                                {#                                        </option>#}
+                                {#                                        {% for teacher in teachers %}#}
+                                {#                                            <option value="{{ teacher.id }}"#}
+                                {#                                                    {% if teacher == department.hod %}selected{% endif %}>#}
+                                {#                                                {{ teacher.full_name }}#}
+                                {#                                            </option>#}
+                                {#                                        {% endfor %}#}
+                                {#                                    </select>#}
+                                {#                                </div>#}
+                                {##}
+                                {#                                <!-- Assign Teachers -->#}
+                                {#                                <div class="form-group">#}
+                                {#                                    <label for="teachers">Assign Teachers:</label>#}
+                                {#                                    <select name="teachers" id="teachers" class="form-control" multiple>#}
+                                {#                                        {% for teacher in teachers %}#}
+                                {#                                            <option value="{{ teacher.id }}"#}
+                                {#                                                    {% if teacher in department.teachers.all %}selected{% endif %}>#}
+                                {#                                                {{ teacher.full_name }}#}
+                                {#                                            </option>#}
+                                {#                                        {% endfor %}#}
+                                {#                                    </select>#}
+                                {#                                    <small class="form-text text-muted">Hold down Ctrl (Windows) or Command (Mac) to#}
+                                {#                                        select multiple teachers.</small>#}
+                                {#                                </div>#}
+
+                                <button type="submit" class="btn btn-primary mt-3">Save</button>
+                                <a href="{% url 'teachers_department' %}" class="btn btn-secondary mt-3">Cancel</a>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -45,6 +104,27 @@
         </div>
     </div>
     </div>
+
+    <script>
+        // JavaScript for filtering teachers in the dropdown
+        document.getElementById("searchTeacher").addEventListener("keyup", function () {
+            const filter = this.value.toLowerCase();
+            const teachers = document.querySelectorAll("#teacherList label");
+
+            teachers.forEach(function (teacher) {
+                const text = teacher.textContent || teacher.innerText;
+                teacher.style.display = text.toLowerCase().includes(filter) ? "" : "none";
+            });
+        });
+
+        function resetSearch() {
+            document.getElementById("searchTeacher").value = "";
+            const teachers = document.querySelectorAll("#teacherList label");
+            teachers.forEach(function (teacher) {
+                teacher.style.display = "";
+            });
+        }
+    </script>
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/popper.min.js' %}"></script>
     <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>

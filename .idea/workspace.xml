@@ -5,15 +5,355 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="expenses and net revenue">
-      <change afterPath="$PROJECT_DIR$/templates/performance/subject_teachers.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/celery.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/tasks.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/teachers/signals.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/website/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/award-icon-01.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/award-icon-02.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/award-icon-03.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/award-icon-04.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/buliding-icon.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/dash-icon-01.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/dash-icon-02.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/dash-icon-03.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/dash-icon-04.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/header-icon-01.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/header-icon-04.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/header-icon-05.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/invoices-icon1.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/invoices-icon2.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/invoices-icon3.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/invoices-icon4.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/invoices-icon5.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/lesson-icon-01.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/lesson-icon-02.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/lesson-icon-03.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/lesson-icon-04.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/lesson-icon-05.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/lesson-icon-06.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/social-icon-01.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/social-icon-02.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/social-icon-03.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/social-icon-04.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/student-icon-01.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/student-icon-02.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/teacher-icon-01.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/teacher-icon-02.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/icons/teacher-icon-03.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/loginlogo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/logo2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/logosmall.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/img/mfslogo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/css/bootstrap.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/css/style.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/about-1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/about-2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/about-3.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/appointment.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/bg-header-bottom.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/bg-header-top.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/call-to-action.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/carousel-1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/carousel-2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/classes-1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/classes-2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/classes-3.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/classes-4.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/classes-5.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/classes-6.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/team-1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/team-2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/team-3.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/testimonial-1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/testimonial-2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/testimonial-3.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/img/user.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/js/main.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/animate/animate.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/animate/animate.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/easing/easing.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/easing/easing.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/owlcarousel/LICENSE" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/owlcarousel/assets/ajax-loader.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/owlcarousel/assets/owl.carousel.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/owlcarousel/assets/owl.carousel.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/owlcarousel/assets/owl.theme.default.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/owlcarousel/assets/owl.theme.default.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/owlcarousel/assets/owl.theme.green.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/owlcarousel/assets/owl.theme.green.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/owlcarousel/assets/owl.video.play.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/owlcarousel/owl.carousel.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/owlcarousel/owl.carousel.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/waypoints/links.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/waypoints/waypoints.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/wow/wow.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/lib/wow/wow.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_accordion.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_alert.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_badge.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_breadcrumb.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_button-group.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_buttons.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_card.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_carousel.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_close.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_containers.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_dropdown.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_forms.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_functions.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_grid.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_helpers.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_images.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_list-group.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_mixins.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_modal.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_nav.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_navbar.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_offcanvas.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_pagination.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_popover.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_progress.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_reboot.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_root.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_spinners.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_tables.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_toasts.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_tooltip.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_transitions.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_type.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_utilities.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/_variables.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/bootstrap-grid.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/bootstrap-reboot.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/bootstrap-utilities.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/bootstrap.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/forms/_floating-labels.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/forms/_form-check.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/forms/_form-control.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/forms/_form-range.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/forms/_form-select.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/forms/_form-text.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/forms/_input-group.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/forms/_labels.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/forms/_validation.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/helpers/_clearfix.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/helpers/_colored-links.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/helpers/_position.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/helpers/_ratio.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/helpers/_stretched-link.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/helpers/_text-truncation.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/helpers/_visually-hidden.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_alert.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_border-radius.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_box-shadow.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_breakpoints.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_buttons.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_caret.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_clearfix.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_color-scheme.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_container.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_deprecate.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_forms.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_gradients.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_grid.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_image.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_list-group.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_lists.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_pagination.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_reset-text.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_resize.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_table-variants.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_text-truncate.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_transition.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_utilities.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/mixins/_visually-hidden.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/utilities/_api.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/website/scss/bootstrap/scss/vendor/_rfs.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static_files/assets/css/feather.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static_files/assets/js/feather.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/website/404.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/website/about.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/website/appointment.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/website/call-to-action.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/website/classes.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/website/contact.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/website/facility.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/website/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/website/nav.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/website/team.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/website/testimonial.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/performance/query_students.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/students/All-students.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/students/inactive_students.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/students/students_grid.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/teachers/add_departmental_teachers.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/DjangoProject4.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/DjangoProject4.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/Manage/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/migrations/0002_subject_teacher.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/migrations/0003_term_alter_performance_term.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/migrations/0004_rename_grade_subject_grade_assigned_result.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/migrations/0005_alter_subject_teacher.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/migrations/0006_alter_performance_subject_alter_result_subject_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/migrations/0007_reportcard_subjectmarks.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/migrations/0008_rename_subjectmarks_subjectmark.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/migrations/0009_rename_date_of_report_card_generation_reportcard_date_generated_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/migrations/0010_rename_date_generated_reportcard_date.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/update_student_status.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/management/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/forms.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/students/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/js/ajax.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/css/main.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/about-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/about.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/apple-touch-icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-author-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-author-3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-author-4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-author-5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-author-6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-author.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-inside-post.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-recent-1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-recent-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-recent-3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-recent-4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/blog-recent-5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/comments-1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/comments-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/comments-3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/comments-4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/comments-5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/blog/comments-6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/clients/client-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/clients/client-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/clients/client-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/clients/client-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/clients/client-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/clients/client-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/clients/client-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/clients/client-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/cta-bg.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/favicon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/hero-img.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/portfolio/app-1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/portfolio/app-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/portfolio/app-3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/portfolio/books-1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/portfolio/books-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/portfolio/books-3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/portfolio/branding-1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/portfolio/branding-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/portfolio/branding-3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/portfolio/product-1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/portfolio/product-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/portfolio/product-3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/services.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/stats-img.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/team/team-1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/team/team-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/team/team-3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/team/team-4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/testimonials/testimonials-1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/testimonials/testimonials-2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/testimonials/testimonials-3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/testimonials/testimonials-4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/img/testimonials/testimonials-5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/js/main.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/scss/Readme.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/aos/aos.cjs.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/aos/aos.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/aos/aos.esm.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/aos/aos.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/aos/aos.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap-icons/bootstrap-icons.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap-icons/bootstrap-icons.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap-icons/bootstrap-icons.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap-icons/bootstrap-icons.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap-icons/fonts/bootstrap-icons.woff" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-grid.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-grid.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-grid.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-grid.min.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-grid.rtl.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-grid.rtl.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-grid.rtl.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-grid.rtl.min.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-reboot.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-reboot.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-reboot.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-reboot.min.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-reboot.rtl.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-reboot.rtl.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-reboot.rtl.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-reboot.rtl.min.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-utilities.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-utilities.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-utilities.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-utilities.min.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-utilities.rtl.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-utilities.rtl.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-utilities.rtl.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap-utilities.rtl.min.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap.min.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap.rtl.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap.rtl.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap.rtl.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/bootstrap.rtl.min.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/css/prb.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/js/bootstrap.bundle.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/js/bootstrap.bundle.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/js/bootstrap.bundle.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/js/bootstrap.bundle.min.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/js/bootstrap.esm.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/js/bootstrap.esm.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/js/bootstrap.esm.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/js/bootstrap.esm.min.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/js/bootstrap.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/js/bootstrap.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/js/bootstrap.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/bootstrap/js/bootstrap.min.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/glightbox/css/glightbox.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/glightbox/css/glightbox.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/glightbox/js/glightbox.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/glightbox/js/glightbox.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/imagesloaded/imagesloaded.pkgd.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/isotope-layout/isotope.pkgd.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/isotope-layout/isotope.pkgd.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/php-email-form/validate.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/purecounter/purecounter_vanilla.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/purecounter/purecounter_vanilla.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/swiper/swiper-bundle.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/swiper/swiper-bundle.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/login_assets/vendor/swiper/swiper-bundle.min.js.map" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/Home/web.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/web.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/accounts/add-fee-strusture.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/add-fee-strusture.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/accounts/expense.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/expense.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/accounts/students_with_balances.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/students_with_balances.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/performance/subjects.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/subjects.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/performance/add_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/add_results.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/performance/add_subject.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/add_subject.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/performance/results.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/results.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/add_department.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/add_department.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/teachers/assign_department.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/assign_department.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/teachers/departments.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/departments.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/teachers/teacher_department.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teacher_department.html" afterDir="false" />
@@ -30,8 +370,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="JavaScript File" />
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -68,34 +408,40 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Django Server.DjangoProject4.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.pycharm.django.structure.promotion.once.per.project&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/HP/PycharmProjects/DjangoProject4/static/assets/login_assets&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Django Server.DjangoProject4.executor": "Run",
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/HP/PycharmProjects/DjangoProject4/static/assets/img",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\static\assets\login_assets" />
+      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\static\assets\img" />
+      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home\website" />
+      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\static\website" />
+      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\static_files\assets\js" />
+      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\static_files\assets\css" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\apps" />
+      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4" />
+      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\static\website\img" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\performance" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\Apps" />
     </key>
@@ -146,6 +492,7 @@
       <workItem from="1733217811722" duration="21712000" />
       <workItem from="1733293717212" duration="164159000" />
       <workItem from="1733594726849" duration="48063000" />
+      <workItem from="1734759078603" duration="32003000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -185,6 +532,17 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="students crud" />
     <MESSAGE value="added teachers crud" />
@@ -193,5 +551,29 @@
     <MESSAGE value="added the chart data and dashbaoard revenue count" />
     <MESSAGE value="expenses and net revenue" />
     <option name="LAST_COMMIT_MESSAGE" value="expenses and net revenue" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/students/views.py</url>
+          <line>19</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/students/urls.py</url>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/accounts/forms.py</url>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/teachers/views.py</url>
+          <line>320</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

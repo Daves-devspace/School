@@ -13,14 +13,17 @@ class SubjectForm(forms.ModelForm):
             'teacher': forms.Select(attrs={'class': 'form-control'}),
         }
 
+
+
+
 class AddResultForm(forms.Form):
     student = forms.ModelChoiceField(
         queryset=Student.objects.all(),
         label="Student",
         widget=forms.Select(attrs={"class": "form-control"})
     )
-    teacher_subject = forms.ModelChoiceField(
-        queryset=TeacherSubject.objects.all(),
+    subject = forms.ModelChoiceField(
+        queryset=Subject.objects.all(),
         label="Teacher and Subject",
         widget=forms.Select(attrs={"class": "form-control"})
     )

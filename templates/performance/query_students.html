@@ -1,0 +1,151 @@
+{% extends "Home/base.html" %}
+{% block body %}
+
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Query</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                            <li class="breadcrumb-item active">results</li>
+                        </ul>
+                    </div>
+                    <div class="col-auto text-right float-right ml-auto">
+                        <a href="#" class="btn btn-outline-info mr-2"><i class="fas fa-download"></i> Download</a>
+                        <a href="{% url 'add_subject' %}" class="btn btn-info"><i class="fas fa-plus"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="student-group-form">
+                <div class="row">
+                    <form method="GET" action="{% url 'filter_results' %}">
+                        <div class=" col-lg-3 col-md-6">
+                            <div class="form-group">
+                                <label for="class">Class</label>
+                                <select name="class" id="class" class="form-control">
+                                    {% for class in classes %}
+                                        <option value="{{ class.id }}">{{ class.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class=" col-lg-3 col-md-6">
+                            <div class="form-group">
+                                <label for="term">Term</label>
+                                <select name="term" id="term" class="form-control">
+                                    {% for term in terms %}
+                                        <option value="{{ term.id }}">{{ term.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class=" col-lg-3 col-md-6">
+                            <div class="form-group">
+                                <label for="test">Test</label>
+                                <select name="test" id="test" class="form-control">
+                                    <option value="opener">Opener</option>
+                                    <option value="midterm">Mid-Term</option>
+                                    <option value="endterm">End-Term</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class=" col-lg-3 col-md-6">
+                            <div class="form-group">
+                                <label for="subject">Subject</label>
+                                <select name="subject" id="subject" class="form-control">
+                                    {% for subject in subjects %}
+                                        <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="search-student-btn">
+                                <button type="submit" class="btn btn custom-bg text-white">Query</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+            {#            <form method="GET" action="{% url 'filter_results' %}">#}
+            {#                <div class="form-group">#}
+            {#                    <label for="class">Class</label>#}
+            {#                    <select name="class" id="class" class="form-control">#}
+            {#                        {% for class in classes %}#}
+            {#                            <option value="{{ class.id }}">{{ class.name }}</option>#}
+            {#                        {% endfor %}#}
+            {#                    </select>#}
+            {#                </div>#}
+            {#                <div class="form-group">#}
+            {#                    <label for="term">Term</label>#}
+            {#                    <select name="term" id="term" class="form-control">#}
+            {#                        {% for term in terms %}#}
+            {#                            <option value="{{ term.id }}">{{ term.name }}</option>#}
+            {#                        {% endfor %}#}
+            {#                    </select>#}
+            {#                </div>#}
+            {#                <div class="form-group">#}
+            {#                    <label for="test">Test</label>#}
+            {#                    <select name="test" id="test" class="form-control">#}
+            {#                        <option value="opener">Opener</option>#}
+            {#                        <option value="midterm">Mid-Term</option>#}
+            {#                        <option value="endterm">End-Term</option>#}
+            {#                    </select>#}
+            {#                </div>#}
+            {#                <div class="form-group">#}
+            {#                    <label for="subject">Subject</label>#}
+            {#                    <select name="subject" id="subject" class="form-control">#}
+            {#                        {% for subject in subjects %}#}
+            {#                            <option value="{{ subject.id }}">{{ subject.name }}</option>#}
+            {#                        {% endfor %}#}
+            {#                    </select>#}
+            {#                </div>#}
+            {#                <button type="submit" class="btn btn-primary">Query</button>#}
+            {#            </form>#}
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table comman-shadow">
+                        <div class="card-body">
+                            {% if students %}
+                                <table class="table table-bordered">
+                                    <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Admission Number</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for student in students %}
+                                        <tr>
+                                            <td>{{ student.first_name }}</td>
+                                            <td>{{ student.admission_number }}</td>
+                                            <td>
+                                                <a href="{% url 'add_results' student.id %}" class="btn btn-success">Add
+                                                    Results</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+{% endblock %}          

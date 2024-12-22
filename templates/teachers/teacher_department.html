@@ -9,13 +9,15 @@
                     <div class="col">
                         <h3 class="page-title">Assign Department</h3>
                         <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
                             <li class="breadcrumb-item active">Department</li>
                         </ul>
                     </div>
                     <div class="col-auto text-right float-right ml-auto">
-                        <a href="#" class="btn btn accent-background text-white mr-2"><i class="fas fa-download"></i> Download</a>
-                        <a href="{% url 'add_teacher' %}" class="btn btn accent-background text-white"><i class="fas fa-plus"></i></a>
+                        <a href="#" class="btn btn accent-background text-white mr-2"><i class="fas fa-download"></i>
+                            Download</a>
+                        <a href="{% url 'add_teacher' %}" class="btn btn accent-background text-white"><i
+                                class="fas fa-plus"></i></a>
                     </div>
                 </div>
             </div>
@@ -24,64 +26,66 @@
                     <div class="card card-table">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-hover table-center mb-0 datatable">
-                                    <thead>
+                                <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                    <thead class="student-thread">
                                     <tr>
+                                        <th>
+                                            <div class="form-check check-tables">
+                                                <input class="form-check-input" type="checkbox" value="something">
+                                            </div>
+                                        </th>
                                         <th>ID</th>
-                                        <th>Name</th>
-                                       
-                                        <th>Class Teacher</th>
-                                        <th>Mobile Number</th>
-                                        
                                         <th>Department</th>
-                                        
+                                        <th>HOD</th>
+                                        <th>Assign HOD</th>
+                                        <th>Add Members</th>
 
-                                        <th class="text-right">Assign</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for teacher in teachers %}
+                                    {% for department in departments %}
                                         <tr>
-
-                                            <td>{{ teacher.id }}</td>
-                                            <td>{{ teacher.user_name }}</td>
-                                            
-                                        
                                             <td>
-                                                {% if teacher.assigned_class %}
-                                                    {{ teacher.assigned_class.name }}
-                                                {% else %}
-                                                    No class assigned
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ teacher.phone_no }}</td>
-                                            
-                                        
-                                            <td>
-                                                {% if teacher.department %}
-                                                    {{ teacher.department.name }}
-                                                {% else %}
-                                                    No department assigned
-                                                {% endif %}
-                                            </td>
-
-                                            <td class="text-right">
-                                                <div class="actions">
-                                                    {#                                    <a href="#"#}
-                                                    {#                                       class="btn btn-sm bg-success-light mr-2">#}
-                                                    {#                                       <i class="fas fa-eye"></i>#}
-                                                    {#                                    </a>#}
-                                                    <a href="{% url 'assign_department' teacher.id %}"
-                                                       class="btn btn-sm bg-success-light mr-2">
-                                                        <i class="fas fa-pen"></i>
-                                                    </a>
-
+                                                <div class="form-check check-tables">
+                                                    <input class="form-check-input" type="checkbox" value="something">
                                                 </div>
                                             </td>
+
+
+                                            <td>{{ department.id }}</td>
+                                            <td>{{ department.name }}</td>
+
+                                            <td>
+                                                {% if department.hod %}
+                                                    {{ department.hod.full_name }}
+                                                {% else %}
+                                                    <p>No HOD assigned yet.</p>
+                                                {% endif %}
+                                            </td>
+
+                                            <td>
+                                                <div>
+                                                    <a href="{% url 'assign_hod_and_teachers' department.id %}"
+                                                       class="btn btn-outline custom-bg text-white btn-lg">
+                                                        <i class="fas fa-pen-square"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div>
+                                                    <a href="{% url 'assign_teachers_to_department' department.id %}"
+                                                       class="btn btn-outline custom-bg text-white btn-lg">
+                                                        <i class="fas fa-plus-square"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+
                                         </tr>
                                     {% endfor %}
                                     </tbody>
                                 </table>
+
                             </div>
                         </div>
                     </div>
@@ -92,7 +96,7 @@
             <p>Copyright © 2024 Davedev</p>
         </footer>
     </div>
-    </div>
+
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/popper.min.js' %}"></script>
     <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>

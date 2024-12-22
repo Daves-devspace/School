@@ -1,0 +1,122 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+
+<div class="page-wrapper  custom-color">
+    <div class="content container-fluid">
+        <div class="page-header">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h3 class="page-title ">Welcome {{user.username}}!</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item active ">Schedule Events</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row vh-75">
+            <div class="col-md-12 col-lg-12">
+                <div class="card shadow card-chart">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-6">
+                                <h5 class="card-title">Calendar</h5>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="calendar"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+    <footer>
+        <p>Copyright © 2024 Davedev.</p>
+    </footer>
+</div>
+</div>
+<!-- calendar -->
+
+<script>
+    (function ($) {
+        "use strict";
+
+        var CalendarApp = function () {
+            this.$calendar = $('#calendar'),
+                this.$calendarObj = null;
+        };
+
+        CalendarApp.prototype.init = function (apiUrl) {
+            var $this = this;
+
+            // Fetch events from the API
+            function fetchEvents() {
+    console.log("Fetching events...");
+    return $.ajax({
+        url: apiUrl,
+        method: 'GET',
+        dataType: 'json'
+    }).done(function(data) {
+        console.log("Fetched events:", data);
+    }).fail(function(error) {
+        console.error("Failed to fetch events:", error);
+    });
+}
+
+
+            // Initialize the calendar
+            $this.$calendarObj = $this.$calendar.fullCalendar({
+    slotDuration: '00:15:00',
+    minTime: '08:00:00',
+    maxTime: '19:00:00',
+    defaultView: 'month',
+    handleWindowResize: true,
+    header: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'month,agendaWeek,agendaDay'
+    },
+    events: [
+        {
+            title: "Static Event",
+            start: "2024-11-25T10:00:00",
+            end: "2024-11-30T12:00:00"
+        }
+    ],
+    editable: true,
+    droppable: true,
+    selectable: true,
+    eventLimit: true
+});
+
+        };
+
+        // Initialize CalendarApp
+        var calendarApp = new CalendarApp();
+        calendarApp.init("{{ api_url }}");  // Pass the API URL from Django
+
+    })(window.jQuery);
+</script>
+
+
+
+
+<script src="{%static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+        <script src="{%static 'assets/js/popper.min.js' %}"></script>
+<script src="{%static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{%static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{%static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
+<script src="{%static 'assets/plugins/apexchart/chart-data.js' %}"></script>
+<script src="{%static 'assets/js/script.js' %}"></script>
+</body>
+
+</html>
+
+{% endblock %}

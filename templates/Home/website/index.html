@@ -1,0 +1,672 @@
+{% extends 'Home/website/nav.html' %}
+{% load static %}
+
+{% block content %}
+
+
+
+    <!-- Carousel Start -->
+    <div class="container-fluid p-0 mb-5">
+        <div class="owl-carousel header-carousel position-relative">
+            <div class="owl-carousel-item position-relative">
+                <img class="img-fluid" src="{% static 'website/img/carousel-1.jpg' %}" alt="">
+                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center"
+                     style="background: rgba(0, 0, 0, .2);">
+                    <div class="container">
+                        <div class="row justify-content-start">
+                            <div class="col-10 col-lg-8">
+                                <h1 class="display-2 text-white animated slideInDown mb-4">The Best Kindergarten School
+                                    For Your Child</h1>
+                                <p class="fs-5 fw-medium text-white mb-4 pb-2">Provide your child with the best start to
+                                    their educational journey in a safe, nurturing, and stimulating environment. Our
+                                    kindergarten focuses on holistic growth, creativity, and a love for learning to
+                                    prepare them for a successful future.</p>
+                                <a href=""
+                                   class="btn btn-success rounded-pill py-sm-3 px-sm-5 me-3 animated slideInLeft">Learn
+                                    More</a>
+                                <a href="{% url 'contact_us' %}"
+                                   class="btn btn-outline custom_bg text-white rounded-pill py-sm-3 px-sm-5 animated slideInRight">Appointment</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="owl-carousel-item position-relative">
+                <img class="img-fluid" src="{% static 'website/img/carousel-2.jpg' %}" alt="">
+                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center"
+                     style="background: rgba(0, 0, 0, .2);">
+                    <div class="container">
+                        <div class="row justify-content-start">
+                            <div class="col-10 col-lg-8">
+                                <h1 class="display-2 text-white animated slideInDown mb-4">Make A Brighter Future For
+                                    Your Child</h1>
+                                <p class="fs-5 fw-medium text-white mb-4 pb-2">Empower your child to reach their full
+                                    potential with a nurturing environment, innovative learning, and values-based
+                                    education. Together, we shape the foundation for lifelong success and a brighter
+                                    tomorrow</p>
+                                <a href=""
+                                   class="btn btn-success rounded-pill py-sm-3 px-sm-5 me-3 animated slideInLeft">Learn
+                                    More</a>
+                                <a href=""
+                                   class="btn btn-outline custom_bg text-white rounded-pill py-sm-3 px-sm-5 animated slideInRight">Appointment</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Carousel End -->
+
+
+    <!-- Facilities Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+                <h1 class="mb-3">School Facilities</h1>
+                <p>Our school provides top-notch facilities designed to ensure a safe, engaging, and supportive
+                    environment where students can thrive academically, socially, and physically.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="facility-item">
+                        <div class="facility-icon bg-primary">
+                            <span class="bg-primary"></span>
+                            <i class="fa fa-bus-alt fa-3x text-primary"></i>
+                            <span class="bg-primary"></span>
+                        </div>
+                        <div class="facility-text bg-primary">
+                            <h3 class="text-primary mb-3">School Bus</h3>
+                            <p class="mb-0">Our school bus service ensures safe and timely transportation for all
+                                students, covering major routes with experienced drivers and attendants.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="facility-item">
+                        <div class="facility-icon bg-success">
+                            <span class="bg-success"></span>
+                            <i class="fa fa-futbol fa-3x text-success"></i>
+                            <span class="bg-success"></span>
+                        </div>
+                        <div class="facility-text bg-success">
+                            <h3 class="text-success mb-3">Playground</h3>
+                            <p class="mb-0">We provide a well-equipped playground to encourage physical activities,
+                                teamwork, and a healthy lifestyle among students.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="facility-item">
+                        <div class="facility-icon bg-warning">
+                            <span class="bg-warning"></span>
+                            <i class="fa fa-home fa-3x text-warning"></i>
+                            <span class="bg-warning"></span>
+                        </div>
+                        <div class="facility-text bg-warning">
+                            <h3 class="text-warning mb-3">Healthy Canteen</h3>
+                            <p class="mb-0">Our canteen offers nutritious and balanced meals, promoting healthy eating
+                                habits and catering to dietary preferences.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.7s">
+                    <div class="facility-item">
+                        <div class="facility-icon bg-info">
+                            <span class="bg-info"></span>
+                            <i class="fa fa-chalkboard-teacher fa-3x text-info"></i>
+                            <span class="bg-info"></span>
+                        </div>
+                        <div class="facility-text bg-info">
+                            <h3 class="text-info mb-3">Positive Learning</h3>
+                            <p class="mb-0">We create a positive learning environment where students are inspired to
+                                grow academically and emotionally with the support of qualified teachers.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Facilities End -->
+
+
+    <!-- About Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <h1 class="mb-4">Learn More About Our Work And Our Cultural Activities</h1>
+                    <p>At Merryland, we strive to provide a holistic educational experience that blends academics with
+                        rich cultural activities. Our programs are designed to nurture creativity, teamwork, and
+                        personal growth, ensuring students are well-rounded and prepared for the future.</p>
+                    <p class="mb-4">Through various cultural events and interactive sessions, we encourage students to
+                        explore diverse traditions, build connections, and develop a sense of community. Join us in
+                        fostering a vibrant and inclusive environment where every child thrives.</p>
+                    <div class="row g-4 align-items-center">
+                        <div class="col-sm-6">
+                            <a class="btn btn-success rounded-pill py-3 px-5" href="">Read More</a>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <img class="rounded-circle flex-shrink-0" src="{% static 'website/img/user.jpg' %}"
+                                     alt="" style="width: 45px; height: 45px;">
+                                <div class="ms-3">
+                                    <h6 class="text-success mb-1">TR.LYDIAH</h6>
+                                    <small>Director</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 about-img wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <img class="img-fluid w-75 rounded-circle bg-light p-3"
+                                 src="{% static 'website/img/about-1.jpg' %}" alt="">
+                        </div>
+                        <div class="col-6 text-start" style="margin-top: -150px;">
+                            <img class="img-fluid w-100 rounded-circle bg-light p-3"
+                                 src="{% static 'website/img/about-2.jpg' %}" alt="">
+                        </div>
+                        <div class="col-6 text-end" style="margin-top: -150px;">
+                            <img class="img-fluid w-100 rounded-circle bg-light p-3"
+                                 src="{% static 'website/img/about-3.jpg' %}" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- About End -->
+
+
+    <!-- Call To Action Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="bg-light rounded">
+                <div class="row g-0">
+                    <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s" style="min-height: 400px;">
+                        <div class="position-relative h-100">
+                            <img class="position-absolute w-100 h-100 rounded"
+                                 src="{% static 'website/img/call-to-action.jpg' %}" style="object-fit: cover;">
+                        </div>
+                    </div>
+                    <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
+                        <div class="h-100 d-flex flex-column justify-content-center p-5">
+                            <h1 class="mb-4">Become A Teacher</h1>
+                            <p class="mb-4">Join Merryland to inspire young minds and shape the future. We are looking
+                                for passionate educators who are committed to making a difference in children's lives.
+                                Our teaching environment fosters creativity, collaboration, and growth, providing you
+                                with the tools and support to excel in your role.
+
+                                Be part of a team that values education and strives to nurture the potential in every
+                                student. Take the first step toward a rewarding career in teaching today<!doctype html>
+                                <html lang="en">
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <meta name="viewport"
+                                          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+                                    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+                                    <title>Document</title>
+                                </head>
+                                <body>
+
+                                </body>
+                                </html>
+                            </p>
+                            <a class="btn btn-success py-3 px-5" href="">Get Started Now<i
+                                    class="fa fa-arrow-right ms-2"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Call To Action End -->
+
+
+    <!-- Classes Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+                <h1 class="mb-3">School Classes</h1>
+                <p>Eirmod sed ipsum dolor sit rebum labore magna erat. Tempor ut dolore lorem kasd vero ipsum sit eirmod
+                    sit. Ipsum diam justo sed rebum vero dolor duo.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="classes-item">
+                        <div class="bg-light rounded-circle w-75 mx-auto p-3">
+                            <img class="img-fluid rounded-circle" src="{% static 'website/img/classes-1.jpg' %}" alt="">
+                        </div>
+                        <div class="bg-light rounded p-4 pt-5 mt-n5">
+                            <a class="d-block text-center h3 mt-3 mb-4" href="">Art & Drawing</a>
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle flex-shrink-0" src="{% static 'website/img/user.jpg' %}"
+                                         alt="" style="width: 45px; height: 45px;">
+                                    <div class="ms-3">
+                                        <h6 class="text-success mb-1">Jhon Doe</h6>
+                                        <small>Teacher</small>
+                                    </div>
+                                </div>
+                                <span class="custom_bg  text-white rounded-pill py-2 px-3" href="">All</span>
+                            </div>
+                            {#                            <div class="row g-1">#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-primary pt-2">#}
+                            {#                                        <h6 class="text-primary mb-1">Age:</h6>#}
+                            {#                                        <small>3-16 Years</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-success pt-2">#}
+                            {#                                        <h6 class="text-success mb-1">Time:</h6>#}
+                            {#                                        <small>9-10 AM</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-warning pt-2">#}
+                            {#                                        <h6 class="text-warning mb-1">Capacity:</h6>#}
+                            {#                                        <small>30 Kids</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                            </div>#}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="classes-item">
+                        <div class="bg-light rounded-circle w-75 mx-auto p-3">
+                            <img class="img-fluid rounded-circle" src="{% static 'website/img/classes-2.jpg' %}" alt="">
+                        </div>
+                        <div class="bg-light rounded p-4 pt-5 mt-n5">
+                            <a class="d-block text-center h3 mt-3 mb-4" href="">Color Management</a>
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle flex-shrink-0" src="{% static 'website/img/user.jpg' %}"
+                                         alt="" style="width: 45px; height: 45px;">
+                                    <div class="ms-3">
+                                        <h6 class="text-success mb-1">Jhon Doe</h6>
+                                        <small>Teacher</small>
+                                    </div>
+                                </div>
+                                <span class="custom_bg  text-white rounded-pill py-2 px-3" href="">Grade1,2,3</span>
+                            </div>
+                            {#                            <div class="row g-1">#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-primary pt-2">#}
+                            {#                                        <h6 class="text-primary mb-1">Age:</h6>#}
+                            {#                                        <small>3-5 Years</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-success pt-2">#}
+                            {#                                        <h6 class="text-success mb-1">Time:</h6>#}
+                            {#                                        <small>9-10 AM</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-warning pt-2">#}
+                            {#                                        <h6 class="text-warning mb-1">Capacity:</h6>#}
+                            {#                                        <small>30 Kids</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                            </div>#}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="classes-item">
+                        <div class="bg-light rounded-circle w-75 mx-auto p-3">
+                            <img class="img-fluid rounded-circle" src="{% static 'website/img/classes-3.jpg' %}" alt="">
+                        </div>
+                        <div class="bg-light rounded p-4 pt-5 mt-n5">
+                            <a class="d-block text-center h3 mt-3 mb-4" href="">Athletic & Dance</a>
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle flex-shrink-0" src="{% static 'website/img/user.jpg' %}"
+                                         alt="" style="width: 45px; height: 45px;">
+                                    <div class="ms-3">
+                                        <h6 class="text-success mb-1">Jhon Doe</h6>
+                                        <small>Teacher</small>
+                                    </div>
+                                </div>
+                                <span class="custom_bg  text-white rounded-pill py-2 px-3" href="">ALL</span>
+                            </div>
+                            {#                            <div class="row g-1">#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-primary pt-2">#}
+                            {#                                        <h6 class="text-primary mb-1">Age:</h6>#}
+                            {#                                        <small>5-16 Years</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-success pt-2">#}
+                            {#                                        <h6 class="text-success mb-1">Time:</h6>#}
+                            {#                                        <small>9-10 AM</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-warning pt-2">#}
+                            {#                                        <h6 class="text-warning mb-1">Capacity:</h6>#}
+                            {#                                        <small>30 Kids</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                            </div>#}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="classes-item">
+                        <div class="bg-light rounded-circle w-75 mx-auto p-3">
+                            <img class="img-fluid rounded-circle" src="{% static 'website/img/classes-4.jpg' %}" alt="">
+                        </div>
+                        <div class="bg-light rounded p-4 pt-5 mt-n5">
+                            <a class="d-block text-center h3 mt-3 mb-4" href="">Language & Speaking</a>
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle flex-shrink-0" src="{% static 'website/img/user.jpg' %}"
+                                         alt="" style="width: 45px; height: 45px;">
+                                    <div class="ms-3">
+                                        <h6 class="text-success mb-1">Jhon Doe</h6>
+                                        <small>Teacher</small>
+                                    </div>
+                                </div>
+                                <span class="custom_bg  text-white rounded-pill py-2 px-3" href="">ALL</span>
+                            </div>
+                            {#                            <div class="row g-1">#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-primary pt-2">#}
+                            {#                                        <h6 class="text-primary mb-1">Age:</h6>#}
+                            {#                                        <small>3-16 Years</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-success pt-2">#}
+                            {#                                        <h6 class="text-success mb-1">Time:</h6>#}
+                            {#                                        <small>9-10 AM</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-warning pt-2">#}
+                            {#                                        <h6 class="text-warning mb-1">Capacity:</h6>#}
+                            {#                                        <small>30 Kids</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                            </div>#}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="classes-item">
+                        <div class="bg-light rounded-circle w-75 mx-auto p-3">
+                            <img class="img-fluid rounded-circle" src="{% static 'website/img/classes-5.jpg' %}" alt="">
+                        </div>
+                        <div class="bg-light rounded p-4 pt-5 mt-n5">
+                            <a class="d-block text-center h3 mt-3 mb-4" href="">Religion & History</a>
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle flex-shrink-0" src="{% static 'website/img/user.jpg' %}"
+                                         alt="" style="width: 45px; height: 45px;">
+                                    <div class="ms-3">
+                                        <h6 class="text-success mb-1">Jhon Doe</h6>
+                                        <small>Teacher</small>
+                                    </div>
+                                </div>
+                                <span class="custom_bg text-white rounded-pill py-2 px-3" href="">ALL</span>
+                            </div>
+                            {#                            <div class="row g-1">#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-primary pt-2">#}
+                            {#                                        <h6 class="text-primary mb-1">Age:</h6>#}
+                            {#                                        <small>3-5 Years</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-success pt-2">#}
+                            {#                                        <h6 class="text-success mb-1">Time:</h6>#}
+                            {#                                        <small>9-10 AM</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-warning pt-2">#}
+                            {#                                        <h6 class="text-warning mb-1">Capacity:</h6>#}
+                            {#                                        <small>30 Kids</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                            </div>#}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="classes-item">
+                        <div class="bg-light rounded-circle w-75 mx-auto p-3">
+                            <img class="img-fluid rounded-circle" src="{% static 'website/img/classes-6.jpg' %}" alt="">
+                        </div>
+                        <div class="bg-light rounded p-4 pt-5 mt-n5">
+                            <a class="d-block text-center h3 mt-3 mb-4" href="">General Knowledge</a>
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle flex-shrink-0" src="{% static 'website/img/user.jpg' %}"
+                                         alt="" style="width: 45px; height: 45px;">
+                                    <div class="ms-3">
+                                        <h6 class="text-success mb-1">Jhon Doe</h6>
+                                        <small>Teacher</small>
+                                    </div>
+                                </div>
+                                <span class="custom_bg text-white rounded-pill py-2 px-3" href="">Grade1</span>
+                            </div>
+                            {#                            <div class="row g-1">#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-primary pt-2">#}
+                            {#                                        <h6 class="text-primary mb-1">Age:</h6>#}
+                            {#                                        <small>3-5 Years</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-success pt-2">#}
+                            {#                                        <h6 class="text-success mb-1">Time:</h6>#}
+                            {#                                        <small>9-10 AM</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <div class="border-top border-3 border-warning pt-2">#}
+                            {#                                        <h6 class="text-warning mb-1">Capacity:</h6>#}
+                            {#                                        <small>30 Kids</small>#}
+                            {#                                    </div>#}
+                            {#                                </div>#}
+                            {#                            </div>#}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Classes End -->
+
+
+    <!-- Appointment Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="bg-light rounded">
+                <div class="row g-0">
+                    <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
+                        <div class="h-100 d-flex flex-column justify-content-center p-5">
+                            <h1 class="mb-4">Make Appointment</h1>
+                            <form>
+                                <div class="row g-3">
+                                    <div class="col-sm-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control border-0" id="gname"
+                                                   placeholder="Gurdian Name">
+                                            <label for="gname">Gurdian Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-floating">
+                                            <input type="email" class="form-control border-0" id="gmail"
+                                                   placeholder="Gurdian Email">
+                                            <label for="gmail">Gurdian Email</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control border-0" id="cname"
+                                                   placeholder="Child Name">
+                                            <label for="cname">Child Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control border-0" id="cage"
+                                                   placeholder="Child Age">
+                                            <label for="cage">Child Age</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <textarea class="form-control border-0" placeholder="Leave a message here"
+                                                      id="message" style="height: 100px"></textarea>
+                                            <label for="message">Message</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <button class="btn btn-success w-100 py-3" type="submit">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s" style="min-height: 400px;">
+                        <div class="position-relative h-100">
+                            <img class="position-absolute w-100 h-100 rounded"
+                                 src="{% static 'website/img/appointment.jpg' %}" style="object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Appointment End -->
+
+
+    <!-- Team Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+                <h1 class="mb-3">Popular Teachers</h1>
+                <p>Eirmod sed ipsum dolor sit rebum labore magna erat. Tempor ut dolore lorem kasd vero ipsum sit
+                    eirmod sit. Ipsum diam justo sed rebum vero dolor duo.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="team-item position-relative">
+                        <img class="img-fluid rounded-circle w-75" src="{% static 'website/img/team-1.jpg' %}" alt="">
+                        <div class="team-text">
+                            <h3>Full Name</h3>
+                            <p>CBC</p>
+                            <div class="d-flex align-items-center">
+                                <a class="btn btn-square btn-success mx-1" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square btn-success  mx-1" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square btn-success  mx-1" href=""><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="team-item position-relative">
+                        <img class="img-fluid rounded-circle w-75" src="{% static 'website/img/team-2.jpg' %}" alt="">
+                        <div class="team-text">
+                            <h3>Full Name</h3>
+                            <p>Designation</p>
+                            <div class="d-flex align-items-center">
+                                <a class="btn btn-square btn-success mx-1" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square btn-success  mx-1" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square btn-success  mx-1" href=""><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="team-item position-relative">
+                        <img class="img-fluid rounded-circle w-75" src="{% static 'website/img/team-3.jpg' %}" alt="">
+                        <div class="team-text">
+                            <h3>Full Name</h3>
+                            <p>Designation</p>
+                            <div class="d-flex align-items-center">
+                                <a class="btn btn-square btn-success mx-1" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square btn-success  mx-1" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square btn-success  mx-1" href=""><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Team End -->
+
+
+    <!-- Testimonial Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+                <h1 class="mb-3">Parents Say!</h1>
+                <p>We love the vibrant and supportive environment that nurtures creativity, confidence, and a love for
+                    learning. Merryland is more than just a school—it's a community that feels like family!</p>
+            </div>
+            <div class="owl-carousel testimonial-carousel wow fadeInUp" data-wow-delay="0.1s">
+                <div class="testimonial-item bg-light rounded p-5">
+                    <p class="fs-5">Our journey with Merryland has been truly remarkable. The care, dedication, and
+                        expertise of the teachers have made a positive impact on our child's growth and development.</p>
+                    <div class="d-flex align-items-center bg-white me-n5" style="border-radius: 50px 0 0 50px;">
+                        <img class="img-fluid flex-shrink-0 rounded-circle"
+                             src="{% static 'website/img/testimonial-1.jpg' %}" style="width: 90px; height: 90px;">
+                        <div class="ps-3">
+                            <h3 class="mb-1">BIH</h3>
+                            <span> Vet</span>
+
+                        </div>
+                        <i class="fa fa-quote-right fa-3x text-success   ms-auto d-none d-sm-flex"></i>
+                    </div>
+                </div>
+                <div class="testimonial-item bg-light rounded p-5">
+                    <p class="fs-5">We are so happy with the progress our child has made at Merryland Friends. The
+                        teachers are passionate and truly care about each student's success.</p>
+                    <div class="d-flex align-items-center bg-white me-n5" style="border-radius: 50px 0 0 50px;">
+                        <img class="img-fluid flex-shrink-0 rounded-circle"
+                             src="{% static 'website/img/testimonial-2.jpg' %}" style="width: 90px; height: 90px;">
+                        <div class="ps-3">
+                            <h3 class="mb-1">Cephas</h3>
+                            <span>CEO <a href="https://jisemeafrica.co.ke/">JISEMEAFRICA</a></span>
+
+                        </div>
+                        <i class="fa fa-quote-right fa-3x text-success ms-auto d-none d-sm-flex"></i>
+                    </div>
+                </div>
+                <div class="testimonial-item bg-light rounded p-5">
+                    <p class="fs-5">Merryland has exceeded our expectations in every way! The school's approach to
+                        learning is engaging and innovative, keeping our child excited to attend every day.</p>
+                    <div class="d-flex align-items-center bg-white me-n5" style="border-radius: 50px 0 0 50px;">
+                        <img class="img-fluid flex-shrink-0 rounded-circle"
+                             src="{% static 'website/img/testimonial-3.jpg' %}" style="width: 90px; height: 90px;">
+                        <div class="ps-3">
+                            <h3 class="mb-1">David Mwangi</h3>
+                            <span>Software Engineer</span>
+                        </div>
+                        <i class="fa fa-quote-right fa-3x text-success ms-auto d-none d-sm-flex"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Testimonial End -->
+
+{% endblock %}
+
+
+
+
+      
+

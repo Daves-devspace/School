@@ -23,44 +23,74 @@
                 <div class="col-sm-12">
                     <div class="card card-table">
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover table-center mb-0 datatable">
+                            <form action="">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-center mb-0 datatable">
 
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Student</th>
-                                        <th>Subject</th>
-                                        <th>Teacher</th>
-                                        <th>Term</th>
-                                        <th>Score</th>
-                                        <th>Date Added</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for result in results %}
+                                        <thead>
                                         <tr>
-                                            <td>{{ forloop.counter }}</td>
-                                            <td>{{ result.student.name }}</td>
-                                            <td>{{ result.teacher_subject.subject.name }}</td>
-                                            <td>{{ result.teacher_subject.teacher.name }}</td>
-                                            <td>{{ result.term.name }}</td>
-                                            <td>{{ result.score }}</td>
-                                            <td>{{ result.date_added|date:"Y-m-d H:i" }}</td>
+                                            <th>ADM</th>
+                                            <th>Student</th>
+                                            <th>Subject</th>
+                                            <th>Term</th>
+                                            <th>Opener</th>
+                                            <th>Mid-term</th>
+                                            <th>End-term</th>
+                                            <th>Total</th>
                                         </tr>
-                                    {% endfor %}
-                                    </tbody>
+                                        </thead>
+                                        <tbody>
+                                        {% for student in students %}
+                                            <tr>
+                                                <td>{{ student.admission_no }}</td>
+                                                <td>{{ result.student.name }}</td>
+                                                <td>
+                                                    <select name="subject_{{ student.id }}" class="form-control">
+                                                        {% for subject in subjects %}
+                                                            <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="term_{{ student.id }}" class="form-control">
+                                                        {% for term in terms %}
+                                                            <option value="{{ term.id }}">{{ term.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="opener_{{ student.id }}"
+                                                           class="form-control"
+                                                           placeholder="Opener"/>
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="midterm_{{ student.id }}"
+                                                           class="form-control" placeholder="Mid-Term"/>
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="endterm_{{ student.id }}"
+                                                           class="form-control" placeholder="End-Term"/>
+                                                </td>
+                                                <td>
+                                                    <span id="total_{{ student.id }}">0</span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
 
-                                </table>
-                            </div>
+                                    </table>
+                                    <button type="submit" class="btn btn-primary">Submit Results</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <footer>
-            <p>Copyright © 2024 Davedev</p>
-        </footer>
+    </div>
+    <footer>
+        <p>Copyright © 2024 Davedev</p>
+    </footer>
     </div>
     </div>
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>

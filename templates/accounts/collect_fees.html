@@ -1,0 +1,154 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Collect Fees</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Students with balances</li>
+                        </ul>
+                    </div>
+                    <div class="col-auto text-right float-right ml-auto">
+
+                        <a href="{% url 'students_with_balances' %}" class="btn btn accent-background text-white"> <i
+                                class="fas fa-arrow-alt-circle-left"></i></a>
+                        {#                        <a href="#" class="btn btn-outline-info mr-2"><i class="fas fa-download "></i> Download</a>#}
+                        {#                        <a href="{% url 'add_student' %}" class="btn btn-primary"><i class="fas fa-plus"></i></a>#}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table">
+                        <div class="card-body">
+                            <div class="row">
+
+                                <div class="info">
+
+                                    <h4>Collect Fee for {{ fee_record.student.first_name }}</h4>
+                                    <p>Grade: {{ fee_record.student.grade.name }}</p>
+                                    <p>Term: {{ fee_record.term.name }}</p>
+                                    <p>Total Fee: {{ fee_record.total_fee }}</p>
+                                    <p>Paid Amount: {{ fee_record.paid_amount }}</p>
+                                    <p>Balance: {{ fee_record.balance_due }}</p>
+                                </div>
+
+                                <div class="info">
+
+                                    <form method="POST" class="d-flex w-50 gap-3 shadow-sm rounded">
+                                        {% csrf_token %}
+{#                                        #<label class="form-label mt-2 fw-bold" for="amount">Payment Amount:</label>#}
+                                        <input class="form-control  w-50 " placeholder="000" type="number" name="amount" step="0.01"
+                                               required>
+                                        <button class="btn accent-background text-white  rounded" type="submit">Pay Fee
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Copyright © 2024 Davedev</p>
+        </footer>
+    </div>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{#{% extends 'Home/base.html' %}#}
+{##}
+{#{%block content%}#}
+{#<div class="row mt-3">#}
+{#                          <div class="col-md-12">#}
+{#                                <h2>Fee Details:</h2>#}
+{#                                <a class="btn btn-success" href="{% url 'add_fee' student.id %}">Pay Fee</a>#}
+{#                                #}
+{#                                <table class="table table-striped mt-3">#}
+{#                                    <thead>#}
+{#                                        <tr>#}
+{#                                            <th>Date</th>#}
+{#                                            <th>Amount Due</th>#}
+{#                                            <th>Amount Paid</th>#}
+{#                                        </tr>#}
+{#                                    </thead>#}
+{#                                    <tbody>#}
+{#                                        {% if fees %}#}
+{#                                            {% for fee in fee_records %}#}
+{#                                            <tr>#}
+{#                                                <td>{{ fee.date }}</td>#}
+{#                                                <td>{{ fee.amount_due }}</td>#}
+{#                                                <td>{{ student.fee.amount_paid }}</td>#}
+{#                                            </tr>#}
+{#                                            {% endfor %}#}
+{#                                        {% else %}#}
+{#                                            <tr>#}
+{#                                                <td colspan="3" class="text-center">No fee records found.</td>#}
+{#                                            </tr>#}
+{#                                        {% endif %}#}
+{#                                    </tbody>#}
+{#                                </table>    #}
+{#                                <p>ADD MORE DETAILS</p>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        {% endblock %}#}

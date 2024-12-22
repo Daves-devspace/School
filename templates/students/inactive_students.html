@@ -1,0 +1,161 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+
+            <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="page-sub-header">
+                            <h3 class="page-title">Inactive Students</h3>
+                            <ul class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="students.html">Student</a></li>
+                                <li class="breadcrumb-item active">All Students</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="student-group-form">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search by ID ...">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search by Name ...">
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search by Phone ...">
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="search-student-btn">
+                            <button type="btn" class="btn btn custom-bg text-white">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table comman-shadow">
+                        <div class="card-body">
+
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Students</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="{% url 'students' %}" class="btn btn-outline custom-bg text-white me-2 active"><i
+                                                class="fas fa-list"></i></a>
+                                        <a href="{% url 'students_grid' %}" class="btn btn-outline custom-bg text-white me-2"><i
+                                                class="fas fa-th-large"></i></a>
+                                        <a href="#" class="btn btn custom-bg text-white me-2"><i class="fas fa-download"></i>
+                                            Download</a>
+                                        <a href="{% url 'add_student' %}" class="btn btn custom-bg text-white"><i
+                                                class="fas fa-plus"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                    <thead class="student-thread">
+                                    <tr>
+                                        <th>
+                                            <div class="form-check check-tables">
+                                                <input class="form-check-input" type="checkbox" value="something">
+                                            </div>
+                                        </th>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Class</th>
+                                        <th>Parent Name</th>
+                                        <th>Mobile Number</th>
+                                        <th>Fee</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    {% for student in student_list %}
+                                      
+                                       
+                                        {#                              <td>{{ student.date_of_birth|date:"d M Y" }}</td>#}
+                                     
+
+                                        <td>
+                                            <div class="form-check check-tables">
+                                                <input class="form-check-input" type="checkbox" value="something">
+                                            </div>
+                                        </td>
+                                        <td>{{ student.admission_number }}</td>
+                                        <td>
+                                            <h2 class="table-avatar">
+                                                <a href="#">{{ student.first_name }}
+                                                    {{ student.last_name }}</a>
+                                            </h2>
+                                        </td>
+                                        <td>{{ student.Class }}</td>
+                                        <td>{{ student.date_of_birth }}</td>
+                                        <td>{{ student.parent.first.first_name }}
+                                            &nbsp; {{ student.parent.first.last_name }} </td>
+                                        <td>{{ student.parent.first.mobile }}</td>
+                                        <td>      {{ student.parent.first.address }}</td>
+                                        <td class="text-end">
+                                            <div class="actions ">
+                                                <a href="{% url 'student_details' student.id %}"
+                                                   class="btn btn-sm custom-bg text-white me-2 ">
+                                                    <i class="fas fa-eye-slash"></i>
+                                                </a>
+                                                <a href="{% url 'edit_student' student.id %}"
+                                                   class="btn btn-sm custom-bg text-white">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                        </tr>
+                                    {% endfor %}
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Copyright © 2024 davedev </p>
+        </footer>
+
+    </div>
+
+    </div>
+
+   
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/js/feather.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+
+
+{% endblock %}

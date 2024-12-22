@@ -2,20 +2,45 @@
 {% load static %}
 {% block body %}
 
+
+
+
     <div class="page-wrapper">
         <div class="content container-fluid">
+
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
                         <h3 class="page-title">Departments</h3>
                         <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
-                            <li class="breadcrumb-item active">departments</li>
+                            <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Departments</li>
                         </ul>
                     </div>
-                    <div class="col-auto text-right float-right ml-auto">
-                        <a href="#" class="btn btn accent-background text-white mr-2"><i class="fas fa-download"></i> Download</a>
-                        <a href="{% url 'add_department' %}" class="btn btn accent-background text-white"><i class="fas fa-plus"></i></a>
+                </div>
+            </div>
+
+            <div class="student-group-form">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search by ID ...">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search by Name ...">
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search by Year ...">
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="search-student-btn">
+                            <button type="btn" class="btn btn custom-bg text-white ">Search</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -23,66 +48,105 @@
                 <div class="col-sm-12">
                     <div class="card card-table">
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover table-center mb-0 datatable">
-                                    <thead>
+
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Departments</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="#" class="btn btn-outline custom-bg text-white me-2"><i class="fas fa-download"></i>
+                                            Download</a>
+                                        <a href="{% url 'add_department' %}" class="btn btn custom-bg text-white"><i
+                                                class="fas fa-plus"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                <thead class="student-thread">
+                                <tr>
+                                    <th>
+                                        <div class="form-check check-tables">
+                                            <input class="form-check-input" type="checkbox" value="something">
+                                        </div>
+                                    </th>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>HOD</th>
+                                    <th>Teachers</th>
+
+                                    <th class="text-end">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for department in departments %}
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Name</th>
+                                        <td>
+                                            <div class="form-check check-tables">
+                                                <input class="form-check-input" type="checkbox" value="something">
+                                            </div>
+                                        </td>
 
-                                        <th>Teacher Incharge</th>
-                                        
-                                        
 
+                                        <td>{{ department.id }}</td>
+                                        <td>{{ department.name }}</td>
 
-{#                                        <th class="#">Action</th>#}
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for department in departments %}
-                                        <tr>
+                                        <td>
+                                            {% if department.hod %}
+                                                {{ department.hod.full_name }} (HOD)
+                                            {% else %}
+                                                <p>No HOD assigned yet.</p>
+                                            {% endif %}
+                                        </td>
 
-                                            <td>{{ department.id }}</td>
-                                            <td>{{ department.name }}</td>
-
-                                            <td>  {% if department.teachers.all %}
+                                        <td>
+                                            {% if department.teacherrole_set.all %}
                                                 <ul>
-                                                    {% for teacher in department.teachers.all %}
-                                                        <li>{{ teacher.user_name }} </li>
-                                                        
+                                                    {% for teacher_role in department.teacherrole_set.all %}
+                                                        <li>
+                                                            {{ teacher_role.teacher.full_name }}
+                                                            {% for role in teacher_role.role.all %}
+                                                                - {{ role.name }}
+                                                            {% endfor %}
+                                                        </li>
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <p>No teacher assigned yet.</p>
+                                                <p>No teachers assigned yet.</p>
                                             {% endif %}
-                                            </td>
+                                        </td>
 
+                                        <td class="text-end">
+                                            <div class="actions">
+                                                <a href="javascript:;" class="btn btn-sm custom-bg text-white me-2">
+                                                    <i class="fas fa-eye-slash"></i>
+                                                </a>
+                                                <a href="edit-department.html" class="btn btn-outline custom-bg text-white ">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
 
-{#                                            <td class="#">#}
-{#                                                <div class="actions">#}
-{##}
-{#                                                    <a href="#"#}
-{#                                                       class="btn btn-sm bg-success-light mr-2">#}
-{#                                                        <i class="fas fa-trash"></i>#}
-{#                                                    </a>#}
-{##}
-{#                                                </div>#}
-{#                                            </td>#}
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <footer>
-            <p>Copyright © 2024 Davedev</p>
+            <p>Copyright © 2024 davedev</p>
         </footer>
+
     </div>
+
     </div>
+
+
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/popper.min.js' %}"></script>
     <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>

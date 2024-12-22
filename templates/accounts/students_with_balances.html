@@ -75,7 +75,7 @@
                                             <td>{{ record.balance_due }}</td>
                                             <td>
                                                 <a href="{% url 'student_payments' record.student.id %}"
-                                                   class=" btn btn-sm accent-background text-white mr-2"><i
+                                                   class="btn btn-outline-sm text-white mr-2 custom-bg "><i
                                                         class="fas fa-eye  "></i></a>
                                             </td>
 
@@ -83,7 +83,7 @@
                                             {% if perms.students.view_student %}
                                                 <td>
                                                     <a href="{% url 'collect_fees' record.id %}"
-                                                       class="btn btn-sm accent-background text-white mr-2">
+                                                       class="btn btn-outline-sm  text-white custom-bg mr-2">
                                                         {#                                    <i class="fas fa-eye"></i>#}
                                                         Collect Fee
                                                     </a>

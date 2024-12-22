@@ -1,0 +1,78 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+
+            <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="page-sub-header">
+                            <h3 class="page-title">Students</h3>
+                            <ul class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="students.html">Student</a></li>
+                                <li class="breadcrumb-item active">All Students</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table comman-shadow">
+                        <div class="card-body pb-0">
+
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Students</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="{% url 'students' %}" class="btn btn-outline-gray me-2"><i
+                                                class="feather-list"></i></a>
+                                        <a href="{% url 'students_grid' %}" class="btn btn-outline-gray me-2 active"><i
+                                                class="feather-grid "></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="student-pro-list">
+                                <div class="row">
+                                    {% for student in student_grid %}
+                                    <div class="col-xl-3 col-lg-4 col-md-6 d-flex">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="student-box flex-fill">
+                                                    <div class="student-img">
+                                                        <a href="student-details.html">
+                                                            <img class="img-fluid" alt="Students Info"
+                                                                 src="{% static 'assets/img/profiles/avatar-03.jpg' %}">
+                                                        </a>
+                                                    </div>
+                                                    <div class="student-content pb-0">
+                                                        <h5><a href="{% url 'student_details' student.id %}">{{ student.first_name }}</a></h5>
+                                                        <h6>Student</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                  
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Copyright © 2024 dave</p>
+    </footer>
+{% endblock %}

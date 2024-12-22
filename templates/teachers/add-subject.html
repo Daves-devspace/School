@@ -1,0 +1,103 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Add Subject</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'subjects_list' %}">Subjects</a></li>
+                            <li class="breadcrumb-item active">Add Teacher</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+
+                            <!-- Subject Information Form -->
+                            <form id="subjectForm" method="POST" action="{% url 'a_subject' %}">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h5 class="form-title"><span>Subject Information</span></h5>
+                                    </div>
+
+                                    <!-- Subject ID -->
+                                    <div class="col-12 col-sm-4">
+                                        <div class="mb-3">
+                                            <label for="subjectId" class="form-label">Subject ID <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" id="subjectId" name="subject_id" class="form-control"
+                                                   required>
+                                        </div>
+                                    </div>
+
+                                    <!-- Subject Name -->
+                                    <div class="col-12 col-sm-4">
+                                        <div class="mb-3">
+                                            <label for="subjectName" class="form-label">Subject Name <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" id="subjectName" name="subject_name" class="form-control"
+                                                   required>
+                                        </div>
+                                    </div>
+
+                                    <!-- Class -->
+                                    <div class="col-12 col-sm-4">
+                                        <div class="mb-3">
+                                            <label for="className" class="form-label">Class <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" id="className" name="class_name" class="form-control"
+                                                   required>
+                                        </div>
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <div class="col-12">
+                                        <div class="text-end">
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <!-- Subject List -->
+                            <div class="table-responsive mt-5">
+                                <table class="table table-bordered">
+                                    <thead>
+                                    <tr>
+                                        <th>Subject ID</th>
+                                        <th>Subject Name</th>
+                                        <th>Class</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="subjectTableBody">
+                                    <!-- Rows will be dynamically populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+{% endblock %}

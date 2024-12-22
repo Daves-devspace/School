@@ -1,35 +1,61 @@
 {% extends "Home/base.html" %}
 {% block body %}
-    <div class="container mt-5">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h4>Key in Results for {{ subject.name }} ({{ subject.class_assigned.name }})</h4>
+
+
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Results</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                            <li class="breadcrumb-item active">results</li>
+                        </ul>
+                    </div>
+                    <div class="col-auto text-right float-right ml-auto">
+                        <a href="#" class="btn btn-outline-info mr-2"><i class="fas fa-download"></i> Download</a>
+                        <a href="{% url 'add_subject' %}" class="btn btn-info"><i class="fas fa-plus"></i></a>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
 
-                <h2>Add Results</h2>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        {{ form.student.label_tag }}
-                        {{ form.student }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.teacher_subject.label_tag }}
-                        {{ form.teacher_subject }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.term.label_tag }}
-                        {{ form.term }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.score.label_tag }}
-                        {{ form.score }}
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
 
+            <div class="container mt-5">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4>Key in Results for {{ student.first_name}} ({{ subject.class_assigned.name }})</h4>
+                    </div>
+                    <div class="card-body">
+
+                        <h2>Add Results</h2>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ form.student.label_tag }}
+                                {{ form.student }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.subject.label_tag }}
+                                {{ form.subject }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.term.label_tag }}
+                                {{ form.term }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.score.label_tag }}
+                                {{ form.score }}
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
 {% endblock %}

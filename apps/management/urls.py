@@ -40,10 +40,12 @@ path('revenue/line-chart/',views.line_chart, name='line_chart'),
    # path('gender-pie-chart/', views.pie_chart, name='gender_pie_chart'),
 
 path('data-trends/', views.data_trends, name='data_trends'),
-path('trends/bar-chart-data/', views.trends_bar_chart_data, name='trends_bar_chart_data'),
+path('trends-bar-chart-data/', views.trends_bar_chart_data, name='trends_bar_chart_data'),
 path('revenue-trend/',views.revenue_line_chart, name='revenue_line_chart'),
 
-    path('add/', views.add_results, name='add_results'),
+    path('add/<int:student_id>', views.add_results, name='add_results'),
     path('view/', views.view_results, name='view_results'),
+    path('filter_results/', views.filter_results, name='filter_results'),
+    path('save_results/', views.save_results, name='save_results'),
 
     ]
