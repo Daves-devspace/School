@@ -1,0 +1,45 @@
+services:
+  django-app:
+    build: .
+    container_name: django-app
+    entrypoint: ["/app/entrypoint.sh"]  # Specify your custom entrypoint script
+    command: gunicorn School.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app  # Mount the current directory into the container
+    ports:
+      - "8000:8000"  # Map container port 8000 to host port 8000
+    depends_on:
+      - db  # Ensure the database container starts before Django
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: db
+      DB_PORT: ${DB_PORT}
+    restart: always
+    networks:
+      - mynetwork
+
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: yourpassword
+      MYSQL_DATABASE: ${DB_NAME}
+#      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"  # Expose MySQL port
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/my.cnf  # Optional: Custom MySQL config
+    restart: always
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  mysql_data:

@@ -15,27 +15,41 @@
                     </div>
                     <div class="col-auto text-right float-right ml-auto">
                         <a href="{% url 'students_with_balances' %}"
-                                                  class="btn btn accent-background text-white">Back</a>
-                        <a href="#" class="btn btn accent-background text-white mr-2"><i class="fas fa-download"></i> Download</a>
-{#                        <a href="{% url 'add_student' %}" class="btn btn-info bg-default-light"><i class="fas fa-plus"></i></a>#}
+                           class="btn btn accent-background text-white">Back</a>
+                        <a href="#" class="btn btn accent-background text-white mr-2"><i class="fas fa-download"></i>
+                            Download</a>
+                        {#                        <a href="{% url 'add_student' %}" class="btn btn-info bg-default-light"><i class="fas fa-plus"></i></a>#}
                     </div>
                 </div>
             </div>
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
 
             <div class="row">
-         <div class="col-sm-12">
-            <div class="card card-table">
-               <div class="card-body">
-                  <div class="table-responsive">
-                   
-                     <table class="table table-hover table-center mb-0 datatable">
-                       
-                                    <thead>
+                <div class="col-sm-12">
+                    <div class="card card-table">
+                        <div class="card-body">
+                            <div class="table-responsive">
+
+                                <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+
+                                    <thead class="student-thread">
                                     <tr>
                                         <th>Fee Record</th>
                                         <th>Date</th>
-                                        <th>Amount (KSh)</th>
+                                        <th>Total Fee</th>
+                                        <th>Paid Amount</th>
                                         <th>Fee Balance</th>
+                                        <th>Payment method</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -43,8 +57,10 @@
                                         <tr>
                                             <td>{{ payment.fee_record }}</td>
                                             <td>{{ payment.date|date:"M d, Y" }}</td>
+                                            <td>{{ payment.total_fee }}</td>
                                             <td>{{ payment.amount }}</td>
                                             <td>{{ payment.balance }}</td>
+                                            <td>{{ payment.payment_method }}</td>
                                         </tr>
                                     {% empty %}
                                         <tr>
@@ -56,7 +72,7 @@
 
                                 </table>
                             </div>
-                           
+
 
                         </div>
                     </div>

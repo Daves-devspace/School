@@ -17,6 +17,15 @@ class Term(models.Model):
         ordering = ['start_date']
     def __str__(self):
         return f"{self.name} -{self.start_date}-{self.end_date}"
+    #get the most recent before the current term
+    def get_previous_term(self):
+        return Term.objects.filter(start_date__lt=self.start_date).order_by('-start_date').first()
+    #next after current
+    def get_next_term(self):
+        return Term.objects.filter(start_date__gt=self.start_date).order_by('start_date').first()
+
+
+
 
 class TeacherSubject(models.Model):
     teacher = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -28,6 +37,17 @@ class TeacherSubject(models.Model):
 
     def __str__(self):
         return f"{self.teacher.username} - {self.subject} - {self.grade_assigned}"
+
+class ExamType(models.Model):
+    name = models.CharField(max_length=50)  # E.g., "Opener", "Mid-Term", "End-Term"
+    term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name='exam_types')
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('name', 'term')  # Ensure a term can't have duplicate exam types
+
+    def __str__(self):
+        return f"{self.name} - {self.term}"
 
 
 class Result(models.Model):
@@ -59,30 +79,35 @@ class Result(models.Model):
 #         return f"{self.student} - {self.subject} ({self.term.name})"
 
 class SubjectMark(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="studentperformances")
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="subjectperformances")
-    term = models.ForeignKey(Term, on_delete=models.CASCADE)
-    marks = models.PositiveIntegerField()
+    student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
+    subject = models.ForeignKey('teachers.Subject', on_delete=models.CASCADE)
+    term = models.ForeignKey('Term', on_delete=models.CASCADE)
+    exam_type = models.ForeignKey('ExamType', on_delete=models.CASCADE)  # Link to ExamType
+    marks = models.FloatField()
 
-    def __str__(self) -> str:
-        return f'{self.student.first_name} - {self.subject.name} ({self.marks} marks)'
+    def __str__(self):
+        return f"{self.student} - {self.subject} - {self.exam_type} ({self.marks})"
 
-    class Meta:
-       unique_together = ['student', 'subject']
 
 
 class ReportCard(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="report_cards")
     term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name="report_cards",default=1)
     date = models.DateField(auto_now_add=True)
+
     def total_marks(self):
         subject_marks = SubjectMark.objects.filter(student=self.student, term=self.term)
-        return subject_marks.aggregate(Sum('marks'))['marks__sum']
+        total = subject_marks.aggregate(Sum('marks'))['marks__sum'] or 0  # Default to 0 if None
+        return total
 
     def student_rank(self):
-        # Calculate rank based on total marks
-        all_students = ReportCard.objects.filter(term=self.term).annotate(total=Sum('subjectmark__marks'))
-        sorted_students = sorted(all_students, key=lambda x: x.total, reverse=True)
+        # Annotate each report card with the total marks
+        all_students = ReportCard.objects.filter(term=self.term).annotate(total_marks=Sum('subjectmark__marks'))
+
+        # Sort by total marks in descending order
+        sorted_students = sorted(all_students, key=lambda x: x.total_marks, reverse=True)
+
+        # Get the rank by index
         return sorted_students.index(self) + 1
 
     def __str__(self):

@@ -1,6 +1,19 @@
 from django import forms
-from .models import Subject, TeacherSubject, Term
-from ..students.models import Student
+from .models import Subject, TeacherSubject, Term, SubjectMark
+from ..students.models import Student, Class, Book
+
+
+class BookForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ['title','author','year','subject','isbn']
+        widgets = {
+            'title':forms.TextInput(attrs={'class':'form-control','placeholder':'Book Title'}),
+            'author':forms.TextInput(attrs={'class':'form-control'}),
+            'year':forms.DateInput(attrs={'type':'date'}),
+            'subject':forms.TextInput(attrs={'class':'form-control'}),
+            'isbn':forms.TextInput(attrs={'class':'form-control'}),
+        }
 
 
 class SubjectForm(forms.ModelForm):
@@ -16,25 +29,27 @@ class SubjectForm(forms.ModelForm):
 
 
 
-class AddResultForm(forms.Form):
-    student = forms.ModelChoiceField(
-        queryset=Student.objects.all(),
-        label="Student",
-        widget=forms.Select(attrs={"class": "form-control"})
-    )
-    subject = forms.ModelChoiceField(
-        queryset=Subject.objects.all(),
-        label="Teacher and Subject",
-        widget=forms.Select(attrs={"class": "form-control"})
-    )
-    term = forms.ModelChoiceField(
-        queryset=Term.objects.all(),
-        label="Term",
-        widget=forms.Select(attrs={"class": "form-control"})
-    )
-    score = forms.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        label="Score",
-        widget=forms.NumberInput(attrs={"class": "form-control"})
-    )
+class AddResultForm(forms.ModelForm):
+    class_name = forms.ModelChoiceField(queryset=Class.objects.all(), required=True, label="Class")
+    student = forms.ModelChoiceField(queryset=Student.objects.none(), required=True, label="Student")
+    subject = forms.ModelChoiceField(queryset=Subject.objects.all(), required=True, label="Subject")
+    marks = forms.IntegerField(min_value=0, required=True, label="Marks")
+
+    class Meta:
+        model = SubjectMark
+        fields = ['class_name', 'student', 'subject', 'marks']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'class_name' in self.initial:
+            class_id = self.initial['class_name']
+            self.fields['student'].queryset = Student.objects.filter(class_name_id=class_id)
+        else:
+            self.fields['student'].queryset = Student.objects.none()
+
+
+
+
+
+
+

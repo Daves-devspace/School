@@ -58,7 +58,7 @@ def edit_teacher(request, id):
 @login_required
 def teacher_detail(request, id):
     teacher = get_object_or_404(Teacher, pk=id)
-    teachers_subject = Teacher.subjects.all()
+    teachers_subject = teacher.subjects.all()
     return render(request, 'teachers/teacher_detail.html', {'teacher': teacher ,'subjects':teachers_subject})
 
 

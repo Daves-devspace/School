@@ -1,0 +1,88 @@
+{% extends "Home/base.html" %}
+{% load custom_tags %}
+{% block body %}
+
+
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Results</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                            <li class="breadcrumb-item active">results</li>
+                        </ul>
+                    </div>
+                    <div class="col-auto text-right float-right ml-auto">
+                        <a href="#" class="btn btn-outline-info mr-2"><i class="fas fa-download"></i> Download</a>
+                        <a href="{% url 'add_subject' %}" class="btn btn-info"><i class="fas fa-plus"></i></a>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="container mt-5">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                    </div>
+                    <div class="card-body">
+
+                        <div class="results-header">
+                            <h2>Add/Update Results for {{ selected_subject.name }}</h2>
+                            <p>Class: {{ selected_class.name }}</p>
+                            <p>Term: {{ selected_term.name }}</p>
+                            <p>Exam: {{ selected_exam_type.name }}</p>
+                        </div>
+
+                        <form method="POST">
+                            {% csrf_token %}
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Admission Number</th>
+                                    <th>Student Name</th>
+                                    <th>Marks</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for data in initial_data %}
+                                    <tr>
+                                        <td>{{ data.student.admission_number }}</td>
+                                        <td>{{ data.student.first_name }} {{ data.student.last_name }}</td>
+                                        <td>
+                                            <input
+                                                    type="number"
+                                                    name="marks_{{ data.student.id }}"
+                                                    value="{{ data.marks }}"
+                                                    min="0" max="100"
+                                                    class="form-control"
+                                            >
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <button type="submit" class="btn btn-primary">Save Results</button>
+                        </form>
+
+
+
+                        {% if messages %}
+                            <ul>
+                                {% for message in messages %}
+                                    <li>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

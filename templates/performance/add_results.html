@@ -26,36 +26,54 @@
             <div class="container mt-5">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h4>Key in Results for {{ student.first_name}} ({{ subject.class_assigned.name }})</h4>
+                        <h4>Key in Results for {{ student.first_name }} ({{ subject.class_assigned.name }})</h4>
                     </div>
                     <div class="card-body">
 
-                        <h2>Add Results</h2>
-                        <form method="post">
+                        <h1>Add Results</h1>
+                        <form method="post" id="add-results-form">
                             {% csrf_token %}
-                            <div class="mb-3">
-                                {{ form.student.label_tag }}
-                                {{ form.student }}
-                            </div>
-                            <div class="mb-3">
-                                {{ form.subject.label_tag }}
-                                {{ form.subject }}
-                            </div>
-                            <div class="mb-3">
-                                {{ form.term.label_tag }}
-                                {{ form.term }}
-                            </div>
-                            <div class="mb-3">
-                                {{ form.score.label_tag }}
-                                {{ form.score }}
-                            </div>
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            {{ form.as_p }}
+                            <button type="submit">Submit</button>
                         </form>
+                        {% if messages %}
+                            <ul>
+                                {% for message in messages %}
+                                    <li>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
 
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function () {
+            // Monitor class selection
+            $("#id_class_name").change(function () {
+                var classId = $(this).val();  // Get the selected class ID
+                if (classId) {
+                    $.ajax({
+                        url: "{% url 'get_students_by_class' %}",
+                        data: {class_id: classId},
+                        success: function (data) {
+                            var studentSelect = $("#id_student");
+                            studentSelect.empty();  // Clear existing options
+                            studentSelect.append('<option value="">Select a student</option>');
+                            // Populate the dropdown
+                            $.each(data, function (index, student) {
+                                studentSelect.append('<option value="' + student.id + '">' + student.first_name + ' ' + student.last_name + '</option>');
+                            });
+                        }
+                    });
+                } else {
+                    $("#id_student").empty();  // Clear if no class selected
+                    $("#id_student").append('<option value="">Select a student</option>');
+                }
+            });
+        });
+    </script>
 
 {% endblock %}

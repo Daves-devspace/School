@@ -1,10 +1,19 @@
 from django.contrib import admin
 
 from apps.students.models import Student, Book, Transaction, Payment, Parent, Class, Section, StudentParent
+from apps.students.views import promote_students
 
 # Register your models here.
 admin.site.site_header ='Merryland Management System'
 admin.site.site_title = 'Merryland Friends'
+
+
+
+@admin.action(description='Promote students to the next class')
+def promote_students_action(modeladmin,request,queryset):
+    promote_students()
+    modeladmin.message_user(request,"Students successfully promoted!")
+
 
 class ClassAdmin(admin.ModelAdmin):
     list_display = ['name']
@@ -29,8 +38,9 @@ class StudentParentAdmin(admin.ModelAdmin):
 
 
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ['first_name', 'Class', 'admission_number', 'gender']
-    search_fields = ['first_name', 'Class', 'admission_number']
+    list_display = ['first_name', 'grade', 'admission_number', 'gender']
+    search_fields = ['first_name', 'grade', 'admission_number']
+    actions = [promote_students_action]
     list_per_page = 30
 
 

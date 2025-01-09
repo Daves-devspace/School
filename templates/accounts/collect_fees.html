@@ -22,6 +22,17 @@
                     </div>
                 </div>
             </div>
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card card-table">
@@ -31,21 +42,25 @@
                                 <div class="info">
 
                                     <h4>Collect Fee for {{ fee_record.student.first_name }}</h4>
-                                    <p>Grade: {{ fee_record.student.grade.name }}</p>
+                                    <p>Grade: {{ fee_record.student.grade }}</p>
                                     <p>Term: {{ fee_record.term.name }}</p>
-                                    <p>Total Fee: {{ fee_record.total_fee }}</p>
+                                    <p>Prev Balance:{{ fee_record.previous_balance }} for {{ previous_term }}</p>
+                                    <p>Tuition: {{ fee_record.tuition_fee }}</p>
+                                    <p>Transport: {{ fee_record.transport_fee }}</p>
+                                    <p>lunch: {{ fee_record.lunch_fee }}</p>
+                                    <p>remedial: {{ fee_record.remedial_fee }}</p>
+                                    <p>Total Fee: {{ fee_record.calculate_total_fee }}</p>
                                     <p>Paid Amount: {{ fee_record.paid_amount }}</p>
-                                    <p>Balance: {{ fee_record.balance_due }}</p>
-                                </div>
-
+                                    <p>Balance: {{ fee_record.balance }}</p></div>
                                 <div class="info">
 
                                     <form method="POST" class="d-flex w-50 gap-3 shadow-sm rounded">
                                         {% csrf_token %}
-{#                                        #<label class="form-label mt-2 fw-bold" for="amount">Payment Amount:</label>#}
-                                        <input class="form-control  w-50 " placeholder="000" type="number" name="amount" step="0.01"
+                                        {#                                        #<label class="form-label mt-2 fw-bold" for="amount">Payment Amount:</label>#}
+                                        <input class="form-control  w-50 " placeholder="000" type="number" name="amount"
+                                               step="0.01"
                                                required>
-                                        <button class="btn accent-background text-white  rounded" type="submit">Pay Fee
+                                        <button class="btn custom-bg text-white  rounded" type="submit">Pay Fee
                                         </button>
                                     </form>
                                 </div>

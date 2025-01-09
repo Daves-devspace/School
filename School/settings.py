@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 
 from django.contrib import messages
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -84,18 +85,49 @@ WSGI_APPLICATION = 'School.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'test_db',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#
+#     }
+# }
+
+# Load environment variables from the .env file
+load_dotenv()
+
+# Database configuration
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test_db',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
-
+        'ENGINE': 'django.db.backends.mysql',  # Update this to the correct database backend if using MySQL
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', '3306'),  # Default MySQL port
     }
 }
 
+
+# MobileSasa API Credentials
+MOBILESASA_API_TOKEN = os.getenv("MOBILESASA_API_TOKEN")
+MOBILESASA_SENDER_ID = os.getenv("MOBILESASA_SENDER_ID")
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.environ.get('DB_NAME', 'test_db'),
+#         'USER': os.environ.get('DB_USER', 'root'),
+#         'PASSWORD': os.environ.get('DB_PASSWORD', 'yourpassword'),
+#         'HOST': os.environ.get('DB_HOST', 'mysql-db'),  # Use the service name as host
+#         'PORT': os.environ.get('DB_PORT', '3306'),
+#     }
+# }
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -119,7 +151,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 
@@ -136,6 +168,9 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

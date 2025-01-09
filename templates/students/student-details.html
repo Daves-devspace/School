@@ -1,4 +1,5 @@
 {% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
 {% load static %}
 {% block body %}
 
@@ -18,6 +19,17 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
             </div>
             <div class="card">
                 <div class="card-body">
@@ -58,7 +70,29 @@
                                     <div class="col-lg-4 col-md-4 d-flex align-items-center">
                                         <div class="follow-btn-group">
 
-                                            <button type="submit" class="btn btn-info message-btns">Message</button>
+                                            {% for student_parent in student_parents %}
+
+                                                <div class="container mt-5">
+
+                                                    <form method="post" class="mt-3">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="parent_id"
+                                                               value="{{ student_parent.id }}">
+                                                        <div class="form-group">
+                                                            {{ form.phone.label_tag }}
+                                                            {{ form.phone }}
+                                                        </div>
+                                                        <div class="form-group">
+                                                            {{ form.message.label_tag }}
+                                                            {{ form.message }}
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">Send SMS</button>
+                                                    </form>
+
+                                                </div>
+                                            {% endfor %}
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -91,7 +125,7 @@
                                                 <h5>{{ student.grade }}</h5>
                                             </div>
                                         </div>
-                                       
+
                                         <div class="personal-activity">
                                             <div class="personal-icons">
                                                 <i class="feather-user"></i>
@@ -119,7 +153,7 @@
                                                 <h5>Home science</h5>
                                             </div>
                                         </div>
-                                         <div class="personal-activity">
+                                        <div class="personal-activity">
                                             <div class="personal-icons">
                                                 <i class="feather-phone-call"></i>
                                             </div>
@@ -132,7 +166,7 @@
                                                 {% endif %}
                                             </div>
                                         </div>
-                                     <div class="personal-activity">
+                                        <div class="personal-activity">
                                             <div class="personal-icons">
                                                 <i class="feather-users"></i>
                                             </div>
@@ -216,7 +250,7 @@
                                                             </div>
                                                         </div>
                                                         <div id="s-col"></div>
-                                                        
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -227,17 +261,139 @@
                                 </div>
                             </div>
                         </div>
+
+
+                        <h2>Report Card Details</h2>
+
+                        {% if latest_report_card %}
+                            <h3>Latest Report Card ({{ latest_report_card.term.name }})</h3>
+                            <p><strong>Total Marks:</strong> {{ latest_report_card.total_marks }}</p>
+                            <p><strong>Rank:</strong> {{ latest_report_card.student_rank }}</p>
+                        {% else %}
+                            <p>No report card available for the latest term.</p>
+                        {% endif %}
+
+                        <hr>
+                        <h3>All Terms Report Cards</h3>
+                        {% for report_card in report_cards %}
+                            <div>
+                                <h4>Term: {{ report_card.term.name }}</h4>
+                                <p><strong>Total Marks:</strong> {{ report_card.total_marks }}</p>
+                                <p><strong>Rank:</strong> {{ report_card.student_rank }}</p>
+                            </div>
+                        {% endfor %}
+
+                        <hr>
+                        <h3>Subject-wise Marks</h3>
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Term</th>
+                                <th>Subject</th>
+                                <th>Exam Type</th>
+                                <th>Marks</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for subject_mark in subject_marks %}
+                                <tr>
+                                    <td>{{ subject_mark.term.name }}</td>
+                                    <td>{{ subject_mark.subject.name }}</td>
+                                    <td>{{ subject_mark.exam_type.name }}</td>
+                                    <td style="{% if subject_mark.marks < 50 %}color: red;{% endif %}">{{ subject_mark.marks }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+
+
                     </div>
+                    {#                    <section class="student-report-cards">#}
+                    {#                        <h2>All Report Cards</h2>#}
+                    {#                        {% if report_cards %}#}
+                    {#                            <table>#}
+                    {#                                <thead>#}
+                    {#                                <tr>#}
+                    {#                                    <th>Term</th>#}
+                    {#                                    <th>Total Marks</th>#}
+                    {#                                    <th>Rank</th>#}
+                    {#                                    <th>View Report Card</th>#}
+                    {#                                </tr>#}
+                    {#                                </thead>#}
+                    {#                                <tbody>#}
+                    {#                                {% for report_card in report_cards %}#}
+                    {#                                    <tr>#}
+                    {#                                        <td>{{ report_card.report_card.term.name }}</td>#}
+                    {#                                        <td>{{ report_card.total_marks }}</td>#}
+                    {#                                        <td>{{ report_card.rank }}</td>#}
+                    {#                                        <td>#}
+                    {#                                            <a href="{% url 'report_card_view' student.id report_card.report_card.term.id %}">View#}
+                    {#                                                Report Card</a></td>#}
+                    {#                                    </tr>#}
+                    {#                                {% endfor %}#}
+                    {#                                </tbody>#}
+                    {#                            </table>#}
+                    {#                        {% else %}#}
+                    {#                            <p>No report cards found for this student.</p>#}
+                    {#                        {% endif %}#}
+                    {#                    </section>#}
+
+
+                    {#                    <section class="student-latest-report-card">#}
+                    {#                        <h2>Latest Report Card</h2>#}
+                    {#                        {% if latest_report_card %}#}
+                    {#                            <p><strong>Term:</strong> {{ latest_report_card.term.name }}</p>#}
+                    {#                            <p><strong>Total Marks:</strong> {{ latest_report_card.total_marks }}</p>#}
+                    {#                            <a href="{% url 'report_card_view' student.id latest_report_card.term.id %}">View Full#}
+                    {#                                Report Card</a>#}
+                    {#                        {% else %}#}
+                    {#                            <p>No latest report card found for this student.</p>#}
+                    {#                        {% endif %}#}
+                    {#                    </section>#}
+                    {##}
+                    {#                    <section class="student-subject-marks">#}
+                    {#                        <h2>Subject Marks</h2>#}
+                    {#                        {% if subject_marks %}#}
+                    {#                            <table>#}
+                    {#                                <thead>#}
+                    {#                                <tr>#}
+                    {#                                    <th>Subject</th>#}
+                    {#                                    <th>Marks Obtained</th>#}
+                    {#                                    <th>Total Marks</th>#}
+                    {#                                </tr>#}
+                    {#                                </thead>#}
+                    {#                                <tbody>#}
+                    {#                                {% for mark in subject_marks %}#}
+                    {#                                    <tr>#}
+                    {#                                        <td>{{ mark.subject.name }}</td>#}
+                    {#                                        <td>{{ mark.marks_obtained }}</td>#}
+                    {#                                        <td>{{ mark.total_marks }}</td>#}
+                    {#                                    </tr>#}
+                    {#                                {% endfor %}#}
+                    {#                                </tbody>#}
+                    {#                            </table>#}
+                    {#                        {% else %}#}
+                    {#                            <p>No subject marks available for this student.</p>#}
+                    {#                        {% endif %}#}
+                    {#                    </section>#}
+
+                    <footer>
+                        <p>Generated on {{ student.date_created }}</p>
+                    </footer>
                 </div>
+
             </div>
         </div>
+    </div>
 
-        <footer>
-            <p>Copyright © 2024 Davedev</p>
-        </footer>
+    <footer>
+        <p>Copyright © 2024 Davedev</p>
+    </footer>
     </div>
 
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 
 

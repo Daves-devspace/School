@@ -9,6 +9,17 @@
 {% block body %}
     <div class="page-wrapper">
         <div class="content container-fluid">
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
 
             <div class="row">
                 <div class="col-sm-12">
@@ -18,7 +29,7 @@
                             <a href="{% url 'add_fee_structure' %}" class=" btn btn-sm custom-bg text-white "><i
                                     class="fas fa-plus"></i></a>
                             <h3 class="mt-3">Fees Structure</h3>
-                            
+
                             <div class="table-responsive">
                                 <table class="table table-hover table-center mb-0 datatable">
 
@@ -36,9 +47,10 @@
                                         <tr>
                                             <td>{{ fee_structure.grade.name }}</td>
                                             <td>{{ fee_structure.term.name }}</td>
-                                            <td>{{ fee_structure.amount }}</td>
+                                            <td>{{ fee_structure.tuition_fee }}</td>
                                             <td>
-                                                <a href="{% url 'edit_fee_structure' fee_structure.pk %}" class="btn btn-sm custom-bg text-white mr-2">Edit</a>
+                                                <a href="{% url 'edit_fee_structure' fee_structure.pk %}"
+                                                   class="btn btn-sm custom-bg text-white mr-2">Edit</a>
                                             </td>
                                         </tr>
                                     {% endfor %}

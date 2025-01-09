@@ -20,8 +20,8 @@
                 </ul>
              </div>
              <div class="col-auto text-right float-right ml-auto">
-                <a href="#" class="btn btn accent-background text-white mr-2"><i class="fas fa-download"></i> Download List</a>
-                <a href="{% url 'add_student' %}" class="btn btn accent-background text-white"><i class="fas fa-plus mr-2 "></i>Add Book</a>
+                <a href="#" class="btn btn custom-bg text-white mr-2"><i class="fas fa-download"></i> Download List</a>
+                <a href="{% url 'add_book' %}" class="btn btn custom-bg text-white"><i class="fas fa-plus mr-2 "></i>Add Book</a>
              </div>
           </div>
        </div>
@@ -51,7 +51,7 @@
                                         <td> {{book.year}} </td>
                                         <td> {{book.subject}} </td>
                                         <td> {{book.isbn}} </td>
-                                        <td> <a href="{% url 'issue_book' book.id %}" Class="btn btn  btn-sm  accent-background text-white" >Issue</a> </td>
+                                        <td> <a href="{% url 'issue_book' book.id %}" Class="btn btn  btn-sm  custom-bg text-white" >Issue</a> </td>
                                     </tr>
 
                                     {% endfor %}

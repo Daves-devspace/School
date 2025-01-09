@@ -148,41 +148,127 @@ $(document).ready(function () {
 //     }
 //
 // });
-// $(document).ready(function () {
+//     $(document).ready(function () {
 //
-    if ($('#pie').length > 0) {
-        $.ajax({
-            url: '/path-to-your-gender-pie-data/', // URL of the updated view
-            method: 'GET',
-            success: function (data) {
-                var optionsPie = {
-                    chart: {
-                        type: 'pie',
-                        height: 350,
-                    },
-                    labels: data.labels, // Gender categories
-                    series: data.datasets[0].data, // Gender data
-                    colors: data.datasets[0].backgroundColor, // Updated colors for the theme
-                    legend: {
-                        position: 'bottom',
-                    },
-                    title: {
-                        text: data.title,
-                        align: 'center',
-                        style: {
-                            fontSize: '16px',
-                        },
-                    },
-                };
+//         if ($('#pie').length > 0) {
+//             var optionsPie = {
+//                 chart: {
+//                     type: 'pie',
+//                     height: 350,
+//                 },
+//                 labels: ['Boys', 'Girls'],
+//                 series: [420, 336], // Same data as the bar chart for testing
+//                 colors: ['#4e73df', '#ff6384'],
+//             };
+//
+//             var chartPie = new ApexCharts(document.querySelector('#pie'), optionsPie);
+//             chartPie.render();
+//         }
+//     });
+    $(document).ready(function () {
+        if ($('#pie').length > 0) {
+            $.ajax({
+                url: '{% url "gender-pie-chart" %}',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    if (data.labels && data.datasets && data.datasets[0].data) {
+                        var optionsPie = {
+                            chart: {type: 'pie', height: 350},
+                            labels: data.labels,
+                            series: data.datasets[0].data,
+                            colors: data.datasets[0].backgroundColor,
+                            legend: {position: 'bottom'},
+                            title: {text: data.title || 'Gender Ratio', align: 'center'},
+                        };
+                        var chartPie = new ApexCharts(document.querySelector('#pie'), optionsPie);
+                        chartPie.render();
+                    } else {
+                        console.error('Invalid data structure:', data);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching data:', status, error);
+                },
+            });
+        }
+    });
 
-                var chartPie = new ApexCharts(document.querySelector('#pie'), optionsPie);
-                chartPie.render();
-            },
-            error: function (error) {
-                console.log('Error fetching gender data:', error);
-            },
-        });
-    }
+
+    // if ($('#pie').length > 0) {
+    //     $.ajax({
+    //         url: '/gender-pie-chart/',
+    //         method: 'GET',
+    //         success: function (data) {
+    //             if (data.labels && data.datasets && data.datasets[0]) {
+    //                 var optionsPie = {
+    //                     chart: {
+    //                         type: 'pie',
+    //                         height: 350,
+    //                     },
+    //                     labels: ["Boys", "Girls"],
+    //                     series: [1, 2], // Hardcoded
+    //                     colors: ['#4e73df', '#ff6384'], // Hardcoded
+    //                     legend: {
+    //                         position: 'bottom',
+    //                     },
+    //                     title: {
+    //                         text: "Gender Ratio",
+    //                         align: 'center',
+    //                         style: {
+    //                             fontSize: '16px',
+    //                         },
+    //                     },
+    //                 };
+    //
+    //
+    //                 var chartPie = new ApexCharts(document.querySelector('#pie'), optionsPie);
+    //                 chartPie.render();
+    //             } else {
+    //                 console.error('Invalid API response structure:', data);
+    //             }
+    //         },
+    //         error: function (error) {
+    //             console.error('Error fetching gender data:', error);
+    //         },
+    //     });
+    // }
+
+
+// if ($('#pie').length > 0) {
+//     $.ajax({
+//         url: '/gender-pie-chart/', // URL of the updated view
+//         method: 'GET',
+//         success: function (data) {
+//             var optionsPie = {
+//                 chart: {
+//                     type: 'pie',
+//                     height: 350,
+//                 },
+//                 labels: data.labels, // Gender categories
+//                 series: data.datasets[0].data, // Gender data
+//                 colors: data.datasets[0].backgroundColor, // Updated colors for the theme
+//                 legend: {
+//                     position: 'bottom',
+//                 },
+//                 title: {
+//                     text: data.title,
+//                     align: 'center',
+//                     style: {
+//                         fontSize: '16px',
+//                     },
+//                 },
+//             };
+//
+//             // Use jQuery to select the element and initialize the chart
+//             var chartPie = new ApexCharts($('#pie')[0], optionsPie);
+//             chartPie.render();
+//         },
+//         error: function (error) {
+//             console.log('Error fetching gender data:', error);
+//         },
+//     });
+// }
 
 
     if (document.querySelector('#bar-chart')) {
@@ -227,9 +313,9 @@ $(document).ready(function () {
     }
 
 
-    // #revenue chat
+// #revenue chat
 
-    // Check if the element for the chart exists
+// Check if the element for the chart exists
     if ($('#revenue_chart').length > 0) {
         $.ajax({
             url: "{% url 'revenue_line_chart' %}", // Django view URL for chart data
@@ -306,13 +392,131 @@ $(document).ready(function () {
         });
     }
 
-});
+    if ($('#bar').length > 0) {
+        var optionsBar = {
+            chart: {type: 'bar', height: 350, width: '100%', stacked: false, toolbar: {show: false},},
+            dataLabels: {enabled: false},
+            plotOptions: {bar: {columnWidth: '55%', endingShape: 'rounded'},},
+            stroke: {show: true, width: 2, colors: ['transparent']},
+            series: [{
+                name: "Boys",
+                color: '#70C4CF',
+                data: [420, 532, 516, 575, 519, 517, 454, 392, 262, 383, 446, 551],
+            }, {
+                name: "Girls",
+                color: '#3D5EE1',
+                data: [336, 612, 344, 647, 345, 563, 256, 344, 323, 300, 455, 456],
+            }],
+            labels: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020],
+            xaxis: {labels: {show: false}, axisBorder: {show: false}, axisTicks: {show: false},},
+            yaxis: {axisBorder: {show: false}, axisTicks: {show: false}, labels: {style: {colors: '#777'}}},
+            title: {text: '', align: 'left', style: {fontSize: '18px'}}
+        }
+        var chartBar = new ApexCharts(document.querySelector('#bar'), optionsBar);
+        chartBar.render();
+    }
+
+})
+;
+
+
+// bar
+// if ($('#bar').length > 0) {
+//     $.ajax({
+//         url: " {% url 'trends-bar-chart-data'%}", // Your Django endpoint
+//         method: "GET",
+//         success: function (response) {
+//             console.log("Bar Chart Response:", response); // Debug response
+//
+//             var optionsBar = {
+//                 chart: {
+//                     type: 'bar',
+//                     height: 350,
+//                     width: '100%',
+//                     stacked: false,
+//                     toolbar: { show: false },
+//                 },
+//                 dataLabels: { enabled: false },
+//                 plotOptions: {
+//                     bar: { columnWidth: '55%', endingShape: 'rounded' },
+//                 },
+//                 stroke: {
+//                     show: true,
+//                     width: 2,
+//                     colors: ['transparent'],
+//                 },
+//                 series: [
+//                     {
+//                         name: response.datasets[0].label,
+//                         data: response.datasets[0].data,
+//                     },
+//                     {
+//                         name: response.datasets[1].label,
+//                         data: response.datasets[1].data,
+//                     },
+//                 ],
+//                 xaxis: {
+//                     categories: response.labels, // Month labels
+//                 },
+//                 yaxis: {
+//                     labels: { style: { colors: '#777' } },
+//                 },
+//                 title: {
+//                     text: response.title,
+//                     align: 'left',
+//                     style: { fontSize: '18px' },
+//                 },
+//             };
+//
+//             var chartBar = new ApexCharts(document.querySelector('#bar'), optionsBar);
+//             chartBar.render();
+//         },
+//         error: function (error) {
+//             console.error("Error fetching bar chart data:", error);
+//         },
+//     });
+// }
 
 
 // new
 'use strict';
+if ($('#subject-exams-chart').length > 0) {
+    var options = {
+        chart: {height: 350, type: 'bar', toolbar: {show: false}},
+        plotOptions: {
+            bar: {horizontal: false, columnWidth: '55%', endingShape: 'rounded'}
+        },
+        dataLabels: {enabled: false},
+        stroke: {show: true, width: 2, colors: ['transparent']},
+        series: [
+            {name: 'Math - Opener', data: [80, 75, 85]},  // Marks for Math in Opener exam for 3 terms
+            {name: 'Math - Midterm', data: [70, 65, 75]},  // Marks for Math in Midterm exam for 3 terms
+            {name: 'Science - Opener', data: [75, 80, 85]},  // Marks for Science in Opener exam
+            {name: 'Science - Midterm', data: [70, 72, 78]}  // Marks for Science in Midterm exam
+        ],
+        xaxis: {
+            categories: ['Term 1', 'Term 2', 'Term 3'],  // Terms as categories
+        },
+        yaxis: {
+            title: {text: 'Marks'},
+        },
+        title: {text: 'Subject Marks by Exam Type and Term'},
+        fill: {opacity: 1},
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + " Marks";  // Show the marks for each subject/exam type
+                }
+            }
+        }
+    }
+
+    var chart = new ApexCharts(document.querySelector("#subject-exams-chart"), options);
+    chart.render();
+}
+
 $(document).ready(function () {
-    if ($('#apexcharts-area').length > 0) {
+    if ($('#apexcharts-areas').length > 0) {
         var options = {
             chart: {height: 350, type: "line", toolbar: {show: false},},
             dataLabels: {enabled: false},
@@ -342,25 +546,7 @@ $(document).ready(function () {
         var chart = new ApexCharts(document.querySelector("#school-area"), options);
         chart.render();
     }
-    if ($('#bar').length > 0) {
-        var optionsBar = {
-            chart: {type: 'bar', height: 350, width: '100%', stacked: false, toolbar: {show: false},},
-            dataLabels: {enabled: false},
-            plotOptions: {bar: {columnWidth: '55%', endingShape: 'rounded'},},
-            stroke: {show: true, width: 2, colors: ['transparent']},
-            series: [{
-                name: "Boys",
-                color: '#70C4CF',
-                data: [420, 532, 516, 575, 519, 517, 454, 392, 262, 383, 446, 551],
-            }, {name: "Girls", color: '#3D5EE1', data: [336, 612, 344, 647, 345, 563, 256, 344, 323, 300, 455, 456],}],
-            labels: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020],
-            xaxis: {labels: {show: false}, axisBorder: {show: false}, axisTicks: {show: false},},
-            yaxis: {axisBorder: {show: false}, axisTicks: {show: false}, labels: {style: {colors: '#777'}}},
-            title: {text: '', align: 'left', style: {fontSize: '18px'}}
-        }
-        var chartBar = new ApexCharts(document.querySelector('#bar'), optionsBar);
-        chartBar.render();
-    }
+
     if ($('#s-line').length > 0) {
         var sline = {
             chart: {height: 350, type: 'line', zoom: {enabled: false}, toolbar: {show: false,}},
@@ -399,8 +585,8 @@ if ($('#s-col').length > 0) {
         plotOptions: {bar: {horizontal: false, columnWidth: '55%', endingShape: 'rounded'},},
         dataLabels: {enabled: false},
         stroke: {show: true, width: 2, colors: ['transparent']},
-        series: [{name: 'Net Profit', data: [44, 55, 57, 56, 61, 58, 63, 60, 66]}, {
-            name: 'Revenue',
+        series: [{name: 'subject', data: [44, 55, 57, 56, 61, 58, 63, 60, 66]}, {
+            name: 'performance',
             data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
         }],
         xaxis: {categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],},

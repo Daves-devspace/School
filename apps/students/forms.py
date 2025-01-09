@@ -1,11 +1,15 @@
 from django import forms
+from django.db.models.fields import CharField
 from phonenumber_field.formfields import PhoneNumberField
-from .models import Student, Parent, StudentParent
+from phonenumber_field.validators import validate_international_phonenumber
+
+from .models import Student, Parent, StudentParent, Class
 
 # Define Choices
 GENDER_CHOICES = [("Male", "Male"), ("Female", "Female")]
 RELIGION_CHOICES = [("Christian", "Christian"), ("Muslim", "Muslim"), ("Other", "Other")]
 RELATIONSHIP_CHOICES = [("Father", "Father"), ("Mother", "Mother"), ("Guardian", "Guardian"), ("Other", "Other")]
+
 
 class StudentForm(forms.ModelForm):
     gender = forms.ChoiceField(
@@ -29,7 +33,7 @@ class StudentForm(forms.ModelForm):
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Parent Last Name'}),
     )
-    parent_mobile = PhoneNumberField(
+    parent_mobile = forms.CharField(
         widget=forms.TextInput(attrs={'placeholder': 'Parent Mobile'}),
     )
     parent_email = forms.EmailField(
@@ -45,7 +49,7 @@ class StudentForm(forms.ModelForm):
         model = Student
         fields = [
             'first_name', 'last_name', 'gender', 'date_of_birth',
-            'Class', 'religion', 'joining_date',
+            'grade', 'religion', 'joining_date',
             'admission_number', 'student_image',
         ]
         widgets = {
@@ -56,6 +60,18 @@ class StudentForm(forms.ModelForm):
             'admission_number': forms.TextInput(attrs={'placeholder': 'Admission Number'}),
             'student_image': forms.FileInput(),
         }
+
+    def clean_parent_mobile(self):
+        mobile = self.cleaned_data['parent_mobile']
+        # Validate format for Kenyan numbers
+        if mobile.startswith('07'):
+            mobile = '+254' + mobile[1:]  # Convert '07' to '+2547'
+        elif not mobile.startswith('+254'):
+            raise forms.ValidationError("Enter a valid Kenyan number starting with +254 or 07.")
+
+        # Validate using phonenumber_field
+        validate_international_phonenumber(mobile)
+        return mobile
 
     def save(self, commit=True):
         # Save student information first
@@ -85,54 +101,37 @@ class StudentForm(forms.ModelForm):
         return student
 
 
+class PromoteStudentsForm(forms.Form):
+    confirm = forms.BooleanField(
+        label="Confirm Promotion",
+        required=True,
+        help_text="Tick this box to confirm the promotion of students."
+    )
+
+
+class SendSMSForm(forms.Form):
+    message = forms.CharField(
+        required=True,
+        label="Message",
+        widget=forms.Textarea(attrs={
+            "class": "form-control",
+            "rows": 4,
+            "placeholder": "Type your message here..."
+        })
+    )
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# from django import forms
-# from phonenumber_field.formfields import PhoneNumberField
-#
-# from .models import Student
-#
-#
-#
-# GENDER_CHOICES = {"Male":"Male","Female":"Female"}
-# RELIGION_CHOICES = {"Christian":"Christian","Muslim":"Muslim"}
-# RELATIONSHIP_CHOICES = {"Father":"Father", "Mother":"Mother", "Guardian":"Guardian", "Other":"Other"}
-# class StudentForm(forms.ModelForm):
-#     gender = forms.ChoiceField(choices=GENDER_CHOICES, widget=forms.RadioSelect)  # form.select
-#     religion = forms.ChoiceField(choices=RELIGION_CHOICES, widget=forms.Select)
-#     student_relationship = forms.ChoiceField(choices=RELATIONSHIP_CHOICES,widget=forms.Select)
-#
-#     class Meta:
-#         model = Student
-#         fields = [
-#             'first_name', 'last_name', 'gender', 'date_of_birth',
-#             'class', 'religion', 'joining_date',
-#             'admission_number', 'student_image',
-#             'parent_name', 'parent_mobile',
-#             'guardian_name','student_relationship', 'guardian_mobile',
-#             'address'
-#         ]
-#         widgets = {
-#             'date_of_birth': forms.DateInput(attrs={'class': 'datepicker', 'type': 'date'}),
-#             'joining_date': forms.DateInput(attrs={'class': 'datepicker', 'type': 'date'}),
-#         }
+class SendClassForm(forms.Form):
+    message = forms.CharField(
+        required=True,
+        label="Message",
+        widget=forms.Textarea(attrs={"class": "form-control", "placeholder": "Enter message"})
+    )
+    class_choice = forms.ModelChoiceField(
+        queryset=Class.objects.all(),
+        required=True,
+        label="Class",
+        widget=forms.Select(attrs={"class": "form-control"})
+    )

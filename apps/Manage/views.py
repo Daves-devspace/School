@@ -22,7 +22,7 @@ def home(request):
     total_revenue = FeePayment.objects.filter(date__year=current_year).aggregate(
         total=Sum('amount')
     )['total'] or 0
-    total_students = Student.objects.count()
+    total_students = Student.objects.filter(status="active").count()
     total_teachers = Teacher.objects.count()
     total_departments = Department.objects.count()
 
@@ -32,6 +32,8 @@ def home(request):
                                              "total_departments": total_departments,
                                              'current_year': current_year,
                                              })
+
+
 
 
 
@@ -51,6 +53,11 @@ def login_user(request):
         messages.warning(request,'Invalid username or password')
         return redirect('login')
 
+
+def teacher_dashboard(request):
+    return render(request,'Home/teacher-dashboard.html')
+
+
 @login_required
 def logout_user(request):
     logout(request)
@@ -60,9 +67,5 @@ def logout_user(request):
 
 def website_page(request):
     return render(request,'Home/website/index.html')
-
-
-
-
 
 

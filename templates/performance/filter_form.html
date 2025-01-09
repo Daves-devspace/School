@@ -1,0 +1,89 @@
+{% extends "Home/base.html" %}
+{% block body %}
+
+
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Results</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                            <li class="breadcrumb-item active">results</li>
+                        </ul>
+                    </div>
+                    <div class="col-auto text-right float-right ml-auto">
+                        <a href="#" class="btn btn-outline-info mr-2"><i class="fas fa-download"></i> Download</a>
+                        <a href="{% url 'add_subject' %}" class="btn btn-info"><i class="fas fa-plus"></i></a>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="container mt-5">
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <h1>Filter Results</h1>
+                        <form method="get" action="{% url 'filter_results' %}">
+                            <label for="grade_id">Select Grade:</label>
+                            <select name="grade_id" id="grade_id">
+                                <option value="">Select Grade</option>
+                                {% for grade in classes %}
+                                    <option value="{{ grade.id }}">{{ grade.name }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <label for="term_id">Select Term:</label>
+                            <select name="term_id" id="term_id">
+                                <option value="">Select Term</option>
+                                {% for term in terms %}
+                                    <option value="{{ term.id }}">{{ term.name }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <label for="subject_id">Select Subject:</label>
+                            <select name="subject_id" id="subject_id">
+                                <option value="">Select Subject</option>
+                                {% for subject in subjects %}
+                                    <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <label for="exam_type_id">Select Exam Type:</label>
+                            <select name="exam_type_id" id="exam_type_id">
+                                <option value="">Select Exam Type</option>
+                                {% for exam_type in exam_types %}
+                                    <option value="{{ exam_type.id }}">{{ exam_type.name }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <button type="submit">Filter</button>
+                        </form>
+
+
+
+
+
+
+
+                        {% if messages %}
+                            <ul>
+                                {% for message in messages %}
+                                    <li>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

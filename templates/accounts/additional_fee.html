@@ -1,10 +1,161 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
 
-</body>
-</html>
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">update Fees structure</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Students with balances</li>
+                        </ul>
+                    </div>
+                    <div class="col-auto text-right float-right ml-auto">
+
+                        <a href="{% url 'students_with_balances' %}" class="btn btn accent-background text-white"> <i
+                                class="fas fa-arrow-alt-circle-left"></i></a>
+                        {#                        <a href="#" class="btn btn-outline-info mr-2"><i class="fas fa-download "></i> Download</a>#}
+                        {#                        <a href="{% url 'add_student' %}" class="btn btn-primary"><i class="fas fa-plus"></i></a>#}
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table">
+                        <div class="card-body">
+                            <div class="row">
+
+                                <div class="page-header">
+                                    <div class="row align-items-center">
+                                        <div class="col">
+                                            <h3 class="page-title">Update Fees
+                                                for {{ student.first_name }} {{ student.last_name }}</h3>
+                                            <ul class="breadcrumb">
+                                                <li class="breadcrumb-item"><a
+                                                        href="{% url 'students_with_balances' %}">Students with
+                                                    Balances</a></li>
+                                                <li class="breadcrumb-item"><a
+                                                        href="{% url 'all_records' %}">All Students</a>
+                                                </li>
+                                                <li class="breadcrumb-item active">Update Fees</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h3>Update Fee for {{ student.first_name }} {{ student.last_name }}</h3>
+                                                <form method="POST" action="{% url 'update_student_fee' student.id %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="term_id" value="{{ term.id }}">
+
+                                                    <div class="form-group">
+                                                        <label>Fees Type</label>
+                                                        <select name="fee_type" class="form-control" required>
+                                                            <option value="">Select Fee Type</option>
+                                                            <option value="Transport fee">Transport Fee</option>
+                                                            <option value="Lunch Fees">Lunch Fees</option>
+                                                            <option value="Remedial Fees">Remedial Fees</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label>Fee Amount</label>
+                                                        <input type="number" name="amount" class="form-control"
+                                                               required>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label>Action</label>
+                                                        <select name="action" class="form-control" required>
+                                                            <option value="activate">Activate</option>
+                                                            <option value="deactivate">Deactivate</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                                    <a href="{% url 'students_with_balances' %}"
+                                                       class="btn btn-secondary">Cancel</a>
+                                                </form>
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                <p>Copyright © 2024 Davedev</p>
+            </footer>
+        </div>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

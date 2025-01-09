@@ -57,13 +57,15 @@ class Student(models.Model):
     last_name = models.CharField(max_length=100)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     date_of_birth = models.DateField()
-    Class = models.ForeignKey('Class', on_delete=models.SET_NULL, null=True, related_name="students")
+    grade = models.ForeignKey('Class', on_delete=models.SET_NULL, null=True, related_name="students")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="Active")
+    sponsored = models.BooleanField(default=False)  # Track if the student is sponsored
     religion = models.CharField(max_length=10, choices=RELIGION_CHOICES)
     joining_date = models.DateField()
     admission_number = models.CharField(max_length=15, unique=True)
     student_image = models.ImageField(upload_to='students', blank=True, null=True)
     parent = models.ManyToManyField('Parent', through='StudentParent', related_name="students")
+    last_promoted = models.DateTimeField(null=True, blank=True)  # Track last promotion date
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.admission_number})"
@@ -94,7 +96,7 @@ class StudentParent(models.Model):
 class Book(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100)
-    year = models.IntegerField()
+    year =  models.DateField()
     subject = models.CharField(max_length=100)
     isbn = models.CharField(max_length=100, unique=True)
 

@@ -1,0 +1,53 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Send message</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
+                            <li class="breadcrumb-item active">Send Sms</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <form action="" method="post" enctype="multipart/form-data" class="shadow px-3 py-3 mt-3">
+                                {% csrf_token %}
+                                {{ form | crispy }}
+
+                                <button class="btn btn custom-bg text-white w-100">Message</button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+{% endblock %}

@@ -18,6 +18,17 @@
                     </div>
                 </div>
             </div>
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
 
             <div class="student-group-form">
                 <div class="row">
@@ -43,7 +54,7 @@
                     </div>
                 </div>
             </div>
-        
+
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card card-table comman-shadow">
@@ -52,15 +63,31 @@
                             <div class="page-header">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <h3 class="page-title">Students</h3>
+
+                                        <div class="col">
+                                            <form method="POST" action="{% url 'promote_students' %}">
+                                                {% csrf_token %}
+                                                <div class="form-group">
+                                                    <label for="confirm">Confirm Promotion</label>
+                                                    <input type="checkbox" name="confirm" id="confirm" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-dark ">Promote Students</button>
+                                            </form>
+
+                                        </div>
                                     </div>
                                     <div class="col-auto text-end float-end ms-auto download-grp">
-                                        <a href="{% url 'students' %}" class="btn btn-outline custom-bg text-white me-2 active"><i
+                                        <a href="{% url 'students' %}"
+                                           class="btn btn-outline custom-bg text-white me-2 active"><i
                                                 class="fas fa-list"></i></a>
-                                        <a href="{% url 'students_grid' %}" class="btn btn-outline custom-bg text-white me-2"><i
+
+                                        <a href="{% url 'students_grid' %}"
+                                           class="btn btn-outline custom-bg text-white me-2"><i
                                                 class="fas fa-th-large"></i></a>
-                                        <a href="#" class="btn btn custom-bg text-white me-2"><i class="fas fa-download"></i>
+                                        <a href="#" class="btn btn custom-bg text-white me-2"><i
+                                                class="fas fa-download"></i>
                                             Download</a>
+
                                         <a href="{% url 'add_student' %}" class="btn btn custom-bg text-white"><i
                                                 class="fas fa-plus"></i></a>
                                     </div>
@@ -76,7 +103,7 @@
                                                 <input class="form-check-input" type="checkbox" value="something">
                                             </div>
                                         </th>
-                                        <th>ID</th>
+                                        <th>ADM</th>
                                         <th>Name</th>
                                         <th>Class</th>
                                         <th>DOB</th>
@@ -89,24 +116,24 @@
                                     <tbody>
 
                                     {% for student in student_list %}
-                                      
-                                       
+
+
                                         {#                              <td>{{ student.date_of_birth|date:"d M Y" }}</td>#}
-                                     
+
 
                                         <td>
                                             <div class="form-check check-tables">
                                                 <input class="form-check-input" type="checkbox" value="something">
                                             </div>
                                         </td>
-                                        <td>{{ student.admission_number }}</td>
+                                        <td>MFS/{{ student.id }}</td>
                                         <td>
                                             <h2 class="table-avatar">
                                                 <a href="#">{{ student.first_name }}
                                                     {{ student.last_name }}</a>
                                             </h2>
                                         </td>
-                                        <td>{{ student.Class }}</td>
+                                        <td>{{ student.grade }}</td>
                                         <td>{{ student.date_of_birth }}</td>
                                         <td>{{ student.parent.first.first_name }}
                                             &nbsp; {{ student.parent.first.last_name }} </td>
@@ -118,10 +145,12 @@
                                                    class="btn btn-sm custom-bg text-white me-2 ">
                                                     <i class="fas fa-eye-slash"></i>
                                                 </a>
+                                                {% if perms.students.view_change_student %}
                                                 <a href="{% url 'edit_student' student.id %}"
                                                    class="btn btn-sm custom-bg text-white">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
+                                                {% endif %}
                                             </div>
                                         </td>
                                         </tr>
@@ -145,7 +174,7 @@
 
     </div>
 
-   
+
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/popper.min.js' %}"></script>
     <script src="{% static 'assets/js/feather.min.js' %}"></script>

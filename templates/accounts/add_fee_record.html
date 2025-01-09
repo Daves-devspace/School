@@ -4,6 +4,17 @@
 
     <div class="page-wrapper">
         <div class="content container-fluid">
+             <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
@@ -19,6 +30,7 @@
                     </div>
                 </div>
             </div>
+           
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card card-table">

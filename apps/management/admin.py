@@ -1,8 +1,7 @@
 from django.contrib import admin
 from django.db.models import Sum
 
-from apps.management.models import Term, TeacherSubject, Result, ReportCard, SubjectMark
-
+from apps.management.models import Term, TeacherSubject, Result, ReportCard, SubjectMark, ExamType
 
 
 # Register your models here.
@@ -17,7 +16,9 @@ class TeacherSubjectAdmin(admin.ModelAdmin):
     list_display = ['teacher', 'subject', 'grade_assigned']
     search_fields = ['teacher__username', 'subject', 'grade_assigned']
 
-
+class ExamTypeAdmin(admin.ModelAdmin):
+    list_display = ['name','term','description']
+    search_fields = ['name']
 
 class ResultAdmin(admin.ModelAdmin):
     list_display = ['student', 'teacher_subject', 'score', 'term']
@@ -50,6 +51,7 @@ class ReportCardAdmin(admin.ModelAdmin):
 # admin.site.register(ReportCard, ReportCardAdmin)
 admin.site.register(SubjectMark, SubjectMarkAdmin)
 admin.site.register(Term,TermAdmin)
+admin.site.register(ExamType,ExamTypeAdmin)
 
 admin.site.register(TeacherSubject,TeacherSubjectAdmin)
 admin.site.register(Result,ResultAdmin)

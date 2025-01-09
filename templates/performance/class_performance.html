@@ -1,4 +1,6 @@
 {% extends 'Home/base.html' %}
+{% load custom_tags %}
+
 {% load static %}
 
 {% block body %}
@@ -61,7 +63,7 @@
                                             </table>
                                         </div>
                                     </div>
-                                    
+
 
                                     <div class="container mt-4">
                                         <h2 class="text-center mb-4">Student Results</h2>
@@ -70,47 +72,23 @@
                                                 Results Overview
                                             </div>
                                             <div class="card-body">
-                                                <table class="table table-striped table-bordered">
+                                                <h1>Results for {{ class.name }} - {{ term.name }}</h1>
+                                                <table>
                                                     <thead>
                                                     <tr>
-                                                        <th>#</th>
-                                                        <th>Name</th>
-                                                        <th>Subject</th>
-                                                        <th>Score</th>
-                                                        <th>Grade</th>
-                                                        <th>Remarks</th>
+                                                        <th>Student</th>
+                                                        {% for subject in subjects %}
+                                                            <th>{{ subject.name }}</th>
+                                                        {% endfor %}
                                                     </tr>
                                                     </thead>
                                                     <tbody>
                                                     {% for result in results %}
                                                         <tr>
-                                                            <td>{{ forloop.counter }}</td>
-                                                            <td>{{ result.student_name }}</td>
-                                                            <td>{{ result.subject }}</td>
-                                                            <td>{{ result.score }}</td>
-                                                            <td>
-                                                                {% if result.score >= 75 %}
-                                                                    <span class="badge bg-success">A</span>
-                                                                {% elif result.score >= 60 %}
-                                                                    <span class="badge bg-info">B</span>
-                                                                {% elif result.score >= 50 %}
-                                                                    <span class="badge bg-warning">C</span>
-                                                                {% else %}
-                                                                    <span class="badge bg-danger">F</span>
-                                                                {% endif %}
-                                                            </td>
-                                                            <td>
-                                                                {% if result.score >= 50 %}
-                                                                    <span class="text-success">Pass</span>
-                                                                {% else %}
-                                                                    <span class="text-danger">Fail</span>
-                                                                {% endif %}
-                                                            </td>
-                                                        </tr>
-                                                    {% empty %}
-                                                        <tr>
-                                                            <td colspan="6" class="text-center">No results available
-                                                            </td>
+                                                            <td>{{ result.student.first_name }} {{ result.student.last_name }}</td>
+                                                            {% for subject in subjects %}
+                                                                <td>{{ result.marks|get_item:subject.name|default:"-" }}</td>
+                                                            {% endfor %}
                                                         </tr>
                                                     {% endfor %}
                                                     </tbody>

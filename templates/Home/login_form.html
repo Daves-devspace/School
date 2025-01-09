@@ -25,13 +25,15 @@
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
 </head>
 <style>
-    .custom_bg{
+    .custom_bg {
         background: #0a3622;
     }
-    .custom_text{
+
+    .custom_text {
         color: #0a3622;
     }
-    .login-wrapper .loginbox .login-left{
+
+    .login-wrapper .loginbox .login-left {
         background: #0a3622;
     }
 </style>
@@ -42,12 +44,26 @@
         <div class="container">
             <div class="loginbox">
                 <div class="login-left ">
-                    <img class="img-fluid " src="{% static 'assets/img/loginlogo.png' %}" alt="Logo">
-                    <p><i class="fas fa-arrow-alt-circle-left text-white"></i><a href="{% url 'merry-land' %}" class="text-white"> &nbsp; Back to website</a></p>
+                    <img class="img-fluid " src="{% static 'assets/img/loginlogos.png' %}" alt="Logo">
+                    <p><i class="fas fa-arrow-alt-circle-left text-white"></i><a href="{% url 'merry-land' %}"
+                                                                                 class="text-white"> &nbsp; Back to
+                        website</a></p>
                 </div>
                 <div class="login-right">
                     <div class="login-right-wrap">
                         <h1>Merryland Friends School</h1>
+                        <div class="container-fluid">
+                            {% for message in messages %}
+
+                                <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                                    <p>{{ message }}</p>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
                         <p class="account-subtitle">Need an account? <a href="register.html">Sign Up</a></p>
                         <h2>Sign in</h2>
 
@@ -62,8 +78,9 @@
                             </div>
 
                             <div class="form-group">
-                               <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                                    <input type="password" class="form-control" name="password" value="" required>
+                                <label for="password" class="form-label">Password <span
+                                        class="text-danger">*</span></label>
+                                <input type="password" class="form-control" name="password" value="" required>
                                 <span class="profile-views feather-eye toggle-password"></span>
                             </div>
 

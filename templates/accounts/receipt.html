@@ -1,0 +1,191 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <title>Merryland</title>
+    <link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/feather/feather.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/icons/flags/flags.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Include the necessary CSS and JS for the datepicker -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+
+
+</head>
+
+
+<body>
+{% block body %}
+
+    <div class="page-wrapper">
+    <div class="content container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-xl-10">
+                <div class="card invoice-info-card">
+                    <div class="card-body">
+                        <div id="receipt-section">
+                            <!-- Header Section -->
+                            <div class="invoice-item invoice-item-one">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="invoice-logo">
+                                            <img src="{% static 'assets/img/navlogo.png' %}" alt="logo">
+                                        </div>
+                                        <div class="invoice-head">
+                                            <h2>School Fee Receipt</h2>
+                                            <p>Receipt Number : RCT{{ fee_record.id }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 text-end">
+                                        <div class="invoice-info">
+                                            <strong class="customer-text-one">Issued By</strong>
+                                            <h6 class="invoice-name">MERRYLAND FRIENDS SCHOOL</h6>
+                                            <p class="invoice-details">
+                                                Contact: 0722 780 529 <br>
+                                                Address: P.O. BOX 595<br>
+                                                Nyahururu,Mairo-nne, Kenya
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Billing Details -->
+                            <div class="invoice-item invoice-item-two ">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="invoice-info">
+                                            <strong class="customer-text-one">Billed to</strong>
+                                            <h6 class="invoice-name">{{ student_first_name }}&nbsp;{{ student_last_name }}</h6>
+                                            <p class="invoice-details invoice-details-two">
+                                                Class/Grade: {{ student_grade }} <br>
+                                                Admission Number: {{ fee_record.student.admission_number }} <br>
+                                                Parent/Guardian: {{ guardian_name }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 text-end">
+                                        <div class="invoice-info">
+                                            <strong class="customer-text-one">Payment Details</strong>
+                                            <p class="invoice-details">
+                                                Mode: {{ payment_mode }} <br>
+                                                Date: {{ payment_date }} <br>
+                                                Ref: {{ payment_reference }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fee Breakdown Table -->
+                            <div class="invoice-item invoice-table-wrap">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="table-responsive">
+                                            <table class="invoice-table table table-center mb-0">
+                                                <thead>
+                                                <tr>
+                                                    <th>Description</th>
+                                                    <th>Term</th>
+                                                    <th>Amount</th>
+                                                    <th>Discount</th>
+                                                    <th class="text-end">Balance</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for fee in active_fees %}
+                                                    <tr>
+                                                        <td>{{ fee.description }}</td>
+                                                        <td>{{ term_name }}</td>
+                                                        <td>{{ fee.amount }}</td>
+                                                        <td>0</td> <!-- Add discount logic here if applicable -->
+                                                        <td class="text-end">{{ fee.amount }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                                <tr>
+                                                    <td>Previous Balance</td>
+                                                    <td>--</td>
+                                                    <td colspan="2"></td>
+                                                    <td class="text-end">{{ previous_balance }}</td>
+                                                </tr>
+                                                </tbody>
+
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Final Summary -->
+                            <div class="row align-items-center justify-content-center">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="invoice-terms">
+                                        <h6>Notes:</h6>
+                                        <p class="mb-0">Payments are non-refundable. Please contact the finance office
+                                            for queries.</p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 text-end">
+                                    <div class="invoice-total-box">
+                                        <p>Sub Total: <span>{{ subtotal }}</span></p>
+                                        <p>Payments Made: <span>{{ payments_made }}</span></p>
+                                        <h4>Final Balance: <span>{{ final_balance }}</span></h4>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Signature -->
+                            <div class="invoice-sign text-end">
+                                <img class="img-fluid d-inline-block" src="{% static 'assets/img/signature.png' %}"
+                                     alt="sign">
+                                <span class="d-block">Authorized Signature</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        {% if fee_record.id %}
+            <button class="btn custom-bg"
+                    onclick="window.location.href='{% url 'generate_pdf_receipt' fee_record_id=fee_record.id %}'">
+                Generate PDF Receipt
+            </button>
+        {% else %}
+            <p>Fee record not found.</p>
+        {% endif %}
+
+    </footer>
+{% endblock %}
+</body>
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/feather.min.js' %}"></script>
+<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
+<script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
+<script src="{% static 'assets/js/script.js' %}"></script>
+</body>
+
+
+</html>

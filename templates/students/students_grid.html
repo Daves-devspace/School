@@ -19,6 +19,17 @@
                     </div>
                 </div>
             </div>
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
 
             <div class="row">
                 <div class="col-sm-12">
@@ -42,26 +53,28 @@
                             <div class="student-pro-list">
                                 <div class="row">
                                     {% for student in student_grid %}
-                                    <div class="col-xl-3 col-lg-4 col-md-6 d-flex">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="student-box flex-fill">
-                                                    <div class="student-img">
-                                                        <a href="student-details.html">
-                                                            <img class="img-fluid" alt="Students Info"
-                                                                 src="{% static 'assets/img/profiles/avatar-03.jpg' %}">
-                                                        </a>
-                                                    </div>
-                                                    <div class="student-content pb-0">
-                                                        <h5><a href="{% url 'student_details' student.id %}">{{ student.first_name }}</a></h5>
-                                                        <h6>Student</h6>
+                                        <div class="col-xl-3 col-lg-4 col-md-6 d-flex">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="student-box flex-fill">
+                                                        <div class="student-img">
+                                                            <a href="student-details.html">
+                                                                <img class="img-fluid" alt="Students Info"
+                                                                     src="{% static 'assets/img/profiles/avatar-03.jpg' %}">
+                                                            </a>
+                                                        </div>
+                                                        <div class="student-content pb-0">
+                                                            <h5>
+                                                                <a href="{% url 'student_details' student.id %}">{{ student.first_name }}</a>
+                                                            </h5>
+                                                            <h6>Student</h6>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
                                     {% endfor %}
-                                  
+
 
                                 </div>
                             </div>

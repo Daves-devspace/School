@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from phonenumber_field.formfields import PhoneNumberField
-
+from phonenumber_field.validators import validate_international_phonenumber
 
 from ..management.models import  Subject, Teacher
 
@@ -9,6 +9,9 @@ from ..management.models import  Subject, Teacher
 
 
 class TeacherForm(forms.ModelForm):
+    phone_no = forms.CharField(
+        widget=forms.TextInput(attrs={'placeholder': 'Phone Number'}),
+    )
 
     class Meta:
         model = Teacher
@@ -22,6 +25,21 @@ class TeacherForm(forms.ModelForm):
             'joining_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'subjects': forms.SelectMultiple(),
         }
+
+        def clean_phone_no(self):
+            phone_no = self.cleaned_data['phone_no']
+            # Validate format for Kenyan numbers
+            if phone_no.startswith('07'):
+                phone_no = '+254' + phone_no[1:]  # Convert '07' to '+2547'
+            elif not phone_no.startswith('+254'):
+                raise forms.ValidationError("Enter a valid Kenyan number starting with +254 or 07.")
+
+            # Validate using phonenumber_field
+            validate_international_phonenumber(phone_no)
+            return phone_no
+
+
+
     #
     # def save(self, commit=True):
     #     # Save the User instance first
