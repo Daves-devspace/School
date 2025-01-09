@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User, Group
 from django.db import IntegrityError
 from django.shortcuts import render, redirect, get_object_or_404
 
 from apps.management.models import Subject, Term
-from apps.students.models import Student, Class
+from apps.students.models import Student, Grade
 from .forms import TeacherForm
 # from .forms import TeacherForm
 from .models import Teacher, Department, TeacherRole, Role
@@ -17,48 +18,57 @@ def teachers(request):
 
     return render(request, "teachers/teachers.html", {"teachers": teachers})
 
-
 @login_required
 def add_teacher(request):
     if request.method == 'POST':
         form = TeacherForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('teachers')  # Redirect to a list of teachers or another page
+            teacher = form.save()
+
+            # Assign the user to the "Teacher" group
+            group, created = Group.objects.get_or_create(name='Teacher')
+            teacher.user.groups.add(group)
+
+            messages.success(request, "Teacher added successfully.")
+            return redirect('teachers')  # Redirect to the teachers list
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = TeacherForm()
 
     return render(request, 'teachers/add-teacher.html', {'form': form})
 
 
-
 @login_required
 def edit_teacher(request, id):
-    teacher = Teacher.objects.get(pk=id)
+    # Retrieve the teacher instance or return a 404 if not found
+    teacher = get_object_or_404(Teacher, pk=id)
 
     if request.method == 'POST':
+        # Populate the form with POST data and the existing instance
         form = TeacherForm(request.POST, instance=teacher)
         if form.is_valid():
             teacher = form.save()
-            # Get the list of selected subject IDs from the form
-            subject_ids = request.POST.getlist('subjects')  # 'subjects' is the name of the field in your form
 
-            # Update the teacher's subjects
-            teacher.subjects.set(subject_ids)
+            # Update the teacher's subjects if provided in the request
+            subject_ids = request.POST.getlist('subjects')  # 'subjects' is the name of the form field
+            teacher.subjects.set(subject_ids)  # Update subjects directly
             teacher.save()
-            messages.success(request, "Teacher updated successfully. ")
-            return redirect('teachers')
 
-
+            messages.success(request, "Teacher updated successfully.")
+            return redirect('teachers')  # Redirect to the teachers list
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
+        # Prepopulate the form with the existing teacher instance
         form = TeacherForm(instance=teacher)
-    return render(request, 'teachers/edit_teacher.html', {'form': form, 'teacher': teacher})
 
+    return render(request, 'teachers/edit_teacher.html', {'form': form, 'teacher': teacher})
 
 @login_required
 def teacher_detail(request, id):
     teacher = get_object_or_404(Teacher, pk=id)
-    teachers_subject = Teacher.subjects.all()
+    teachers_subject = teacher.subjects.all()
     return render(request, 'teachers/teacher_detail.html', {'teacher': teacher ,'subjects':teachers_subject})
 
 
@@ -177,7 +187,7 @@ def remove_teacher_from_department(request, department_id, teacher_id):
 def assign_grade(request, teacher_id):
     # Fetch the teacher and all available grades
     teacher = get_object_or_404(Teacher, id=teacher_id)
-    grades = Class.objects.all()
+    grades = Grade.objects.all()
 
     if request.method == 'POST':
         # Get the selected grade ID from the form
@@ -185,7 +195,7 @@ def assign_grade(request, teacher_id):
 
         if grade_id:
             # Fetch the selected grade
-            assigned_grade = get_object_or_404(Class, id=grade_id)
+            assigned_grade = get_object_or_404(Grade, id=grade_id)
 
             # Assign the grade to the teacher
             teacher.assigned_class = assigned_grade

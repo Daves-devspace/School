@@ -1,0 +1,90 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Send message</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
+                            <li class="breadcrumb-item active">Send Sms</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="term">Term:</label>
+                                    <select id="term" name="term" class="form-control" required>
+                                        {% for term in terms %}
+                                            <option value="{{ term.id }}">{{ term.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="exam_type">Exam Type:</label>
+                                    <select id="exam_type" name="exam_type" class="form-control" required>
+                                        {% for exam_type in exam_types %}
+                                            <option value="{{ exam_type.id }}">{{ exam_type.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="message">Message Template:</label>
+                                    <textarea id="message" name="message" class="form-control" rows="6" required
+                                              placeholder="Enter your message template here...">
+Dear {parent_name},
+{student_name}'s results:
+Class: {student_class},
+Total Marks: {total_marks},
+Rank: {rank},
+Subject Results: {subject_results}.
+Term: {term},
+Exam: {exam_type}.
+        </textarea>
+                                    <small class="form-text text-muted">
+                                        Use placeholders for dynamic content: {parent_name}, {student_name},
+                                        {student_class},
+                                        {total_marks}, {rank}, {subject_results}, {term}, {exam_type}.
+                                    </small>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Send SMS</button>
+                            </form>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+{% endblock %}

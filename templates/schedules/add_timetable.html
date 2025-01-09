@@ -1,0 +1,115 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Timetable</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Timetable</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table">
+                        <div class="card-body">
+
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Create Time Table</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="#" class="btn btn custom-bg text-white me-2"><i
+                                                class="fas fa-download"></i>
+                                            Download</a>
+                                        <a href="{% url 'timetable-create' %}" class="btn btn custom-bg text-white"><i
+                                                class="fas fa-plus"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="container mt-5">
+                                <div id="responseMessage"></div>
+                                <form id="timetable-form">
+                                    {% csrf_token %}
+                                    {{ form.as_p }}
+                                    <button type="submit">Create Timetable</button>
+                                </form>
+
+                                <div id="responseMessage"></div>
+
+
+                                <div id="responseMessage" class="mt-3"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Copyright © 2024 Davedev</p>
+        </footer>
+
+    </div>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+{#  <script>#}
+{#    document.getElementById('timetable-form').addEventListener('submit', async function (event) {#}
+{#        event.preventDefault();  // Prevent default form submission#}
+{##}
+{#        const data = new FormData(this);#}
+{#        #}
+{#        // Create an object to hold the form data#}
+{#        const formData = {#}
+{#            day: data.get('day'),#}
+{#            start_time: data.get('start_time'),#}
+{#            end_time: data.get('end_time'),#}
+{#            subject: data.get('subject-dropdown'),#}
+{#            teacher: data.get('teacher-dropdown'),#}
+{#            grade_section: data.get('grade-section-dropdown')#}
+{#        };#}
+{##}
+{#        try {#}
+{#            const response = await fetch('/api/timetable/create/', {#}
+{#                method: 'POST',#}
+{#                headers: {#}
+{#                    'Content-Type': 'application/json',#}
+{#                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value  // Include CSRF token#}
+{#                },#}
+{#                body: JSON.stringify(formData)#}
+{#            });#}
+{##}
+{#            const result = await response.json();#}
+{#            const responseMessage = document.getElementById('responseMessage');#}
+{##}
+{#            if (response.ok) {#}
+{#                responseMessage.innerHTML = `<div class="alert alert-success">${result.message || 'Timetable created successfully!'}</div>`;#}
+{#            } else {#}
+{#                responseMessage.innerHTML = `<div class="alert alert-danger">${result.message || 'Error creating timetable'}</div>`;#}
+{#            }#}
+{#        } catch (error) {#}
+{#            console.error('Error:', error);#}
+{#            document.getElementById('responseMessage').innerHTML = `<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>`;#}
+{#        }#}
+{#    });#}
+{#</script>#}
+
+
+
+
+{% endblock %}

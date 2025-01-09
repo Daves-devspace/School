@@ -1,40 +1,131 @@
 from django import forms
-from .models import Subject, TeacherSubject, Term
-from ..students.models import Student
+from django.forms import TimeInput
+
+from .models import Subject, Term, SubjectMark, Timetable, LessonExchangeRequest
+from ..students.models import Student, Book, GradeSection, Grade
+from ..teachers.models import Teacher
+
+
+class BookForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ['title','author','year','subject','isbn']
+        widgets = {
+            'title':forms.TextInput(attrs={'class':'form-control','placeholder':'Book Title'}),
+            'author':forms.TextInput(attrs={'class':'form-control'}),
+            'year':forms.DateInput(attrs={'type':'date'}),
+            'subject':forms.TextInput(attrs={'class':'form-control'}),
+            'isbn':forms.TextInput(attrs={'class':'form-control'}),
+        }
 
 
 class SubjectForm(forms.ModelForm):
     class Meta:
         model = Subject
-        fields = ['name', 'grade']
+        fields = ['name', 'grade', 'single_grade']  # Include both fields
+
+    # Dropdown for selecting multiple grades (optional: you can use a multiple select dropdown)
+    grade = forms.ModelMultipleChoiceField(
+        queryset=Grade.objects.all(),  # Display all grades to choose from
+        widget=forms.SelectMultiple,  # Use a multiple select dropdown (for multiple grades)
+        required=False  # Make this field optional if the subject is for only one grade
+    )
+
+    # Dropdown for selecting a single grade (e.g., for Comp)
+    single_grade = forms.ModelChoiceField(
+        queryset=Grade.objects.all(),  # Display all grades to choose from
+        required=False,  # Make this field optional if the subject belongs to multiple grades
+        empty_label="Select a grade (optional)"
+    )
+
+
+class AddResultForm(forms.ModelForm):
+    class_name = forms.ModelChoiceField(queryset=GradeSection.objects.all(), required=True, label="Class Section")
+    student = forms.ModelChoiceField(queryset=Student.objects.none(), required=True, label="Student")
+    subject = forms.ModelChoiceField(queryset=Subject.objects.all(), required=True, label="Subject")
+    marks = forms.IntegerField(min_value=0, max_value=100, required=True, label="Marks")
+
+    class Meta:
+        model = SubjectMark
+        fields = ['class_name', 'student', 'subject', 'marks']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Dynamically update the student queryset based on the selected class_name (GradeSection)
+        if 'class_name' in self.initial:
+            class_section_id = self.initial['class_name']
+            self.fields['student'].queryset = Student.objects.filter(grade_section_id=class_section_id)
+        elif 'class_name' in self.data:  # Check if 'class_name' was selected in POST data
+            class_section_id = self.data.get('class_name')
+            self.fields['student'].queryset = Student.objects.filter(grade_section_id=class_section_id)
+        else:
+            self.fields['student'].queryset = Student.objects.none()
+
+
+
+class TimetableForm(forms.ModelForm):
+    class Meta:
+        model = Timetable
+        fields = ['grade_section', 'subject', 'teacher', 'day', 'start_time', 'end_time']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Subject Name'}),
-            'grade_assigned': forms.Select(attrs={'class': 'form-control'}),
+            'grade_section': forms.Select(attrs={'class': 'form-control'}),
+            'subject': forms.Select(attrs={'class': 'form-control'}),
             'teacher': forms.Select(attrs={'class': 'form-control'}),
+            'day': forms.Select(attrs={'class': 'form-control'}),
+            'start_time': TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'end_time': TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
         }
 
+    # Overriding the 'day' field to ensure it uses the correct choices and renders as a dropdown
+    day = forms.ChoiceField(
+        choices=Timetable.DAYS_OF_WEEK,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_time = cleaned_data.get('start_time')
+        end_time = cleaned_data.get('end_time')
+
+        if start_time and end_time and start_time >= end_time:
+            raise forms.ValidationError("Start time must be earlier than end time.")
+
+        return cleaned_data
 
 
 
-class AddResultForm(forms.Form):
-    student = forms.ModelChoiceField(
-        queryset=Student.objects.all(),
-        label="Student",
-        widget=forms.Select(attrs={"class": "form-control"})
+
+
+class LessonExchangeForm(forms.ModelForm):
+    teacher_1 = forms.ModelChoiceField(
+        queryset=Teacher.objects.all(),
+        required=False,  # Required only for admins
+        help_text="Select the first teacher (admin only)."
     )
-    subject = forms.ModelChoiceField(
-        queryset=Subject.objects.all(),
-        label="Teacher and Subject",
-        widget=forms.Select(attrs={"class": "form-control"})
+    teacher_2 = forms.ModelChoiceField(
+        queryset=Teacher.objects.all(),
+        required=False,  # Required only for admins
+        help_text="Select the second teacher (admin only)."
     )
-    term = forms.ModelChoiceField(
-        queryset=Term.objects.all(),
-        label="Term",
-        widget=forms.Select(attrs={"class": "form-control"})
-    )
-    score = forms.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        label="Score",
-        widget=forms.NumberInput(attrs={"class": "form-control"})
-    )
+
+    class Meta:
+        model = LessonExchangeRequest
+        fields = ['lesson_1', 'lesson_2', 'teacher_1', 'teacher_2']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')  # Pass the user to the form
+        super().__init__(*args, **kwargs)
+
+        # Customize behavior based on user role
+        if hasattr(user, 'teacher'):  # If the user is a teacher
+            self.fields['teacher_1'].widget = forms.HiddenInput()  # Hide teacher_1
+            self.fields['teacher_1'].initial = user.teacher  # Set teacher_1 to logged-in teacher
+            self.fields['teacher_2'].queryset = Teacher.objects.exclude(pk=user.teacher.pk)  # Exclude self
+            self.fields['teacher_2'].required = True  # Ensure teacher_2 is selected
+
+        else:  # If the user is an admin
+            self.fields['teacher_1'].required = True
+            self.fields['teacher_2'].required = True
+

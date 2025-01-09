@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Group
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Teacher, Role, Department, TeacherRole
@@ -10,3 +11,4 @@ def auto_assign_roles(sender, instance, created, **kwargs):
         for department in Department.objects.all():
             for role in default_roles:
                 TeacherRole.objects.get_or_create(teacher=instance, department=department, role=role)
+

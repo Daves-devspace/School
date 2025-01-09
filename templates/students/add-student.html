@@ -7,6 +7,17 @@
 
     <div class="page-wrapper">
         <div class="content container-fluid">
+               <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col-sm-12">
@@ -20,6 +31,7 @@
                     </div>
                 </div>
             </div>
+         
 
             <div class="row">
                 <div class="col-sm-12">
@@ -30,171 +42,7 @@
                                 {{ form|crispy }}
                                 <button type="submit" class="btn btn-primary">Save</button>
                             </form>
-
-
-                            {#                            <form method="POST" action="{% url 'add_student' %}" enctype="multipart/form-data">#}
-                            {#                                {% csrf_token %}#}
-                            {#                                <div class="row">#}
-                            {#                                    <div class="col-12">#}
-                            {#                                        <h5 class="form-title student-info">Student Information <span><a#}
-                            {#                                                href="javascript:;"><i class="feather-more-vertical"></i></a></span>#}
-                            {#                                        </h5>#}
-                            {#                                    </div>#}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>First Name <span class="login-danger">*</span></label>#}
-                            {#                                            <input class="form-control" type="text" name="first_name"#}
-                            {#                                                   placeholder="Enter First Name" required>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Last Name <span class="login-danger">*</span></label>#}
-                            {#                                            <input class="form-control" type="text" name="last_name"#}
-                            {#                                                   placeholder="Enter Last Name" required>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Gender <span class="login-danger">*</span></label>#}
-                            {#                                            <select class="form-control select" name="gender" required>#}
-                            {#                                                <option value="">Select Gender</option>#}
-                            {#                                                <option value="Male">Male</option>#}
-                            {#                                                <option value="Female">Female</option>#}
-                            {#                                                <option value="Other">Other</option>#}
-                            {#                                            </select>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms ">#}
-                            {#                                            <label>Date Of Birth <span class="login-danger">*</span></label>#}
-                            {#                                            <input class="form-control datetimepicker" type="date" name="date_of_birth"#}
-                            {#                                                   required>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Admission Number <span class="login-danger">*</span></label>#}
-                            {#                                            <input class="form-control" type="text" name="admission_number"#}
-                            {#                                                   placeholder="Enter Admission Number" required>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Grade <span class="login-danger">*</span></label>#}
-                            {#                                            <select class="form-control select" id="grade-select" name="class" required>#}
-                            {#                                                <option value="">Please Select Grade</option>#}
-                            {#                                                {% for grade in grades %}#}
-                            {#                                                    <option value="{{ grade.id }}">#}
-                            {#                                                        {{ grade }}{{ grade.section }}</option>#}
-                            {#                                                {% endfor %}#}
-                            {#                                            </select>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                #}
-                            {#                                   <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Religion <span class="login-danger">*</span></label>#}
-                            {#                                            <select class="form-control select" name="religion" required>#}
-                            {#                                                <option value="">Select Religion</option>#}
-                            {#                                                <option value="Male">Christian</option>#}
-                            {#                                                <option value="Female">Muslim</option>#}
-                            {#                                                <option value="Other">Other</option>#}
-                            {#                                            </select>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                    <div class="col-12 col-sm-4"> #}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Joining Date <span class="login-danger">*</span></label>#}
-                            {#                                            <input class="form-control" type="date" name="joining_date" required>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Parent(s) <span class="login-danger">*</span></label>#}
-                            {#                                            <select class="form-control select" name="parents" multiple>#}
-                            {#                                                {% for parent in parents %}#}
-                            {#                                                    <option value="{{ parent.id }}">{{ parent.name }}</option>#}
-                            {#                                                {% endfor %}#}
-                            {#                                            </select>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group students-up-files">#}
-                            {#                                            <label>Upload Student Photo (150px X 150px)</label>#}
-                            {#                                            <div class="uplod">#}
-                            {#                                                <label class="file-upload image-upbtn  mb-0">#}
-                            {#                                                    Choose File <input type="file" name="student_image"#}
-                            {#                                                                       accept="image/*">#}
-                            {#                                                </label>#}
-                            {#                                            </div>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {##}
-                            {#                                    <!-- Add Parent Section -->#}
-                            {#                                    <div class="col-12">#}
-                            {#                                        <h5 class="form-title parent-info">Add Parent Information (If No Parent Exists)#}
-                            {#                                            <span><a href="javascript:;"><i#}
-                            {#                                                    class="feather-more-vertical"></i></a></span></h5>#}
-                            {#                                    </div>#}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Parent First Name</label>#}
-                            {#                                            <input class="form-control" type="text" name="parent_first_name"#}
-                            {#                                                   placeholder="Enter Parent First Name">#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Parent Last Name</label>#}
-                            {#                                            <input class="form-control" type="text" name="parent_last_name"#}
-                            {#                                                   placeholder="Enter Parent Last Name">#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Parent Phone</label>#}
-                            {#                                            <input class="form-control" type="text" name="parent_phone"#}
-                            {#                                                   placeholder="Enter Parent Phone Number">#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                   #}
-                            {#                                   <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Relationship with student <span class="login-danger">*</span></label>#}
-                            {#                                            <select class="form-control select" name="student_relationship" required>#}
-                            {#                                                <option value="">Select Relationship</option>#}
-                            {#                                                <option value="Male">Father</option>#}
-                            {#                                                <option value="Female">Mother</option>#}
-                            {#                                                <option value="Female">Guardian</option>#}
-                            {#                                                <option value="Other">Other</option>#}
-                            {#                                            </select>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {##}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Parent Email</label>#}
-                            {#                                            <input class="form-control" type="email" name="parent_email"#}
-                            {#                                                   placeholder="Enter Parent Email Address">#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {##}
-                            {#                                    <div class="col-12 col-sm-4">#}
-                            {#                                        <div class="form-group local-forms">#}
-                            {#                                            <label>Parent Address</label>#}
-                            {#                                            <input class="form-control" type="text" name="parent_address"#}
-                            {#                                                   placeholder="Enter Parent Address">#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {##}
-                            {#                                    <div class="col-12">#}
-                            {#                                        <div class="student-submit">#}
-                            {#                                            <button type="submit" class="btn btn custom-bg text-white">Submit</button>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                </div>#}
-                            {#                            </form>#}
+                            
                         </div>
                     </div>
                 </div>

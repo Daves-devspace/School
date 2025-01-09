@@ -1,0 +1,114 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Student</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Timetable</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table">
+                        <div class="card-body">
+
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Time Table</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="#" class="btn btn custom-bg text-white me-2"><i
+                                                class="fas fa-download"></i>
+                                            Download</a>
+                                        <a href="add-time-table.html" class="btn btn custom-bg text-white"><i
+                                                class="fas fa-plus"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="container mt-5">
+                                <h3 class="mb-4">Student Timetable</h3>
+                                <div class="mb-3">
+                                    <label for="day" class="form-label">Select Day</label>
+                                    <select id="day" class="form-select">
+                                        <option value="Monday">Monday</option>
+                                        <option value="Tuesday">Tuesday</option>
+                                        <option value="Wednesday">Wednesday</option>
+                                        <option value="Thursday">Thursday</option>
+                                        <option value="Friday">Friday</option>
+                                    </select>
+                                </div>
+                                <table class="table table-bordered">
+                                    <thead>
+                                    <tr>
+                                        <th>Period</th>
+                                        <th>Subject</th>
+                                        <th>Teacher</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="timetableBody">
+                                    <!-- Dynamically populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Copyright © 2024 Davedev</p>
+        </footer>
+
+    </div>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const daySelect = document.getElementById("day");
+            const timetableBody = document.getElementById("timetableBody");
+
+            const fetchTimetable = (day) => {
+                axios
+                    .get(`/api/timetable/student-schedule?student_id=1&day=${day}`)
+                    .then((response) => {
+                        timetableBody.innerHTML = "";
+                        response.data.forEach((entry) => {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                <td>${entry.start_time} - ${entry.end_time}</td>
+                <td>${entry.subject}</td>
+                <td>${entry.teacher}</td>
+              `;
+                            timetableBody.appendChild(row);
+                        });
+                    });
+            };
+
+            daySelect.addEventListener("change", (e) => {
+                fetchTimetable(e.target.value);
+            });
+
+            // Fetch initial timetable
+            fetchTimetable(daySelect.value);
+        });
+    </script>
+
+{% endblock %}

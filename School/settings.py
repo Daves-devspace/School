@@ -10,9 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from django.contrib import messages
+from django.core.cache.backends.redis import RedisCache
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,9 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-0yg9%d29(l9u^17*mm5=*%&jpev!x(&s(9q!ih12@i0a03zual'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True  # change to false in production
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']  # Replace '*' with your domain or IP for production
 
 # Application definition
 
@@ -48,6 +51,10 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'django_daraja',
+    'channels',
+    'apps.schedules',
+    'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -58,6 +65,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # logs
+    # 'apps.Manage.middleware.GroupRedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'School.urls'
@@ -79,23 +89,110 @@ TEMPLATES = [
     },
 ]
 
+# ASGI application path
+ASGI_APPLICATION = 'School.asgi.application'
+
+# settings.py
+
+# Redis setup for caching (if using Redis for caching)
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',  # Redis container name from docker-compose.yml
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+# Redis setup for Django Channels (if using WebSockets)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('redis', 6379)],  # Redis container name from docker-compose.yml
+        },
+    },
+}
+
 WSGI_APPLICATION = 'School.wsgi.application'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'test_db',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#
+#     }
+# }
+
+
+# Email settings for mail.valuetech.co.ke
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.valuetech.co.ke'  # Outgoing mail server
+EMAIL_PORT = 465  # SMTP port for secure connections
+EMAIL_USE_SSL = True  # Use SSL for secure email transmission
+EMAIL_HOST_USER = 'admin@valuetech.co.ke'  # Your email address
+EMAIL_HOST_PASSWORD = 'davedevspace'  # Replace with your email account's password
+DEFAULT_FROM_EMAIL = 'ValueTech Admin <admin@valuetech.co.ke>'
+
+# Load environment variables from the .env file
+load_dotenv()
+
+# Database configuration
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test_db',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
-
+        'ENGINE': 'django.db.backends.mysql',  # Update this to the correct database backend if using MySQL
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', '3306'),  # Default MySQL port
     }
 }
 
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',  # Only JSON responses
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',  # Default: Require authentication for all views
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Short-lived access token
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Longer-lived refresh token
+    'ROTATE_REFRESH_TOKENS': True,                 # Issue a new refresh token when used
+    'BLACKLIST_AFTER_ROTATION': True,              # Blacklist old refresh tokens
+}
+
+# MobileSasa API Credentials
+MOBILESASA_API_TOKEN = os.getenv("MOBILESASA_API_TOKEN")
+MOBILESASA_SENDER_ID = os.getenv("MOBILESASA_SENDER_ID")
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.environ.get('DB_NAME', 'test_db'),
+#         'USER': os.environ.get('DB_USER', 'root'),
+#         'PASSWORD': os.environ.get('DB_PASSWORD', 'yourpassword'),
+#         'HOST': os.environ.get('DB_HOST', 'mysql-db'),  # Use the service name as host
+#         'PORT': os.environ.get('DB_PORT', '3306'),
+#     }
+# }
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -119,7 +216,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 
@@ -128,11 +225,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
-STATIC_ROOT = BASE_DIR / 'static_files'  # for  deployment
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')  # for  deployment
 
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -195,5 +292,3 @@ MPESA_INITIATOR_USERNAME = 'initiator_username'
 # Plaintext password for initiator (to be used in B2C, B2B, AccountBalance and TransactionStatusQuery Transactions)
 
 MPESA_INITIATOR_SECURITY_CREDENTIAL = 'initiator_security_credential'
-
-

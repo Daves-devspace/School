@@ -1,0 +1,77 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Time Table</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Time Table</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table">
+                        <div class="card-body">
+
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Create Time Table</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="#" class="btn btn custom-bg text-white me-2"><i
+                                                class="fas fa-download"></i>
+                                            Download</a>
+                                        <a href="add-time-table.html" class="btn btn custom-bg text-white"><i
+                                                class="fas fa-plus"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h2>Update Subject Grades</h2>
+
+                            <p>The subject <strong>{{ subject.name }}</strong> already has the following grades:
+                                {% for grade in subject.grade.all %}
+                                    {{ grade.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+
+                            <p>The following grades will be added:
+                                {% for grade in new_grades %}
+                                    {{ grade }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+
+                            <form method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">Yes, Add Grades</button>
+                                <a href="{% url 'subjects_list' %}" class="btn btn-secondary">No, Cancel</a>
+                            </form>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Copyright © 2024 Davedev</p>
+        </footer>
+
+    </div>
+
+    </div>
+
+{% endblock %}

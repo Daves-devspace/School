@@ -1,10 +1,15 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.db import models
 from django.db.models import ManyToManyField
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from phonenumber_field.modelfields import PhoneNumberField
 
-
+from apps.management.models import Subject
 
 
 # Create your models here.
@@ -14,38 +19,21 @@ class Role(models.Model):
     def __str__(self):
         return self.name
 
-class Subject(models.Model):
-    name = models.CharField(max_length=100)  # e.g., "Mathematics", "English", etc.
-    grade = models.ForeignKey("students.Class", on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-
-# Create a TeachingAssignment model to break the circular dependency
-class TeachingAssignment(models.Model):
-    teacher = models.ForeignKey('teachers.Teacher', on_delete=models.CASCADE, related_name='assignments')
-    # class_assigned = models.ForeignKey('students.Class', on_delete=models.CASCADE, related_name='assignments')
-    section = models.ForeignKey('students.Section', on_delete=models.CASCADE, related_name='assignments')
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='assignments')
-    assigned_on = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ("teacher", "subject", "section")  # Prevent duplicate assignments
-
-    def __str__(self):
-        return f"{self.teacher.full_name} - {self.subject.name}  - {self.section.name}"
+# class Subject(models.Model):
+#     name = models.CharField(max_length=100)  # e.g., "Mathematics", "English", etc.
+#     grade = models.ForeignKey("students.Grade", on_delete=models.CASCADE)
+#
+#     def __str__(self):
+#         return self.name
 
 
 
+# Teacher model remains the same
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)  # Links to Django's User model
     teacher_id = models.CharField(max_length=20, unique=True)
     full_name = models.CharField(max_length=30)
-    gender = models.CharField(max_length=10, choices=[
-        ('Male', 'Male'),
-        ('Female', 'Female'),
-        ('Others', 'Others'),
-    ])
+    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Others', 'Others')])
     phone_no = PhoneNumberField(region="KE", blank=True, null=True)
     email = models.EmailField(unique=True)
     qualification = models.CharField(max_length=100)
@@ -53,12 +41,25 @@ class Teacher(models.Model):
     address = models.TextField()
     country = models.CharField(max_length=50)
     joining_date = models.DateTimeField()
-    subjects = models.ManyToManyField(Subject, related_name='teachers')
+    subjects = models.ManyToManyField(Subject, related_name="teachers")  # Multiple teachers for a subject
     role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.full_name}"  # Display class name along with teacher's name
+        return f"{self.full_name}"
 
+
+class TeacherAssignment(models.Model):
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    grade_section = models.ForeignKey("students.GradeSection", on_delete=models.CASCADE)
+    assigned_date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['teacher', 'subject', 'grade_section']  # Ensure no duplicate assignments
+        ordering = ['grade_section__grade', 'subject__name']
+
+    def __str__(self):
+        return f"{self.teacher} assigned to {self.subject.name} ({self.grade_section})"
 
 
 

@@ -53,11 +53,14 @@
                                         <h3 class="page-title">Teachers</h3>
                                     </div>
                                     <div class="col-auto text-end float-end ms-auto download-grp">
-                                        <a href="{% url 'teachers' %}" class="btn btn-outline custom-bg me-2 active"><i
-                                                class="feather-list"></i></a>
-                                        <a href="{% url 'teachers' %}" class="btn btn-outline-lg custom-bg text-white me-2"><i
-                                                class="feather-grid"></i></a>
-                                        <a href="#" class="btn btn-outline custom-bg text-white me-2"><i class="fas fa-download"></i>
+                                        <a href="{% url 'teachers' %}"
+                                           class="btn btn-outline custom-bg text-white me-2 active"><i
+                                                class="fas fa-list"></i></a>
+                                        <a href="{% url 'teachers' %}"
+                                           class="btn btn-outline-lg custom-bg text-white me-2"><i
+                                                class="fas fa-th-large"></i></a>
+                                        <a href="#" class="btn btn-outline custom-bg text-white me-2"><i
+                                                class="fas fa-download"></i>
                                             Download</a>
                                         <a href="{% url 'add_teacher' %}" class="btn btn custom-bg text-white"><i
                                                 class="fas fa-plus"></i></a>
@@ -82,40 +85,53 @@
                                         <th>Section</th>
                                         <th>Mobile Number</th>
                                         <th>Address</th>
-                                        <th class="text-end">Action</th>
+                                        <th class="text-end">View</th>
+                                        <th class="text-end">Edit</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for teacher in teachers %}
-                                    <tr>
-                                        <td>
-                                            <div class="form-check check-tables">
-                                                <input class="form-check-input" type="checkbox" value="something">
-                                            </div>
-                                        </td>
-                                        <td>{{ teacher.teacher_id }}</td>
-                                        <td>
-                                            <h2 class="table-avatar">
-                                                <a href="{% url 'teacher_detail' teacher.id %}">{{ teacher.full_name }}</a>
-                                            </h2>
-                                        </td>
-                                        <td>{{ teacher.assigned_class }}</td>
-                                        <td>{{ teacher.gender }}</td>
-                                        <td>{{ teacher.subjects }}</td>
-                                        <td>{{ teacher.section }}</td>
-                                        <td>{{ teacher.phone_no}}</td>
-                                        <td>{{ teacher.address}}</td>
-                                        <td class="text-end">
-                                            <div class="actions">
-                                                <a href="{% url 'teacher_detail' teacher.id %}" class="btn btn-sm custom-bg text-white me-2">
-                                                    <i class="fas fa-eye-slash"></i>
-                                                </a>
-                                                <a href="{% url 'edit_teacher' teacher.id %}" class="btn btn-sm custom-bg text-white">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="form-check check-tables">
+                                                    <input class="form-check-input" type="checkbox" value="something">
+                                                </div>
+                                            </td>
+                                            <td>{{ teacher.teacher_id }}</td>
+                                            <td>
+                                                <h2 class="table-avatar">
+                                                    <a href="{% url 'teacher_detail' teacher.id %}">{{ teacher.full_name }}</a>
+                                                </h2>
+                                            </td>
+                                            <td>{{ teacher.assigned_class }}</td>
+                                            <td>{{ teacher.gender }}</td>
+                                            <td>
+                                                {% for subject in teacher.subjects.all %}
+                                                    {{ subject.name }}{% if not forloop.last %}, {% endif %}
+                                                {% empty %}
+                                                    No subjects assigned
+                                                {% endfor %}
+                                            </td>
+                                            <td>{{ teacher.section }}</td>
+                                            <td>{{ teacher.phone_no }}</td>
+                                            <td>{{ teacher.address }}</td>
+                                            <td class="text-end">
+                                                <div class="actions">
+                                                    <a href="{% url 'teacher_detail' teacher.id %}"
+                                                       class="btn btn-sm custom-bg text-white me-2">
+                                                        <i class="fas fa-eye-slash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="actions">
+                                                    <a href="{% url 'edit_teacher' teacher.id %}"
+                                                       class="btn btn-sm custom-bg text-white">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     {% endfor %}
 
 

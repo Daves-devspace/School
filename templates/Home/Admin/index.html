@@ -8,12 +8,23 @@
 
     <div class="page-wrapper">
         <div class="content container-fluid">
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
 
             <div class="page-header">
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="page-sub-header">
-                            <h3 class="page-title">Welcome {{ user}}</h3>
+                            <h3 class="page-title">Welcome {{ user }}</h3>
                             <ul class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
                                 <li class="breadcrumb-item active">{{ user }}</li>
@@ -30,7 +41,7 @@
                         <div class="card-body">
                             <div class="db-widgets d-flex justify-content-between align-items-center">
                                 <div class="db-info ">
-                                    <h6 >Students</h6>
+                                    <h6>Students</h6>
                                     <h3>{{ total_students }}</h3>
                                 </div>
                                 <div class="db-icon">
@@ -61,7 +72,7 @@
                             <div class="db-widgets d-flex justify-content-between align-items-center">
                                 <div class="db-info">
                                     <h6>Department</h6>
-                                    <h3>{{ total_departments}}</h3>
+                                    <h3>{{ total_departments }}</h3>
                                 </div>
                                 <div class="db-icon">
                                     <img src="{% static 'assets/img/icons/dash-icon-03.svg' %}" alt="Dashboard Icon">
@@ -76,8 +87,8 @@
                             <div class="db-widgets d-flex justify-content-between align-items-center">
                                 <div class="db-info">
                                     <h6>Revenue</h6>
-                                    <h3>{{total_revenue }}</h3>
-                                    <h3>{{current_year }}</h3>
+                                    <h3>{{ total_revenue }}</h3>
+                                    <h6>{{ current_year }}</h6>
                                 </div>
                                 <div class="db-icon">
                                     <img src="{% static 'assets/img/icons/dash-icon-04.svg' %}" alt="Dashboard Icon">
@@ -95,7 +106,7 @@
                         <div class="card-header">
                             <div class="row align-items-center">
                                 <div class="col-6">
-                                    <h5 class="card-title">Overview</h5>
+                                    <h5 class="card-title">Finance Overview</h5>
                                 </div>
                                 <div class="col-6">
                                     <ul class="chart-list-out">
@@ -118,12 +129,12 @@
                         <div class="card-header">
                             <div class="row align-items-center">
                                 <div class="col-6">
-                                    <h5 class="card-title">Number of Students</h5>
+                                    <h5 class="card-title">Active Students</h5>
                                 </div>
                                 <div class="col-6">
                                     <ul class="chart-list-out">
-                                        <li><span class="circle-blue"></span>Girls</li>
-                                        <li><span class="circle-green"></span>Boys</li>
+                                        <li><span class="circle-green"></span>Girls</li>
+                                        <li><span class="custom-bg"></span>Boys</li>
                                         <li class="star-menus"><a href="javascript:;"><i
                                                 class="fas fa-ellipsis-v"></i></a></li>
                                     </ul>
@@ -131,7 +142,7 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div id="bar"></div>
+                            <div id="pie"></div>
 
                         </div>
                     </div>
@@ -151,108 +162,37 @@
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table
-                                        class="table star-student table-hover table-center table-borderless table-striped">
+                                <table class="table star-student table-hover table-center table-borderless table-striped">
                                     <thead class="thead-light">
                                     <tr>
                                         <th>ID</th>
                                         <th>Name</th>
                                         <th class="text-center">Marks</th>
-                                        <th class="text-center">Percentage</th>
-                                        <th class="text-end">Year</th>
+                                        <th class="text-center">Class</th>
+                                        <th class="text-end">Term</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr>
-                                        <td class="text-nowrap">
-                                            <div>PRE2209</div>
-                                        </td>
-                                        <td class="text-nowrap">
-                                            <a href="profile.html">
-                                                <img class="rounded-circle"
-                                                     src="assets/img/profiles/avatar-02.jpg" width="25"
-                                                     alt="Star Students">
-                                                John Smith
-                                            </a>
-                                        </td>
-                                        <td class="text-center">1185</td>
-                                        <td class="text-center">98%</td>
-                                        <td class="text-end">
-                                            <div>2019</div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-nowrap">
-                                            <div>PRE1245</div>
-                                        </td>
-                                        <td class="text-nowrap">
-                                            <a href="profile.html">
-                                                <img class="rounded-circle"
-                                                     src="assets/img/profiles/avatar-01.jpg" width="25"
-                                                     alt="Star Students">
-                                                Jolie Hoskins
-                                            </a>
-                                        </td>
-                                        <td class="text-center">1195</td>
-                                        <td class="text-center">99.5%</td>
-                                        <td class="text-end">
-                                            <div>2018</div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-nowrap">
-                                            <div>PRE1625</div>
-                                        </td>
-                                        <td class="text-nowrap">
-                                            <a href="profile.html">
-                                                <img class="rounded-circle"
-                                                     src="assets/img/profiles/avatar-03.jpg" width="25"
-                                                     alt="Star Students">
-                                                Pennington Joy
-                                            </a>
-                                        </td>
-                                        <td class="text-center">1196</td>
-                                        <td class="text-center">99.6%</td>
-                                        <td class="text-end">
-                                            <div>2017</div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-nowrap">
-                                            <div>PRE2516</div>
-                                        </td>
-                                        <td class="text-nowrap">
-                                            <a href="profile.html">
-                                                <img class="rounded-circle"
-                                                     src="assets/img/profiles/avatar-04.jpg" width="25"
-                                                     alt="Star Students">
-                                                Millie Marsden
-                                            </a>
-                                        </td>
-                                        <td class="text-center">1187</td>
-                                        <td class="text-center">98.2%</td>
-                                        <td class="text-end">
-                                            <div>2016</div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-nowrap">
-                                            <div>PRE2209</div>
-                                        </td>
-                                        <td class="text-nowrap">
-                                            <a href="profile.html">
-                                                <img class="rounded-circle"
-                                                     src="assets/img/profiles/avatar-05.jpg" width="25"
-                                                     alt="Star Students">
-                                                John Smith
-                                            </a>
-                                        </td>
-                                        <td class="text-center">1185</td>
-                                        <td class="text-center">98%</td>
-                                        <td class="text-end">
-                                            <div>2015</div>
-                                        </td>
-                                    </tr>
+                                    {% for student in top_students_data %}
+                                        <tr>
+                                            <td class="text-nowrap">
+                                                <div>{{ student.admission_number }}</div>
+                                            </td>
+                                            <td class="text-nowrap">
+                                                <a href="profile.html">
+                                                    <img class="rounded-circle"
+                                                         src="{% static 'assets/img/profiles/avatar-02.jpg' %}"
+                                                         width="25" alt="Star Students">
+                                                    {{ student.student_name }}
+                                                </a>
+                                            </td>
+                                            <td class="text-center">{{ student.total_marks }}</td>
+                                            <td class="text-center">{{ student.class }}</td>
+                                            <td class="text-end">
+                                                <div>{{ student.term }}</div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
@@ -274,7 +214,7 @@
                             <div class="activity-groups">
                                 <div class="activity-awards">
                                     <div class="award-boxs">
-                                        <img src="assets/img/icons/award-icon-01.svg" alt="Award">
+                                        <img src="{% static 'assets/img/icons/award-icon-01.svg' %}" alt="Award">
                                     </div>
                                     <div class="award-list-outs">
                                         <h4>1st place in "Chess”</h4>
@@ -286,7 +226,7 @@
                                 </div>
                                 <div class="activity-awards">
                                     <div class="award-boxs">
-                                        <img src="assets/img/icons/award-icon-02.svg" alt="Award">
+                                        <img src="{% static 'assets/img/icons/award-icon-02.svg' %}" alt="Award">
                                     </div>
                                     <div class="award-list-outs">
                                         <h4>Participated in "Carrom"</h4>
@@ -298,7 +238,7 @@
                                 </div>
                                 <div class="activity-awards">
                                     <div class="award-boxs">
-                                        <img src="assets/img/icons/award-icon-03.svg" alt="Award">
+                                        <img src="{% static 'assets/img/icons/award-icon-03.svg' %}" alt="Award">
                                     </div>
                                     <div class="award-list-outs">
                                         <h4>Internation conference in "St.John School"</h4>
@@ -310,7 +250,7 @@
                                 </div>
                                 <div class="activity-awards mb-0">
                                     <div class="award-boxs">
-                                        <img src="assets/img/icons/award-icon-04.svg" alt="Award">
+                                        <img src="{% static 'assets/img/icons/award-icon-04.svg' %}" alt="Award">
                                     </div>
                                     <div class="award-list-outs">
                                         <h4>Won 1st place in "Chess"</h4>
@@ -335,7 +275,7 @@
                             <h6>50,095</h6>
                         </div>
                         <div class="social-boxs">
-                            <img src="assets/img/icons/social-icon-01.svg" alt="Social Icon">
+                            <img src="{% static 'assets/img/icons/social-icon-01.svg' %}" alt="Social Icon">
                         </div>
                     </div>
                 </div>
@@ -346,7 +286,7 @@
                             <h6>48,596</h6>
                         </div>
                         <div class="social-boxs">
-                            <img src="assets/img/icons/social-icon-02.svg" alt="Social Icon">
+                            <img src="{% static 'assets/img/icons/social-icon-02.svg' %}" alt="Social Icon">
                         </div>
                     </div>
                 </div>
@@ -357,7 +297,7 @@
                             <h6>52,085</h6>
                         </div>
                         <div class="social-boxs">
-                            <img src="assets/img/icons/social-icon-03.svg" alt="Social Icon">
+                            <img src="{% static 'assets/img/icons/social-icon-03.svg' %}" alt="Social Icon">
                         </div>
                     </div>
                 </div>
@@ -368,7 +308,7 @@
                             <h6>69,050</h6>
                         </div>
                         <div class="social-boxs">
-                            <img src="assets/img/icons/social-icon-04.svg" alt="Social Icon">
+                            <img src="{% static 'assets/img/icons/social-icon-04.svg' %}" alt="Social Icon">
                         </div>
                     </div>
                 </div>
@@ -450,27 +390,76 @@
     </script>
 
 
+    {#    <script>#}
+    {#        $(document).ready(function () {#}
+    {#            console.log("Document is ready."); // Debug#}
+    {#            if ($('#pie').length > 0) {#}
+    {#                console.log("#pie container exists."); // Debug#}
+    {#                $.ajax({#}
+    {#                    url: '{% url 'gender_pie_chart' %}',#}
+    {#                    method: 'GET',#}
+    {#                    success: function (data) {#}
+    {#                        console.log('API Response:', data); // Debugging#}
+    {#                        if (data.labels && data.datasets && data.datasets[0] && data.datasets[0].data) {#}
+    {#                            console.log("Valid API data received."); // Debug#}
+    {#                            var optionsPie = {#}
+    {#                                chart: {#}
+    {#                                    type: 'pie',#}
+    {#                                    height: 350,#}
+    {#                                },#}
+    {#                                labels: ['Boys', 'Girls'], // Hardcoded labels#}
+    {#                                series: [50, 50], // Hardcoded series#}
+    {#                                colors: ['#4e73df', '#ff6384'], // Hardcoded colors#}
+    {#                                legend: {#}
+    {#                                    position: 'bottom',#}
+    {#                                },#}
+    {#                                title: {#}
+    {#                                    text: 'Gender Ratio',#}
+    {#                                    align: 'center',#}
+    {#                                    style: {#}
+    {#                                        fontSize: '16px',#}
+    {#                                    },#}
+    {#                                },#}
+    {#                            };#}
+    {##}
+    {#                            var chartPie = new ApexCharts(document.querySelector('#pie'), optionsPie);#}
+    {#                            chartPie.render();#}
+    {#                            console.log("Pie chart rendered successfully."); // Debug#}
+    {#                        } else {#}
+    {#                            console.error('Invalid API response structure:', data);#}
+    {#                        }#}
+    {#                    },#}
+    {#                    error: function (xhr, status, error) {#}
+    {#                        console.error('Error fetching gender data:', status, error);#}
+    {#                    },#}
+    {#                });#}
+    {#            } else {#}
+    {#                console.error("#pie container does not exist.");#}
+    {#            }#}
+    {#        });#}
+    {##}
+    {#    </script>#}
+
     <script>
         $(document).ready(function () {
             if ($('#pie').length > 0) { // Ensure the div exists
                 $.ajax({
-                    url: '/path-to-your-gender-pie-data/', // Replace with your actual API endpoint
+                    url: '{% url 'gender_pie_chart' %}', // URL of the updated view
                     method: 'GET',
                     success: function (data) {
-                        // Define chart options
                         var optionsPie = {
                             chart: {
                                 type: 'pie',
                                 height: 350,
                             },
-                            labels: data.labels, // Labels from API (e.g., ['Male', 'Female', 'Others'])
-                            series: data.datasets[0].data, // Data series (e.g., [45, 55, 10])
-                            colors: data.datasets[0].backgroundColor, // Colors for each section (e.g., ['#ff6384', '#36a2eb', '#cc65fe'])
+                            labels: data.labels, // Gender categories
+                            series: data.datasets[0].data, // Gender data
+                            colors: data.datasets[0].backgroundColor, // Colors for each section
                             legend: {
                                 position: 'bottom',
                             },
                             title: {
-                                text: data.title || 'Gender Distribution', // Default title if not provided
+                                text: data.title, // Use the title from the API
                                 align: 'center',
                                 style: {
                                     fontSize: '16px',
@@ -483,9 +472,10 @@
                         chartPie.render();
                     },
                     error: function (error) {
-                        console.error('Error fetching gender data:', error);
+                        console.log('Error fetching gender data:', error);
                     },
                 });
+
             }
         });
     </script>
@@ -562,6 +552,9 @@
 
     <!-- ApexCharts -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
+
 
 
     </html>

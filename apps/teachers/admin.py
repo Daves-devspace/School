@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.teachers.models import Subject, Teacher, Department, TeachingAssignment, TeacherRole, Role
+from apps.teachers.models import  Teacher, Department, TeacherAssignment, TeacherRole, Role
 
 
 # Register your models here.
@@ -12,8 +12,7 @@ class TeacherRoleInline(admin.TabularInline):
     model = TeacherRole
     extra = 1  # Allow adding roles in the admin interface
 
-class SubjectAdmin(admin.ModelAdmin):
-    list_display = ['name','grade']
+
 
 class TeacherAdmin(admin.ModelAdmin):
     list_display = ['full_name','teacher_id','phone_no']
@@ -22,10 +21,10 @@ class TeacherAdmin(admin.ModelAdmin):
     search_fields = ('full_name', 'phone_no')
 
 
-class TeachingAssignmentAdmin(admin.ModelAdmin):
-    list_display = ['teacher','section','subject','assigned_on']
-    list_filter = ['subject','section']
-    search_fields = ['teacher__full_name','subject__name','section__name']
+class TeacherAssignmentAdmin(admin.ModelAdmin):
+    list_display = ['teacher','grade_section','subject','assigned_date']
+    list_filter = ['subject','grade_section']
+    search_fields = ['teacher__full_name','subject__name','grade_section__grade__name']
 
 
 class DepartmentAdmin(admin.ModelAdmin):
@@ -35,9 +34,9 @@ class DepartmentAdmin(admin.ModelAdmin):
     autocomplete_fields = ('hod',) # Use autocomplete for the HOD field if there are many teachers
     inlines = [TeacherRoleInline]  # Add inline role management
 
-admin.site.register(Subject, SubjectAdmin)
+
 admin.site.register(Teacher, TeacherAdmin)
 admin.site.register(Role)
 admin.site.register(TeacherRole)
-admin.site.register(TeachingAssignment,TeachingAssignmentAdmin)
+admin.site.register(TeacherAssignment,TeacherAssignmentAdmin)
 admin.site.register(Department,DepartmentAdmin)

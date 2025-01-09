@@ -64,6 +64,14 @@
     background:none;
     z-index: 1;
 }
+    .nav-logo{
+        height: 70px;
+        width: 70px;
+
+    }
+    .nav-font{
+        font-family: "Segoe UI", system-ui, sans-serif;
+    }
 
 
 </style>
@@ -85,7 +93,7 @@
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg custom_bg navbar-light sticky-top px-4 px-lg-5 py-lg-0">
         <a href="{% url 'merry-land' %}" class="navbar-brand">
-            <h1 class="m-0 text-white"><i class="fa fa-book-reader me-3"></i>MERRYLAND</h1>
+            <h1 class="m-0 text-white nav-font"><i class=" me-3"><img class="nav-logo" src="{% static 'assets/img/navlogo.png' %}" alt=""></i>MERRYLAND</h1>
         </a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon"></span>

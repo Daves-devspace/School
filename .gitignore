@@ -1,0 +1,10 @@
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+.dockerignore
+.git
+.gitignore
+node_modules
+*.log
+*.env

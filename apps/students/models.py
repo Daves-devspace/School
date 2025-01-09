@@ -1,9 +1,14 @@
 import os
 import uuid
+from datetime import date
 
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Max
+from django.utils.timezone import now
 from phonenumber_field.modelfields import PhoneNumberField
 
+from apps.teachers.models import Teacher
 
 
 # Create your models here.
@@ -13,28 +18,59 @@ def generate_unique_name(instance,filename):
     full_file_name=f"{name}-{filename}"
     return os.path.join("student_images",full_file_name)
 
-
-class Class(models.Model):
+class Grade(models.Model):
     name = models.CharField(max_length=100)  # e.g., "Grade 1", "Grade 2"
-    level = models.IntegerField()  # Used to determine progression (e.g., 1 for Grade 1, 2 for Grade 2)
+    level = models.IntegerField(unique=True)  # Ensure progression levels are unique
 
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['level']
+
+
 class Section(models.Model):
     name = models.CharField(max_length=50)  # e.g., "A", "B", "South", "North"
-    grade = models.ForeignKey(Class, on_delete=models.CASCADE, related_name="sections", null=True, blank=True)
-    class_teacher = models.OneToOneField(
-    'teachers.Teacher', on_delete=models.SET_NULL, null=True, blank=True, related_name="class_teacher_of"
-    )  # One teacher can only be a class teacher for one section
 
     def __str__(self):
-        return f"{self.grade} {self.name}"
+        return f"{self.name}"
+
+    class Meta:
+        ordering = ['name']
+
+
+class GradeSection(models.Model):  # Renamed to avoid "Class" keyword conflict
+    grade = models.ForeignKey(
+        Grade, on_delete=models.CASCADE, related_name="grade_sections"
+    )
+    section = models.ForeignKey(
+        Section, on_delete=models.CASCADE, related_name="section_grade_sections"
+    )
+
+    class_teacher = models.OneToOneField(
+        Teacher,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="class_teacher_of",
+    )  # A teacher can only teach one section
+
+    class Meta:
+        unique_together = ("grade", "section")
+        ordering = ["grade__level", "section__name"]
+
+    def __str__(self):
+        return f"{self.grade.name} {self.section.name}"
+
+
+
+
+
 
 class Parent(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    mobile = PhoneNumberField(region="KE", blank=True, null=True)
+    mobile = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     address = models.CharField(max_length=200, blank=True, null=True)
 
@@ -43,6 +79,7 @@ class Parent(models.Model):
 
     class Meta:
         unique_together = ('first_name', 'last_name', 'mobile')
+        verbose_name_plural = "Parents"  # Use proper pluralization in admin
 
 
 class Student(models.Model):
@@ -57,44 +94,104 @@ class Student(models.Model):
     last_name = models.CharField(max_length=100)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     date_of_birth = models.DateField()
-    Class = models.ForeignKey('Class', on_delete=models.SET_NULL, null=True, related_name="students")
+    grade = models.ForeignKey(
+        GradeSection, on_delete=models.SET_NULL, null=True, related_name="students"
+    )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="Active")
+    sponsored = models.BooleanField(default=False)  # Track if the student is sponsored
     religion = models.CharField(max_length=10, choices=RELIGION_CHOICES)
     joining_date = models.DateField()
     admission_number = models.CharField(max_length=15, unique=True)
     student_image = models.ImageField(upload_to='students', blank=True, null=True)
-    parent = models.ManyToManyField('Parent', through='StudentParent', related_name="students")
+    parent = models.ManyToManyField(
+        Parent, through='StudentParent', related_name="students"
+    )
+    last_promoted = models.DateTimeField(null=True, blank=True)  # Track last promotion date
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.admission_number})"
 
-    # def clean(self):
-    #     # Ensure joining date is not in the future
-    #     if self.joining_date > timezone.now().date():
-    #         raise ValidationError("Joining date cannot be in the future.")
+    def save(self, *args, **kwargs):
+        if not self.admission_number:  # Only generate if it doesn't already exist
+            self.admission_number = self.generate_admission_number()
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def generate_admission_number():
+        current_year = date.today().year
+        last_student = Student.objects.order_by('-id').first()
+
+        # Extract the number part after the last "/" character (instead of "-")
+        if last_student and last_student.admission_number:
+            last_number = int(last_student.admission_number.split("/")[-1])  # Split using "/" and take the last part
+        else:
+            last_number = 0  # Default to 0 if no previous student exists
+
+        # Return the formatted admission number with "/" as the separator
+        return f"{current_year}/MFS/{last_number + 1:03d}"
+
+    def clean(self):
+        # Ensure joining date is not in the future
+        if self.joining_date > now().date():
+            raise ValidationError("Joining date cannot be in the future.")
+        # Ensure date of birth is not in the future
+        if self.date_of_birth >= now().date():
+            raise ValidationError("Date of birth must be in the past.")
+
+    def promote(self):
+        """Promote student to the next grade section or mark as graduated."""
+        current_grade_level = self.grade.grade.level
+        max_grade_level = Grade.objects.aggregate(max_level=Max('level'))['max_level']
+
+        if current_grade_level == max_grade_level:
+            # If in the highest grade, mark as graduated
+            self.status = "Graduated"
+            self.last_promoted = now()
+            self.save()
+            return "Graduated"
+
+        # Fetch the next grade and grade section
+        next_grade = Grade.objects.filter(level=current_grade_level + 1).first()
+        if not next_grade:
+            return "Error: Next grade not found."
+
+        next_grade_section = GradeSection.objects.filter(
+            grade=next_grade, section=self.grade.section
+        ).first()
+
+        if not next_grade_section:
+            return f"Error: No section available for Grade {next_grade.name} and Section {self.grade.section.name}."
+
+        # Promote student
+        self.grade = next_grade_section
+        self.last_promoted = now()
+        self.save()
+        return "Promoted"
 
 
 class StudentParent(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     parent = models.ForeignKey(Parent, on_delete=models.CASCADE)
-    relationship = models.CharField(max_length=100, choices=[
-        ("Father", "Father"),
-        ("Mother", "Mother"),
-        ("Guardian", "Guardian"),
-        ("Other", "Other"),
-    ])
+    relationship = models.CharField(
+        max_length=100,
+        choices=[
+            ("Father", "Father"),
+            ("Mother", "Mother"),
+            ("Guardian", "Guardian"),
+            ("Other", "Other"),
+        ],
+    )
 
     def __str__(self):
         return f"{self.parent} - {self.student} ({self.relationship})"
 
-
-
-
+    class Meta:
+        unique_together = ('student', 'parent')
 
 class Book(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100)
-    year = models.IntegerField()
+    year =  models.DateField()
     subject = models.CharField(max_length=100)
     isbn = models.CharField(max_length=100, unique=True)
 

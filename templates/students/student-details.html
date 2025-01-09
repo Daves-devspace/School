@@ -1,4 +1,5 @@
 {% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
 {% load static %}
 {% block body %}
 
@@ -18,6 +19,17 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
             </div>
             <div class="card">
                 <div class="card-body">
@@ -58,7 +70,7 @@
                                     <div class="col-lg-4 col-md-4 d-flex align-items-center">
                                         <div class="follow-btn-group">
 
-                                            <button type="submit" class="btn btn-info message-btns">Message</button>
+
                                         </div>
                                     </div>
                                 </div>
@@ -81,6 +93,10 @@
                                                 <h4>Name</h4>
                                                 <h5>{{ student.first_name }} &nbsp; {{ student.last_name }}</h5>
                                             </div>
+                                            <div class="views-personal">
+                                                <h4>ID</h4>
+                                                <h5>{{ student.id }} &nbsp; {{ student.last_name }}</h5>
+                                            </div>
                                         </div>
                                         <div class="personal-activity">
                                             <div class="personal-icons">
@@ -91,7 +107,7 @@
                                                 <h5>{{ student.grade }}</h5>
                                             </div>
                                         </div>
-                                       
+
                                         <div class="personal-activity">
                                             <div class="personal-icons">
                                                 <i class="feather-user"></i>
@@ -119,7 +135,7 @@
                                                 <h5>Home science</h5>
                                             </div>
                                         </div>
-                                         <div class="personal-activity">
+                                        <div class="personal-activity">
                                             <div class="personal-icons">
                                                 <i class="feather-phone-call"></i>
                                             </div>
@@ -132,7 +148,7 @@
                                                 {% endif %}
                                             </div>
                                         </div>
-                                     <div class="personal-activity">
+                                        <div class="personal-activity">
                                             <div class="personal-icons">
                                                 <i class="feather-users"></i>
                                             </div>
@@ -215,10 +231,59 @@
                                                                      aria-valuemax="100"></div>
                                                             </div>
                                                         </div>
-                                                        <div id="s-col"></div>
-                                                        
+
+
                                                     </div>
                                                 </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="card mb-0">
+                                            <div class="card-body">
+
+
+                                                <div class="#">
+                                                    <div class="dropdown-container">
+                                                        <!-- Term Dropdown -->
+                                                        <label for="term-select">Select Term:</label>
+                                                        <select id="term-select" name="term" required>
+                                                            <option value="" disabled selected>Select Term</option>
+                                                            {% if terms %}
+                                                                {% for term in terms %}
+                                                                    <option value="{{ term.name }}">{{ term.name }}</option>
+                                                                {% endfor %}
+                                                            {% else %}
+                                                                <option value="" disabled>No terms available</option>
+                                                            {% endif %}
+                                                        </select>
+
+                                                        <!-- Year Dropdown -->
+                                                        <label for="exam-type-select">Select Year:</label>
+                                                        <select id="exam-type-select" name="year" required>
+                                                            <option value="" disabled selected>Select Year</option>
+                                                            {% if years %}
+                                                                {% for year in years %}
+                                                                    <option value="{{ year }}">{{ year }}</option>
+                                                                {% endfor %}
+                                                            {% else %}
+                                                                <option value="" disabled>No years available</option>
+                                                            {% endif %}
+                                                        </select>
+                                                    </div>
+
+                                                    <div id="chart"
+                                                         data-student-id="{{ student.id }}"
+                                                         data-initial-chart-data='{{ chart_data|safe }}'>
+                                                    </div>
+
+                                                    {#                                                    <div id="chart">#}
+                                                    {#                                                        <div id="timeline-chart"></div>#}
+                                                    {#                                                    </div>#}
+
+
+                                                </div>
+
                                             </div>
                                         </div>
 
@@ -227,17 +292,233 @@
                                 </div>
                             </div>
                         </div>
+
+
                     </div>
                 </div>
             </div>
         </div>
 
+
         <footer>
-            <p>Copyright © 2024 Davedev</p>
+            <p>Generated on {{ student.date_created }}</p>
         </footer>
+    </div>
+    </div>
+
+
+    </div>
+    </div>
+    </div>
+
+    <footer>
+        <p>Copyright © 2024 Davedev</p>
+    </footer>
     </div>
 
     </div>
+    <!-- JavaScript to Handle AJAX -->
+
+{#    <script>#}
+{#        document.addEventListener("DOMContentLoaded", function () {#}
+{#            const termSelect = document.getElementById("term-select");#}
+{#            const yearSelect = document.getElementById("exam-type-select");#}
+{#            const chartContainer = document.querySelector("#chart");#}
+{#            const cache = {};#}
+{##}
+{#            // Fetch chart data from the server with term, year, and student_id in the URL#}
+{#            async function fetchChartData(term, year, studentId) {#}
+{#                const response = await fetch(`/api/student-performance/${encodeURIComponent(studentId)}/${encodeURIComponent(term)}/${encodeURIComponent(year)}/`);#}
+{#                if (!response.ok) {#}
+{#                    throw new Error(`HTTP error! status: ${response.status}`);#}
+{#                }#}
+{#                return response.json();#}
+{#            }#}
+{##}
+{#            // Render chart using ApexCharts#}
+{#            function renderChart(data) {#}
+{#                if (!data || !data.datasets || !data.labels || data.datasets.length === 0) {#}
+{#                    chartContainer.innerHTML = "<p>No data available for the selected term and year.</p>";#}
+{#                    return;#}
+{#                }#}
+{##}
+{#                if (window.chart) {#}
+{#                    window.chart.destroy();#}
+{#                }#}
+{##}
+{#                const options = {#}
+{#                    chart: {#}
+{#                        type: 'bar',#}
+{#                        height: 350,#}
+{#                    },#}
+{#                    series: data.datasets,#}
+{#                    xaxis: {#}
+{#                        categories: data.labels,#}
+{#                        labels: {#}
+{#                            rotate: -45,#}
+{#                            style: {#}
+{#                                fontSize: '12px',#}
+{#                            },#}
+{#                        },#}
+{#                    },#}
+{#                    title: {#}
+{#                        text: `${data.student_name || 'Student'} Performance (${termSelect.value} - ${yearSelect.value})`,#}
+{#                        align: 'center',#}
+{#                    },#}
+{#                    plotOptions: {#}
+{#                        bar: {#}
+{#                            horizontal: false,#}
+{#                            columnWidth: '50%',#}
+{#                        },#}
+{#                    },#}
+{#                    dataLabels: {#}
+{#                        enabled: true,#}
+{#                        formatter: val => val,#}
+{#                        style: {#}
+{#                            colors: ['#000'],#}
+{#                            fontSize: '14px',#}
+{#                            fontWeight: 'bold',#}
+{#                        },#}
+{#                    },#}
+{#                    yaxis: {#}
+{#                        title: {#}
+{#                            text: 'Marks',#}
+{#                        },#}
+{#                    },#}
+{#                };#}
+{##}
+{#                window.chart = new ApexCharts(chartContainer, options);#}
+{#                window.chart.render();#}
+{#            }#}
+{##}
+{#            // Update chart based on term, year, and student_id selection#}
+{#            async function updateChart() {#}
+{#                const term = termSelect.value;#}
+{#                const year = yearSelect.value;#}
+{#                const studentId = chartContainer.dataset.studentId; // Assuming student_id is stored in a data attribute on the container#}
+{##}
+{#                if (!term || !year || !studentId) {#}
+{#                    chartContainer.innerHTML = "<p>Please select both term and year, and ensure student ID is provided to view data.</p>";#}
+{#                    return;#}
+{#                }#}
+{##}
+{#                chartContainer.innerHTML = "<p>Loading...</p>";#}
+{#                const cacheKey = `${studentId}-${term}-${year}`;#}
+{##}
+{#                if (cache[cacheKey]) {#}
+{#                    renderChart(cache[cacheKey]);#}
+{#                    return;#}
+{#                }#}
+{##}
+{#                try {#}
+{#                    const data = await fetchChartData(term, year, studentId);#}
+{#                    if (data.error) {#}
+{#                        throw new Error(data.error);#}
+{#                    }#}
+{#                    cache[cacheKey] = data;#}
+{#                    renderChart(data);#}
+{#                } catch (error) {#}
+{#                    console.error('Error fetching chart data:', error);#}
+{#                    chartContainer.innerHTML = "<p>Failed to fetch chart data. Please try again later.</p>";#}
+{#                }#}
+{#            }#}
+{##}
+{#            // Attach event listeners#}
+{#            termSelect.addEventListener("change", updateChart);#}
+{#            yearSelect.addEventListener("change", updateChart);#}
+{##}
+{#            // Render initial chart if available#}
+{#            const initialChartData = chartContainer.dataset.initialChartData ? JSON.parse(chartContainer.dataset.initialChartData) : null;#}
+{#            if (initialChartData) {#}
+{#                renderChart(initialChartData);#}
+{#            } else {#}
+{#                chartContainer.innerHTML = "<p>No initial data available to render.</p>";#}
+{#            }#}
+{#        });#}
+{##}
+{#    </script>#}
+
+
+
+
+
+
+        <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // DOM Elements
+            const termSelect = document.getElementById("term-select");
+            const yearSelect = document.getElementById("exam-type-select");
+            const chartContainer = document.querySelector("#chart");
+
+            // Function to render the chart
+            function renderChart(data) {
+                if (window.chart) {
+                    window.chart.destroy();
+                }
+
+                const options = {
+                    chart: {
+                        type: 'bar',
+                        height: 350,
+                    },
+                    series: data.datasets,
+                    xaxis: {
+                        categories: data.labels,
+                    },
+                    title: {
+                        text: `Student Performance (${termSelect.value} - ${yearSelect.value})`,
+                        align: 'center',
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '50%',
+                        },
+                    },
+                };
+
+                window.chart = new ApexCharts(chartContainer, options);
+                window.chart.render();
+            }
+
+            // Fetch initial chart data
+            let initialChartData = {{ chart_data|safe }};
+            renderChart(initialChartData);
+
+            // Update chart based on dropdown changes
+            function updateChart() {
+                const term = termSelect.value;
+                const year = yearSelect.value;
+
+                // Fetch updated chart data from the server
+                fetch(`/api/student-performance/${term}/${year}/${student_id}`)  // Adjust URL as needed
+                    .then(response => response.json())
+                    .then(data => {
+                        renderChart(data);
+                    })
+                    .catch(error => console.error('Error fetching chart data:', error));
+            }
+
+            termSelect.addEventListener("change", updateChart);
+            yearSelect.addEventListener("change", updateChart);
+        });
+    </script>
+
+
+
+
+
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
+
 
 
 

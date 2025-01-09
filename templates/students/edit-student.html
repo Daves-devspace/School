@@ -18,6 +18,17 @@
                     </div>
                 </div>
             </div>
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
 
             <div class="row">
                 <div class="col-sm-12">
@@ -25,10 +36,10 @@
                         <div class="card-body">
                             <form method="POST" enctype="multipart/form-data">
                                 {% csrf_token %}
-                            
+
                                 {{ form|crispy }}
-                                
-                                <button class="btn-success "  type="submit">Save</button>
+
+                                <button class="btn-success " type="submit">Save</button>
                             </form>
 
 

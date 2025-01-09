@@ -1,0 +1,301 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <title>Receipt - Merryland</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}">
+
+    <!-- Icon Fonts -->
+    <link rel="stylesheet" href="{% static 'assets/plugins/feather/feather.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/icons/flags/flags.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+
+    <!-- Custom Styles -->
+    <style>
+        /* General Layout */
+        .invoice-info-card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 8px;
+        }
+
+        .invoice-logo img {
+            max-width: 150px;
+        }
+
+        .invoice-head h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .invoice-head p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        /* Table Styling */
+        .invoice-table th,
+        .invoice-table td {
+            font-size: 0.875rem;
+            color: #333;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .invoice-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .invoice-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .invoice-table .text-end {
+            text-align: right;
+        }
+
+        /* Final Summary */
+        .invoice-total-box h4 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #28a745;
+        }
+
+        .invoice-total-box p {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        /* Signature */
+        .invoice-sign img {
+            max-width: 100px;
+            margin-bottom: 10px;
+        }
+
+        .invoice-sign span {
+            font-size: 0.875rem;
+            color: #333;
+        }
+
+        /* Notes Section */
+        .invoice-terms h6 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .invoice-terms p {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        /* Generate PDF Button */
+        .btn-primary {
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .invoice-item {
+                text-align: center;
+            }
+
+            .invoice-info {
+                margin-bottom: 20px;
+            }
+
+            .invoice-total-box {
+                text-align: center;
+            }
+
+            .invoice-sign {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+{% block body %}
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-xl-10">
+                    <div class="card invoice-info-card">
+                        <div class="card-body">
+                            <div id="receipt-section">
+                                <!-- Header Section -->
+                                <div class="invoice-item invoice-item-one">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="invoice-logo">
+                                                <table class="title1">
+                                                    <tr>
+                                                        <th><img src="{{ MEDIA_URL }}{{ institution.get_logo_path }}"
+                                                                 width="100" height="85" alt="school logo"></th>
+
+
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <div class="invoice-head">
+                                                <h2 style="color:darkgreen">School Fee Receipt</h2>
+                                                <p class="text-muted">Receipt Number: RCT{{ fee_record.id }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 text-end">
+                                            <div class="invoice-info">
+                                                <strong class="text-uppercase text-dark">Issued By</strong>
+
+                                                <p class="text-muted">
+                                                    <td>{{ institution.detail|safe }}</td>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Billing Details -->
+                                <div class="invoice-item invoice-item-two">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="invoice-info">
+                                                <strong class="text-uppercase text-secondary">Billed to</strong>
+                                                <h6 class="invoice-name">{{ student_first_name }} {{ student_last_name }}</h6>
+                                                <p class="text-muted">
+                                                    Class/Grade: {{ student_grade }} <br>
+                                                    Admission Number: {{ fee_record.student.admission_number }} <br>
+                                                    Parent/Guardian: {{ guardian_name }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 text-end">
+                                            <div class="invoice-info">
+                                                <strong class="text-uppercase text-secondary">Payment Details</strong>
+                                                <p class="text-muted">
+                                                    Mode: {{ payment_mode }} <br>
+                                                    Date: {{ payment_date }} <br>
+                                                    Ref: {{ payment_reference }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fee Breakdown Table -->
+                                <div class="invoice-item invoice-table-wrap">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="table-responsive">
+                                                <table class="invoice-table table table-center mb-0">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Description</th>
+                                                        <th>Term</th>
+                                                        <th>Amount</th>
+                                                        <th>Discount</th>
+                                                        <th class="text-end">Balance</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% for fee in active_fees %}
+                                                        <tr>
+                                                            <td>{{ fee.description }}</td>
+                                                            <td>{{ term_name }}</td>
+                                                            <td>{{ fee.amount }}</td>
+                                                            <td>0</td> <!-- Add discount logic here if applicable -->
+                                                            <td class="text-end">{{ fee.amount }}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                    <tr>
+                                                        <td>Previous Balance</td>
+                                                        <td>--</td>
+                                                        <td colspan="2"></td>
+                                                        <td class="text-end">{{ previous_balance }}</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Final Summary -->
+                                <div class="row align-items-center justify-content-center">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="invoice-terms">
+                                            <h6>Notes:</h6>
+                                            <p class="mb-0">Payments are non-refundable. Please contact the finance
+                                                office for queries.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 text-end">
+                                        <div class="invoice-total-box">
+                                            <p>Sub Total: <span>{{ subtotal }}</span></p>
+                                            <p>Payments Made: <span>{{ payments_made }}</span></p>
+                                            <h4>Final Balance: <span>{{ final_balance }}</span></h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Signature -->
+                                <div class="invoice-sign text-end">
+                                    <img class="img-fluid d-inline-block" src="{% static 'assets/img/signature.png' %}"
+                                         alt="Authorized Signature">
+                                    <span class="d-block">Authorized Signature</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Generate PDF Button -->
+                    <div class="text-center mt-4">
+                        {% if fee_record.id %}
+                            <button class="btn btn-primary"
+                                    onclick="window.location.href='{% url 'generate_pdf_receipt' fee_record_id=fee_record.id %}'">
+                                Generate PDF Receipt
+                            </button>
+                        {% else %}
+                            <p class="text-danger">Fee record not found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+<!-- Scripts -->
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/script.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block body %}
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Time Table</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Time Table</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table">
+                        <div class="card-body">
+
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Time Table</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="#" class="btn btn custom-bg text-white me-2"><i
+                                                class="fas fa-download"></i>
+                                            Download</a>
+                                        <a href="{% url 'timetable-create' %}" class="btn btn custom-bg text-white"><i
+                                                class="fas fa-plus"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="container">
+                                <h1>Grade Section Timetable</h1>
+
+                                <!-- Dropdown for Grade Sections -->
+                                <label for="grade-section">Select Grade Section:</label>
+                                <select id="grade-section">
+                                    <option value="">-- Select Grade Section --</option>
+                                </select>
+
+
+                                <div class="table-responsive">
+
+                                    <!-- Table for Timetable -->
+                                    <table id="timetable"
+                                           class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                        <thead class="student-thread">
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Monday</th>
+                                            <th>Tuesday</th>
+                                            <th>Wednesday</th>
+                                            <th>Thursday</th>
+                                            <th>Friday</th>
+                                            <th>Saturday</th>
+                                            <th>Sunday</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td colspan="8">Please select a grade section to view the timetable.</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Copyright © 2024 Davedev</p>
+        </footer>
+
+    </div>
+
+    </div>
+    <script src="{% static 'assets/js/app.js' %}"></script> <!-- JavaScript logic -->
+
+
+{% endblock %}

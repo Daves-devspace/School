@@ -1,0 +1,140 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Assign Teacher Grade</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Assign Grade</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table">
+                        <div class="card-body">
+
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Time Table</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="#" class="btn btn custom-bg text-white me-2"><i
+                                                class="fas fa-download"></i>
+                                            Download</a>
+                                        <a href="add-time-table.html" class="btn btn custom-bg text-white"><i
+                                                class="fas fa-plus"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="container mt-5">
+                                <h3 class="mb-4">Assign Teacher</h3>
+                                <form id="teacherForm">
+                                    <div class="mb-3">
+                                        <label for="teacher" class="form-label">Teacher</label>
+                                        <select id="teacher" class="form-select">
+                                            <option value="">Select Teacher</option>
+                                            <!-- Dynamically populated -->
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="subject" class="form-label">Subject</label>
+                                        <select id="subject" class="form-select">
+                                            <option value="">Select Subject</option>
+                                            <!-- Dynamically populated -->
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="grade_section" class="form-label">Grade Section</label>
+                                        <select id="grade_section" class="form-select">
+                                            <option value="">Select Grade Section</option>
+                                            <!-- Dynamically populated -->
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Assign</button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Copyright © 2024 Davedev</p>
+        </footer>
+
+    </div>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const teacherSelect = document.getElementById("teacher");
+            const subjectSelect = document.getElementById("subject");
+            const gradeSectionSelect = document.getElementById("grade_section");
+            const form = document.getElementById("teacherForm");
+
+            // Fetch and populate data
+            axios.get("/api/teachers").then((response) => {
+                response.data.forEach((teacher) => {
+                    const option = document.createElement("option");
+                    option.value = teacher.id;
+                    option.textContent = teacher.full_name;
+                    teacherSelect.appendChild(option);
+                });
+            });
+
+            axios.get("/api/teacher-assignment/available-subjects").then((response) => {
+                response.data.forEach((subject) => {
+                    const option = document.createElement("option");
+                    option.value = subject.id;
+                    option.textContent = subject.name;
+                    subjectSelect.appendChild(option);
+                });
+            });
+
+            axios
+                .get("/api/teacher-assignment/available-grades-sections")
+                .then((response) => {
+                    response.data.forEach((gs) => {
+                        const option = document.createElement("option");
+                        option.value = gs.id;
+                        option.textContent = `${gs.grade} - ${gs.section}`;
+                        gradeSectionSelect.appendChild(option);
+                    });
+                });
+
+            // Form submission logic
+            form.addEventListener("submit", (event) => {
+                event.preventDefault();
+
+                const data = {
+                    teacher: teacherSelect.value,
+                    subject: subjectSelect.value,
+                    grade_section: gradeSectionSelect.value,
+                };
+
+                axios.post("/api/teacher-assignment/", data).then(() => {
+                    alert("Teacher assigned successfully!");
+                    form.reset();
+                });
+            });
+        });
+    </script>
+
+
+{% endblock %}

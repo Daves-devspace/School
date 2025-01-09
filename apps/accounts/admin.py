@@ -10,11 +10,11 @@ class FeePaymentAdmin(admin.ModelAdmin):
 
 class FeeRecordAdmin(admin.ModelAdmin):
     exclude = ('balance',)
-    list_display = ['student','term','total_fee','paid_amount']
+    list_display = ['student','term','paid_amount']
     search_fields = ['student', 'paid_amount']
 
 class FeeStructureAdmin(admin.ModelAdmin):
-    list_display = ('grade', 'term', 'amount')
+    list_display = ('grade', 'term', 'tuition_fee')
     list_filter = ('grade', 'term')
     search_fields = ('grade__name', 'term__name')
 
