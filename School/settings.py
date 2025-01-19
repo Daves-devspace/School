@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.Manage.apps.ManageConfig',
+    'django.contrib.postgres',
     'phonenumber_field',
     'apps.students',
     'apps.teachers',
@@ -117,10 +118,8 @@ CHANNEL_LAYERS = {
 
 REDIS_HOST = os.getenv('REDIS_HOST', 'redis')  # Use the Redis container name
 
-
 WSGI_APPLICATION = 'School.wsgi.application'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -152,16 +151,29 @@ load_dotenv()
 
 # Database configuration
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',  # Update this to the correct database backend if using MySQL
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': os.getenv('DB_USER'),
+#         'PASSWORD': os.getenv('DB_PASSWORD'),
+#         'HOST': os.getenv('DB_HOST'),
+#         'PORT': os.getenv('DB_PORT', '3306'),  # Default MySQL port
+#     }
+# }
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',  # Update this to the correct database backend if using MySQL
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT', '3306'),  # Default MySQL port
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
+
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
@@ -177,9 +189,9 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Short-lived access token
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # Longer-lived refresh token
-    'ROTATE_REFRESH_TOKENS': True,                 # Issue a new refresh token when used
-    'BLACKLIST_AFTER_ROTATION': True,              # Blacklist old refresh tokens
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Longer-lived refresh token
+    'ROTATE_REFRESH_TOKENS': True,  # Issue a new refresh token when used
+    'BLACKLIST_AFTER_ROTATION': True,  # Blacklist old refresh tokens
 }
 
 # MobileSasa API Credentials

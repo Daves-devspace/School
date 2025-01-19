@@ -41,11 +41,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Copy entrypoint script and make it executable
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-# Set the entrypoint to the script
-ENTRYPOINT ["/entrypoint.sh"]
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Expose the port Gunicorn will run on
 EXPOSE 8000
