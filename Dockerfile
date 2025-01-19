@@ -1,7 +1,6 @@
-# Use a slim version of Python 3.12 as the base image
 FROM python:3.12-slim
 
-# Install necessary tools, system dependencies, and Netcat for database readiness checks
+# Install necessary tools and dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     file \
@@ -24,36 +23,32 @@ RUN apt-get update && apt-get install -y \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Set environment variables to ensure proper behavior
+# Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Set work directory for the application
+# Set working directory
 WORKDIR /app
 
 # Upgrade pip and install dependencies
 RUN pip install --upgrade pip
 
-# Copy the requirements file first to leverage Docker caching
+# Copy requirements.txt and install dependencies
 COPY requirements.txt /app/
-
-# Install Python dependencies using the requirements file
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the project files to the container
+# Copy project files into the container
 COPY . /app/
 
-# Copy entrypoint.sh to the container
+# Copy entrypoint script and make it executable
 COPY entrypoint.sh /entrypoint.sh
-
-# Make entrypoint.sh executable
 RUN chmod +x /entrypoint.sh
 
-# Set the entrypoint to use the script
+# Set the entrypoint to the script
 ENTRYPOINT ["/entrypoint.sh"]
 
-# Expose the port your app will be running on
+# Expose the port Gunicorn will run on
 EXPOSE 8000
 
-# Command to run the application using Gunicorn for production
+# Command to run Gunicorn
 CMD ["gunicorn", "School.wsgi:application", "--bind", "0.0.0.0:8000"]

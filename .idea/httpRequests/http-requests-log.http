@@ -1,0 +1,9 @@
+GET http://localhost:8000/management/send-sms/
+User-Agent: IntelliJ HTTP Client/PyCharm 2024.3
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+<> 2025-01-09T172116.200.html
+
+###
+

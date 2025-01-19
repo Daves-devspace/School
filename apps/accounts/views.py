@@ -780,7 +780,7 @@ def search_student(request):
             Q(admission_number__icontains=search_term)
         )
     # else:
-    #     # If no search term, return all students or none based on your requirements
+    #     # If no search term, return all students or none based on your requirements.txt
     #     students = Student.objects.all()
 
     context = {

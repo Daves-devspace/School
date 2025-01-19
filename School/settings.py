@@ -115,6 +115,9 @@ CHANNEL_LAYERS = {
     },
 }
 
+REDIS_HOST = os.getenv('REDIS_HOST', 'redis')  # Use the Redis container name
+
+
 WSGI_APPLICATION = 'School.wsgi.application'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 

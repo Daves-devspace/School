@@ -21,7 +21,7 @@ class MobileSasaAPI:
         self.logger = logging.getLogger(__name__)
 
     def clean_phone_number(self, phone):
-        """Standardize phone number format to match API requirements."""
+        """Standardize phone number format to match API requirements.txt."""
         if not phone:
             return None
 
