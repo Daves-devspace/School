@@ -1,0 +1,1443 @@
+Index: templates/students/student-details.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{% extends 'Home/base.html' %}\r\n{% load crispy_forms_filters %}\r\n{% load static %}\r\n{% block body %}\r\n\r\n\r\n\r\n    <div class=\"page-wrapper\">\r\n        <div class=\"content container-fluid\">\r\n            <div class=\"page-header\">\r\n                <div class=\"row\">\r\n                    <div class=\"col-sm-12\">\r\n                        <div class=\"page-sub-header\">\r\n                            <h3 class=\"page-title\">Student Details</h3>\r\n                            <ul class=\"breadcrumb\">\r\n                                <li class=\"breadcrumb-item\"><a href=\"{% url 'students' %}\">Student</a></li>\r\n                                <li class=\"breadcrumb-item active\">Student Details</li>\r\n                            </ul>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n            <div class=\"container-fluid\">\r\n                {% for message in messages %}\r\n\r\n                    <div class=\"alert {{ message.tags }} alert-dismissible fade show\" role=\"alert\">\r\n                        <p>{{ message }}</p>\r\n                        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\r\n                    </div>\r\n\r\n                {% endfor %}\r\n\r\n            </div>\r\n            <div class=\"card\">\r\n                <div class=\"card-body\">\r\n                    <div class=\"row\">\r\n                        <div class=\"col-md-12\">\r\n                            <div class=\"about-info\">\r\n                                <h4>Profile <span><a href=\"javascript:;\"><i\r\n                                        class=\"feather-more-vertical\"></i></a></span></h4>\r\n                            </div>\r\n                            <div class=\"student-profile-head\">\r\n\r\n                                <div class=\"row\">\r\n                                    <div class=\"col-lg-4 col-md-4\">\r\n                                        <div class=\"profile-user-box\">\r\n                                            <div class=\"profile-user-img\">\r\n                                                {% if student.student_image %}#}\r\n                                                    <img class=\"avatar-img w-100\"\r\n                                                         src=\"{{ student.student_image.url }}\"\r\n                                                         alt=\"{{ student.first_name }}.img\">\r\n                                                {% else %}\r\n                                                    <img class=\"avatar-img  w-100\"\r\n                                                         src=\"{% static 'assets/img/user.jpg' %}\" alt=\"Default Image\">\r\n                                                {% endif %}\r\n\r\n\r\n                                                <div class=\"form-group students-up-files profile-edit-icon mb-0\">\r\n                                                    <div class=\"uplod d-flex\">\r\n                                                        <label class=\"file-upload profile-upbtn mb-0\">\r\n                                                            <i class=\"feather-edit-3\"></i><input type=\"file\">\r\n                                                        </label>\r\n                                                    </div>\r\n                                                </div>\r\n                                            </div>\r\n\r\n                                        </div>\r\n                                    </div>\r\n\r\n                                    <div class=\"col-lg-4 col-md-4 d-flex align-items-center\">\r\n                                        <div class=\"follow-btn-group\">\r\n\r\n\r\n                                        </div>\r\n                                    </div>\r\n                                </div>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"row\">\r\n                        <div class=\"col-lg-4\">\r\n                            <div class=\"student-personals-grp\">\r\n                                <div class=\"card\">\r\n                                    <div class=\"card-body\">\r\n                                        <div class=\"heading-detail\">\r\n                                            <h4>Personal Details :</h4>\r\n                                        </div>\r\n                                        <div class=\"personal-activity\">\r\n                                            <div class=\"personal-icons\">\r\n                                                <i class=\"feather-user\"></i>\r\n                                            </div>\r\n                                            <div class=\"views-personal\">\r\n                                                <h4>Name</h4>\r\n                                                <h5>{{ student.first_name }} &nbsp; {{ student.last_name }}</h5>\r\n                                            </div>\r\n                                            <div class=\"views-personal\">\r\n                                                <h4>ID</h4>\r\n                                                <h5>{{ student.id }} &nbsp; {{ student.last_name }}</h5>\r\n                                            </div>\r\n                                        </div>\r\n                                        <div class=\"personal-activity\">\r\n                                            <div class=\"personal-icons\">\r\n                                                <img src=\"{% static 'assets/img/icons/buliding-icon.svg' %}\" alt=\"\">\r\n                                            </div>\r\n                                            <div class=\"views-personal\">\r\n                                                <h4>Class/Grade </h4>\r\n                                                <h5>{{ student.grade }}</h5>\r\n                                            </div>\r\n                                        </div>\r\n\r\n                                        <div class=\"personal-activity\">\r\n                                            <div class=\"personal-icons\">\r\n                                                <i class=\"feather-user\"></i>\r\n                                            </div>\r\n                                            <div class=\"views-personal\">\r\n                                                <h4>Gender</h4>\r\n                                                <h5>{{ student.gender }}</h5>\r\n                                            </div>\r\n                                        </div>\r\n                                        <div class=\"personal-activity\">\r\n                                            <div class=\"personal-icons\">\r\n                                                <i class=\"feather-calendar\"></i>\r\n                                            </div>\r\n                                            <div class=\"views-personal\">\r\n                                                <h4>Date of Birth</h4>\r\n                                                <h5>{{ student.date_of_birth }}</h5>\r\n                                            </div>\r\n                                        </div>\r\n                                        <div class=\"personal-activity\">\r\n                                            <div class=\"personal-icons\">\r\n                                                <i class=\"feather-italic\"></i>\r\n                                            </div>\r\n                                            <div class=\"views-personal\">\r\n                                                <h4>Department</h4>\r\n                                                <h5>Home science</h5>\r\n                                            </div>\r\n                                        </div>\r\n                                        <div class=\"personal-activity\">\r\n                                            <div class=\"personal-icons\">\r\n                                                <i class=\"feather-phone-call\"></i>\r\n                                            </div>\r\n                                            <div class=\"views-personal\">\r\n                                                <h4>Parent Mobile</h4>\r\n                                                {% if student.parent.exists %}\r\n                                                    <h5>{{ student.parent.first.mobile }}</h5>\r\n                                                {% else %}\r\n                                                    <h5>No parent information available</h5>\r\n                                                {% endif %}\r\n                                            </div>\r\n                                        </div>\r\n                                        <div class=\"personal-activity\">\r\n                                            <div class=\"personal-icons\">\r\n                                                <i class=\"feather-users\"></i>\r\n                                            </div>\r\n                                            <div class=\"views-personal\">\r\n                                                <h4>Relation To Student</h4>\r\n                                                <h5>{{ student.parent.first.relationship }}</h5>\r\n                                            </div>\r\n                                        </div>\r\n                                        <div class=\"personal-activity\">\r\n                                            <div class=\"personal-icons\">\r\n                                                <i class=\"feather-mail\"></i>\r\n                                            </div>\r\n                                            <div class=\"views-personal\">\r\n                                                <h4>Email</h4>\r\n                                                <h5><a href=\"/cdn-cgi/l/email-protection\" class=\"__cf_email__\"\r\n                                                       data-cfemail=\"81e5e0e8f2f8c1e6ece0e8edafe2eeec\">{{ student.parent.first.email }}</a>\r\n                                                </h5>\r\n                                            </div>\r\n                                        </div>\r\n                                        <div class=\"personal-activity mb-0\">\r\n                                            <div class=\"personal-icons\">\r\n                                                <i class=\"feather-map-pin\"></i>\r\n                                            </div>\r\n                                            <div class=\"views-personal\">\r\n                                                <h4>Address</h4>\r\n                                                <h5>{{ student.parent.first.address }}</h5>\r\n                                            </div>\r\n                                        </div>\r\n                                    </div>\r\n                                </div>\r\n                            </div>\r\n\r\n                        </div>\r\n                        <div class=\"col-lg-8\">\r\n                            <div class=\"student-personals-grp\">\r\n                                <div class=\"card mb-0\">\r\n                                    <div class=\"card-body\">\r\n                                        <div class=\"student-personals-grp\">\r\n                                            <div class=\"card mb-0\">\r\n                                                <div class=\"card-body\">\r\n                                                    <div class=\"heading-detail\">\r\n                                                        <h4>Attendance:</h4>\r\n                                                    </div>\r\n                                                    <div class=\"skill-blk\">\r\n                                                        <div class=\"skill-statistics\">\r\n                                                            <div class=\"skills-head\">\r\n                                                                <h5>Term 1</h5>\r\n                                                                <p>90%</p>\r\n                                                            </div>\r\n                                                            <div class=\"progress mb-0\">\r\n                                                                <div class=\"progress-bar bg-photoshop\"\r\n                                                                     role=\"progressbar\"\r\n                                                                     style=\"width: 90%\" aria-valuenow=\"90\"\r\n                                                                     aria-valuemin=\"0\"\r\n                                                                     aria-valuemax=\"100\"></div>\r\n                                                            </div>\r\n                                                        </div>\r\n                                                        <div class=\"skill-statistics\">\r\n                                                            <div class=\"skills-head\">\r\n                                                                <h5>Term 2</h5>\r\n                                                                <p>75%</p>\r\n                                                            </div>\r\n                                                            <div class=\"progress mb-0\">\r\n                                                                <div class=\"progress-bar bg-editor\" role=\"progressbar\"\r\n                                                                     style=\"width: 75%\" aria-valuenow=\"75\"\r\n                                                                     aria-valuemin=\"0\"\r\n                                                                     aria-valuemax=\"100\"></div>\r\n                                                            </div>\r\n                                                        </div>\r\n                                                        <div class=\"skill-statistics mb-0\">\r\n                                                            <div class=\"skills-head\">\r\n                                                                <h5>Term 3</h5>\r\n                                                                <p>95%</p>\r\n                                                            </div>\r\n                                                            <div class=\"progress mb-0\">\r\n                                                                <div class=\"progress-bar bg-illustrator\"\r\n                                                                     role=\"progressbar\"\r\n                                                                     style=\"width: 95%\" aria-valuenow=\"95\"\r\n                                                                     aria-valuemin=\"0\"\r\n                                                                     aria-valuemax=\"100\"></div>\r\n                                                            </div>\r\n                                                        </div>\r\n\r\n\r\n                                                    </div>\r\n                                                </div>\r\n                                            </div>\r\n                                        </div>\r\n\r\n\r\n                                        <div class=\"card mb-0\">\r\n                                            <div class=\"card-body\">\r\n\r\n\r\n                                                <div class=\"#\">\r\n                                                    <div class=\"dropdown-container\">\r\n                                                        <!-- Term Dropdown -->\r\n                                                        <label for=\"term-select\">Select Term:</label>\r\n                                                        <select id=\"term-select\" name=\"term\" required>\r\n                                                            <option value=\"\" disabled selected>Select Term</option>\r\n                                                            {% if terms %}\r\n                                                                {% for term in terms %}\r\n                                                                    <option value=\"{{ term.name }}\">{{ term.name }}</option>\r\n                                                                {% endfor %}\r\n                                                            {% else %}\r\n                                                                <option value=\"\" disabled>No terms available</option>\r\n                                                            {% endif %}\r\n                                                        </select>\r\n\r\n                                                        <!-- Year Dropdown -->\r\n                                                        <label for=\"exam-type-select\">Select Year:</label>\r\n                                                        <select id=\"exam-type-select\" name=\"year\" required>\r\n                                                            <option value=\"\" disabled selected>Select Year</option>\r\n                                                            {% if years %}\r\n                                                                {% for year in years %}\r\n                                                                    <option value=\"{{ year }}\">{{ year }}</option>\r\n                                                                {% endfor %}\r\n                                                            {% else %}\r\n                                                                <option value=\"\" disabled>No years available</option>\r\n                                                            {% endif %}\r\n                                                        </select>\r\n                                                    </div>\r\n\r\n                                                    <div id=\"chart\"\r\n                                                         data-student-id=\"{{ student.id }}\"\r\n                                                         data-initial-chart-data='{{ chart_data|safe }}'>\r\n                                                    </div>\r\n\r\n                                                    {#                                                    <div id=\"chart\">#}\r\n                                                    {#                                                        <div id=\"timeline-chart\"></div>#}\r\n                                                    {#                                                    </div>#}\r\n\r\n\r\n                                                </div>\r\n\r\n                                            </div>\r\n                                        </div>\r\n\r\n\r\n                                    </div>\r\n                                </div>\r\n                            </div>\r\n                        </div>\r\n\r\n\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n\r\n\r\n        <footer>\r\n            <p>Generated on {{ student.date_created }}</p>\r\n        </footer>\r\n    </div>\r\n    </div>\r\n\r\n\r\n    </div>\r\n    </div>\r\n    </div>\r\n\r\n    <footer>\r\n        <p>Copyright © 2024 Davedev</p>\r\n    </footer>\r\n    </div>\r\n\r\n    </div>\r\n    <!-- JavaScript to Handle AJAX -->\r\n\r\n{#    <script>#}\r\n{#        document.addEventListener(\"DOMContentLoaded\", function () {#}\r\n{#            const termSelect = document.getElementById(\"term-select\");#}\r\n{#            const yearSelect = document.getElementById(\"exam-type-select\");#}\r\n{#            const chartContainer = document.querySelector(\"#chart\");#}\r\n{#            const cache = {};#}\r\n{##}\r\n{#            // Fetch chart data from the server with term, year, and student_id in the URL#}\r\n{#            async function fetchChartData(term, year, studentId) {#}\r\n{#                const response = await fetch(`/api/student-performance/${encodeURIComponent(studentId)}/${encodeURIComponent(term)}/${encodeURIComponent(year)}/`);#}\r\n{#                if (!response.ok) {#}\r\n{#                    throw new Error(`HTTP error! status: ${response.status}`);#}\r\n{#                }#}\r\n{#                return response.json();#}\r\n{#            }#}\r\n{##}\r\n{#            // Render chart using ApexCharts#}\r\n{#            function renderChart(data) {#}\r\n{#                if (!data || !data.datasets || !data.labels || data.datasets.length === 0) {#}\r\n{#                    chartContainer.innerHTML = \"<p>No data available for the selected term and year.</p>\";#}\r\n{#                    return;#}\r\n{#                }#}\r\n{##}\r\n{#                if (window.chart) {#}\r\n{#                    window.chart.destroy();#}\r\n{#                }#}\r\n{##}\r\n{#                const options = {#}\r\n{#                    chart: {#}\r\n{#                        type: 'bar',#}\r\n{#                        height: 350,#}\r\n{#                    },#}\r\n{#                    series: data.datasets,#}\r\n{#                    xaxis: {#}\r\n{#                        categories: data.labels,#}\r\n{#                        labels: {#}\r\n{#                            rotate: -45,#}\r\n{#                            style: {#}\r\n{#                                fontSize: '12px',#}\r\n{#                            },#}\r\n{#                        },#}\r\n{#                    },#}\r\n{#                    title: {#}\r\n{#                        text: `${data.student_name || 'Student'} Performance (${termSelect.value} - ${yearSelect.value})`,#}\r\n{#                        align: 'center',#}\r\n{#                    },#}\r\n{#                    plotOptions: {#}\r\n{#                        bar: {#}\r\n{#                            horizontal: false,#}\r\n{#                            columnWidth: '50%',#}\r\n{#                        },#}\r\n{#                    },#}\r\n{#                    dataLabels: {#}\r\n{#                        enabled: true,#}\r\n{#                        formatter: val => val,#}\r\n{#                        style: {#}\r\n{#                            colors: ['#000'],#}\r\n{#                            fontSize: '14px',#}\r\n{#                            fontWeight: 'bold',#}\r\n{#                        },#}\r\n{#                    },#}\r\n{#                    yaxis: {#}\r\n{#                        title: {#}\r\n{#                            text: 'Marks',#}\r\n{#                        },#}\r\n{#                    },#}\r\n{#                };#}\r\n{##}\r\n{#                window.chart = new ApexCharts(chartContainer, options);#}\r\n{#                window.chart.render();#}\r\n{#            }#}\r\n{##}\r\n{#            // Update chart based on term, year, and student_id selection#}\r\n{#            async function updateChart() {#}\r\n{#                const term = termSelect.value;#}\r\n{#                const year = yearSelect.value;#}\r\n{#                const studentId = chartContainer.dataset.studentId; // Assuming student_id is stored in a data attribute on the container#}\r\n{##}\r\n{#                if (!term || !year || !studentId) {#}\r\n{#                    chartContainer.innerHTML = \"<p>Please select both term and year, and ensure student ID is provided to view data.</p>\";#}\r\n{#                    return;#}\r\n{#                }#}\r\n{##}\r\n{#                chartContainer.innerHTML = \"<p>Loading...</p>\";#}\r\n{#                const cacheKey = `${studentId}-${term}-${year}`;#}\r\n{##}\r\n{#                if (cache[cacheKey]) {#}\r\n{#                    renderChart(cache[cacheKey]);#}\r\n{#                    return;#}\r\n{#                }#}\r\n{##}\r\n{#                try {#}\r\n{#                    const data = await fetchChartData(term, year, studentId);#}\r\n{#                    if (data.error) {#}\r\n{#                        throw new Error(data.error);#}\r\n{#                    }#}\r\n{#                    cache[cacheKey] = data;#}\r\n{#                    renderChart(data);#}\r\n{#                } catch (error) {#}\r\n{#                    console.error('Error fetching chart data:', error);#}\r\n{#                    chartContainer.innerHTML = \"<p>Failed to fetch chart data. Please try again later.</p>\";#}\r\n{#                }#}\r\n{#            }#}\r\n{##}\r\n{#            // Attach event listeners#}\r\n{#            termSelect.addEventListener(\"change\", updateChart);#}\r\n{#            yearSelect.addEventListener(\"change\", updateChart);#}\r\n{##}\r\n{#            // Render initial chart if available#}\r\n{#            const initialChartData = chartContainer.dataset.initialChartData ? JSON.parse(chartContainer.dataset.initialChartData) : null;#}\r\n{#            if (initialChartData) {#}\r\n{#                renderChart(initialChartData);#}\r\n{#            } else {#}\r\n{#                chartContainer.innerHTML = \"<p>No initial data available to render.</p>\";#}\r\n{#            }#}\r\n{#        });#}\r\n{##}\r\n{#    </script>#}\r\n\r\n\r\n\r\n\r\n\r\n\r\n        <script>\r\n        document.addEventListener(\"DOMContentLoaded\", function () {\r\n            // DOM Elements\r\n            const termSelect = document.getElementById(\"term-select\");\r\n            const yearSelect = document.getElementById(\"exam-type-select\");\r\n            const chartContainer = document.querySelector(\"#chart\");\r\n\r\n            // Function to render the chart\r\n            function renderChart(data) {\r\n                if (window.chart) {\r\n                    window.chart.destroy();\r\n                }\r\n\r\n                const options = {\r\n                    chart: {\r\n                        type: 'bar',\r\n                        height: 350,\r\n                    },\r\n                    series: data.datasets,\r\n                    xaxis: {\r\n                        categories: data.labels,\r\n                    },\r\n                    title: {\r\n                        text: `Student Performance (${termSelect.value} - ${yearSelect.value})`,\r\n                        align: 'center',\r\n                    },\r\n                    plotOptions: {\r\n                        bar: {\r\n                            horizontal: false,\r\n                            columnWidth: '50%',\r\n                        },\r\n                    },\r\n                };\r\n\r\n                window.chart = new ApexCharts(chartContainer, options);\r\n                window.chart.render();\r\n            }\r\n\r\n            // Fetch initial chart data\r\n            let initialChartData = {{ chart_data|safe }};\r\n            renderChart(initialChartData);\r\n\r\n            // Update chart based on dropdown changes\r\n            function updateChart() {\r\n                const term = termSelect.value;\r\n                const year = yearSelect.value;\r\n\r\n                // Fetch updated chart data from the server\r\n                fetch(`/api/student-performance/${term}/${year}/${student_id}`)  // Adjust URL as needed\r\n                    .then(response => response.json())\r\n                    .then(data => {\r\n                        renderChart(data);\r\n                    })\r\n                    .catch(error => console.error('Error fetching chart data:', error));\r\n            }\r\n\r\n            termSelect.addEventListener(\"change\", updateChart);\r\n            yearSelect.addEventListener(\"change\", updateChart);\r\n        });\r\n    </script>\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n    <script src=\"https://code.jquery.com/jquery-3.6.0.min.js\"></script>\r\n    <script src=\"https://code.jquery.com/jquery-3.6.0.min.js\"></script>\r\n\r\n\r\n    <!-- ApexCharts -->\r\n    <script src=\"https://cdn.jsdelivr.net/npm/apexcharts\"></script>\r\n    <script src=\"{% static 'assets/plugins/apexchart/apexcharts.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/apexchart/chart-data.js' %}\"></script>\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n{% endblock %}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/students/student-details.html b/templates/students/student-details.html
+--- a/templates/students/student-details.html	(revision 073a471b0adb21efe71892ddc82de5a3d685777f)
++++ b/templates/students/student-details.html	(date 1737316653757)
+@@ -1,5 +1,4 @@
+ {% extends 'Home/base.html' %}
+-{% load crispy_forms_filters %}
+ {% load static %}
+ {% block body %}
+ 
+@@ -19,17 +18,6 @@
+                         </div>
+                     </div>
+                 </div>
+-            </div>
+-            <div class="container-fluid">
+-                {% for message in messages %}
+-
+-                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+-                        <p>{{ message }}</p>
+-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+-                    </div>
+-
+-                {% endfor %}
+-
+             </div>
+             <div class="card">
+                 <div class="card-body">
+@@ -70,7 +58,7 @@
+                                     <div class="col-lg-4 col-md-4 d-flex align-items-center">
+                                         <div class="follow-btn-group">
+ 
+-
++                                            <button type="submit" class="btn btn-info message-btns">Message</button>
+                                         </div>
+                                     </div>
+                                 </div>
+@@ -92,10 +80,6 @@
+                                             <div class="views-personal">
+                                                 <h4>Name</h4>
+                                                 <h5>{{ student.first_name }} &nbsp; {{ student.last_name }}</h5>
+-                                            </div>
+-                                            <div class="views-personal">
+-                                                <h4>ID</h4>
+-                                                <h5>{{ student.id }} &nbsp; {{ student.last_name }}</h5>
+                                             </div>
+                                         </div>
+                                         <div class="personal-activity">
+@@ -107,7 +91,7 @@
+                                                 <h5>{{ student.grade }}</h5>
+                                             </div>
+                                         </div>
+-
++                                       
+                                         <div class="personal-activity">
+                                             <div class="personal-icons">
+                                                 <i class="feather-user"></i>
+@@ -135,7 +119,7 @@
+                                                 <h5>Home science</h5>
+                                             </div>
+                                         </div>
+-                                        <div class="personal-activity">
++                                         <div class="personal-activity">
+                                             <div class="personal-icons">
+                                                 <i class="feather-phone-call"></i>
+                                             </div>
+@@ -148,7 +132,7 @@
+                                                 {% endif %}
+                                             </div>
+                                         </div>
+-                                        <div class="personal-activity">
++                                     <div class="personal-activity">
+                                             <div class="personal-icons">
+                                                 <i class="feather-users"></i>
+                                             </div>
+@@ -231,294 +215,29 @@
+                                                                      aria-valuemax="100"></div>
+                                                             </div>
+                                                         </div>
+-
+-
+-                                                    </div>
+-                                                </div>
+-                                            </div>
+-                                        </div>
+-
+-
+-                                        <div class="card mb-0">
+-                                            <div class="card-body">
+-
+-
+-                                                <div class="#">
+-                                                    <div class="dropdown-container">
+-                                                        <!-- Term Dropdown -->
+-                                                        <label for="term-select">Select Term:</label>
+-                                                        <select id="term-select" name="term" required>
+-                                                            <option value="" disabled selected>Select Term</option>
+-                                                            {% if terms %}
+-                                                                {% for term in terms %}
+-                                                                    <option value="{{ term.name }}">{{ term.name }}</option>
+-                                                                {% endfor %}
+-                                                            {% else %}
+-                                                                <option value="" disabled>No terms available</option>
+-                                                            {% endif %}
+-                                                        </select>
+-
+-                                                        <!-- Year Dropdown -->
+-                                                        <label for="exam-type-select">Select Year:</label>
+-                                                        <select id="exam-type-select" name="year" required>
+-                                                            <option value="" disabled selected>Select Year</option>
+-                                                            {% if years %}
+-                                                                {% for year in years %}
+-                                                                    <option value="{{ year }}">{{ year }}</option>
+-                                                                {% endfor %}
+-                                                            {% else %}
+-                                                                <option value="" disabled>No years available</option>
+-                                                            {% endif %}
+-                                                        </select>
+-                                                    </div>
+-
+-                                                    <div id="chart"
+-                                                         data-student-id="{{ student.id }}"
+-                                                         data-initial-chart-data='{{ chart_data|safe }}'>
+-                                                    </div>
+-
+-                                                    {#                                                    <div id="chart">#}
+-                                                    {#                                                        <div id="timeline-chart"></div>#}
+-                                                    {#                                                    </div>#}
+-
+-
+-                                                </div>
+-
+-                                            </div>
+-                                        </div>
+-
+-
+-                                    </div>
+-                                </div>
+-                            </div>
+-                        </div>
+-
+-
+-                    </div>
+-                </div>
+-            </div>
+-        </div>
+-
+-
+-        <footer>
+-            <p>Generated on {{ student.date_created }}</p>
+-        </footer>
+-    </div>
+-    </div>
+-
+-
+-    </div>
+-    </div>
+-    </div>
++                                                        <div id="s-col"></div>
++                                                        
++                                                    </div>
++                                                </div>
++                                            </div>
++                                        </div>
++
++
++                                    </div>
++                                </div>
++                            </div>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
+ 
+-    <footer>
+-        <p>Copyright © 2024 Davedev</p>
+-    </footer>
++        <footer>
++            <p>Copyright © 2024 Davedev</p>
++        </footer>
+     </div>
+ 
+     </div>
+-    <!-- JavaScript to Handle AJAX -->
+-
+-{#    <script>#}
+-{#        document.addEventListener("DOMContentLoaded", function () {#}
+-{#            const termSelect = document.getElementById("term-select");#}
+-{#            const yearSelect = document.getElementById("exam-type-select");#}
+-{#            const chartContainer = document.querySelector("#chart");#}
+-{#            const cache = {};#}
+-{##}
+-{#            // Fetch chart data from the server with term, year, and student_id in the URL#}
+-{#            async function fetchChartData(term, year, studentId) {#}
+-{#                const response = await fetch(`/api/student-performance/${encodeURIComponent(studentId)}/${encodeURIComponent(term)}/${encodeURIComponent(year)}/`);#}
+-{#                if (!response.ok) {#}
+-{#                    throw new Error(`HTTP error! status: ${response.status}`);#}
+-{#                }#}
+-{#                return response.json();#}
+-{#            }#}
+-{##}
+-{#            // Render chart using ApexCharts#}
+-{#            function renderChart(data) {#}
+-{#                if (!data || !data.datasets || !data.labels || data.datasets.length === 0) {#}
+-{#                    chartContainer.innerHTML = "<p>No data available for the selected term and year.</p>";#}
+-{#                    return;#}
+-{#                }#}
+-{##}
+-{#                if (window.chart) {#}
+-{#                    window.chart.destroy();#}
+-{#                }#}
+-{##}
+-{#                const options = {#}
+-{#                    chart: {#}
+-{#                        type: 'bar',#}
+-{#                        height: 350,#}
+-{#                    },#}
+-{#                    series: data.datasets,#}
+-{#                    xaxis: {#}
+-{#                        categories: data.labels,#}
+-{#                        labels: {#}
+-{#                            rotate: -45,#}
+-{#                            style: {#}
+-{#                                fontSize: '12px',#}
+-{#                            },#}
+-{#                        },#}
+-{#                    },#}
+-{#                    title: {#}
+-{#                        text: `${data.student_name || 'Student'} Performance (${termSelect.value} - ${yearSelect.value})`,#}
+-{#                        align: 'center',#}
+-{#                    },#}
+-{#                    plotOptions: {#}
+-{#                        bar: {#}
+-{#                            horizontal: false,#}
+-{#                            columnWidth: '50%',#}
+-{#                        },#}
+-{#                    },#}
+-{#                    dataLabels: {#}
+-{#                        enabled: true,#}
+-{#                        formatter: val => val,#}
+-{#                        style: {#}
+-{#                            colors: ['#000'],#}
+-{#                            fontSize: '14px',#}
+-{#                            fontWeight: 'bold',#}
+-{#                        },#}
+-{#                    },#}
+-{#                    yaxis: {#}
+-{#                        title: {#}
+-{#                            text: 'Marks',#}
+-{#                        },#}
+-{#                    },#}
+-{#                };#}
+-{##}
+-{#                window.chart = new ApexCharts(chartContainer, options);#}
+-{#                window.chart.render();#}
+-{#            }#}
+-{##}
+-{#            // Update chart based on term, year, and student_id selection#}
+-{#            async function updateChart() {#}
+-{#                const term = termSelect.value;#}
+-{#                const year = yearSelect.value;#}
+-{#                const studentId = chartContainer.dataset.studentId; // Assuming student_id is stored in a data attribute on the container#}
+-{##}
+-{#                if (!term || !year || !studentId) {#}
+-{#                    chartContainer.innerHTML = "<p>Please select both term and year, and ensure student ID is provided to view data.</p>";#}
+-{#                    return;#}
+-{#                }#}
+-{##}
+-{#                chartContainer.innerHTML = "<p>Loading...</p>";#}
+-{#                const cacheKey = `${studentId}-${term}-${year}`;#}
+-{##}
+-{#                if (cache[cacheKey]) {#}
+-{#                    renderChart(cache[cacheKey]);#}
+-{#                    return;#}
+-{#                }#}
+-{##}
+-{#                try {#}
+-{#                    const data = await fetchChartData(term, year, studentId);#}
+-{#                    if (data.error) {#}
+-{#                        throw new Error(data.error);#}
+-{#                    }#}
+-{#                    cache[cacheKey] = data;#}
+-{#                    renderChart(data);#}
+-{#                } catch (error) {#}
+-{#                    console.error('Error fetching chart data:', error);#}
+-{#                    chartContainer.innerHTML = "<p>Failed to fetch chart data. Please try again later.</p>";#}
+-{#                }#}
+-{#            }#}
+-{##}
+-{#            // Attach event listeners#}
+-{#            termSelect.addEventListener("change", updateChart);#}
+-{#            yearSelect.addEventListener("change", updateChart);#}
+-{##}
+-{#            // Render initial chart if available#}
+-{#            const initialChartData = chartContainer.dataset.initialChartData ? JSON.parse(chartContainer.dataset.initialChartData) : null;#}
+-{#            if (initialChartData) {#}
+-{#                renderChart(initialChartData);#}
+-{#            } else {#}
+-{#                chartContainer.innerHTML = "<p>No initial data available to render.</p>";#}
+-{#            }#}
+-{#        });#}
+-{##}
+-{#    </script>#}
+-
+-
+-
+-
+-
+-
+-        <script>
+-        document.addEventListener("DOMContentLoaded", function () {
+-            // DOM Elements
+-            const termSelect = document.getElementById("term-select");
+-            const yearSelect = document.getElementById("exam-type-select");
+-            const chartContainer = document.querySelector("#chart");
+-
+-            // Function to render the chart
+-            function renderChart(data) {
+-                if (window.chart) {
+-                    window.chart.destroy();
+-                }
+-
+-                const options = {
+-                    chart: {
+-                        type: 'bar',
+-                        height: 350,
+-                    },
+-                    series: data.datasets,
+-                    xaxis: {
+-                        categories: data.labels,
+-                    },
+-                    title: {
+-                        text: `Student Performance (${termSelect.value} - ${yearSelect.value})`,
+-                        align: 'center',
+-                    },
+-                    plotOptions: {
+-                        bar: {
+-                            horizontal: false,
+-                            columnWidth: '50%',
+-                        },
+-                    },
+-                };
+-
+-                window.chart = new ApexCharts(chartContainer, options);
+-                window.chart.render();
+-            }
+-
+-            // Fetch initial chart data
+-            let initialChartData = {{ chart_data|safe }};
+-            renderChart(initialChartData);
+-
+-            // Update chart based on dropdown changes
+-            function updateChart() {
+-                const term = termSelect.value;
+-                const year = yearSelect.value;
+-
+-                // Fetch updated chart data from the server
+-                fetch(`/api/student-performance/${term}/${year}/${student_id}`)  // Adjust URL as needed
+-                    .then(response => response.json())
+-                    .then(data => {
+-                        renderChart(data);
+-                    })
+-                    .catch(error => console.error('Error fetching chart data:', error));
+-            }
+-
+-            termSelect.addEventListener("change", updateChart);
+-            yearSelect.addEventListener("change", updateChart);
+-        });
+-    </script>
+-
+-
+-
+-
+-
+-
+-
+-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+-
+-
+-    <!-- ApexCharts -->
+-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+-    <script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
+-    <script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
+-
+ 
+ 
+ 
+Index: templates/students/confirm_promotion.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{% extends 'Home/base.html' %}\r\n{% load crispy_forms_filters %}\r\n{% load crispy_forms_tags %}\r\n{% load static %}\r\n\r\n{% block body %}\r\n\r\n    <div class=\"page-wrapper\">\r\n        <div class=\"content container-fluid\">\r\n            <div class=\"page-header\">\r\n                <div class=\"row align-items-center\">\r\n                    <div class=\"col-sm-12\">\r\n                        <div class=\"page-sub-header\">\r\n                            <h3 class=\"page-title\">promote Students</h3>\r\n                            <ul class=\"breadcrumb\">\r\n                                <li class=\"breadcrumb-item\"><a href=\"{% url 'students' %}\">Students</a></li>\r\n                                <li class=\"breadcrumb-item active\">Add Students</li>\r\n                            </ul>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n            <div class=\"container-fluid\">\r\n                {% for message in messages %}\r\n\r\n                    <div class=\"alert {{ message.tags }} alert-dismissible fade show\" role=\"alert\">\r\n                        <p>{{ message }}</p>\r\n                        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\r\n                    </div>\r\n\r\n                {% endfor %}\r\n\r\n            </div>\r\n\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12\">\r\n                    <div class=\"card comman-shadow\">\r\n                        <div class=\"card-body\">\r\n                            <h2>Promote Students</h2>\r\n                            <p>Are you sure you want to promote all active students to the next grade?</p>\r\n                            <form method=\"post\">\r\n                                {% csrf_token %}\r\n                                <button type=\"submit\" class=\"btn btn-primary\">Confirm Promotion</button>\r\n                                <a href=\"{% url 'students' %}\" class=\"btn btn-secondary\">Cancel</a>\r\n                            </form>\r\n\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n\r\n    <script src=\"{% static 'assets/js/jquery-3.6.0.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/js/popper.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/js/script.js' %}\"></script>\r\n    <script src=\"{% static 'assets/js/jquery-3.6.0.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}\"></script>\r\n    <script src=\"https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js\"></script>\r\n    <script>\r\n        $(document).ready(function () {\r\n            $('.datetimepicker').datepicker({\r\n                format: 'yyyy-mm-dd',\r\n                autoclose: true\r\n            });\r\n        });\r\n    </script>\r\n\r\n\r\n{% endblock %}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/students/confirm_promotion.html b/templates/students/confirm_promotion.html
+--- a/templates/students/confirm_promotion.html	(revision 073a471b0adb21efe71892ddc82de5a3d685777f)
++++ b/templates/students/confirm_promotion.html	(date 1737316619178)
+@@ -1,73 +1,10 @@
+-{% extends 'Home/base.html' %}
+-{% load crispy_forms_filters %}
+-{% load crispy_forms_tags %}
+-{% load static %}
+-
+-{% block body %}
+-
+-    <div class="page-wrapper">
+-        <div class="content container-fluid">
+-            <div class="page-header">
+-                <div class="row align-items-center">
+-                    <div class="col-sm-12">
+-                        <div class="page-sub-header">
+-                            <h3 class="page-title">promote Students</h3>
+-                            <ul class="breadcrumb">
+-                                <li class="breadcrumb-item"><a href="{% url 'students' %}">Students</a></li>
+-                                <li class="breadcrumb-item active">Add Students</li>
+-                            </ul>
+-                        </div>
+-                    </div>
+-                </div>
+-            </div>
+-            <div class="container-fluid">
+-                {% for message in messages %}
+-
+-                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+-                        <p>{{ message }}</p>
+-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+-                    </div>
+-
+-                {% endfor %}
+-
+-            </div>
+-
+-            <div class="row">
+-                <div class="col-sm-12">
+-                    <div class="card comman-shadow">
+-                        <div class="card-body">
+-                            <h2>Promote Students</h2>
+-                            <p>Are you sure you want to promote all active students to the next grade?</p>
+-                            <form method="post">
+-                                {% csrf_token %}
+-                                <button type="submit" class="btn btn-primary">Confirm Promotion</button>
+-                                <a href="{% url 'students' %}" class="btn btn-secondary">Cancel</a>
+-                            </form>
++<!DOCTYPE html>
++<html lang="en">
++<head>
++    <meta charset="UTF-8">
++    <title>Title</title>
++</head>
++<body>
+ 
+-                        </div>
+-                    </div>
+-                </div>
+-            </div>
+-        </div>
+-    </div>
+-
+-
+-    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+-    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+-    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+-    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+-    <script src="{% static 'assets/js/script.js' %}"></script>
+-    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+-    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+-    <script>
+-        $(document).ready(function () {
+-            $('.datetimepicker').datepicker({
+-                format: 'yyyy-mm-dd',
+-                autoclose: true
+-            });
+-        });
+-    </script>
+-
+-
+-{% endblock %}
++</body>
++</html>
+\ No newline at end of file
+Index: templates/teachers/teachers.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{% extends 'Home/base.html' %}\r\n{% load static %}\r\n{% block body %}\r\n\r\n\r\n    <div class=\"page-wrapper\">\r\n        <div class=\"content container-fluid\">\r\n\r\n            <div class=\"page-header\">\r\n                <div class=\"row align-items-center\">\r\n                    <div class=\"col\">\r\n                        <h3 class=\"page-title\">Teachers</h3>\r\n                        <ul class=\"breadcrumb\">\r\n                            <li class=\"breadcrumb-item\"><a href=\"{% url 'home' %}\">Dashboard</a></li>\r\n                            <li class=\"breadcrumb-item active\">Teachers</li>\r\n                        </ul>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n\r\n            <div class=\"student-group-form\">\r\n                <div class=\"row\">\r\n                    <div class=\"col-lg-3 col-md-6\">\r\n                        <div class=\"form-group\">\r\n                            <input type=\"text\" class=\"form-control\" placeholder=\"Search by ID ...\">\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-lg-3 col-md-6\">\r\n                        <div class=\"form-group\">\r\n                            <input type=\"text\" class=\"form-control\" placeholder=\"Search by Name ...\">\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-lg-4 col-md-6\">\r\n                        <div class=\"form-group\">\r\n                            <input type=\"text\" class=\"form-control\" placeholder=\"Search by Phone ...\">\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-lg-2\">\r\n                        <div class=\"search-student-btn\">\r\n                            <button type=\"btn\" class=\"btn btn custom-bg text-white\">Search</button>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12\">\r\n                    <div class=\"card card-table\">\r\n                        <div class=\"card-body\">\r\n\r\n                            <div class=\"page-header\">\r\n                                <div class=\"row align-items-center\">\r\n                                    <div class=\"col\">\r\n                                        <h3 class=\"page-title\">Teachers</h3>\r\n                                    </div>\r\n                                    <div class=\"col-auto text-end float-end ms-auto download-grp\">\r\n                                        <a href=\"{% url 'teachers' %}\"\r\n                                           class=\"btn btn-outline custom-bg text-white me-2 active\"><i\r\n                                                class=\"fas fa-list\"></i></a>\r\n                                        <a href=\"{% url 'teachers' %}\"\r\n                                           class=\"btn btn-outline-lg custom-bg text-white me-2\"><i\r\n                                                class=\"fas fa-th-large\"></i></a>\r\n                                        <a href=\"#\" class=\"btn btn-outline custom-bg text-white me-2\"><i\r\n                                                class=\"fas fa-download\"></i>\r\n                                            Download</a>\r\n                                        <a href=\"{% url 'add_teacher' %}\" class=\"btn btn custom-bg text-white\"><i\r\n                                                class=\"fas fa-plus\"></i></a>\r\n                                    </div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <div class=\"table-responsive\">\r\n                                <table class=\"table border-0 star-student table-hover table-center mb-0 datatable table-striped\">\r\n                                    <thead class=\"student-thread\">\r\n                                    <tr>\r\n                                        <th>\r\n                                            <div class=\"form-check check-tables\">\r\n                                                <input class=\"form-check-input\" type=\"checkbox\" value=\"something\">\r\n                                            </div>\r\n                                        </th>\r\n                                        <th>ID.NO</th>\r\n                                        <th>Name</th>\r\n                                        <th>Class</th>\r\n                                        <th>Gender</th>\r\n                                        <th>Subject</th>\r\n                                        <th>Section</th>\r\n                                        <th>Mobile Number</th>\r\n                                        <th>Address</th>\r\n                                        <th class=\"text-end\">View</th>\r\n                                        <th class=\"text-end\">Edit</th>\r\n                                    </tr>\r\n                                    </thead>\r\n                                    <tbody>\r\n                                    {% for teacher in teachers %}\r\n                                        <tr>\r\n                                            <td>\r\n                                                <div class=\"form-check check-tables\">\r\n                                                    <input class=\"form-check-input\" type=\"checkbox\" value=\"something\">\r\n                                                </div>\r\n                                            </td>\r\n                                            <td>{{ teacher.teacher_id }}</td>\r\n                                            <td>\r\n                                                <h2 class=\"table-avatar\">\r\n                                                    <a href=\"{% url 'teacher_detail' teacher.id %}\">{{ teacher.full_name }}</a>\r\n                                                </h2>\r\n                                            </td>\r\n                                            <td>{{ teacher.assigned_class }}</td>\r\n                                            <td>{{ teacher.gender }}</td>\r\n                                            <td>\r\n                                                {% for subject in teacher.subjects.all %}\r\n                                                    {{ subject.name }}{% if not forloop.last %}, {% endif %}\r\n                                                {% empty %}\r\n                                                    No subjects assigned\r\n                                                {% endfor %}\r\n                                            </td>\r\n                                            <td>{{ teacher.section }}</td>\r\n                                            <td>{{ teacher.phone_no }}</td>\r\n                                            <td>{{ teacher.address }}</td>\r\n                                            <td class=\"text-end\">\r\n                                                <div class=\"actions\">\r\n                                                    <a href=\"{% url 'teacher_detail' teacher.id %}\"\r\n                                                       class=\"btn btn-sm custom-bg text-white me-2\">\r\n                                                        <i class=\"fas fa-eye-slash\"></i>\r\n                                                    </a>\r\n                                                </div>\r\n                                            </td>\r\n                                            <td>\r\n                                                <div class=\"actions\">\r\n                                                    <a href=\"{% url 'edit_teacher' teacher.id %}\"\r\n                                                       class=\"btn btn-sm custom-bg text-white\">\r\n                                                        <i class=\"fas fa-edit\"></i>\r\n                                                    </a>\r\n                                                </div>\r\n                                            </td>\r\n                                        </tr>\r\n                                    {% endfor %}\r\n\r\n\r\n                                    </tbody>\r\n                                </table>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n\r\n\r\n        <footer>\r\n            <p>Copyright © 2024 Davedev.</p>\r\n        </footer>\r\n\r\n    </div>\r\n\r\n    </div>\r\n\r\n    <script src=\"{% static 'assets/js/jquery-3.6.0.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/js/popper.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/datatables/datatables.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/js/script.js' %}\"></script>\r\n    </body>\r\n\r\n    </html>\r\n\r\n\r\n{% endblock %}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/teachers/teachers.html b/templates/teachers/teachers.html
+--- a/templates/teachers/teachers.html	(revision 073a471b0adb21efe71892ddc82de5a3d685777f)
++++ b/templates/teachers/teachers.html	(date 1737316338862)
+@@ -53,14 +53,11 @@
+                                         <h3 class="page-title">Teachers</h3>
+                                     </div>
+                                     <div class="col-auto text-end float-end ms-auto download-grp">
+-                                        <a href="{% url 'teachers' %}"
+-                                           class="btn btn-outline custom-bg text-white me-2 active"><i
+-                                                class="fas fa-list"></i></a>
+-                                        <a href="{% url 'teachers' %}"
+-                                           class="btn btn-outline-lg custom-bg text-white me-2"><i
+-                                                class="fas fa-th-large"></i></a>
+-                                        <a href="#" class="btn btn-outline custom-bg text-white me-2"><i
+-                                                class="fas fa-download"></i>
++                                        <a href="{% url 'teachers' %}" class="btn btn-outline custom-bg me-2 active"><i
++                                                class="feather-list"></i></a>
++                                        <a href="{% url 'teachers' %}" class="btn btn-outline-lg custom-bg text-white me-2"><i
++                                                class="feather-grid"></i></a>
++                                        <a href="#" class="btn btn-outline custom-bg text-white me-2"><i class="fas fa-download"></i>
+                                             Download</a>
+                                         <a href="{% url 'add_teacher' %}" class="btn btn custom-bg text-white"><i
+                                                 class="fas fa-plus"></i></a>
+@@ -85,53 +82,40 @@
+                                         <th>Section</th>
+                                         <th>Mobile Number</th>
+                                         <th>Address</th>
+-                                        <th class="text-end">View</th>
+-                                        <th class="text-end">Edit</th>
++                                        <th class="text-end">Action</th>
+                                     </tr>
+                                     </thead>
+                                     <tbody>
+                                     {% for teacher in teachers %}
+-                                        <tr>
+-                                            <td>
+-                                                <div class="form-check check-tables">
+-                                                    <input class="form-check-input" type="checkbox" value="something">
+-                                                </div>
+-                                            </td>
+-                                            <td>{{ teacher.teacher_id }}</td>
+-                                            <td>
+-                                                <h2 class="table-avatar">
+-                                                    <a href="{% url 'teacher_detail' teacher.id %}">{{ teacher.full_name }}</a>
+-                                                </h2>
+-                                            </td>
+-                                            <td>{{ teacher.assigned_class }}</td>
+-                                            <td>{{ teacher.gender }}</td>
+-                                            <td>
+-                                                {% for subject in teacher.subjects.all %}
+-                                                    {{ subject.name }}{% if not forloop.last %}, {% endif %}
+-                                                {% empty %}
+-                                                    No subjects assigned
+-                                                {% endfor %}
+-                                            </td>
+-                                            <td>{{ teacher.section }}</td>
+-                                            <td>{{ teacher.phone_no }}</td>
+-                                            <td>{{ teacher.address }}</td>
+-                                            <td class="text-end">
+-                                                <div class="actions">
+-                                                    <a href="{% url 'teacher_detail' teacher.id %}"
+-                                                       class="btn btn-sm custom-bg text-white me-2">
+-                                                        <i class="fas fa-eye-slash"></i>
+-                                                    </a>
+-                                                </div>
+-                                            </td>
+-                                            <td>
+-                                                <div class="actions">
+-                                                    <a href="{% url 'edit_teacher' teacher.id %}"
+-                                                       class="btn btn-sm custom-bg text-white">
+-                                                        <i class="fas fa-edit"></i>
+-                                                    </a>
+-                                                </div>
+-                                            </td>
+-                                        </tr>
++                                    <tr>
++                                        <td>
++                                            <div class="form-check check-tables">
++                                                <input class="form-check-input" type="checkbox" value="something">
++                                            </div>
++                                        </td>
++                                        <td>{{ teacher.teacher_id }}</td>
++                                        <td>
++                                            <h2 class="table-avatar">
++                                                <a href="{% url 'teacher_detail' teacher.id %}">{{ teacher.full_name }}</a>
++                                            </h2>
++                                        </td>
++                                        <td>{{ teacher.assigned_class }}</td>
++                                        <td>{{ teacher.gender }}</td>
++                                        <td>{{ teacher.subjects }}</td>
++                                        <td>{{ teacher.section }}</td>
++                                        <td>{{ teacher.phone_no}}</td>
++                                        <td>{{ teacher.address}}</td>
++                                        <td class="text-end">
++                                            <div class="actions">
++                                                <a href="{% url 'teacher_detail' teacher.id %}" class="btn btn-sm custom-bg text-white me-2">
++                                                    <i class="fas fa-eye-slash"></i>
++                                                </a>
++                                                <a href="{% url 'edit_teacher' teacher.id %}" class="btn btn-sm custom-bg text-white">
++                                                    <i class="fas fa-edit"></i>
++                                                </a>
++                                            </div>
++                                        </td>
++                                    </tr>
+                                     {% endfor %}
+ 
+ 
+Index: apps/management/admin.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from django.contrib import admin\r\nfrom django.db.models import Sum\r\n\r\nfrom apps.management.models import Term, Result, ReportCard, SubjectMark, ExamType, Timetable, \\\r\n    LessonExchangeRequest, UserProfile, Subject, Institution\r\n\r\n\r\nclass UserProfileAdmin(admin.ModelAdmin):\r\n    list_display = ('user','role')\r\n\r\nclass InstitutionAdmin(admin.ModelAdmin):\r\n    list_display = ('name','mobile_number','email_address')\r\n\r\nclass SubjectAdmin(admin.ModelAdmin):\r\n    list_display = ['name']\r\n    search_fields = ['name','grade']\r\n\r\n# Inline classes\r\nclass SubjectMarkInline(admin.TabularInline):\r\n    model = SubjectMark\r\n    extra = 1  # Number of empty rows to show for new marks\r\n    fields = ['subject', 'marks', 'exam_type']\r\n    readonly_fields = ['subject', 'exam_type']  # Make these fields read-only in the inline\r\n\r\n# Admin classes\r\nclass TermAdmin(admin.ModelAdmin):\r\n    list_display = ['name', 'start_date', 'end_date']\r\n    list_filter = ('start_date', 'end_date')\r\n    search_fields = ['name']\r\n    ordering = ['start_date']\r\n\r\nclass TeacherSubjectAdmin(admin.ModelAdmin):\r\n    list_display = ['teacher', 'subject', 'grade_assigned']\r\n    search_fields = ['teacher__username', 'subject__name', 'grade_assigned__name']\r\n    list_filter = ['grade_assigned']\r\n\r\nclass ExamTypeAdmin(admin.ModelAdmin):\r\n    list_display = ['name', 'term', 'description']\r\n    search_fields = ['name']\r\n    list_filter = ['term']\r\n\r\nclass ResultAdmin(admin.ModelAdmin):\r\n    list_display = ['student', 'subject', 'score', 'term']\r\n    list_filter = ['term', 'subject']\r\n    search_fields = ['student__first_name', 'student__last_name', 'teacher_subject__name', 'score']\r\n    ordering = ['-score']\r\n\r\nclass SubjectMarkAdmin(admin.ModelAdmin):\r\n    list_display = ['student', 'subject', 'term', 'marks', 'exam_type']\r\n    list_filter = ['term', 'subject', 'exam_type']\r\n    search_fields = ['student__first_name', 'student__last_name', 'subject__name']\r\n    ordering = ['-marks']\r\n\r\n# Remove SubjectMarkInline and its usage in ReportCardAdmin\r\nclass ReportCardAdmin(admin.ModelAdmin):\r\n    list_display = ['student', 'term', 'total_marks_display', 'student_rank_display', 'date']\r\n    search_fields = ['student__first_name', 'student__last_name', 'term__name']\r\n    list_filter = ['term']\r\n    ordering = ['term', '-date']\r\n\r\n    def total_marks_display(self, obj):\r\n        return obj.calculate_total_marks()  # Call the renamed method\r\n    total_marks_display.short_description = 'Total Marks'\r\n\r\n    def student_rank_display(self, obj):\r\n        return obj.student_rank()\r\n    student_rank_display.short_description = 'Rank'\r\n\r\nclass TimetableAdmin(admin.ModelAdmin):\r\n    list_display = ('grade_section', 'subject', 'teacher', 'day', 'start_time', 'end_time')\r\n    list_filter = ('grade_section', 'day')\r\n    search_fields = ('grade_section__grade__name', 'subject__name', 'teacher__full_name')\r\n\r\n\r\nclass LessonExchangeRequestAdmin(admin.ModelAdmin):\r\n    list_display = ('teacher_1', 'teacher_2', 'lesson_1', 'lesson_2', 'status', 'conflict', 'created_at')\r\n    actions = ['approve_exchange', 'reject_exchange']\r\n\r\n    def approve_exchange(self, request, queryset):\r\n        queryset.update(status='approved')\r\n\r\n    def reject_exchange(self, request, queryset):\r\n        queryset.update(status='rejected')\r\n\r\n\r\n\r\n# Registering models with admin\r\nadmin.site.register(Institution,InstitutionAdmin)\r\nadmin.site.register(UserProfile,UserProfileAdmin)\r\nadmin.site.register(Term, TermAdmin)\r\nadmin.site.register(LessonExchangeRequest,LessonExchangeRequestAdmin)\r\nadmin.site.register(Timetable, TimetableAdmin)\r\nadmin.site.register(ExamType, ExamTypeAdmin)\r\nadmin.site.register(Result, ResultAdmin)\r\nadmin.site.register(Subject,SubjectAdmin)\r\nadmin.site.register(SubjectMark, SubjectMarkAdmin)\r\nadmin.site.register(ReportCard, ReportCardAdmin)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/apps/management/admin.py b/apps/management/admin.py
+--- a/apps/management/admin.py	(revision 073a471b0adb21efe71892ddc82de5a3d685777f)
++++ b/apps/management/admin.py	(date 1737316702244)
+@@ -1,97 +1,57 @@
+ from django.contrib import admin
+ from django.db.models import Sum
+ 
+-from apps.management.models import Term, Result, ReportCard, SubjectMark, ExamType, Timetable, \
+-    LessonExchangeRequest, UserProfile, Subject, Institution
+-
++from apps.management.models import Term, TeacherSubject, Result, ReportCard, SubjectMark
+ 
+-class UserProfileAdmin(admin.ModelAdmin):
+-    list_display = ('user','role')
+ 
+-class InstitutionAdmin(admin.ModelAdmin):
+-    list_display = ('name','mobile_number','email_address')
+ 
+-class SubjectAdmin(admin.ModelAdmin):
+-    list_display = ['name']
+-    search_fields = ['name','grade']
+-
+-# Inline classes
+-class SubjectMarkInline(admin.TabularInline):
+-    model = SubjectMark
+-    extra = 1  # Number of empty rows to show for new marks
+-    fields = ['subject', 'marks', 'exam_type']
+-    readonly_fields = ['subject', 'exam_type']  # Make these fields read-only in the inline
+-
+-# Admin classes
++# Register your models here.
+ class TermAdmin(admin.ModelAdmin):
+-    list_display = ['name', 'start_date', 'end_date']
++    list_display = ['name','start_date','end_date']
+     list_filter = ('start_date', 'end_date')
+     search_fields = ['name']
+-    ordering = ['start_date']
++
++
+ 
+ class TeacherSubjectAdmin(admin.ModelAdmin):
+     list_display = ['teacher', 'subject', 'grade_assigned']
+-    search_fields = ['teacher__username', 'subject__name', 'grade_assigned__name']
+-    list_filter = ['grade_assigned']
++    search_fields = ['teacher__username', 'subject', 'grade_assigned']
+ 
+-class ExamTypeAdmin(admin.ModelAdmin):
+-    list_display = ['name', 'term', 'description']
+-    search_fields = ['name']
+-    list_filter = ['term']
++
+ 
+ class ResultAdmin(admin.ModelAdmin):
+-    list_display = ['student', 'subject', 'score', 'term']
++    list_display = ['student', 'teacher_subject', 'score', 'term']
++    list_filter = ['term', 'teacher_subject__subject']
++    search_fields = ['student__name', 'teacher_subject__subject', 'score']
++
++
++class PerformanceAdmin(admin.ModelAdmin):
++    list_display = ['student','subject','term','marks','total_marks']
++    search_fields = ['student','subject','term','total_marks']
++
++class SubjectMarkAdmin(admin.ModelAdmin):
++    list_display = ['student', 'subject', 'term', 'marks']
+     list_filter = ['term', 'subject']
+-    search_fields = ['student__first_name', 'student__last_name', 'teacher_subject__name', 'score']
+-    ordering = ['-score']
++    search_fields = ['student__first_name', 'subject']
+ 
+-class SubjectMarkAdmin(admin.ModelAdmin):
+-    list_display = ['student', 'subject', 'term', 'marks', 'exam_type']
+-    list_filter = ['term', 'subject', 'exam_type']
+-    search_fields = ['student__first_name', 'student__last_name', 'subject__name']
+-    ordering = ['-marks']
+ 
+-# Remove SubjectMarkInline and its usage in ReportCardAdmin
+ class ReportCardAdmin(admin.ModelAdmin):
+-    list_display = ['student', 'term', 'total_marks_display', 'student_rank_display', 'date']
+-    search_fields = ['student__first_name', 'student__last_name', 'term__name']
+-    list_filter = ['term']
+-    ordering = ['term', '-date']
++    list_display = ['student', 'term', 'total_marks', 'student_rank', 'date']
++    search_fields = ['student__name', 'term__name']
+ 
+-    def total_marks_display(self, obj):
+-        return obj.calculate_total_marks()  # Call the renamed method
+-    total_marks_display.short_description = 'Total Marks'
++    def total_marks(self, obj):
++        return obj.total_marks()
+ 
+-    def student_rank_display(self, obj):
++    def student_rank(self, obj):
+         return obj.student_rank()
+-    student_rank_display.short_description = 'Rank'
+-
+-class TimetableAdmin(admin.ModelAdmin):
+-    list_display = ('grade_section', 'subject', 'teacher', 'day', 'start_time', 'end_time')
+-    list_filter = ('grade_section', 'day')
+-    search_fields = ('grade_section__grade__name', 'subject__name', 'teacher__full_name')
+ 
+ 
+-class LessonExchangeRequestAdmin(admin.ModelAdmin):
+-    list_display = ('teacher_1', 'teacher_2', 'lesson_1', 'lesson_2', 'status', 'conflict', 'created_at')
+-    actions = ['approve_exchange', 'reject_exchange']
+ 
+-    def approve_exchange(self, request, queryset):
+-        queryset.update(status='approved')
+-
+-    def reject_exchange(self, request, queryset):
+-        queryset.update(status='rejected')
+-
+-
+-
+-# Registering models with admin
+-admin.site.register(Institution,InstitutionAdmin)
+-admin.site.register(UserProfile,UserProfileAdmin)
+-admin.site.register(Term, TermAdmin)
+-admin.site.register(LessonExchangeRequest,LessonExchangeRequestAdmin)
+-admin.site.register(Timetable, TimetableAdmin)
+-admin.site.register(ExamType, ExamTypeAdmin)
+-admin.site.register(Result, ResultAdmin)
+-admin.site.register(Subject,SubjectAdmin)
+-admin.site.register(SubjectMark, SubjectMarkAdmin)
+-admin.site.register(ReportCard, ReportCardAdmin)
++# admin.site.register(ReportCard, ReportCardAdmin)
++admin.site.register(SubjectMark, SubjectMarkAdmin)
++admin.site.register(Term,TermAdmin)
++
++admin.site.register(TeacherSubject,TeacherSubjectAdmin)
++admin.site.register(Result,ResultAdmin)
++#admin.site.register(Performance,PerformanceAdmin)
++
+Index: templates/students/inactive_students.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{% extends 'Home/base.html' %}\r\n{% load static %}\r\n{% block body %}\r\n\r\n    <div class=\"page-wrapper\">\r\n        <div class=\"content container-fluid\">\r\n\r\n            <div class=\"page-header\">\r\n                <div class=\"row\">\r\n                    <div class=\"col-sm-12\">\r\n                        <div class=\"page-sub-header\">\r\n                            <h3 class=\"page-title\">Inactive Students</h3>\r\n                            <ul class=\"breadcrumb\">\r\n                                <li class=\"breadcrumb-item\"><a href=\"students.html\">Student</a></li>\r\n                                <li class=\"breadcrumb-item active\">All Students</li>\r\n                            </ul>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n\r\n            <div class=\"student-group-form\">\r\n                <div class=\"row\">\r\n                    <div class=\"col-lg-3 col-md-6\">\r\n                        <div class=\"form-group\">\r\n                            <input type=\"text\" class=\"form-control\" placeholder=\"Search by ID ...\">\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-lg-3 col-md-6\">\r\n                        <div class=\"form-group\">\r\n                            <input type=\"text\" class=\"form-control\" placeholder=\"Search by Name ...\">\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-lg-4 col-md-6\">\r\n                        <div class=\"form-group\">\r\n                            <input type=\"text\" class=\"form-control\" placeholder=\"Search by Phone ...\">\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-lg-2\">\r\n                        <div class=\"search-student-btn\">\r\n                            <button type=\"btn\" class=\"btn btn custom-bg text-white\">Search</button>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12\">\r\n                    <div class=\"card card-table comman-shadow\">\r\n                        <div class=\"card-body\">\r\n\r\n                            <div class=\"page-header\">\r\n                                <div class=\"row align-items-center\">\r\n                                    <div class=\"container-fluid\">\r\n                                        {% for message in messages %}\r\n\r\n                                            <div class=\"alert {{ message.tags }} alert-dismissible fade show\"\r\n                                                 role=\"alert\">\r\n                                                <p>{{ message }}</p>\r\n                                                <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"\r\n                                                        aria-label=\"Close\"></button>\r\n                                            </div>\r\n\r\n                                        {% endfor %}\r\n\r\n                                    </div>\r\n                                    <div class=\"col\">\r\n                                        <h3 class=\"page-title\">Students</h3>\r\n                                    </div>\r\n                                    <div class=\"col-auto text-end float-end ms-auto download-grp\">\r\n                                        <a href=\"{% url 'students' %}\"\r\n                                           class=\"btn btn-outline custom-bg text-white me-2 active\"><i\r\n                                                class=\"fas fa-list\"></i></a>\r\n                                        <a href=\"{% url 'students_grid' %}\"\r\n                                           class=\"btn btn-outline custom-bg text-white me-2\"><i\r\n                                                class=\"fas fa-th-large\"></i></a>\r\n                                        <a href=\"#\" class=\"btn btn custom-bg text-white me-2\"><i\r\n                                                class=\"fas fa-download\"></i>\r\n                                            Download</a>\r\n                                        <a href=\"{% url 'add_student' %}\" class=\"btn btn custom-bg text-white\"><i\r\n                                                class=\"fas fa-plus\"></i></a>\r\n                                    </div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <div class=\"table-responsive\">\r\n                                <table class=\"table border-0 star-student table-hover table-center mb-0 datatable table-striped\">\r\n                                    <thead class=\"student-thread\">\r\n                                    <tr>\r\n                                        <th>\r\n                                            <div class=\"form-check check-tables\">\r\n                                                <input class=\"form-check-input\" type=\"checkbox\" value=\"something\">\r\n                                            </div>\r\n                                        </th>\r\n                                        <th>ADM</th>\r\n                                        <th>Name</th>\r\n                                        <th>Class</th>\r\n                                        <th>Parent Name</th>\r\n                                        <th>Mobile Number</th>\r\n                                        <th>Fee</th>\r\n                                        <th>Status</th>\r\n                                        <th class=\"text-end\">Action</th>\r\n                                    </tr>\r\n                                    </thead>\r\n                                    <tbody>\r\n\r\n                                    {% for student in student_list %}\r\n\r\n\r\n                                        {#                              <td>{{ student.date_of_birth|date:\"d M Y\" }}</td>#}\r\n\r\n\r\n                                        <td>\r\n                                            <div class=\"form-check check-tables\">\r\n                                                <input class=\"form-check-input\" type=\"checkbox\" value=\"something\">\r\n                                            </div>\r\n                                        </td>\r\n                                        <td>{{ student.admission_number }}</td>\r\n                                        <td>\r\n                                            <h2 class=\"table-avatar\">\r\n                                                <a href=\"#\">{{ student.first_name }}\r\n                                                    {{ student.last_name }}</a>\r\n                                            </h2>\r\n                                        </td>\r\n                                        <td>{{ student.grade }}</td>\r\n                                        <td>{{ student.date_of_birth }}</td>\r\n                                        <td>{{ student.parent.first.first_name }}\r\n                                            &nbsp; {{ student.parent.first.last_name }} </td>\r\n                                        <td>{{ student.parent.first.mobile }}</td>\r\n                                        <td>      {{ student.parent.first.address }}</td>\r\n                                        <td class=\"text-end\">\r\n                                            <div class=\"actions \">\r\n                                                <a href=\"{% url 'student_details' student.id %}\"\r\n                                                   class=\"btn btn-sm custom-bg text-white me-2 \">\r\n                                                    <i class=\"fas fa-eye-slash\"></i>\r\n                                                </a>\r\n                                                {% if perms.students.view_change_student %}\r\n                                                    <a href=\"{% url 'edit_student' student.id %}\"\r\n                                                       class=\"btn btn-sm custom-bg text-white\">\r\n                                                        <i class=\"fas fa-edit\"></i>\r\n                                                    </a>\r\n                                                {% endif %}\r\n                                            </div>\r\n                                        </td>\r\n                                        </tr>\r\n                                    {% endfor %}\r\n\r\n\r\n                                    </tbody>\r\n                                </table>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n\r\n        <footer>\r\n            <p>Copyright © 2024 davedev </p>\r\n        </footer>\r\n\r\n    </div>\r\n\r\n    </div>\r\n\r\n\r\n    <script src=\"{% static 'assets/js/jquery-3.6.0.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/js/popper.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/js/feather.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/datatables/datatables.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/js/script.js' %}\"></script>\r\n    </body>\r\n\r\n    </html>\r\n\r\n\r\n{% endblock %}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/students/inactive_students.html b/templates/students/inactive_students.html
+--- a/templates/students/inactive_students.html	(revision 073a471b0adb21efe71892ddc82de5a3d685777f)
++++ b/templates/students/inactive_students.html	(date 1737316638153)
+@@ -43,7 +43,7 @@
+                     </div>
+                 </div>
+             </div>
+-
++        
+             <div class="row">
+                 <div class="col-sm-12">
+                     <div class="card card-table comman-shadow">
+@@ -51,31 +51,15 @@
+ 
+                             <div class="page-header">
+                                 <div class="row align-items-center">
+-                                    <div class="container-fluid">
+-                                        {% for message in messages %}
+-
+-                                            <div class="alert {{ message.tags }} alert-dismissible fade show"
+-                                                 role="alert">
+-                                                <p>{{ message }}</p>
+-                                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+-                                                        aria-label="Close"></button>
+-                                            </div>
+-
+-                                        {% endfor %}
+-
+-                                    </div>
+                                     <div class="col">
+                                         <h3 class="page-title">Students</h3>
+                                     </div>
+                                     <div class="col-auto text-end float-end ms-auto download-grp">
+-                                        <a href="{% url 'students' %}"
+-                                           class="btn btn-outline custom-bg text-white me-2 active"><i
++                                        <a href="{% url 'students' %}" class="btn btn-outline custom-bg text-white me-2 active"><i
+                                                 class="fas fa-list"></i></a>
+-                                        <a href="{% url 'students_grid' %}"
+-                                           class="btn btn-outline custom-bg text-white me-2"><i
++                                        <a href="{% url 'students_grid' %}" class="btn btn-outline custom-bg text-white me-2"><i
+                                                 class="fas fa-th-large"></i></a>
+-                                        <a href="#" class="btn btn custom-bg text-white me-2"><i
+-                                                class="fas fa-download"></i>
++                                        <a href="#" class="btn btn custom-bg text-white me-2"><i class="fas fa-download"></i>
+                                             Download</a>
+                                         <a href="{% url 'add_student' %}" class="btn btn custom-bg text-white"><i
+                                                 class="fas fa-plus"></i></a>
+@@ -92,7 +76,7 @@
+                                                 <input class="form-check-input" type="checkbox" value="something">
+                                             </div>
+                                         </th>
+-                                        <th>ADM</th>
++                                        <th>ID</th>
+                                         <th>Name</th>
+                                         <th>Class</th>
+                                         <th>Parent Name</th>
+@@ -105,10 +89,10 @@
+                                     <tbody>
+ 
+                                     {% for student in student_list %}
+-
+-
++                                      
++                                       
+                                         {#                              <td>{{ student.date_of_birth|date:"d M Y" }}</td>#}
+-
++                                     
+ 
+                                         <td>
+                                             <div class="form-check check-tables">
+@@ -122,7 +106,7 @@
+                                                     {{ student.last_name }}</a>
+                                             </h2>
+                                         </td>
+-                                        <td>{{ student.grade }}</td>
++                                        <td>{{ student.Class }}</td>
+                                         <td>{{ student.date_of_birth }}</td>
+                                         <td>{{ student.parent.first.first_name }}
+                                             &nbsp; {{ student.parent.first.last_name }} </td>
+@@ -134,12 +118,10 @@
+                                                    class="btn btn-sm custom-bg text-white me-2 ">
+                                                     <i class="fas fa-eye-slash"></i>
+                                                 </a>
+-                                                {% if perms.students.view_change_student %}
+-                                                    <a href="{% url 'edit_student' student.id %}"
+-                                                       class="btn btn-sm custom-bg text-white">
+-                                                        <i class="fas fa-edit"></i>
+-                                                    </a>
+-                                                {% endif %}
++                                                <a href="{% url 'edit_student' student.id %}"
++                                                   class="btn btn-sm custom-bg text-white">
++                                                    <i class="fas fa-edit"></i>
++                                                </a>
+                                             </div>
+                                         </td>
+                                         </tr>
+@@ -163,7 +145,7 @@
+ 
+     </div>
+ 
+-
++   
+     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+     <script src="{% static 'assets/js/popper.min.js' %}"></script>
+     <script src="{% static 'assets/js/feather.min.js' %}"></script>
+Index: templates/students/All-students.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{% extends 'Home/base.html' %}\r\n{% load static %}\r\n{% block body %}\r\n\r\n    <div class=\"page-wrapper\">\r\n        <div class=\"content container-fluid\">\r\n\r\n            <div class=\"page-header\">\r\n                <div class=\"row\">\r\n                    <div class=\"col-sm-12\">\r\n                        <div class=\"page-sub-header\">\r\n                            <h3 class=\"page-title\">Students</h3>\r\n                            <ul class=\"breadcrumb\">\r\n                                <li class=\"breadcrumb-item\"><a href=\"students.html\">Student</a></li>\r\n                                <li class=\"breadcrumb-item active\">All Students</li>\r\n                            </ul>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n\r\n            <div class=\"student-group-form\">\r\n                <div class=\"row\">\r\n                    <div class=\"col-lg-3 col-md-6\">\r\n                        <div class=\"form-group\">\r\n                            <input type=\"text\" class=\"form-control\" placeholder=\"Search by ID ...\">\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-lg-3 col-md-6\">\r\n                        <div class=\"form-group\">\r\n                            <input type=\"text\" class=\"form-control\" placeholder=\"Search by Name ...\">\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-lg-4 col-md-6\">\r\n                        <div class=\"form-group\">\r\n                            <input type=\"text\" class=\"form-control\" placeholder=\"Search by Phone ...\">\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"col-lg-2\">\r\n                        <div class=\"search-student-btn\">\r\n                            <button type=\"btn\" class=\"btn btn custom-bg text-white\">Search</button>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n            <div class=\"container-fluid\">\r\n                {% for message in messages %}\r\n\r\n                    <div class=\"alert {{ message.tags }} alert-dismissible fade show\" role=\"alert\">\r\n                        <p>{{ message }}</p>\r\n                        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>\r\n                    </div>\r\n\r\n                {% endfor %}\r\n\r\n            </div>\r\n\r\n            <div class=\"row\">\r\n                <div class=\"col-sm-12\">\r\n                    <div class=\"card card-table comman-shadow\">\r\n                        <div class=\"card-body\">\r\n\r\n                            <div class=\"page-header\">\r\n                                <div class=\"row align-items-center\">\r\n\r\n                                    <div class=\"col\">\r\n                                        <form method=\"POST\" action=\"{% url 'update_student_status' %}\">\r\n                                            {% csrf_token %}\r\n                                            <button type=\"submit\" class=\"btn btn custom-bg text-white\">Update Selected\r\n                                                Students to\r\n                                                Graduated\r\n                                            </button>\r\n                                        </form>\r\n                                    </div>\r\n\r\n\r\n                                    <div class=\"col-auto text-end float-end ms-auto download-grp\">\r\n                                        <a href=\"{% url 'students' %}\"\r\n                                           class=\"btn btn-outline custom-bg text-white me-2 active\"><i\r\n                                                class=\"fas fa-list\"></i></a>\r\n                                        <a href=\"{% url 'students_grid' %}\"\r\n                                           class=\"btn btn-outline custom-bg text-white me-2\"><i\r\n                                                class=\"fas fa-th-large\"></i></a>\r\n                                        <a href=\"#\" class=\"btn btn custom-bg text-white me-2\"><i\r\n                                                class=\"fas fa-download\"></i>\r\n                                            Download</a>\r\n                                        <a href=\"{% url 'add_student' %}\" class=\"btn btn custom-bg text-white\"><i\r\n                                                class=\"fas fa-plus\"></i></a>\r\n                                    </div>\r\n                                </div>\r\n                            </div>\r\n\r\n                            <div class=\"table-responsive\">\r\n\r\n                                <table class=\"table border-0 star-student table-hover table-center mb-0 datatable table-striped\">\r\n                                    <thead class=\"student-thread\">\r\n                                    <tr>\r\n                                        <th>\r\n                                            {#                                            <div class=\"form-check check-tables\">#}\r\n                                            {#                                                <input class=\"form-check-input\" type=\"checkbox\" value=\"something\">#}\r\n                                            {#                                            </div>#}\r\n                                            select\r\n                                        </th>\r\n                                        <th>ID</th>\r\n                                        <th>Name</th>\r\n                                        <th>Class</th>\r\n                                        <th>Parent Name</th>\r\n                                        <th>Mobile Number</th>\r\n                                        <th>status</th>\r\n                                        <th class=\"text-end\">View</th>\r\n                                        <th class=\"text-end\">Edit</th>\r\n                                    </tr>\r\n                                    </thead>\r\n                                    <tbody>\r\n\r\n                                    {% for student in students_active %}\r\n\r\n                                        <td>\r\n                                            <div class=\"form-check check-tables\">\r\n                                                <input class=\"form-check-input\" type=\"checkbox\"\r\n                                                       name=\"selected_students\" value=\"{{ student.id }}\">\r\n                                            </div>\r\n                                        </td>\r\n                                        <td>{{ student.admission_number }}</td>\r\n                                        <td>\r\n                                            <h2 class=\"table-avatar\">\r\n                                                <a href=\"#\">{{ student.first_name }}\r\n                                                    {{ student.last_name }}</a>\r\n                                            </h2>\r\n                                        </td>\r\n                                        <td>{{ student.grade }}</td>\r\n                                        <td>{{ student.parent.first.first_name }}\r\n                                            &nbsp; {{ student.parent.first.last_name }} </td>\r\n                                        <td>{{ student.parent.first.mobile }}</td>\r\n                                        <td><a href=\"\"\r\n                                               class=\"custom-bg btn rounded text-white\"> {{ student.status }}</a>\r\n                                        </td>\r\n                                        <td class=\"text-end\">\r\n                                            <div class=\"actions \">\r\n                                                <a href=\"{% url 'student_details' student.id %}\"\r\n                                                   class=\"btn btn-sm custom-bg text-white me-2 \">\r\n                                                    <i class=\"fas fa-eye-slash\"></i>\r\n                                                </a>\r\n                                            </div>\r\n                                        </td>\r\n                                        <td>\r\n                                            <div class=\"actions \">\r\n                                                {% if perms.students.view_change_student %}\r\n                                                    <a href=\"{% url 'edit_student' student.id %}\"\r\n                                                       class=\"btn btn-sm custom-bg text-white\">\r\n                                                        <i class=\"fas fa-edit\"></i>\r\n                                                    </a>\r\n                                                {% endif %}\r\n                                            </div>\r\n                                        </td>\r\n                                        </tr>\r\n                                    {% endfor %}\r\n\r\n\r\n                                    </tbody>\r\n                                </table>\r\n                            </div>\r\n\r\n\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n\r\n    <footer>\r\n        <p>Copyright © 2024 davedev </p>\r\n    </footer>\r\n\r\n    </div>\r\n\r\n    </div>\r\n\r\n\r\n    <script src=\"{% static 'assets/js/jquery-3.6.0.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/js/popper.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/js/feather.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/plugins/datatables/datatables.min.js' %}\"></script>\r\n    <script src=\"{% static 'assets/js/script.js' %}\"></script>\r\n    </body>\r\n\r\n    </html>\r\n\r\n\r\n{% endblock %}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/students/All-students.html b/templates/students/All-students.html
+--- a/templates/students/All-students.html	(revision 073a471b0adb21efe71892ddc82de5a3d685777f)
++++ b/templates/students/All-students.html	(date 1737316594157)
+@@ -43,18 +43,7 @@
+                     </div>
+                 </div>
+             </div>
+-            <div class="container-fluid">
+-                {% for message in messages %}
+-
+-                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+-                        <p>{{ message }}</p>
+-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+-                    </div>
+-
+-                {% endfor %}
+-
+-            </div>
+-
++        
+             <div class="row">
+                 <div class="col-sm-12">
+                     <div class="card card-table comman-shadow">
+@@ -62,27 +51,15 @@
+ 
+                             <div class="page-header">
+                                 <div class="row align-items-center">
+-
+                                     <div class="col">
+-                                        <form method="POST" action="{% url 'update_student_status' %}">
+-                                            {% csrf_token %}
+-                                            <button type="submit" class="btn btn custom-bg text-white">Update Selected
+-                                                Students to
+-                                                Graduated
+-                                            </button>
+-                                        </form>
++                                        <h3 class="page-title">Students</h3>
+                                     </div>
+-
+-
+                                     <div class="col-auto text-end float-end ms-auto download-grp">
+-                                        <a href="{% url 'students' %}"
+-                                           class="btn btn-outline custom-bg text-white me-2 active"><i
++                                        <a href="{% url 'students' %}" class="btn btn-outline custom-bg text-white me-2 active"><i
+                                                 class="fas fa-list"></i></a>
+-                                        <a href="{% url 'students_grid' %}"
+-                                           class="btn btn-outline custom-bg text-white me-2"><i
++                                        <a href="{% url 'students_grid' %}" class="btn btn-outline custom-bg text-white me-2"><i
+                                                 class="fas fa-th-large"></i></a>
+-                                        <a href="#" class="btn btn custom-bg text-white me-2"><i
+-                                                class="fas fa-download"></i>
++                                        <a href="#" class="btn btn custom-bg text-white me-2"><i class="fas fa-download"></i>
+                                             Download</a>
+                                         <a href="{% url 'add_student' %}" class="btn btn custom-bg text-white"><i
+                                                 class="fas fa-plus"></i></a>
+@@ -91,34 +68,35 @@
+                             </div>
+ 
+                             <div class="table-responsive">
+-
+                                 <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                     <thead class="student-thread">
+                                     <tr>
+                                         <th>
+-                                            {#                                            <div class="form-check check-tables">#}
+-                                            {#                                                <input class="form-check-input" type="checkbox" value="something">#}
+-                                            {#                                            </div>#}
+-                                            select
++                                            <div class="form-check check-tables">
++                                                <input class="form-check-input" type="checkbox" value="something">
++                                            </div>
+                                         </th>
+                                         <th>ID</th>
+                                         <th>Name</th>
+                                         <th>Class</th>
++                                        <th>DOB</th>
+                                         <th>Parent Name</th>
+                                         <th>Mobile Number</th>
+-                                        <th>status</th>
+-                                        <th class="text-end">View</th>
+-                                        <th class="text-end">Edit</th>
++                                        <th>Address</th>
++                                        <th class="text-end">Action</th>
+                                     </tr>
+                                     </thead>
+                                     <tbody>
+ 
+-                                    {% for student in students_active %}
++                                    {% for student in student_list %}
++                                      
++                                       
++                                        {#                              <td>{{ student.date_of_birth|date:"d M Y" }}</td>#}
++                                     
+ 
+                                         <td>
+                                             <div class="form-check check-tables">
+-                                                <input class="form-check-input" type="checkbox"
+-                                                       name="selected_students" value="{{ student.id }}">
++                                                <input class="form-check-input" type="checkbox" value="something">
+                                             </div>
+                                         </td>
+                                         <td>{{ student.admission_number }}</td>
+@@ -128,29 +106,22 @@
+                                                     {{ student.last_name }}</a>
+                                             </h2>
+                                         </td>
+-                                        <td>{{ student.grade }}</td>
++                                        <td>{{ student.Class }}</td>
++                                        <td>{{ student.date_of_birth }}</td>
+                                         <td>{{ student.parent.first.first_name }}
+                                             &nbsp; {{ student.parent.first.last_name }} </td>
+                                         <td>{{ student.parent.first.mobile }}</td>
+-                                        <td><a href=""
+-                                               class="custom-bg btn rounded text-white"> {{ student.status }}</a>
+-                                        </td>
++                                        <td>      {{ student.parent.first.address }}</td>
+                                         <td class="text-end">
+                                             <div class="actions ">
+                                                 <a href="{% url 'student_details' student.id %}"
+                                                    class="btn btn-sm custom-bg text-white me-2 ">
+                                                     <i class="fas fa-eye-slash"></i>
+                                                 </a>
+-                                            </div>
+-                                        </td>
+-                                        <td>
+-                                            <div class="actions ">
+-                                                {% if perms.students.view_change_student %}
+-                                                    <a href="{% url 'edit_student' student.id %}"
+-                                                       class="btn btn-sm custom-bg text-white">
+-                                                        <i class="fas fa-edit"></i>
+-                                                    </a>
+-                                                {% endif %}
++                                                <a href="{% url 'edit_student' student.id %}"
++                                                   class="btn btn-sm custom-bg text-white">
++                                                    <i class="fas fa-edit"></i>
++                                                </a>
+                                             </div>
+                                         </td>
+                                         </tr>
+@@ -160,24 +131,21 @@
+                                     </tbody>
+                                 </table>
+                             </div>
+-
+-
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+-    </div>
+ 
+-    <footer>
+-        <p>Copyright © 2024 davedev </p>
+-    </footer>
++        <footer>
++            <p>Copyright © 2024 davedev </p>
++        </footer>
+ 
+     </div>
+ 
+     </div>
+ 
+-
++   
+     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+     <script src="{% static 'assets/js/popper.min.js' %}"></script>
+     <script src="{% static 'assets/js/feather.min.js' %}"></script>
+Index: templates/Home/teacher-dashboard.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/Home/teacher-dashboard.html b/templates/Home/teacher-dashboard.html
+new file mode 100644
+--- /dev/null	(date 1737315869656)
++++ b/templates/Home/teacher-dashboard.html	(date 1737315869656)
+@@ -0,0 +1,402 @@
++{% extends 'Home/base.html' %}
++{% load static %}
++
++
++{% block body %}
++
++
++
++    <div class="page-wrapper">
++        <div class="content container-fluid">
++
++            <div class="page-header">
++                <div class="row">
++                    <div class="col-sm-12">
++                        <div class="page-sub-header">
++                            <h3 class="page-title">Welcome Mr.Mwangi!</h3>
++                            <ul class="breadcrumb">
++                                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
++                                <li class="breadcrumb-item active">Teacher</li>
++                            </ul>
++                        </div>
++                    </div>
++                </div>
++            </div>
++
++
++            <div class="row">
++                <div class="col-xl-3 col-sm-6 col-12 d-flex">
++                    <div class="card bg-comman w-100">
++                        <div class="card-body">
++                            <div class="db-widgets d-flex justify-content-between align-items-center">
++                                <div class="db-info">
++                                    <h6>Total Classes</h6>
++                                    <h3>04/06</h3>
++                                </div>
++                                <div class="db-icon">
++                                    <img src="{% static 'assets/img/icons/teacher-icon-01.svg' %}" alt="Dashboard Icon">
++                                </div>
++                            </div>
++                        </div>
++                    </div>
++                </div>
++                <div class="col-xl-3 col-sm-6 col-12 d-flex">
++                    <div class="card bg-comman w-100">
++                        <div class="card-body">
++                            <div class="db-widgets d-flex justify-content-between align-items-center">
++                                <div class="db-info">
++                                    <h6>Total Students</h6>
++                                    <h3>40/60</h3>
++                                </div>
++                                <div class="db-icon">
++                                    <img src="{% static 'assets/img/icons/dash-icon-01.svg' %}" alt="Dashboard Icon">
++                                </div>
++                            </div>
++                        </div>
++                    </div>
++                </div>
++                <div class="col-xl-3 col-sm-6 col-12 d-flex">
++                    <div class="card bg-comman w-100">
++                        <div class="card-body">
++                            <div class="db-widgets d-flex justify-content-between align-items-center">
++                                <div class="db-info">
++                                    <h6>Total Lessons</h6>
++                                    <h3>30/50</h3>
++                                </div>
++                                <div class="db-icon">
++                                    <img src="{% static 'assets/img/icons/teacher-icon-02.svg' %}" alt="Dashboard Icon">
++                                </div>
++                            </div>
++                        </div>
++                    </div>
++                </div>
++                <div class="col-xl-3 col-sm-6 col-12 d-flex">
++                    <div class="card bg-comman w-100">
++                        <div class="card-body">
++                            <div class="db-widgets d-flex justify-content-between align-items-center">
++                                <div class="db-info">
++                                    <h6>Total Hours</h6>
++                                    <h3>15/20</h3>
++                                </div>
++                                <div class="db-icon">
++                                    <img src="{% static 'assets/img/icons/teacher-icon-03.svg' %}" alt="Dashboard Icon">
++                                </div>
++                            </div>
++                        </div>
++                    </div>
++                </div>
++            </div>
++
++
++            <div class="row">
++                <div class="col-12 col-lg-12 col-xl-8">
++                    <div class="row">
++                        <div class="col-12 col-lg-8 col-xl-8 d-flex">
++                            <div class="card flex-fill comman-shadow">
++                                <div class="card-header">
++                                    <div class="row align-items-center">
++                                        <div class="col-6">
++                                            <h5 class="card-title">Upcoming Lesson</h5>
++                                        </div>
++                                        <div class="col-6">
++                                            <span class="float-end view-link"><a href="#">View All Classes</a></span>
++                                        </div>
++                                    </div>
++                                </div>
++                                <div class="pt-3 pb-3">
++                                    <div class="table-responsive lesson">
++                                        <table class="table table-center">
++                                            <tbody>
++                                            <tr>
++                                                <td>
++                                                    <div class="date">
++                                                        <b>English</b>
++                                                        <p>3.1 Ipsuum dolor</p>
++                                                        <ul class="teacher-date-list">
++                                                            <li><i class="fas fa-calendar-alt me-2"></i>Sep 5, 2022</li>
++                                                            <li>|</li>
++                                                            <li><i class="fas fa-clock me-2"></i>09:00 - 10:00 am</li>
++                                                        </ul>
++                                                    </div>
++                                                </td>
++                                                <td>
++                                                    <div class="lesson-confirm">
++                                                        <a href="#">Confirmed</a>
++                                                    </div>
++                                                    <button type="submit" class="btn btn custom-bg">Reschedule</button>
++                                                </td>
++                                            </tr>
++                                            <tr>
++                                                <td>
++                                                    <div class="date">
++                                                        <b>Kiswahili</b>
++                                                        <p>3.1 Ipsuum dolor</p>
++                                                        <ul class="teacher-date-list">
++                                                            <li><i class="fas fa-calendar-alt me-2"></i>Sep 5, 2022</li>
++                                                            <li>|</li>
++                                                            <li><i class="fas fa-clock me-2"></i>09:00 - 10:00 am</li>
++                                                        </ul>
++                                                    </div>
++                                                </td>
++                                                <td>
++                                                    <div class="lesson-confirm">
++                                                        <a href="#">Confirmed</a>
++                                                    </div>
++                                                    <button type="submit" class="btn btn custom-bg">Reschedule</button>
++                                                </td>
++                                            </tr>
++                                            </tbody>
++                                        </table>
++                                    </div>
++                                </div>
++                            </div>
++                        </div>
++                        <div class="col-12 col-lg-4 col-xl-4 d-flex">
++                            <div class="card flex-fill comman-shadow">
++                                <div class="card-header">
++                                    <div class="row align-items-center">
++                                        <div class="col-12">
++                                            <h5 class="card-title">Term Progress</h5>
++                                        </div>
++                                    </div>
++                                </div>
++                                <div class="dash-widget">
++                                    <div class="circle-bar circle-bar1">
++                                        <div class="circle-graph1" data-percent="50">
++                                            <div class="progress-less">
++                                                <b>55/60</b>
++                                                <p>Lesson Progressed</p>
++                                            </div>
++                                        </div>
++                                    </div>
++                                </div>
++                            </div>
++                        </div>
++                    </div>
++                    <div class="row">
++{#                        <div class="col-12 col-lg-12 col-xl-12 d-flex">#}
++{#                            <div class="card flex-fill comman-shadow">#}
++{#                                <div class="card-header">#}
++{#                                    <div class="row align-items-center">#}
++{#                                        <div class="col-6">#}
++{#                                            <h5 class="card-title">Teaching Activity</h5>#}
++{#                                        </div>#}
++{#                                        <div class="col-6">#}
++{#                                            <ul class="chart-list-out">#}
++{#                                                <li><span class="circle-blue"></span>Teacher</li>#}
++{#                                                <li><span class="circle-green"></span>Students</li>#}
++{#                                                <li class="star-menus"><a href="javascript:;"><i#}
++{#                                                        class="fas fa-ellipsis-v"></i></a></li>#}
++{#                                            </ul>#}
++{#                                        </div>#}
++{#                                    </div>#}
++{#                                </div>#}
++{#                                <div class="card-body">#}
++{#                                    <div id="school-area"></div>#}
++{#                                </div>#}
++{#                            </div>#}
++{#                        </div>#}
++                        <div class="col-12 col-lg-12 col-xl-12 d-flex">
++                            <div class="card flex-fill comman-shadow">
++                                <div class="card-header d-flex align-items-center">
++                                    <h5 class="card-title">Teaching History</h5>
++                                    <ul class="chart-list-out student-ellips">
++                                        <li class="star-menus"><a href="javascript:;"><i class="fas fa-ellipsis-v"></i></a>
++                                        </li>
++                                    </ul>
++                                </div>
++                                <div class="card-body">
++                                    <div class="teaching-card">
++                                        <ul class="steps-history">
++                                            <li>Sep22</li>
++                                            <li>Sep23</li>
++                                            <li>Sep24</li>
++                                        </ul>
++                                        <ul class="activity-feed">
++                                            <li class="feed-item d-flex align-items-center">
++                                                <div class="dolor-activity">
++                                                    <span class="feed-text1"><a>Mathematics</a></span>
++                                                    <ul class="teacher-date-list">
++                                                        <li><i class="fas fa-calendar-alt me-2"></i>September 5, 2022
++                                                        </li>
++                                                        <li>|</li>
++                                                        <li><i class="fas fa-clock me-2"></i>09:00 am - 10:00 am (60
++                                                            Minutes)
++                                                        </li>
++                                                    </ul>
++                                                </div>
++                                                <div class="activity-btns ms-auto">
++                                                    <button type="submit" class="btn custom-bg text-white">In Progress</button>
++                                                </div>
++                                            </li>
++                                            <li class="feed-item d-flex align-items-center">
++                                                <div class="dolor-activity">
++                                                    <span class="feed-text1"><a>Science	</a></span>
++                                                    <ul class="teacher-date-list">
++                                                        <li><i class="fas fa-calendar-alt me-2"></i>September 5, 2022
++                                                        </li>
++                                                        <li>|</li>
++                                                        <li><i class="fas fa-clock me-2"></i>09:00 am - 10:00 am (60
++                                                            Minutes)
++                                                        </li>
++                                                    </ul>
++                                                </div>
++                                                <div class="activity-btns ms-auto">
++                                                    <button type="submit" class="btn btn custom-bg text-white">Completed</button>
++                                                </div>
++                                            </li>
++                                            <li class="feed-item d-flex align-items-center">
++                                                <div class="dolor-activity">
++                                                    <span class="feed-text1"><a>Computer</a></span>
++                                                    <ul class="teacher-date-list">
++                                                        <li><i class="fas fa-calendar-alt me-2"></i>September 5, 2022
++                                                        </li>
++                                                        <li>|</li>
++                                                        <li><i class="fas fa-clock me-2"></i>09:00 am - 10:00 am (60
++                                                            Minutes)
++                                                        </li>
++                                                    </ul>
++                                                </div>
++                                                <div class="activity-btns ms-auto">
++                                                    <button type="submit" class="btn btn custom-bg text-white">In Progress</button>
++                                                </div>
++                                            </li>
++                                        </ul>
++                                    </div>
++                                </div>
++                            </div>
++                        </div>
++                    </div>
++                </div>
++                <div class="col-12 col-lg-12 col-xl-4 d-flex">
++                    <div class="card flex-fill comman-shadow">
++                        <div class="card-body">
++                            <div id="calendar-doctor" class="calendar-container"></div>
++                            <div class="calendar-info calendar-info1">
++                                <div class="up-come-header">
++                                    <h2>Upcoming Events</h2>
++                                    <span><a href="javascript:;"><i class="feather-plus"></i></a></span>
++                                </div>
++                                <div class="upcome-event-date">
++                                    <h3>10 Jan</h3>
++                                    <span><i class="fas fa-ellipsis-h"></i></span>
++                                </div>
++                                <div class="calendar-details">
++                                    <p>08:00 am</p>
++                                    <div class="calendar-box normal-bg">
++                                        <div class="calandar-event-name">
++                                            <h4>Awards</h4>
++                                            <h5>Lorem ipsum sit amet</h5>
++                                        </div>
++                                        <span>08:00 - 09:00 am</span>
++                                    </div>
++                                </div>
++                                <div class="calendar-details">
++                                    <p>09:00 am</p>
++                                    <div class="calendar-box normal-bg">
++                                        <div class="calandar-event-name">
++                                            <h4>Grade1 Graduation</h4>
++                                            <h5>Lorem ipsum sit amet</h5>
++                                        </div>
++                                        <span>09:00 - 10:00 am</span>
++                                    </div>
++                                </div>
++                                <div class="calendar-details">
++                                    <p>10:00 am</p>
++                                    <div class="calendar-box normal-bg">
++                                        <div class="calandar-event-name">
++                                            <h4>Clossing Ceremony</h4>
++                                            <h5>Lorem ipsum sit amet</h5>
++                                        </div>
++                                        <span>10:00 - 11:00 am</span>
++                                    </div>
++                                </div>
++                                <div class="upcome-event-date">
++                                    <h3>11 Jan</h3>
++                                    <span><i class="fas fa-ellipsis-h"></i></span>
++                                </div>
++                                <div class="calendar-details">
++                                    <p>08:00 am</p>
++                                    <div class="calendar-box normal-bg">
++                                        <div class="calandar-event-name">
++                                            <h4>English</h4>
++                                            <h5>Lorem ipsum sit amet</h5>
++                                        </div>
++                                        <span>08:00 - 09:00 am</span>
++                                    </div>
++                                </div>
++                                <div class="calendar-details">
++                                    <p>09:00 am</p>
++                                    <div class="calendar-box normal-bg">
++                                        <div class="calandar-event-name">
++                                            <h4>Mathematics </h4>
++                                            <h5>Lorem ipsum sit amet</h5>
++                                        </div>
++                                        <span>09:00 - 10:00 am</span>
++                                    </div>
++                                </div>
++                                <div class="calendar-details">
++                                    <p>10:00 am</p>
++                                    <div class="calendar-box normal-bg">
++                                        <div class="calandar-event-name">
++                                            <h4>History</h4>
++                                            <h5>Lorem ipsum sit amet</h5>
++                                        </div>
++                                        <span>10:00 - 11:00 am</span>
++                                    </div>
++                                </div>
++                                <div class="calendar-details">
++                                    <p>11:00 am</p>
++                                    <div class="calendar-box break-bg">
++                                        <div class="calandar-event-name">
++                                            <h4>Break</h4>
++                                            <h5>Lorem ipsum sit amet</h5>
++                                        </div>
++                                        <span>11:00 - 12:00 am</span>
++                                    </div>
++                                </div>
++                                <div class="calendar-details">
++                                    <p>11:30 am</p>
++                                    <div class="calendar-box normal-bg">
++                                        <div class="calandar-event-name">
++                                            <h4>History</h4>
++                                            <h5>Lorem ipsum sit amet</h5>
++                                        </div>
++                                        <span>11:30 - 12:00 am</span>
++                                    </div>
++                                </div>
++                            </div>
++                        </div>
++                    </div>
++                </div>
++            </div>
++
++        </div>
++
++        <footer>
++            <p>Copyright © 2024 Davedev.</p>
++        </footer>
++
++    </div>
++
++    </div>
++
++
++    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
++
++    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
++
++    <script src="{% static 'assets/js/feather.min.js' %}%} "></script>
++
++    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
++
++    <script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
++    <script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
++
++    <script src="{% static 'assets/plugins/simple-calendar/jquery.simple-calendar.js' %}"></script>
++    <script src="{% static 'assets/js/calander.js' %}"></script>
++
++    <script src="{% static 'assets/js/circle-progress.min.js' %}"></script>
++
++    <script src="{% static 'assets/js/script.js' %}"></script>
++{% endblock %}
+\ No newline at end of file
