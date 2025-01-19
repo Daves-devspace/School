@@ -1,0 +1,7 @@
+[build]
+  base = "School"  # Base directory where your Django project resides (including settings.py)
+  publish = "School"  # Directory where the static files should be placed after the build
+  command = "docker build -t my-django-app . && docker run my-django-app"  # Build command for Docker
+
+[functions]
+  directory = "School/netlify/functions"  # Path to your serverless functions (if any)
