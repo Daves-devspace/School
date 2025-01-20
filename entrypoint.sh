@@ -1,27 +1,19 @@
 #!/bin/bash
-
-# Ensure environment variables are set
-if [ -z "$DB_HOST" ] || [ -z "$DB_PORT" ]; then
-  echo "ERROR: DB_HOST and DB_PORT environment variables must be set."
-  exit 1
-fi
-
-# Wait for the PostgreSQL database to be available
-echo "Waiting for database connection at $DB_HOST:$DB_PORT..."
-until nc -z -v -w30 $DB_HOST $DB_PORT; do
-  echo "Database not ready. Retrying..."
+# Wait for PostgreSQL to be ready
+echo "Waiting for PostgreSQL..."
+while ! nc -z -v -w30 $DB_HOST $DB_PORT; do
+  echo "Waiting for database connection..."
   sleep 1
 done
-echo "Database connection established."
+echo "PostgreSQL is up!"
 
-# Apply database migrations (only running migrate, not makemigrations)
-echo "Running database migrations..."
-python manage.py migrate --noinput
+# Wait for Redis to be ready
+echo "Waiting for Redis..."
+while ! nc -z -v -w30 $REDIS_HOST 6379; do
+  echo "Waiting for Redis connection..."
+  sleep 1
+done
+echo "Redis is up!"
 
-# Collect static files (this may be skipped if not necessary)
-echo "Collecting static files..."
-python manage.py collectstatic --noinput
-
-# Start the Django application
-echo "Starting application..."
+# Run Django app
 exec "$@"
