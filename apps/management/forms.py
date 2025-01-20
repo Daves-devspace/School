@@ -1,10 +1,21 @@
+from ckeditor.widgets import CKEditorWidget
 from django import forms
 from django.forms import TimeInput
 
-from .models import Subject, Term, SubjectMark, Timetable, LessonExchangeRequest
+from .models import Subject, Term, SubjectMark, Timetable, LessonExchangeRequest, Profile, HolidayPresentation, Feedback
 from ..students.models import Student, Book, GradeSection, Grade
 from ..teachers.models import Teacher
 
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['profile_picture', 'phone_number', 'address', 'cv', 'skills', 'certifications']
+
+        widgets = {
+            'cv': CKEditorWidget(),  # Replaces Textarea with CKEditor
+            'skills': CKEditorWidget(),  # Replaces Textarea with CKEditor
+            'certifications': CKEditorWidget(),  # Replaces Textarea with CKEditor
+        }
 
 class BookForm(forms.ModelForm):
     class Meta:
@@ -129,3 +140,26 @@ class LessonExchangeForm(forms.ModelForm):
             self.fields['teacher_1'].required = True
             self.fields['teacher_2'].required = True
 
+
+
+class HolidayPresentationForm(forms.ModelForm):
+    class Meta:
+        model = HolidayPresentation
+        fields = ['title', 'description', 'file', 'live_link', 'embed_code']
+
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter presentation title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter a description'}),
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'live_link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Paste your live meeting link (e.g., Google Meet)'}),
+            'embed_code': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Paste embed code for external slides (e.g., Google Slides, PowerPoint)'}),
+        }
+
+
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        model = Feedback
+        fields = ['presentation', 'comment', 'rating']
+
+    comment = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Leave feedback...'}))
+    rating = forms.IntegerField(min_value=1, max_value=5, widget=forms.NumberInput(attrs={'class': 'form-control'}))

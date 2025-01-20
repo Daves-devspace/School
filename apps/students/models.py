@@ -103,6 +103,10 @@ class Student(models.Model):
     joining_date = models.DateField()
     admission_number = models.CharField(max_length=15, unique=True)
     student_image = models.ImageField(upload_to='students', blank=True, null=True)
+
+    documents = models.FileField(upload_to='student_documents/', blank=True, null=True,
+                                 help_text="Upload student-related documents")
+
     parent = models.ManyToManyField(
         Parent, through='StudentParent', related_name="students"
     )
@@ -118,17 +122,27 @@ class Student(models.Model):
 
     @staticmethod
     def generate_admission_number():
-        current_year = date.today().year
+        """
+        Generate a unique admission number for each student.
+        Format: MFS/{sequential_number}/{year_last_two_digits}
+        """
+        current_year = date.today().year  # Get the current year (e.g., 2025)
+        year_suffix = str(current_year)[-2:]  # Extract the last two digits of the year (e.g., 25)
+
+        # Fetch the last registered student
         last_student = Student.objects.order_by('-id').first()
 
-        # Extract the number part after the last "/" character (instead of "-")
+        # Extract the sequential number
         if last_student and last_student.admission_number:
-            last_number = int(last_student.admission_number.split("/")[-1])  # Split using "/" and take the last part
+            last_number = int(last_student.admission_number.split("/")[1])  # Get the middle part (001)
         else:
             last_number = 0  # Default to 0 if no previous student exists
 
-        # Return the formatted admission number with "/" as the separator
-        return f"{current_year}/MFS/{last_number + 1:03d}"
+        # Increment the number and format it as a 3-digit number
+        new_number = f"{last_number + 1:03d}"
+
+        # Return the formatted admission number
+        return f"MFS-{new_number}-{year_suffix}"
 
     def clean(self):
         # Ensure joining date is not in the future

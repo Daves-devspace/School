@@ -1,9 +1,10 @@
 from datetime import date, datetime
 
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, \
     PasswordResetCompleteView
 
@@ -283,5 +284,4 @@ class CustomPasswordResetCompleteView(PasswordResetCompleteView):
 
 def website_page(request):
     return render(request,'Home/website/index.html')
-
 

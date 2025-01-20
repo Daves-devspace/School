@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
@@ -9,7 +11,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from phonenumber_field.modelfields import PhoneNumberField
 
-from apps.management.models import Subject
+from apps.management.models import Subject, Profile
 
 
 # Create your models here.
@@ -28,24 +30,61 @@ class Role(models.Model):
 
 
 
+
+
+
+
+
+
 # Teacher model remains the same
 class Teacher(models.Model):
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)  # Links to Django's User model
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)  # Links to User model
     teacher_id = models.CharField(max_length=20, unique=True)
-    full_name = models.CharField(max_length=30)
-    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Others', 'Others')])
-    phone_no = PhoneNumberField(region="KE", blank=True, null=True)
+    staff_number = models.CharField(max_length=20, unique=True, default='TCH/000/00')
+    full_name = models.CharField(max_length=50)
+    gender = models.CharField(
+        max_length=10,
+        choices=[('Male', 'Male'), ('Female', 'Female'), ('Others', 'Others')]
+    )
     email = models.EmailField(unique=True)
     qualification = models.CharField(max_length=100)
     experience = models.PositiveIntegerField(help_text="Years of experience")
-    address = models.TextField()
     country = models.CharField(max_length=50)
     joining_date = models.DateTimeField()
-    subjects = models.ManyToManyField(Subject, related_name="teachers")  # Multiple teachers for a subject
-    role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True, blank=True)
+    subjects = models.ManyToManyField(
+        'management.Subject',
+        related_name="teachers"
+    )  # Link to Subject model
+    is_headteacher = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.staff_number:  # Generate staff number only if it doesn't exist
+            self.staff_number = self.generate_staff_number()
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def generate_staff_number():
+        """
+        Generate a unique staff number for teachers.
+        Format: TCH/001/25 (e.g., "TCH/{sequential_number}/{last_two_digits_of_year}")
+        """
+        current_year = date.today().year
+        year_suffix = str(current_year)[-2:]
+
+        # Fetch the last registered teacher
+        last_teacher = Teacher.objects.order_by('-id').first()
+
+        if last_teacher and last_teacher.staff_number:
+            last_number = int(last_teacher.staff_number.split("/")[1])  # Get the middle number
+        else:
+            last_number = 0  # Default to 0 if no teacher exists
+
+        new_number = f"{last_number + 1:03d}"  # Increment and format as 3 digits
+        return f"TCH-{new_number}-{year_suffix}"
 
     def __str__(self):
-        return f"{self.full_name}"
+        role = "Headteacher" if self.is_headteacher else "Teacher"
+        return f"{self.user.username if self.user else self.teacher_id} - {role}"
 
 
 class TeacherAssignment(models.Model):
@@ -60,7 +99,6 @@ class TeacherAssignment(models.Model):
 
     def __str__(self):
         return f"{self.teacher} assigned to {self.subject.name} ({self.grade_section})"
-
 
 
 

@@ -5,10 +5,39 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="build">
+      <change afterPath="$PROJECT_DIR$/templates/Manage/create_presentation.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Manage/manage_users.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Manage/presentation_detail.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Manage/presentation_list.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Manage/profile.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Manage/submit_feedback.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Manage/submit_presentation.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/submit_feedback.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entrypoint.sh" beforeDir="false" afterPath="$PROJECT_DIR$/entrypoint.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/nginx/nginx.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/consumers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/consumers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/routing.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/routing.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/performance/add_results_table.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/add_results_table.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/performance/filter_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/filter_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/performance/subjects.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/subjects.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/student-details.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/student-details.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/teachers.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teachers.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +78,9 @@
     &quot;accountId&quot;: &quot;1a4a75ca-3cbb-4760-b8eb-85273a4d0e5c&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/requirements.txt" root0="SKIP_INSPECTION" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
 }</component>
@@ -222,7 +254,9 @@
       <workItem from="1737272419497" duration="24069000" />
       <workItem from="1737300534685" duration="13283000" />
       <workItem from="1737350714863" duration="13262000" />
-      <workItem from="1737377442128" duration="5264000" />
+      <workItem from="1737406092456" duration="8079000" />
+      <workItem from="1737441838494" duration="6211000" />
+      <workItem from="1737529126485" duration="27659000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -341,7 +375,9 @@
     <MESSAGE value="dockerize" />
     <MESSAGE value="timetable" />
     <MESSAGE value="build" />
-    <option name="LAST_COMMIT_MESSAGE" value="build" />
+    <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
+    <MESSAGE value="render prodctn" />
+    <option name="LAST_COMMIT_MESSAGE" value="render prodctn" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -364,23 +400,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/teachers/models.py</url>
-          <line>28</line>
+          <line>33</line>
           <option name="timeStamp" value="13" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/apps/management/models.py</url>
-          <line>233</line>
-          <option name="timeStamp" value="14" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/apps/management/models.py</url>
-          <line>189</line>
-          <option name="timeStamp" value="15" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/students/models.py</url>
-          <line>24</line>
+          <line>20</line>
           <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/accounts/views.py</url>
+          <line>469</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/management/models.py</url>
+          <line>87</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/management/models.py</url>
+          <line>155</line>
+          <option name="timeStamp" value="21" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

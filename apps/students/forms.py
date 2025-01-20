@@ -51,7 +51,7 @@ class StudentForm(forms.ModelForm):
         fields = [
             'first_name', 'last_name', 'gender', 'date_of_birth',
             'grade', 'religion', 'joining_date',
-            'admission_number', 'student_image',
+            'admission_number', 'student_image','documents',
         ]
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
@@ -60,6 +60,10 @@ class StudentForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={'placeholder': 'Student Last Name'}),
             'admission_number': forms.TextInput(attrs={'readonly': 'readonly'}),
             'student_image': forms.FileInput(),
+            'documents': forms.ClearableFileInput(attrs={
+                'class': 'form-control-file',  # Bootstrap class for file inputs
+                'accept': '.pdf,.doc,.docx,.jpg,.png',  # Restrict file types
+            }),
         }
 
     def __init__(self, *args, **kwargs):

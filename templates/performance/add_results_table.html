@@ -39,6 +39,21 @@
 
                         <form method="POST">
                             {% csrf_token %}
+
+                            <!-- Max Score input field -->
+                            <div class="form-group">
+                                <label for="max_score">Max Score:</label>
+                                <input
+                                        type="number"
+                                        name="max_score"
+                                        id="max_score"
+                                        value="{{ max_score }}"
+                                        min="1"
+                                        class="form-control"
+                                />
+                            </div>
+
+                            <!-- Table for displaying students and their marks -->
                             <table class="table">
                                 <thead>
                                 <tr>
@@ -57,16 +72,23 @@
                                                     type="number"
                                                     name="marks_{{ data.student.id }}"
                                                     value="{{ data.marks }}"
-                                                    min="0" max="100"
+                                                    min="0"
+                                                    max="{{ max_score }}"
                                                     class="form-control"
-                                            >
+                                                    required
+                                            />
                                         </td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
                             </table>
+
+                            <!-- Submit button -->
                             <button type="submit" class="btn btn-primary">Save Results</button>
                         </form>
+
+
+
 
 
 

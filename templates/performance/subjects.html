@@ -38,25 +38,23 @@
                                     <tbody>
                                     {% for subject in subjects %}
                                         <tr>
-                                            <td>{{ subject.id }}</td>
+                                        <td>{{ subject.id }}</td>
                                             <td>{{ subject.name }}</td>
                                             <td>
-                                                {% if subject.grade.all %}
+                                                {% if subject.single_grade %}
+                                                    {{ subject.single_grade.name }}
+                                                {% elif subject.grade.all %}
+                                                    <!-- Display grades list if multiple grades are assigned -->
                                                     {% for grade in subject.grade.all %}
-                                                        {{ grade.name }}{% if not forloop.last %},{% endif %}
+                                                        {{ grade.name }}{% if not forloop.last %}, {% endif %}
                                                     {% endfor %}
                                                 {% else %}
                                                     No grades assigned
                                                 {% endif %}
-
                                             </td>
-
-                                        </tr>
-                                    {% empty %}
-                                        <tr>
-                                            <td colspan="4">No subjects found.</td>
                                         </tr>
                                     {% endfor %}
+
                                     </tbody>
                                 </table>
                             </div>

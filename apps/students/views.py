@@ -293,91 +293,34 @@ def add_student(request):
 
 
 
+def get_student_performance_data(request, term_id, year, student_id):
+    # Ensure the term corresponds to the correct year
+    term = Term.objects.get(id=term_id, start_date__year=year)
 
-def get_student_performance_data(student, selected_term=None, selected_year=None):
-    """
-    Fetch and structure student performance data for use in a chart,
-    optionally filtering by a specific term and year.
-    Defaults to the current term if no term is selected.
-    """
-    if not hasattr(student, 'grade') or not hasattr(student.grade, 'grade'):
-        raise ValueError(f"Student {student.id} is not linked to a Grade instance.")
+    # Filter SubjectMark based on the selected term and student
+    subject_marks = SubjectMark.objects.filter(
+        student_id=student_id,
+        term=term
+    ).select_related('exam_type', 'subject')
 
-    grade_instance = student.grade.grade
-
-    # Default to current term if no term is selected
-    terms = [selected_term] if selected_term else [get_current_term()]
-
-    if not terms:
-        raise ValueError("[ERROR] No valid terms found for processing.")
-
-    # Filter terms by year if a specific year is provided
-    if selected_year:
-        try:
-            selected_year = int(selected_year)
-            terms = [term for term in terms if term.start_date.year == selected_year]
-        except ValueError:
-            raise ValueError('Invalid year parameter.')
-
-        if not terms:
-            print(f"[DEBUG] No terms found for the year {selected_year}.")  # Debug log
-
-    # Fetch the exam types based on the selected terms
-    exam_types = ExamType.objects.filter(term__in=terms)
-    subjects = Subject.objects.filter(grade=grade_instance)
-    labels = list(subjects.values_list('name', flat=True))
-
-    if not labels:
-        print(f"[DEBUG] No subjects found for grade {grade_instance.id}.")  # Debug log
-        return {
-            'student_name': student.first_name,
-            'labels': [],
-            'datasets': [],
-        }
-
-    # Initialize marks data structure for storing marks per term, exam, and subject
-    marks_data = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: None)))  # Initialize with None for missing data
-
-    # Populate marks_data with default values for each subject in the selected terms and exams
-    for term in terms:
-        exams = exam_types.filter(term=term)
-        for exam in exams:
-            for subject_name in labels:
-                marks_data[term.name][exam.name.lower()][subject_name] = 0
-
-    # Retrieve report cards for the student in the selected terms
-    report_cards = ReportCard.objects.filter(student=student, term__in=terms).select_related('term', 'exam_type')
-    subject_marks = SubjectMark.objects.filter(report_card__in=report_cards).select_related('subject', 'report_card__term', 'report_card__exam_type')
-
-    if not report_cards.exists():
-        print(f"[DEBUG] No report cards found for student {student.id} in terms: {[term.name for term in terms]}.")
-    if not subject_marks.exists():
-        print(f"[DEBUG] No subject marks found for student {student.id}.")
-
-    # Populate marks_data with actual marks for each subject in the report cards
-    for subject_mark in subject_marks:
-        term_name = subject_mark.report_card.term.name
-        exam_name = subject_mark.report_card.exam_type.name.lower()
-        subject_name = subject_mark.subject.name
-        marks_data[term_name][exam_name][subject_name] = subject_mark.marks if subject_mark.marks is not None else 0
-
-    # Prepare the datasets for the chart
-    datasets = []
-    for exam_type in exam_types:
-        dataset = {'name': exam_type.name, 'data': []}
-        for term in terms:
-            term_data = marks_data[term.name][exam_type.name.lower()]
-            dataset['data'].extend([term_data.get(subject_name, 0) for subject_name in labels])
-        datasets.append(dataset)
-
-    # Return the structured chart data
+    # Group the data by exam_type
+    exam_types = subject_marks.values_list('exam_type__name', flat=True).distinct()
     chart_data = {
-        'student_name': student.first_name,
-        'labels': labels,
-        'datasets': datasets,
+        "labels": [mark.subject.name for mark in subject_marks],  # List of subjects
+        "datasets": []
     }
-    return chart_data
 
+    for exam_type in exam_types:
+        dataset = {
+            "name": exam_type,
+            "data": []
+        }
+        for mark in subject_marks.filter(exam_type__name=exam_type):
+            dataset["data"].append(mark.marks)  # Add the marks for the current exam_type and subject
+
+        chart_data["datasets"].append(dataset)
+
+    return chart_data  # Return chart data directly, not a JsonResponse
 
 
 def get_student_chart_data(request, student_id, term, year):
@@ -392,7 +335,6 @@ def get_student_chart_data(request, student_id, term, year):
         # Find term for the specific year
         selected_term = Term.objects.filter(name=term, start_date__year=year).first()
         if not selected_term:
-            get_current_term()
             return JsonResponse({"error": f"No term found for {term} in {year}."}, status=404)
     except Term.DoesNotExist:
         # Return error if term doesn't exist
@@ -400,7 +342,10 @@ def get_student_chart_data(request, student_id, term, year):
 
     try:
         # Get performance data for the student and selected term
-        chart_data = get_student_performance_data(student, selected_term=selected_term)
+        chart_data = get_student_performance_data(
+            request, term_id=selected_term.id, year=year, student_id=student.id
+        )
+
         if not chart_data:
             return JsonResponse({"error": "No performance data available for the selected term."}, status=404)
 
@@ -425,12 +370,10 @@ def student_details(request, id):
     subject_marks = SubjectMark.objects.filter(report_card__student=student).select_related('subject', 'exam_type').only('marks', 'subject', 'report_card')
 
     student_parents = StudentParent.objects.filter(student=student)
-    chart_data = get_student_performance_data(student)
 
     # Fetch all terms and distinct years
     terms = Term.objects.all()
     years = Term.objects.values_list('start_date__year', flat=True).distinct().order_by('start_date__year')
-
 
     # Fetch the current or latest term's report card
     latest_term = get_current_term()
@@ -448,6 +391,16 @@ def student_details(request, id):
         for rc in report_cards
     ]
 
+    # Get chart data by passing the required parameters
+    # Ensure that 'term_id' and 'year' are properly selected or default to the current term and year
+    term_id = request.GET.get('term_id', latest_term.id if latest_term else None)
+    year = request.GET.get('year', latest_term.start_date.year if latest_term else None)
+
+    if term_id and year:
+        chart_data = get_student_performance_data(request, term_id, year, student.id)
+    else:
+        chart_data = None
+
     # Context for rendering the template
     context = {
         'student': student,
@@ -461,6 +414,7 @@ def student_details(request, id):
         'years': years,  # Pass years to populate dropdown
     }
     return render(request, 'students/student-details.html', context)
+
 
 
 

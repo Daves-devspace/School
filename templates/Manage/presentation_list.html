@@ -1,0 +1,111 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+<div class="page-wrapper">
+    <div class="content container-fluid">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="page-title">Presentation</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
+                        <li class="breadcrumb-item active">List</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert {{ message.tags }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                            <h2>Presentations</h2>
+
+                            <div class="presentation-list">
+                                {% for presentation in presentations %}
+                                    <div class="presentation">
+                                        <h4><strong>Title:</strong>{{ presentation.title }}</h4>
+                                        <p><strong>Description:</strong>{{ presentation.description }}</p>
+                                        <p><strong>Uploaded by:</strong> {{ presentation.user_profile.user.username }}
+                                        </p>
+
+                                        {% if presentation.live_link %}
+                                            <a href="{{ presentation.live_link }}" target="_blank">Join Live
+                                                Presentation</a>
+                                        {% endif %}
+
+                                        {% if presentation.embed_code %}
+                                            <div class="embedded-slides">
+                                                {{ presentation.embed_code|safe }}  <!-- Embed external slides -->
+                                            </div>
+                                        {% endif %}
+
+                                        <a href="{% url 'presentation_detail' presentation.id %}"
+                                           class="btn btn btn-outline-success">View Presentation</a>
+
+                                        <!-- Feedback Button -->
+                                        <button class="btn btn-outline-success" data-bs-toggle="modal"
+                                                data-bs-target="#feedbackModal{{ presentation.id }}">
+                                            Give Feedback
+                                        </button>
+
+                                        <!-- Modal for Feedback -->
+                                        <div class="modal fade" id="feedbackModal{{ presentation.id }}" tabindex="-1"
+                                             aria-labelledby="feedbackModalLabel{{ presentation.id }}"
+                                             aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title"
+                                                            id="feedbackModalLabel{{ presentation.id }}">Feedback
+                                                            for {{ presentation.title }}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                                aria-label="Close"></button>
+                                                    </div>
+                                                    <form method="post" action="{% url 'presentation_list' %}">
+                                                        {% csrf_token %}
+                                                        <div class="modal-body">
+                                                            {{ form.as_p }}
+                                                            <input type="hidden" name="presentation"
+                                                                   value="{{ presentation.id }}">
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn  custom-bg text-white"
+                                                                    data-bs-dismiss="modal">Close
+                                                            </button>
+                                                            <button type="submit" class="btn btn-success">Submit
+                                                                Feedback
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+
+                            </div>
+                            </div>
+                            </div>
+                            </div>
+                            </div>
+                            </div>
+
+                            <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+                            <script src="{% static 'assets/js/popper.min.js' %}"></script>
+                            <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+                            <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+                            <script src="{% static 'assets/js/script.js' %}"></script>
+
+{% endblock %}                        

@@ -15,10 +15,9 @@ class TeacherRoleInline(admin.TabularInline):
 
 
 class TeacherAdmin(admin.ModelAdmin):
-    list_display = ['full_name','teacher_id','phone_no']
+    list_display = ['staff_number','full_name','teacher_id']
     filter_horizontal = ['subjects']# Makes selecting multiple subjects easier
-    list_filter = ['role']
-    search_fields = ('full_name', 'phone_no')
+    search_fields = ('full_name', 'staff_number')
 
 
 class TeacherAssignmentAdmin(admin.ModelAdmin):

@@ -6,6 +6,12 @@ from .views import TimetableCreateAPIView, TimetableCreateView, TimetableAPIView
 
 urlpatterns = [
 
+    path('manage-users/', views.manage_users, name='manage_users'),
+    path('profile/', views.user_profile, name='user_profile'),
+    path('presentations/', views.presentation_list, name='presentation_list'),
+    path('presentations/<int:id>/', views.presentation_detail, name='presentation_detail'),
+    path('toggle-user-status/<int:user_id>/', views.toggle_user_status, name='toggle_user_status'),
+
     path('send-bulk-sms/', views.send_bulk_sms_view, name='send_bulk_sms'),
     # path('send-sms/', views.messages_view, name='send_sms'),
     path("messages/", views.messages_view, name="messages"),
@@ -94,7 +100,7 @@ urlpatterns = [
     path('lesson-exchange-list/', LessonExchangeListView.as_view(), name='lesson-exchange-list'),
     path('swap-lessons/<int:pk>/', swap_lessons, name='swap-lessons'),
 
-        path('api/teacher/<int:teacher_id>/schedule/<str:date_str>/', views.TeacherScheduleAPIView.as_view(),
+    path('api/teacher/<int:teacher_id>/schedule/<str:date_str>/', views.TeacherScheduleAPIView.as_view(),
          name='teacher_schedule_api'),
 
 ]

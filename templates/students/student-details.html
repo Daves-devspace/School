@@ -244,45 +244,40 @@
 
 
                                                 <div class="#">
-                                                    <div class="dropdown-container">
-                                                        <!-- Term Dropdown -->
-                                                        <label for="term-select">Select Term:</label>
-                                                        <select id="term-select" name="term" required>
-                                                            <option value="" disabled selected>Select Term</option>
-                                                            {% if terms %}
-                                                                {% for term in terms %}
-                                                                    <option value="{{ term.name }}">{{ term.name }}</option>
-                                                                {% endfor %}
-                                                            {% else %}
-                                                                <option value="" disabled>No terms available</option>
-                                                            {% endif %}
-                                                        </select>
+    <div class="dropdown-container">
+        <!-- Term Dropdown -->
+        <label for="term-select">Select Term:</label>
+        <select id="term-select" name="term" required>
+            <option value="" disabled selected>Select Term</option>
+            {% if terms %}
+                {% for term in terms %}
+                    <option value="{{ term.name }}">{{ term.name }}</option>
+                {% endfor %}
+            {% else %}
+                <option value="" disabled>No terms available</option>
+            {% endif %}
+        </select>
 
-                                                        <!-- Year Dropdown -->
-                                                        <label for="exam-type-select">Select Year:</label>
-                                                        <select id="exam-type-select" name="year" required>
-                                                            <option value="" disabled selected>Select Year</option>
-                                                            {% if years %}
-                                                                {% for year in years %}
-                                                                    <option value="{{ year }}">{{ year }}</option>
-                                                                {% endfor %}
-                                                            {% else %}
-                                                                <option value="" disabled>No years available</option>
-                                                            {% endif %}
-                                                        </select>
-                                                    </div>
+        <!-- Year Dropdown -->
+        <label for="exam-type-select">Select Year:</label>
+        <select id="exam-type-select" name="year" required>
+            <option value="" disabled selected>Select Year</option>
+            {% if years %}
+                {% for year in years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                {% endfor %}
+            {% else %}
+                <option value="" disabled>No years available</option>
+            {% endif %}
+        </select>
+    </div>
 
-                                                    <div id="chart"
-                                                         data-student-id="{{ student.id }}"
-                                                         data-initial-chart-data='{{ chart_data|safe }}'>
-                                                    </div>
+    <div id="chart"
+         data-student-id="{{ student.id }}"
+         data-initial-chart-data='{{ chart_data|safe }}'>
+    </div>
+</div>
 
-                                                    {#                                                    <div id="chart">#}
-                                                    {#                                                        <div id="timeline-chart"></div>#}
-                                                    {#                                                    </div>#}
-
-
-                                                </div>
 
                                             </div>
                                         </div>
@@ -319,190 +314,237 @@
     </div>
     <!-- JavaScript to Handle AJAX -->
 
-{#    <script>#}
-{#        document.addEventListener("DOMContentLoaded", function () {#}
-{#            const termSelect = document.getElementById("term-select");#}
-{#            const yearSelect = document.getElementById("exam-type-select");#}
-{#            const chartContainer = document.querySelector("#chart");#}
-{#            const cache = {};#}
-{##}
-{#            // Fetch chart data from the server with term, year, and student_id in the URL#}
-{#            async function fetchChartData(term, year, studentId) {#}
-{#                const response = await fetch(`/api/student-performance/${encodeURIComponent(studentId)}/${encodeURIComponent(term)}/${encodeURIComponent(year)}/`);#}
-{#                if (!response.ok) {#}
-{#                    throw new Error(`HTTP error! status: ${response.status}`);#}
-{#                }#}
-{#                return response.json();#}
-{#            }#}
-{##}
-{#            // Render chart using ApexCharts#}
-{#            function renderChart(data) {#}
-{#                if (!data || !data.datasets || !data.labels || data.datasets.length === 0) {#}
-{#                    chartContainer.innerHTML = "<p>No data available for the selected term and year.</p>";#}
-{#                    return;#}
-{#                }#}
-{##}
-{#                if (window.chart) {#}
-{#                    window.chart.destroy();#}
-{#                }#}
-{##}
-{#                const options = {#}
-{#                    chart: {#}
-{#                        type: 'bar',#}
-{#                        height: 350,#}
-{#                    },#}
-{#                    series: data.datasets,#}
-{#                    xaxis: {#}
-{#                        categories: data.labels,#}
-{#                        labels: {#}
-{#                            rotate: -45,#}
-{#                            style: {#}
-{#                                fontSize: '12px',#}
-{#                            },#}
-{#                        },#}
-{#                    },#}
-{#                    title: {#}
-{#                        text: `${data.student_name || 'Student'} Performance (${termSelect.value} - ${yearSelect.value})`,#}
-{#                        align: 'center',#}
-{#                    },#}
-{#                    plotOptions: {#}
-{#                        bar: {#}
-{#                            horizontal: false,#}
-{#                            columnWidth: '50%',#}
-{#                        },#}
-{#                    },#}
-{#                    dataLabels: {#}
-{#                        enabled: true,#}
-{#                        formatter: val => val,#}
-{#                        style: {#}
-{#                            colors: ['#000'],#}
-{#                            fontSize: '14px',#}
-{#                            fontWeight: 'bold',#}
-{#                        },#}
-{#                    },#}
-{#                    yaxis: {#}
-{#                        title: {#}
-{#                            text: 'Marks',#}
-{#                        },#}
-{#                    },#}
-{#                };#}
-{##}
-{#                window.chart = new ApexCharts(chartContainer, options);#}
-{#                window.chart.render();#}
-{#            }#}
-{##}
-{#            // Update chart based on term, year, and student_id selection#}
-{#            async function updateChart() {#}
-{#                const term = termSelect.value;#}
-{#                const year = yearSelect.value;#}
-{#                const studentId = chartContainer.dataset.studentId; // Assuming student_id is stored in a data attribute on the container#}
-{##}
-{#                if (!term || !year || !studentId) {#}
-{#                    chartContainer.innerHTML = "<p>Please select both term and year, and ensure student ID is provided to view data.</p>";#}
-{#                    return;#}
-{#                }#}
-{##}
-{#                chartContainer.innerHTML = "<p>Loading...</p>";#}
-{#                const cacheKey = `${studentId}-${term}-${year}`;#}
-{##}
-{#                if (cache[cacheKey]) {#}
-{#                    renderChart(cache[cacheKey]);#}
-{#                    return;#}
-{#                }#}
-{##}
-{#                try {#}
-{#                    const data = await fetchChartData(term, year, studentId);#}
-{#                    if (data.error) {#}
-{#                        throw new Error(data.error);#}
-{#                    }#}
-{#                    cache[cacheKey] = data;#}
-{#                    renderChart(data);#}
-{#                } catch (error) {#}
-{#                    console.error('Error fetching chart data:', error);#}
-{#                    chartContainer.innerHTML = "<p>Failed to fetch chart data. Please try again later.</p>";#}
-{#                }#}
-{#            }#}
-{##}
-{#            // Attach event listeners#}
-{#            termSelect.addEventListener("change", updateChart);#}
-{#            yearSelect.addEventListener("change", updateChart);#}
-{##}
-{#            // Render initial chart if available#}
-{#            const initialChartData = chartContainer.dataset.initialChartData ? JSON.parse(chartContainer.dataset.initialChartData) : null;#}
-{#            if (initialChartData) {#}
-{#                renderChart(initialChartData);#}
-{#            } else {#}
-{#                chartContainer.innerHTML = "<p>No initial data available to render.</p>";#}
-{#            }#}
-{#        });#}
-{##}
-{#    </script>#}
+    {#    <script>#}
+    {#        document.addEventListener("DOMContentLoaded", function () {#}
+    {#            const termSelect = document.getElementById("term-select");#}
+    {#            const yearSelect = document.getElementById("exam-type-select");#}
+    {#            const chartContainer = document.querySelector("#chart");#}
+    {#            const cache = {};#}
+    {##}
+    {#            // Fetch chart data from the server with term, year, and student_id in the URL#}
+    {#            async function fetchChartData(term, year, studentId) {#}
+    {#                const response = await fetch(`/api/student-performance/${encodeURIComponent(studentId)}/${encodeURIComponent(term)}/${encodeURIComponent(year)}/`);#}
+    {#                if (!response.ok) {#}
+    {#                    throw new Error(`HTTP error! status: ${response.status}`);#}
+    {#                }#}
+    {#                return response.json();#}
+    {#            }#}
+    {##}
+    {#            // Render chart using ApexCharts#}
+    {#            function renderChart(data) {#}
+    {#                if (!data || !data.datasets || !data.labels || data.datasets.length === 0) {#}
+    {#                    chartContainer.innerHTML = "<p>No data available for the selected term and year.</p>";#}
+    {#                    return;#}
+    {#                }#}
+    {##}
+    {#                if (window.chart) {#}
+    {#                    window.chart.destroy();#}
+    {#                }#}
+    {##}
+    {#                const options = {#}
+    {#                    chart: {#}
+    {#                        type: 'bar',#}
+    {#                        height: 350,#}
+    {#                    },#}
+    {#                    series: data.datasets,#}
+    {#                    xaxis: {#}
+    {#                        categories: data.labels,#}
+    {#                        labels: {#}
+    {#                            rotate: -45,#}
+    {#                            style: {#}
+    {#                                fontSize: '12px',#}
+    {#                            },#}
+    {#                        },#}
+    {#                    },#}
+    {#                    title: {#}
+    {#                        text: `${data.student_name || 'Student'} Performance (${termSelect.value} - ${yearSelect.value})`,#}
+    {#                        align: 'center',#}
+    {#                    },#}
+    {#                    plotOptions: {#}
+    {#                        bar: {#}
+    {#                            horizontal: false,#}
+    {#                            columnWidth: '50%',#}
+    {#                        },#}
+    {#                    },#}
+    {#                    dataLabels: {#}
+    {#                        enabled: true,#}
+    {#                        formatter: val => val,#}
+    {#                        style: {#}
+    {#                            colors: ['#000'],#}
+    {#                            fontSize: '14px',#}
+    {#                            fontWeight: 'bold',#}
+    {#                        },#}
+    {#                    },#}
+    {#                    yaxis: {#}
+    {#                        title: {#}
+    {#                            text: 'Marks',#}
+    {#                        },#}
+    {#                    },#}
+    {#                };#}
+    {##}
+    {#                window.chart = new ApexCharts(chartContainer, options);#}
+    {#                window.chart.render();#}
+    {#            }#}
+    {##}
+    {#            // Update chart based on term, year, and student_id selection#}
+    {#            async function updateChart() {#}
+    {#                const term = termSelect.value;#}
+    {#                const year = yearSelect.value;#}
+    {#                const studentId = chartContainer.dataset.studentId; // Assuming student_id is stored in a data attribute on the container#}
+    {##}
+    {#                if (!term || !year || !studentId) {#}
+    {#                    chartContainer.innerHTML = "<p>Please select both term and year, and ensure student ID is provided to view data.</p>";#}
+    {#                    return;#}
+    {#                }#}
+    {##}
+    {#                chartContainer.innerHTML = "<p>Loading...</p>";#}
+    {#                const cacheKey = `${studentId}-${term}-${year}`;#}
+    {##}
+    {#                if (cache[cacheKey]) {#}
+    {#                    renderChart(cache[cacheKey]);#}
+    {#                    return;#}
+    {#                }#}
+    {##}
+    {#                try {#}
+    {#                    const data = await fetchChartData(term, year, studentId);#}
+    {#                    if (data.error) {#}
+    {#                        throw new Error(data.error);#}
+    {#                    }#}
+    {#                    cache[cacheKey] = data;#}
+    {#                    renderChart(data);#}
+    {#                } catch (error) {#}
+    {#                    console.error('Error fetching chart data:', error);#}
+    {#                    chartContainer.innerHTML = "<p>Failed to fetch chart data. Please try again later.</p>";#}
+    {#                }#}
+    {#            }#}
+    {##}
+    {#            // Attach event listeners#}
+    {#            termSelect.addEventListener("change", updateChart);#}
+    {#            yearSelect.addEventListener("change", updateChart);#}
+    {##}
+    {#            // Render initial chart if available#}
+    {#            const initialChartData = chartContainer.dataset.initialChartData ? JSON.parse(chartContainer.dataset.initialChartData) : null;#}
+    {#            if (initialChartData) {#}
+    {#                renderChart(initialChartData);#}
+    {#            } else {#}
+    {#                chartContainer.innerHTML = "<p>No initial data available to render.</p>";#}
+    {#            }#}
+    {#        });#}
+    {##}
+    {#    </script>#}
 
 
 
 
 
 
-        <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // DOM Elements
-            const termSelect = document.getElementById("term-select");
-            const yearSelect = document.getElementById("exam-type-select");
-            const chartContainer = document.querySelector("#chart");
+   <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const termSelect = document.getElementById("term-select");
+        const yearSelect = document.getElementById("exam-type-select");
+        const chartContainer = document.querySelector("#chart");
 
-            // Function to render the chart
-            function renderChart(data) {
-                if (window.chart) {
-                    window.chart.destroy();
-                }
+        // Parse and validate initial chart data
+        const initialChartData = {{ chart_data|safe }};
+        console.log("Initial Chart Data:", initialChartData);
 
-                const options = {
-                    chart: {
-                        type: 'bar',
-                        height: 350,
-                    },
-                    series: data.datasets,
-                    xaxis: {
-                        categories: data.labels,
-                    },
-                    title: {
-                        text: `Student Performance (${termSelect.value} - ${yearSelect.value})`,
-                        align: 'center',
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            columnWidth: '50%',
-                        },
-                    },
-                };
-
-                window.chart = new ApexCharts(chartContainer, options);
-                window.chart.render();
+        // Function to render the chart
+        function renderChart(data) {
+            if (window.chart) {
+                window.chart.destroy(); // Destroy the previous chart instance to avoid duplicates
             }
 
-            // Fetch initial chart data
-            let initialChartData = {{ chart_data|safe }};
+            const options = {
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                },
+                series: data.datasets, // Chart datasets (e.g., marks per exam type)
+                xaxis: {
+                    categories: [...new Set(data.labels)], // Deduplicate labels for x-axis (subjects)
+                },
+                title: {
+                    text: `Student Performance (${termSelect.value || 'Select Term'} - ${yearSelect.value || 'Select Year'})`,
+                    align: 'center',
+                    style: {
+                        fontSize: '18px',
+                        fontWeight: 'bold',
+                    },
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '50%',
+                    },
+                },
+                tooltip: {
+                    y: {
+                        formatter: (value) => value || 'No data', // Show 'No data' for null/undefined values
+                    },
+                },
+                colors: ['#1E90FF', '#28a745', '#FF6347'], // Customize bar colors
+                legend: {
+                    position: 'top',
+                },
+            };
+
+            window.chart = new ApexCharts(chartContainer, options);
+            window.chart.render();
+        }
+
+        // Render the initial chart on page load
+        if (initialChartData && initialChartData.labels && initialChartData.datasets) {
             renderChart(initialChartData);
+        } else {
+            console.error("No valid initial chart data provided.");
+        }
 
-            // Update chart based on dropdown changes
-            function updateChart() {
-                const term = termSelect.value;
-                const year = yearSelect.value;
+        // Function to update the chart based on dropdown selections
+        function updateChart() {
+            const term = termSelect.value;
+            const year = yearSelect.value;
+            const studentId = chartContainer.getAttribute('data-student-id');
 
-                // Fetch updated chart data from the server
-                fetch(`/api/student-performance/${term}/${year}/${student_id}`)  // Adjust URL as needed
-                    .then(response => response.json())
-                    .then(data => {
-                        renderChart(data);
-                    })
-                    .catch(error => console.error('Error fetching chart data:', error));
+            if (!term || !year) {
+                console.warn("Both Term and Year must be selected before updating the chart.");
+                return;
             }
 
-            termSelect.addEventListener("change", updateChart);
-            yearSelect.addEventListener("change", updateChart);
+            console.log("Fetching data for:", { term, year, studentId });
+
+            fetch(`/api/student-performance/${term}/${year}/${studentId}`)
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log("Updated Chart Data:", data);
+                    if (data && data.labels && data.datasets) {
+                        renderChart(data);
+                    } else {
+                        console.error("Invalid data structure returned from the server:", data);
+                    }
+                })
+                .catch((error) => console.error("Error fetching chart data:", error));
+        }
+
+        // Add event listeners for dropdown changes
+        termSelect.addEventListener("change", () => {
+            console.log("Selected Term:", termSelect.value);
+            updateChart();
         });
-    </script>
+
+        yearSelect.addEventListener("change", () => {
+            console.log("Selected Year:", yearSelect.value);
+            updateChart();
+        });
+    });
+</script>
+
+
+
 
 
 

@@ -1,0 +1,95 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Presentation</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
+                            <li class="breadcrumb-item active">List</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="container mt-5">
+                                <h1 class="mb-3">{{ presentation.title }}</h1>
+                                <p><strong>Uploaded by:</strong> {{ presentation.user_profile.user.username }}</p>
+                                <p><strong>Uploaded on:</strong> {{ presentation.created_at|date:"M d, Y" }}</p>
+                                <p><strong>Description:</strong> {{ presentation.description }}</p>
+
+                                {% if presentation.file %}
+                                    <div class="mb-3">
+                                        <a href="{{ presentation.file.url }}" class="btn btn-primary" download>Download
+                                            File</a>
+                                    </div>
+                                {% endif %}
+
+                                {% if presentation.live_link %}
+                                    <div class="mb-3">
+                                        <a href="{{ presentation.live_link }}" class="btn btn-success" target="_blank">Join
+                                            Live Presentation</a>
+                                    </div>
+                                {% endif %}
+
+                                {% if presentation.embed_code %}
+                                    <div class="mb-3">
+                                        <h5>Embedded Slides:</h5>
+                                        <div class="embed-responsive embed-responsive-16by9">
+                                            {{ presentation.embed_code|safe }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Feedback Section -->
+                                
+                            </div>
+
+                            <div class="mt-5">
+                                <h3>Feedback</h3>
+                                {% if presentation.feedbacks.exists %}
+                                    <ul class="list-group">
+                                        {% for feedback in presentation.feedbacks.all %}
+                                            <li class="list-group-item">
+                                                By:<strong>{{ feedback.user.username }}</strong>
+                                                on {{ feedback.created_at|date:"M d, Y" }} <br>
+                                               <p class="text-success">{{ feedback.comment }}</p>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p>No feedback available for this presentation.</p>
+                                {% endif %}
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+
+{% endblock %}                        

@@ -1,12 +1,14 @@
+from datetime import timezone
+
 from django.contrib import admin
 from django.db.models import Sum
 
-from apps.management.models import Term, Result, ReportCard, SubjectMark, ExamType, Timetable, \
-    LessonExchangeRequest, UserProfile, Subject, Institution
+from apps.management.models import Term, ReportCard, SubjectMark, ExamType, Timetable, \
+    LessonExchangeRequest, Subject, Institution, Profile, HolidayPresentation
 
 
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user','role')
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user','role','phone_number')
 
 class InstitutionAdmin(admin.ModelAdmin):
     list_display = ('name','mobile_number','email_address')
@@ -24,10 +26,24 @@ class SubjectMarkInline(admin.TabularInline):
 
 # Admin classes
 class TermAdmin(admin.ModelAdmin):
-    list_display = ['name', 'start_date', 'end_date']
-    list_filter = ('start_date', 'end_date')
-    search_fields = ['name']
-    ordering = ['start_date']
+    list_display = ('name', 'get_year', 'start_date', 'end_date')
+    list_filter = ('name',)
+
+    # Override the queryset to order terms by the current year first
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.order_by('-start_date')  # Order by start_date in descending order
+
+    # Custom method to display the year of the term
+    def get_year(self, obj):
+        return obj.year
+    get_year.admin_order_field = 'start_date'  # Allow sorting by year based on start_date
+    get_year.short_description = 'Year'
+
+    # Optionally, you can set default ordering in the admin
+    ordering = ['-start_date']  # Default ordering by start_date
+
+
 
 class TeacherSubjectAdmin(admin.ModelAdmin):
     list_display = ['teacher', 'subject', 'grade_assigned']
@@ -35,15 +51,11 @@ class TeacherSubjectAdmin(admin.ModelAdmin):
     list_filter = ['grade_assigned']
 
 class ExamTypeAdmin(admin.ModelAdmin):
-    list_display = ['name', 'term', 'description']
+    list_display = ['name']
     search_fields = ['name']
-    list_filter = ['term']
+    list_filter = ['name']
 
-class ResultAdmin(admin.ModelAdmin):
-    list_display = ['student', 'subject', 'score', 'term']
-    list_filter = ['term', 'subject']
-    search_fields = ['student__first_name', 'student__last_name', 'teacher_subject__name', 'score']
-    ordering = ['-score']
+
 
 class SubjectMarkAdmin(admin.ModelAdmin):
     list_display = ['student', 'subject', 'term', 'marks', 'exam_type']
@@ -83,15 +95,20 @@ class LessonExchangeRequestAdmin(admin.ModelAdmin):
         queryset.update(status='rejected')
 
 
+class HolidayPresentationAdmin(admin.ModelAdmin):
+    list_display = ('user_profile','title','created_at')
+
+
 
 # Registering models with admin
 admin.site.register(Institution,InstitutionAdmin)
-admin.site.register(UserProfile,UserProfileAdmin)
+admin.site.register(Profile,ProfileAdmin)
 admin.site.register(Term, TermAdmin)
 admin.site.register(LessonExchangeRequest,LessonExchangeRequestAdmin)
 admin.site.register(Timetable, TimetableAdmin)
 admin.site.register(ExamType, ExamTypeAdmin)
-admin.site.register(Result, ResultAdmin)
+
 admin.site.register(Subject,SubjectAdmin)
 admin.site.register(SubjectMark, SubjectMarkAdmin)
 admin.site.register(ReportCard, ReportCardAdmin)
+admin.site.register(HolidayPresentation,HolidayPresentationAdmin)

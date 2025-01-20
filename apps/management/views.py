@@ -1,10 +1,16 @@
 import json
 import logging
 from datetime import date, timedelta, datetime
+from django.db.models import F, Value, CharField
+from django.db.models.functions import Concat
+
 
 import requests
+from channels.layers import get_channel_layer
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions.datetime import TruncMonth, ExtractYear
@@ -21,9 +27,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.models import FeePayment, Expense
-from apps.management.forms import SubjectForm, BookForm, TimetableForm, LessonExchangeForm
-from apps.management.models import Term, Subject, Result, ReportCard, SubjectMark, ExamType, \
-    Attendance, Timetable, LessonExchangeRequest
+from apps.management.forms import SubjectForm, BookForm, TimetableForm, LessonExchangeForm, ProfileForm, \
+    HolidayPresentationForm, FeedbackForm
+from apps.management.models import Term, Subject, ReportCard, SubjectMark, ExamType, \
+    Attendance, Timetable, LessonExchangeRequest, HolidayPresentation
 from apps.management.serializers import TimetableSerializer
 from apps.students.forms import SendSMSForm, SendClassForm, ResultsSMSForm
 from apps.students.models import Book, Transaction, Student, Payment, Parent, StudentParent, Grade, GradeSection
@@ -36,6 +43,126 @@ from apps.students.views import get_current_term
 from apps.teachers.models import Department, Teacher  # Revenue
 
 logger = logging.getLogger(__name__)
+
+
+def send_notification(user, message):
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f"user_{user.id}",
+        {
+            "type": "send_notification",
+            "message": {"message": message},
+        }
+    )
+
+@login_required
+def user_profile(request):
+    profile = request.user.profile  # Get the logged-in user's profile
+
+    if request.method == 'POST':
+        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)  # Handling file uploads
+        if profile_form.is_valid():
+            profile_form.save()
+            return redirect('user_profile')  # Redirect after saving profile
+    else:
+        profile_form = ProfileForm(instance=profile)
+
+    # Condition to check the role and render different sections
+    if profile.is_teacher():
+        # Add extra context or logic specific to teachers if needed
+        additional_info = {
+            "cv": profile.cv,
+            "skills": profile.skills,
+            "certifications": profile.certifications,
+        }
+    else:
+        additional_info = {}
+
+    return render(request, 'Manage/profile.html', {'profile_form': profile_form, 'profile': profile, 'additional_info': additional_info})
+
+def create_presentation(request):
+    if request.method == 'POST':
+        form = HolidayPresentationForm(request.POST, request.FILES)
+        if form.is_valid():
+            presentation = form.save(commit=False)
+            presentation.user_profile = request.user.profile  # Assign the current user's profile
+            presentation.save()
+            messages.success(request, "Presentation created successfully!")
+            return redirect('presentations_list')  # Redirect to a list view of presentations
+    else:
+        form = HolidayPresentationForm()
+    return render(request, 'Manage/create_presentation.html', {'form': form})
+
+
+def presentation_detail(request,id):
+    # Get the specific presentation
+    presentation = get_object_or_404(HolidayPresentation, id=id)
+    feedback_form = FeedbackForm(request.POST or None)
+
+    if request.method == "POST" and feedback_form.is_valid():
+        # Save feedback for the current presentation
+        feedback = feedback_form.save(commit=False)
+        feedback.presentation = presentation
+        feedback.user = request.user  # Attach the current user to the feedback
+        feedback.save()
+        return redirect('presentation_detail', id=presentation.id)
+
+    return render(request, 'Manage/presentation_detail.html', {
+        'presentation': presentation,
+        'feedback_form': feedback_form,
+    })
+
+
+
+@login_required
+def submit_feedback(request, presentation_id):
+    presentation = get_object_or_404(HolidayPresentation, id=presentation_id)
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            feedback = form.save(commit=False)
+            feedback.presentation = presentation
+            feedback.user = request.user
+            feedback.save()
+            messages.success(request, "Feedback submitted successfully!")
+            return redirect('presentation_detail', presentation_id=presentation_id)
+    else:
+        form = FeedbackForm()
+    return render(request, 'Manage/submit_feedback.html', {'form': form, 'presentation': presentation})
+
+
+def presentation_list(request):
+    presentations = HolidayPresentation.objects.all()
+    if request.method == "POST":
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            # Handle feedback submission logic (save feedback, notify, etc.)
+            form.save()
+            return redirect('presentation_list')  # Redirect after successful feedback submission
+    else:
+        form = FeedbackForm()  # Feedback form for each presentation
+
+    return render(request, 'Manage/presentation_list.html', {
+        'presentations': presentations,
+        'form': form
+    })
+
+@staff_member_required
+def manage_users(request):
+    users = User.objects.all()
+    return render(request,'Manage/manage_users.html',{'users': users})
+
+@staff_member_required
+def toggle_user_status(request,user_id):
+    try:
+        user = User.objects.get(pk=user_id)
+        user.is_active = not user.is_active #toggle activation status
+        user.save()
+        status = "Activated" if user.is_active else "Deactivated"
+        messages.success(request,f"User {user.username} has been {status}")
+    except User.DoesNotExist:
+        messages.error(request,"User not found")
+    return redirect('manage_users')
 
 
 def send_results_sms(request):
@@ -380,8 +507,10 @@ def add_subject(request):
         form = SubjectForm(request.POST)
 
         if form.is_valid():
-            subject_name = form.cleaned_data['name'].strip().lower()  # Normalize subject name
+            subject_name = form.cleaned_data[
+                'name'].strip()  # Don't normalize the name here if you want to preserve original case
             grades_selected = form.cleaned_data['grade']  # Get the grades selected in the form
+            single_grade_selected = form.cleaned_data['single_grade']  # Get the single grade, if any
 
             # Check if the subject already exists (case insensitive)
             existing_subject = Subject.objects.filter(name__iexact=subject_name).first()
@@ -404,12 +533,32 @@ def add_subject(request):
                         f"No new grades were added. '{existing_subject.name}' already has the selected grades."
                     )
 
+                # Check and set the single_grade if provided
+                if single_grade_selected:
+                    existing_subject.single_grade = single_grade_selected
+                    existing_subject.save()
+                    messages.success(
+                        request,
+                        f"Updated the 'single grade' for '{existing_subject.name}' to {single_grade_selected.name}."
+                    )
+
                 return redirect('subjects_list')
 
             else:
                 # Create a new subject if it doesn't exist
                 new_subject = form.save()
-                messages.success(request, f"Subject '{new_subject.name}' added successfully!")
+
+                # If a single grade is provided, assign it to the new subject
+                if single_grade_selected:
+                    new_subject.single_grade = single_grade_selected
+                    new_subject.save()
+                    messages.success(
+                        request,
+                        f"Subject '{new_subject.name}' added successfully with the single grade {single_grade_selected.name}."
+                    )
+                else:
+                    messages.success(request, f"Subject '{new_subject.name}' added successfully!")
+
                 return redirect('subjects_list')
 
     else:
@@ -591,7 +740,7 @@ def filter_results(request):
     grade_id = request.GET.get('grade_id')
     term_id = request.GET.get('term_id')
     subject_id = request.GET.get('subject_id')
-    exam_type_id = request.GET.get('exam_type_id')  # Added exam_type_id parameter
+    exam_type_id = request.GET.get('exam_type_id')
 
     # Redirect to the results table if all parameters are provided
     if grade_id and term_id and subject_id and exam_type_id:
@@ -601,16 +750,23 @@ def filter_results(request):
         )
 
     # Populate filter form options
-    grades = GradeSection.objects.all()  # Assuming Class model represents grades
-    terms = Term.objects.all()
+    grades = GradeSection.objects.all()
+    terms = Term.objects.annotate(
+        display_name=Concat(
+            F('name'),
+            Value(' - '),
+            F('start_date__year'),
+            output_field=CharField()
+        )
+    )
     subjects = Subject.objects.all()
-    exam_types = ExamType.objects.all()  # Added exam types
+    exam_types = ExamType.objects.all()
 
     return render(request, 'performance/filter_form.html', {
         'classes': grades,
         'terms': terms,
         'subjects': subjects,
-        'exam_types': exam_types,  # Pass exam types to the template
+        'exam_types': exam_types,
     })
 
 
@@ -618,59 +774,67 @@ def filter_results(request):
 
 
 def add_results_table(request):
+    # Get query parameters
     class_id = request.GET.get('grade_id')
     term_id = request.GET.get('term_id')
     subject_id = request.GET.get('subject_id')
-    exam_type_id = request.GET.get('exam_type_id')  # Added exam_type_id parameter
+    exam_type_id = request.GET.get('exam_type_id')
 
+    # Redirect to filter_results if any parameter is missing
     if not (class_id and term_id and subject_id and exam_type_id):
         return redirect('filter_results')
 
-    # Fetch the GradeSection for the selected grade and section
-    selected_grade_section = get_object_or_404(GradeSection, id=class_id)  # Now using GradeSection instead of Grade
+    # Fetch the objects based on the provided IDs
+    selected_grade_section = get_object_or_404(GradeSection, id=class_id)
     selected_term = get_object_or_404(Term, id=term_id)
     selected_subject = get_object_or_404(Subject, id=subject_id)
     selected_exam_type = get_object_or_404(ExamType, id=exam_type_id)
 
-    # Fetch students in the selected GradeSection
+    # Fetch students in the selected grade section
     students = Student.objects.filter(grade=selected_grade_section)
 
-    # Prepare initial data to populate marks if they exist
+    # Prepare initial data for students' marks
     initial_data = []
-    for student in students:
-        subject_mark = SubjectMark.objects.filter(
-            student=student,
+    subject_marks_dict = {
+        sm.student.id: sm for sm in SubjectMark.objects.filter(
+            student__in=students,
             subject=selected_subject,
             term=selected_term,
             exam_type=selected_exam_type
-        ).first()
+        )
+    }
+
+    for student in students:
+        subject_mark = subject_marks_dict.get(student.id)
+        marks = subject_mark.marks if subject_mark else None
         initial_data.append({
             'student': student,
-            'marks': subject_mark.marks if subject_mark else "",
+            'marks': marks
         })
 
+    # Handling form submission (POST)
     if request.method == 'POST':
+        max_score = float(request.POST.get('max_score', 100))  # Default max score if not provided
+
         for student in students:
-            marks = request.POST.get(f'marks_{student.id}')  # Get marks input for each student
+            marks = request.POST.get(f'marks_{student.id}')
             if marks:
                 try:
-                    # Ensure marks is a valid integer
-                    marks = int(marks)
-                    if not (0 <= marks <= 100):
-                        raise ValueError("Marks must be between 0 and 100.")
+                    marks = float(marks)
+                    # Ensure marks are within range
+                    if 0 <= marks <= max_score:
+                        subject_mark, created = SubjectMark.objects.update_or_create(
+                            student=student,
+                            subject=selected_subject,
+                            term=selected_term,
+                            exam_type=selected_exam_type,
+                            defaults={'marks': marks, 'max_score': max_score}
+                        )
+                    else:
+                        raise ValueError(f"Marks should be between 0 and {max_score}")
                 except ValueError as e:
-                    messages.error(request, f"Invalid marks for {student.first_name}: {e}")
-                    continue  # Skip the current student if the marks are invalid
-
-                # Update or create the SubjectMark
-                subject_mark, created = SubjectMark.objects.update_or_create(
-                    student=student,
-                    subject=selected_subject,
-                    term=selected_term,
-                    exam_type=selected_exam_type,
-                    defaults={'marks': marks}
-                )
-
+                    messages.error(request, f"Invalid marks for {student.first_name} {student.last_name}: {e}")
+                    continue
         messages.success(request, "Marks have been successfully updated!")
         return redirect('view_results_table', grade_id=class_id, term_id=term_id, subject_id=subject_id,
                         exam_type_id=exam_type_id)
@@ -681,8 +845,9 @@ def add_results_table(request):
         'selected_subject': selected_subject,
         'selected_exam_type': selected_exam_type,
         'students': students,
-        'initial_data': initial_data,
+        'initial_data': initial_data
     }
+
     return render(request, 'performance/add_results_table.html', context)
 
 
@@ -720,10 +885,12 @@ def view_results_table(request, grade_id, term_id, exam_type_id, subject_id):
                 exam_type=selected_exam_type
             ).first()
 
-            # If marks are available, add them to the list and total
+            # If marks are available, calculate percentage and add to the list
             if subject_mark and subject_mark.marks != "-":
-                marks.append(subject_mark.marks)
-                total_marks += subject_mark.marks
+                # Calculate the percentage if marks are available
+                percentage = round((subject_mark.marks / subject_mark.max_score) * 100)
+                marks.append(f"{percentage}%")  # Append percentage with % symbol
+                total_marks += percentage  # Add percentage to total_marks for rank calculation
             else:
                 marks.append("-")
 
@@ -751,6 +918,7 @@ def view_results_table(request, grade_id, term_id, exam_type_id, subject_id):
     }
 
     return render(request, 'performance/view_results_table.html', context)
+
 
 
 def report_card_view(request, student_id, term_id):
@@ -1637,3 +1805,5 @@ def transport_view(request):
 
 def events_view(request):
     return render(request, 'Manage/event.html')
+
+

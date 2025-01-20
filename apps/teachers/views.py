@@ -1,20 +1,22 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
-from django.db import IntegrityError
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.timezone import now
 
-from apps.management.models import Subject, Term
-from apps.students.models import Student, Grade
+from apps.management.models import  Profile
+from apps.students.models import  Grade
 from .forms import TeacherForm
 # from .forms import TeacherForm
 from .models import Teacher, Department, TeacherRole, Role
 
 
-# Create your views here.
+
+
 @login_required
 def teachers(request):
-    teachers = Teacher.objects.all()
+    teachers = Teacher.objects.select_related('user','user__profile').all()
 
     return render(request, "teachers/teachers.html", {"teachers": teachers})
 
@@ -23,14 +25,42 @@ def add_teacher(request):
     if request.method == 'POST':
         form = TeacherForm(request.POST)
         if form.is_valid():
-            teacher = form.save()
+            teacher = form.save(commit=False)  # Prepare the Teacher instance without saving it yet
+
+            # Generate staff number if not already provided
+            if not teacher.staff_number:
+                teacher.staff_number = Teacher.generate_staff_number()  # Ensure this method exists
+
+            # Create a User object for the teacher
+            user = User.objects.create_user(
+                username=teacher.staff_number,  # Use staff number as username
+                email=form.cleaned_data['email'],  # Use email for password reset
+                password=form.cleaned_data['password'],  # Password from the form
+            )
+            user.first_name = form.cleaned_data.get('first_name', '')  # Optionally set first name
+            user.last_name = form.cleaned_data.get('last_name', '')    # Optionally set last name
+            user.save()
+
+            # Create the Profile model for the teacher
+            profile = Profile.objects.create(
+                user=user,  # Link the profile to the user
+                role='Teacher',  # Role is set to 'Teacher' by default
+                phone_number=form.cleaned_data.get('phone_no', ''),  # Phone number from the form
+                address=form.cleaned_data.get('address', ''),  # Address from the form
+                created_at=now(),  # Set the profile creation time
+            )
+
+            # Link the Teacher model to the user and save it
+            teacher.user = user
+            teacher.save()
 
             # Assign the user to the "Teacher" group
-            group, created = Group.objects.get_or_create(name='Teacher')
-            teacher.user.groups.add(group)
+            group, _ = Group.objects.get_or_create(name='Teacher')
+            user.groups.add(group)
 
+            # Success message and redirect
             messages.success(request, "Teacher added successfully.")
-            return redirect('teachers')  # Redirect to the teachers list
+            return redirect('teachers')  # Adjust 'teachers' to your desired redirect URL
         else:
             messages.error(request, "Please correct the errors below.")
     else:

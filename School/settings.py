@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'channels',
     'apps.schedules',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -116,6 +117,17 @@ CHANNEL_LAYERS = {
     },
 }
 
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',  # Enables all toolbar options for the editor
+        'height': 300,      # Sets the height of the editor to 300px
+        'width': 'auto',    # Makes the width of the editor responsive
+        'extraPlugins': ','.join(['codesnippet', 'justify']),  # Adds custom plugins: code snippet and justify
+    },
+}
+
+
+
 REDIS_HOST = os.getenv('REDIS_HOST', 'redis')  # Use the Redis container name
 
 WSGI_APPLICATION = 'School.wsgi.application'
@@ -151,16 +163,7 @@ load_dotenv()
 
 # Database configuration
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',  # Update this to the correct database backend if using MySQL
-#         'NAME': os.getenv('DB_NAME'),
-#         'USER': os.getenv('DB_USER'),
-#         'PASSWORD': os.getenv('DB_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT', '3306'),  # Default MySQL port
-#     }
-# }
+
 
 
 DATABASES = {
@@ -173,7 +176,6 @@ DATABASES = {
         'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
-
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
