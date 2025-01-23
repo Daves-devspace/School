@@ -45,8 +45,8 @@ COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 
-# Expose the port Gunicorn will run on
-EXPOSE 8000
+# Expose the dynamic port for Render
+EXPOSE $PORT
 
-# Command to run Gunicorn
-CMD ["gunicorn", "School.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Command to run Gunicorn, use the dynamic port set by Render
+CMD ["gunicorn", "School.wsgi:application", "--bind", "0.0.0.0:$PORT"]

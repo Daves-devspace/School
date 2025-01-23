@@ -4,11 +4,11 @@ services:
     env: docker
     dockerfilePath: ./Dockerfile
     buildCommand: ""  # No additional build command since it's handled by Dockerfile
-    startCommand: gunicorn School.wsgi:application --bind 0.0.0.0:$PORT
+    startCommand: gunicorn School.wsgi:application --bind 0.0.0.0:$PORT  # This binds to 0.0.0.0 and uses the dynamic port
     plan: starter
     envVars:
       - key: DATABASE_URL
-        value: postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a/school_db_1j40
+        value: postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hLjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a/school_db_1j40
       - key: DJANGO_SECRET_KEY
         value: your_secret_key_here
       - key: REDIS_HOST  # Optional, in case you are also using Redis for caching
