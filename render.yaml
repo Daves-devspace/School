@@ -4,7 +4,7 @@ services:
     env: docker
     dockerfilePath: ./Dockerfile
     buildCommand: ""  # No additional build command since it's handled by Dockerfile
-    startCommand: gunicorn School.wsgi:application --bind 0.0.0.0:$PORT  # This binds to 0.0.0.0 and uses the dynamic port
+    startCommand: gunicorn School.wsgi:application --bind 0.0.0.0:8000 # This binds to 0.0.0.0 and uses the dynamic port
     plan: starter
     envVars:
       - key: DATABASE_URL
