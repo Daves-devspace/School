@@ -16,8 +16,8 @@ from pathlib import Path
 import dj_database_url
 from django.contrib import messages
 from django.core.cache.backends.redis import RedisCache
-from dotenv import load_dotenv
-from environ import environ
+
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -159,23 +159,15 @@ EMAIL_HOST_USER = 'admin@valuetech.co.ke'  # Your email address
 EMAIL_HOST_PASSWORD = 'davedevspace'  # Replace with your email account's password
 DEFAULT_FROM_EMAIL = 'ValueTech Admin <admin@valuetech.co.ke>'
 
-# Load environment variables from the .env file
-load_dotenv()
 
 # Database configuration
-
-
 env = environ.Env(
-    # set default values and casting
     DEBUG=(bool, False)
 )
-environ.Env.read_env()  # Reads the `.env` file
 
 DATABASES = {
     'default': env.db()
 }
-
-
 SECRET_KEY=os.getenv("DJANGO_SECRET_KEY", "fallback_default_secret_key")
 
 

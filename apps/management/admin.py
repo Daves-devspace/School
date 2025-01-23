@@ -3,12 +3,17 @@ from datetime import timezone
 from django.contrib import admin
 from django.db.models import Sum
 
+from apps.management import models
 from apps.management.models import Term, ReportCard, SubjectMark, ExamType, Timetable, \
     LessonExchangeRequest, Subject, Institution, Profile, HolidayPresentation
-
+from ckeditor.widgets import CKEditorWidget
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user','role','phone_number')
+    formfield_overrides = {
+        models.RichTextField: {'widget': CKEditorWidget()},
+    }
+
+
 
 class InstitutionAdmin(admin.ModelAdmin):
     list_display = ('name','mobile_number','email_address')

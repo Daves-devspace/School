@@ -3,6 +3,7 @@ import os
 from datetime import timedelta
 
 from ckeditor.fields import RichTextField
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType

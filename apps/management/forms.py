@@ -7,15 +7,13 @@ from ..students.models import Student, Book, GradeSection, Grade
 from ..teachers.models import Teacher
 
 class ProfileForm(forms.ModelForm):
+    cv = forms.CharField(widget=CKEditorWidget(), required=False)
+    skills = forms.CharField(widget=CKEditorWidget(), required=False)
+    certifications = forms.CharField(widget=CKEditorWidget(), required=False)
+
     class Meta:
         model = Profile
-        fields = ['profile_picture', 'phone_number', 'address', 'cv', 'skills', 'certifications']
-
-        widgets = {
-            'cv': CKEditorWidget(),  # Replaces Textarea with CKEditor
-            'skills': CKEditorWidget(),  # Replaces Textarea with CKEditor
-            'certifications': CKEditorWidget(),  # Replaces Textarea with CKEditor
-        }
+        fields = '__all__'
 
 class BookForm(forms.ModelForm):
     class Meta:
