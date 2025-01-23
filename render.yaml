@@ -4,7 +4,7 @@ services:
     env: docker
     dockerfilePath: ./Dockerfile
     buildCommand: ""  # No additional build command since it's handled by Dockerfile
-    startCommand: gunicorn School.wsgi:application --bind 0.0.0.0:8000 # This binds to 0.0.0.0 and uses the dynamic port
+    startCommand: gunicorn School.wsgi:application --bind 0.0.0.0:$PORT  # This binds to 0.0.0.0 and uses the dynamic port
     plan: starter
     envVars:
       - key: DATABASE_URL
@@ -13,5 +13,8 @@ services:
         value: your_secret_key_here
       - key: REDIS_HOST  # Optional, in case you are also using Redis for caching
         value: redis
+      - key: PORT
+        value: "8000"  # Fallback value for the port
+
     healthCheckPath: "/"
     runtime: docker
