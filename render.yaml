@@ -1,25 +1,17 @@
 services:
   - type: web
-    name: Django App
+    name: Django-pp
     env: docker
     dockerfilePath: ./Dockerfile
     buildCommand: ""  # No additional build command since it's handled by Dockerfile
-    startCommand: gunicorn School.wsgi:application --bind 0.0.0.0:8000
-    plan: starter  # Adjust the plan based on your requirements
+    startCommand: gunicorn School.wsgi:application --bind 0.0.0.0:$PORT
+    plan: starter
     envVars:
-      - key: DB_HOST
-        value: dpg-cu6pc4i3esus73fcve20-a
-      - key: DB_PORT
-        value: "5432"  # Note: Ports must be strings
-      - key: DB_NAME
-        value: school_db_1j40
-      - key: DB_USER
-        value: davedevspace
-      - key: DB_PASSWORD
-        value: your_password_here
+      - key: DATABASE_URL
+        value: postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a/school_db_1j40
       - key: DJANGO_SECRET_KEY
         value: your_secret_key_here
-      - key: REDIS_HOST
+      - key: REDIS_HOST  # Optional, in case you are also using Redis for caching
         value: redis
-
-    healthCheckPath: "/"  # Optional: Define your health check path (use `/` for a basic test)
+    healthCheckPath: "/"
+    runtime: docker
