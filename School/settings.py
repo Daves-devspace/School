@@ -17,6 +17,7 @@ import dj_database_url
 from django.contrib import messages
 from django.core.cache.backends.redis import RedisCache
 from dotenv import load_dotenv
+from environ import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,8 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0yg9%d29(l9u^17*mm5=*%&jpev!x(&s(9q!ih12@i0a03zual'
+# # SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = 'django-insecure-0yg9%d29(l9u^17*mm5=*%&jpev!x(&s(9q!ih12@i0a03zual'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # change to false in production
@@ -68,6 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 
     # logs
     # 'apps.Manage.middleware.GroupRedirectMiddleware',
@@ -121,13 +123,11 @@ CHANNEL_LAYERS = {
 CKEDITOR_CONFIGS = {
     'default': {
         'toolbar': 'full',  # Enables all toolbar options for the editor
-        'height': 300,      # Sets the height of the editor to 300px
-        'width': 'auto',    # Makes the width of the editor responsive
+        'height': 300,  # Sets the height of the editor to 300px
+        'width': 'auto',  # Makes the width of the editor responsive
         'extraPlugins': ','.join(['codesnippet', 'justify']),  # Adds custom plugins: code snippet and justify
     },
 }
-
-
 
 REDIS_HOST = os.getenv('REDIS_HOST', 'redis')  # Use the Redis container name
 
@@ -165,18 +165,29 @@ load_dotenv()
 # Database configuration
 
 
+env = environ.Env(
+    # set default values and casting
+    DEBUG=(bool, False)
+)
+environ.Env.read_env()  # Reads the `.env` file
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL'),  # Render automatically sets DATABASE_URL
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': env.db()
 }
 
 
-MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+SECRET_KEY=os.getenv("DJANGO_SECRET_KEY", "fallback_default_secret_key")
 
+
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default=os.getenv('DATABASE_URL'),  # Render automatically sets DATABASE_URL
+#         conn_max_age=600,
+#         ssl_require=True
+#     )
+# }
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # DATABASES = {
 #     'default': {
@@ -211,6 +222,7 @@ SIMPLE_JWT = {
 # MobileSasa API Credentials
 MOBILESASA_API_TOKEN = os.getenv("MOBILESASA_API_TOKEN")
 MOBILESASA_SENDER_ID = os.getenv("MOBILESASA_SENDER_ID")
+
 
 # DATABASES = {
 #     'default': {

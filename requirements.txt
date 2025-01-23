@@ -111,3 +111,5 @@ wrapt==1.17.2
 xhtml2pdf==0.2.16
 zope.interface==7.2
 zopfli==0.2.3.post1
+whitenoise==6.5.0
+
