@@ -16,8 +16,9 @@ from pathlib import Path
 import dj_database_url
 from django.contrib import messages
 from django.core.cache.backends.redis import RedisCache
-
+from dotenv import load_dotenv
 import environ
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,9 +29,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-0yg9%d29(l9u^17*mm5=*%&jpev!x(&s(9q!ih12@i0a03zual'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # change to false in production
-
+# # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = True  # change to false in production
+#
 ALLOWED_HOSTS = ['*']  # Replace '*' with your domain or IP for production
 
 # Application definition
@@ -161,17 +162,42 @@ DEFAULT_FROM_EMAIL = 'ValueTech Admin <admin@valuetech.co.ke>'
 
 
 # Database configuration
+# Read .env file if it exists
 env = environ.Env(
-    DEBUG=(bool, False)
+    DEBUG=(bool, False)  # Default DEBUG to False
 )
 
-# Load the .env file
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+# Load .env file
+environ.Env.read_env()
 
-DATABASES = {
-    'default': env.db()
-}
+DEBUG = env('DEBUG')
+
+# DATABASES = {
+#     'default': env.db()
+# }
+
+
 SECRET_KEY=os.getenv("DJANGO_SECRET_KEY", "fallback_default_secret_key")
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'error.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
 
 
 # DATABASES = {
@@ -184,16 +210,17 @@ SECRET_KEY=os.getenv("DJANGO_SECRET_KEY", "fallback_default_secret_key")
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('DB_NAME'),
-#         'USER': os.environ.get('DB_USER'),
-#         'PASSWORD': os.environ.get('DB_PASSWORD'),
-#         'HOST': os.environ.get('DB_HOST', 'localhost'),
-#         'PORT': os.environ.get('DB_PORT', '5432'),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
+    }
+}
+
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
