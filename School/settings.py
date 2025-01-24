@@ -14,6 +14,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import dj_database_url
+import redis
 from django.contrib import messages
 from django.core.cache.backends.redis import RedisCache
 from dotenv import load_dotenv
@@ -30,7 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET_KEY = 'django-insecure-0yg9%d29(l9u^17*mm5=*%&jpev!x(&s(9q!ih12@i0a03zual'
 
 # # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True  # change to false in production
+DEBUG = True  # change to false in production
 #
 ALLOWED_HOSTS = ['*']  # Replace '*' with your domain or IP for production
 
@@ -98,18 +99,30 @@ TEMPLATES = [
 # ASGI application path
 ASGI_APPLICATION = 'School.asgi.application'
 
-# settings.py
-
-# Redis setup for caching (if using Redis for caching)
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/1',  # Redis container name from docker-compose.yml
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
+        'LOCATION': 'redis://redis:6379/1',  # This should be the correct Redis container name and port
     }
 }
+
+# For Celery or other Redis integrations
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+
+
+# settings.py
+#
+# # Redis setup for caching (if using Redis for caching)
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://redis:6379/1',  # Redis container name from docker-compose.yml
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         }
+#     }
+# }
 
 # Redis setup for Django Channels (if using WebSockets)
 CHANNEL_LAYERS = {
@@ -131,6 +144,15 @@ CKEDITOR_CONFIGS = {
 }
 
 REDIS_HOST = os.getenv('REDIS_HOST', 'redis')  # Use the Redis container name
+REDIS_URL = "redis://redis:6379/0"  # Make sure 'redis' is the correct container name
+REDIS_PORT = 6379  # Default Redis port
+REDIS_DB = 0
+
+r = redis.StrictRedis(host='172.18.0.3', port=6379, db=0)
+r.ping()
+
+# Example of setting up a connection:
+redis_conn = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
 WSGI_APPLICATION = 'School.wsgi.application'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
@@ -170,7 +192,7 @@ env = environ.Env(
 # Load .env file
 environ.Env.read_env()
 
-DEBUG = env('DEBUG')
+# DEBUG = env('DEBUG')
 
 # DATABASES = {
 #     'default': env.db()

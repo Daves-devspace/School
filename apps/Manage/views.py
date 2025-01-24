@@ -1,5 +1,6 @@
 from datetime import date, datetime
 
+import logging
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
@@ -17,6 +18,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
+from School import settings
 from apps.Manage.forms import CustomSignupForm
 from apps.accounts.models import FeePayment
 from apps.management.models import Term, SubjectMark, Attendance
@@ -48,33 +50,38 @@ def home(request):
 def login_user(request):
     if request.method == 'GET':
         return redirect('login_form')
+
     elif request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
+
+        # Authenticate user
         user = authenticate(request, username=username, password=password)
-
         if user:
-            login(request, user)  # Logs the user in using Django sessions
+            login(request, user)  # Log in the user
 
-            # Generate JWT tokens
-            refresh = RefreshToken.for_user(user)
-            access_token = str(refresh.access_token)
-            refresh_token = str(refresh)
+            # JWT token generation
+            try:
+                refresh = RefreshToken.for_user(user)
+                access_token = str(refresh.access_token)
+                refresh_token = str(refresh)
 
-            # Store tokens in HttpOnly cookies
-            response = redirect('home')  # Redirect to the home page
-            response.set_cookie(
-                'access_token', access_token, httponly=True, secure=True, samesite='Strict'
-            )
-            response.set_cookie(
-                'refresh_token', refresh_token, httponly=True, secure=True, samesite='Strict'
-            )
+                # Store tokens in cookies
+                secure_cookie = not settings.DEBUG  # Secure cookies in production
+                response = redirect('home')
+                response.set_cookie('access_token', access_token, httponly=True, secure=secure_cookie, samesite='Strict')
+                response.set_cookie('refresh_token', refresh_token, httponly=True, secure=secure_cookie, samesite='Strict')
+            except Exception as e:
+                messages.error(request, f"Token generation error: {e}")
+                return redirect('login')
 
             messages.success(request, 'You are logged in!')
             return response
 
+        # Authentication failed
         messages.warning(request, 'Invalid username or password')
         return redirect('login')
+
 
 
 @api_view(['POST'])
@@ -100,82 +107,77 @@ def login_form(request):
 
 
 
+logger = logging.getLogger(__name__)
 @login_required
 def director_dashboard(request):
-    current_year = date.today().year
-    term = get_current_term()
-    term_year = term.start_date.year
+    try:
+        current_year = date.today().year
+        term = get_current_term()
+        term_year = term.start_date.year if term else "N/A"
 
-    # Fetching the total revenue for the current year
-    total_revenue = FeePayment.objects.filter(date__year=current_year).aggregate(
-        total=Sum('amount')
-    )['total'] or 0
+        total_revenue = FeePayment.objects.filter(date__year=current_year).aggregate(
+            total=Sum('amount')
+        )['total'] or 0
 
-    # Fetching the total count of active students, teachers, and departments
-    total_students = Student.objects.filter(status="active").count()
-    total_teachers = Teacher.objects.count()
-    total_departments = Department.objects.count()
+        total_students = Student.objects.filter(status="active").count()
+        total_teachers = Teacher.objects.count()
+        total_departments = Department.objects.count()
 
-    # Fetch all classes
-    classes = GradeSection.objects.all()
+        logger.info(f"Revenue: {total_revenue}, Students: {total_students}, Teachers: {total_teachers}")
 
-    # List to store top 3 students for each class
-    top_students_data = []
+        classes = GradeSection.objects.all()
+        top_students_data = []
 
-    # Loop through each class to calculate the top students
-    for class_obj in classes:
-        # Fetch all students in this class
-        students = Student.objects.filter(grade=class_obj)
+        for class_obj in classes:
+            students = Student.objects.filter(grade=class_obj)
+            student_marks = []
 
-        # Get total marks for each student in each term and exam type
-        student_marks = []
-        for student in students:
-            total_marks = SubjectMark.objects.filter(student=student).aggregate(
-                total_marks=Sum('marks')
-            )['total_marks'] or 0  # Default to 0 if no marks found
+            for student in students:
+                total_marks = SubjectMark.objects.filter(student=student).aggregate(
+                    total_marks=Sum('marks')
+                )['total_marks'] or 0
 
-            student_marks.append({
-                'student': student,
-                'total_marks': total_marks,
-            })
+                student_marks.append({
+                    'student': student,
+                    'total_marks': total_marks,
+                })
 
-        # Sort students by total marks in descending order and get top 3
-        student_marks.sort(key=lambda x: x['total_marks'], reverse=True)
-        top_3_students = student_marks[:3]  # Get the top 3 students
+            student_marks.sort(key=lambda x: x['total_marks'], reverse=True)
+            top_3_students = student_marks[:3]
 
-        # Prepare the data for top 3 students with their class, term, exam type, and year
-        for student_data in top_3_students:
-            student = student_data['student']
-            total_marks = student_data['total_marks']
+            for student_data in top_3_students:
+                student = student_data['student']
+                total_marks = student_data['total_marks']
 
-            # Fetch the term and exam type for each student (use the first subject mark's term and exam type)
-            subject_mark = SubjectMark.objects.filter(student=student).first()
-            if subject_mark:
-                term = subject_mark.term
-                exam_type = subject_mark.exam_type
-                year = term_year
-            else:
-                term = exam_type = year = None
+                subject_mark = SubjectMark.objects.filter(student=student).first()
+                if subject_mark:
+                    term = subject_mark.term
+                    exam_type = subject_mark.exam_type
+                    year = term_year
+                else:
+                    term = exam_type = year = None
 
-            top_students_data.append({
-                'student_name': f"{student.first_name} {student.last_name}",
-                'admission_number': student.admission_number,
-                'total_marks': total_marks,
-                'class': class_obj.grade,
-                'term': term.name if term else "N/A",
-                'exam_type': exam_type.name if exam_type else "N/A",
-                'year': year if year else "N/A",
-            })
+                top_students_data.append({
+                    'student_name': f"{student.first_name} {student.last_name}",
+                    'admission_number': student.admission_number,
+                    'total_marks': total_marks,
+                    'class': class_obj.grade,
+                    'term': term.name if term else "N/A",
+                    'exam_type': exam_type.name if exam_type else "N/A",
+                    'year': year if year else "N/A",
+                })
 
-    # Render the home page with the context, including the top students data
-    return render(request, 'Home/Admin/index.html', {
-        "total_revenue": total_revenue,
-        "total_students": total_students,
-        "total_teachers": total_teachers,
-        "total_departments": total_departments,
-        'current_year': current_year,
-        'top_students_data': top_students_data,  # Pass the top students data to the template
-    })
+        return render(request, 'Home/Admin/index.html', {
+            "total_revenue": total_revenue,
+            "total_students": total_students,
+            "total_teachers": total_teachers,
+            "total_departments": total_departments,
+            'current_year': current_year,
+            'top_students_data': top_students_data,
+        })
+    except Exception as e:
+        logger.error(f"Error in director_dashboard: {e}")
+        return render(request, 'errors/500.html', {"error_message": str(e)})
 
 
 @login_required

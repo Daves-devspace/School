@@ -8,9 +8,9 @@ while ! nc -z $DB_HOST $DB_PORT; do
 done
 echo "Database is ready!"
 
-# Wait for Redis to be ready (optional, depending on usage)
+# Wait for Redis to be ready (ensure REDIS_PORT is set to 6379)
 echo "Waiting for Redis..."
-while ! nc -z $REDIS_HOST $REDIS_PORT; do
+while ! nc -z $REDIS_HOST 6379; do
   echo "Waiting for Redis..."
   sleep 1
 done
