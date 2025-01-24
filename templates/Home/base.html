@@ -150,7 +150,8 @@
             <li class="nav-item dropdown has-arrow new-user-menus">
                 <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
                         <span class="user-img">
-                            <img class="rounded-circle" src="{% static 'assets/img/profiles/avatar-01.jpg' %}" width="31" alt="user">
+                            <img class="rounded-circle" src="{% static 'assets/img/profiles/avatar-01.jpg' %}"
+                                 width="31" alt="user">
                             <div class="user-text">
                                 <h6>{{ user.first_name }}</h6>
                                 <p class="text-muted mb-0">{{ user }}</p>
@@ -160,7 +161,8 @@
                 <div class="dropdown-menu">
                     <div class="user-header">
                         <div class="avatar avatar-sm">
-                            <img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" alt="User Image" class="avatar-img rounded-circle">
+                            <img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" alt="User Image"
+                                 class="avatar-img rounded-circle">
                         </div>
                         <div class="user-text">
                             <h6>{{ user.user_name }}</h6>
@@ -176,8 +178,6 @@
         </ul>
 
     </div>
-
-
 
 
     <div class="sidebar" id="sidebar">
@@ -343,7 +343,14 @@
                         <ul>
                             <li><a href="{% url 'timetable-create' %}">Create</a></li>
                             <li><a href="{% url 'class-timetable' %}">Timetable</a></li>
-                            <li><a href="{% url 'generate' %}">Generate</a></li>
+{#                            <li><a href="{% url 'generate' %}">Generate</a></li>#}
+                            <li><a href="{% url 'timetable_page' %}">Generate Timetable</a></li>
+                            <!-- Other sidebar links -->
+                            <li><a href="{% url 'fetch_timetable_by_grade_section' grade_section_id=1 %}">View Timetable
+                                for Grade 1</a></li>
+                            <li><a href="{% url 'fetch_timetable_by_grade_section' grade_section_id=2 %}">View Timetable
+                                for Grade 2</a></li>
+                            <!-- 
                             <li><a href="{% url 'exchange-lessons' %}">Request Swap</a></li>
                             <!-- Link to the lesson exchange list -->
                             <a href="{% url 'lesson-exchange-list' %}">View Lesson Exchange Requests</a>
@@ -363,7 +370,7 @@
                         <ul>
                             <li><a href="{% url 'manage_users' %}">All users</a></li>
                             <li><a href="{% url 'presentation_list' %}">Presentation</a></li>
-                            
+
 
                         </ul>
                     </li>

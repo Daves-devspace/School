@@ -5,7 +5,7 @@ from django.db.models import Sum
 
 from apps.management import models
 from apps.management.models import Term, ReportCard, SubjectMark, ExamType, Timetable, \
-    LessonExchangeRequest, Subject, Institution, Profile, HolidayPresentation
+    LessonExchangeRequest,  Institution, Profile, HolidayPresentation
 from ckeditor.widgets import CKEditorWidget
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -18,9 +18,9 @@ class ProfileAdmin(admin.ModelAdmin):
 class InstitutionAdmin(admin.ModelAdmin):
     list_display = ('name','mobile_number','email_address')
 
-class SubjectAdmin(admin.ModelAdmin):
-    list_display = ['name']
-    search_fields = ['name','grade']
+# class SubjectAdmin(admin.ModelAdmin):
+#     list_display = ['name']
+#     search_fields = ['name','grade']
 
 # Inline classes
 class SubjectMarkInline(admin.TabularInline):
@@ -113,7 +113,7 @@ admin.site.register(LessonExchangeRequest,LessonExchangeRequestAdmin)
 admin.site.register(Timetable, TimetableAdmin)
 admin.site.register(ExamType, ExamTypeAdmin)
 
-admin.site.register(Subject,SubjectAdmin)
+
 admin.site.register(SubjectMark, SubjectMarkAdmin)
 admin.site.register(ReportCard, ReportCardAdmin)
 admin.site.register(HolidayPresentation,HolidayPresentationAdmin)

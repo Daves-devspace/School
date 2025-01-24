@@ -1,0 +1,179 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Generated TT</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
+                            <li class="breadcrumb-item active">Time table</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+
+                            <div class="container py-5">
+                                <p class="text-center text-muted">
+                                    Click the button below to generate timetables for all grade sections.
+                                </p>
+
+                                <!-- Generate Button -->
+                                <div class="text-center">
+                                    <button id="generate-btn" class="btn btn-success btn-lg"
+                                            onclick="generateTimetable()">
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                                              style="display: none;"></span>
+                                        Generate Timetable
+                                    </button>
+
+                                </div>
+                                <div id="status-message" class="mt-3 text-center"></div>
+
+                                <!-- Timetable Section -->
+                                <div class="timetable mt-5">
+                                    <h2 class="text-center mb-4">Generated Timetables</h2>
+                                    <div class="table-responsive">
+                                        <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                            <thead class="student-thread">
+                                            <tr>
+                                                <th>Grade</th>
+                                                <th>Section</th>
+                                                <th>Subject</th>
+                                                <th>Day</th>
+                                                <th>Time</th>
+                                                <th>Room</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for slot in timetables %}
+                                                <tr>
+                                                    <td>{{ slot.teacher_assignment.grade_section.grade.name }}</td>
+                                                    <td>{{ slot.teacher_assignment.grade_section.section }}</td>
+                                                    <td>{{ slot.teacher_assignment.subject.name }}</td>
+                                                    <td>{{ slot.day_of_week }}</td>
+                                                    <td>{{ slot.time_slot.start_time }}
+                                                        - {{ slot.time_slot.end_time }}</td>
+                                                    <td>{{ slot.room.room_name }}</td>
+                                                </tr>
+                                            {% empty %}
+                                                <tr>
+                                                    <td colspan="6" class="text-center text-muted">
+                                                        No timetables generated yet.
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+<script>
+    // Function to retrieve the CSRF token from cookies
+    function getCSRFToken() {
+        const name = "csrftoken";
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                return cookie.substring(name.length + 1);
+            }
+        }
+        console.error('CSRF token not found.');
+        return null;
+    }
+
+    // Retrieve CSRF token
+    const csrfToken = getCSRFToken();
+
+    // Function to handle timetable generation
+    async function generateTimetable() {
+        const button = document.getElementById('generate-btn');
+        const statusMessage = document.getElementById('status-message');
+        
+        // Disable the button to prevent multiple clicks
+        button.disabled = true;
+        button.textContent = 'Generating...';
+        
+        // Reset status message
+        statusMessage.classList.remove('text-danger', 'text-success');
+        statusMessage.textContent = '';
+
+        try {
+            // Make a POST request to generate the timetable
+            const response = await axios.post(
+                '/schedules/generate_timetable/',  // Update the endpoint if needed
+                {},  // Add any additional data here if needed
+                {
+                    headers: {
+                        'X-CSRFToken': csrfToken,  // Include the CSRF token in the request headers
+                    },
+                }
+            );
+
+            // If the response contains a message, display it
+            if (response.data.message) {
+                statusMessage.classList.add('text-success');
+                statusMessage.textContent = response.data.message;
+                setTimeout(() => location.reload(), 2000); // Reload the page after 2 seconds
+            } else {
+                throw new Error('An unexpected error occurred.');
+            }
+        } catch (error) {
+            // Display error message
+            statusMessage.classList.add('text-danger');
+            if (error.response) {
+                // Handle server errors (e.g., invalid CSRF token, internal server errors)
+                statusMessage.textContent = error.response.data?.error || 'An error occurred on the server.';
+            } else if (error.request) {
+                // Handle network errors (e.g., request timeout)
+                statusMessage.textContent = 'Network error. Please try again.';
+            } else {
+                // Handle any other unexpected errors
+                statusMessage.textContent = 'An unexpected error occurred.';
+            }
+        } finally {
+            // Re-enable the button and reset its text after the request is complete
+            button.disabled = false;
+            button.textContent = 'Generate Timetable';
+        }
+    }
+</script>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+{% endblock %}

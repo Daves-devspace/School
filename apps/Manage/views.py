@@ -112,59 +112,43 @@ logger = logging.getLogger(__name__)
 def director_dashboard(request):
     try:
         current_year = date.today().year
-        term = get_current_term()
-        term_year = term.start_date.year if term else "N/A"
+        current_term = get_current_term()
+        term_year = current_term.start_date.year if current_term else current_year
 
+        # Aggregate data
         total_revenue = FeePayment.objects.filter(date__year=current_year).aggregate(
             total=Sum('amount')
         )['total'] or 0
-
         total_students = Student.objects.filter(status="active").count()
         total_teachers = Teacher.objects.count()
         total_departments = Department.objects.count()
 
         logger.info(f"Revenue: {total_revenue}, Students: {total_students}, Teachers: {total_teachers}")
 
-        classes = GradeSection.objects.all()
+        # Top students data
         top_students_data = []
-
-        for class_obj in classes:
-            students = Student.objects.filter(grade=class_obj)
-            student_marks = []
-
-            for student in students:
-                total_marks = SubjectMark.objects.filter(student=student).aggregate(
-                    total_marks=Sum('marks')
-                )['total_marks'] or 0
-
-                student_marks.append({
-                    'student': student,
-                    'total_marks': total_marks,
-                })
-
-            student_marks.sort(key=lambda x: x['total_marks'], reverse=True)
-            top_3_students = student_marks[:3]
+        grade_sections = GradeSection.objects.all()
+        for section in grade_sections:
+            # Get top 3 students in this grade section
+            top_3_students = (SubjectMark.objects.filter(student__grade=section)
+                              .values('student', 'student__first_name', 'student__last_name', 'student__admission_number')
+                              .annotate(total_marks=Sum('marks'))
+                              .order_by('-total_marks')[:3])
 
             for student_data in top_3_students:
-                student = student_data['student']
-                total_marks = student_data['total_marks']
-
-                subject_mark = SubjectMark.objects.filter(student=student).first()
-                if subject_mark:
-                    term = subject_mark.term
-                    exam_type = subject_mark.exam_type
-                    year = term_year
-                else:
-                    term = exam_type = year = None
+                subject_mark = SubjectMark.objects.filter(student=student_data['student']).first()
+                term = subject_mark.term.name if subject_mark and subject_mark.term else "N/A"
+                exam_type = subject_mark.exam_type.name if subject_mark and subject_mark.exam_type else "N/A"
+                year = term_year
 
                 top_students_data.append({
-                    'student_name': f"{student.first_name} {student.last_name}",
-                    'admission_number': student.admission_number,
-                    'total_marks': total_marks,
-                    'class': class_obj.grade,
-                    'term': term.name if term else "N/A",
-                    'exam_type': exam_type.name if exam_type else "N/A",
-                    'year': year if year else "N/A",
+                    'student_name': f"{student_data['student__first_name']} {student_data['student__last_name']}",
+                    'admission_number': student_data['student__admission_number'],
+                    'total_marks': student_data['total_marks'],
+                    'class': section.grade,
+                    'term': term,
+                    'exam_type': exam_type,
+                    'year': year,
                 })
 
         return render(request, 'Home/Admin/index.html', {
@@ -176,8 +160,10 @@ def director_dashboard(request):
             'top_students_data': top_students_data,
         })
     except Exception as e:
-        logger.error(f"Error in director_dashboard: {e}")
-        return render(request, 'errors/500.html', {"error_message": str(e)})
+        import traceback
+        logger.error(f"Error in director_dashboard: {e}\n{traceback.format_exc()}")
+        return render(request, 'Manage/errors/500.html', {"error_message": str(e)})
+
 
 
 @login_required

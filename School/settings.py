@@ -10,11 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
+import socket
 from datetime import timedelta
 from pathlib import Path
 
 import dj_database_url
 import redis
+from decouple import config
 from django.contrib import messages
 from django.core.cache.backends.redis import RedisCache
 from dotenv import load_dotenv
@@ -33,7 +35,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # change to false in production
 #
-ALLOWED_HOSTS = ['school-kbah.onrender.com']  # Replace '*' with your domain or IP for production
+ALLOWED_HOSTS = ['school-kbah.onrender.com','localhost']  # Replace '*' with your domain or IP for production
 
 # Application definition
 
@@ -99,13 +101,38 @@ TEMPLATES = [
 # ASGI application path
 ASGI_APPLICATION = 'School.asgi.application'
 
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': "redis://red-cu9dmstds78s739cl7pg:6379/1",  # This should be the correct Redis container name and port
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         }
+#
+#     }
+# }
+# Detect environment by checking hostname
+# Single source of truth for Redis URL
+REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/1')
+
+# Caching settings
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/1',  # This should be the correct Redis container name and port
+        'LOCATION': REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
     }
 }
 
+# Test Redis connection
+try:
+    r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
+    r.ping()
+    print("Connected to Redis successfully.")
+except redis.exceptions.ConnectionError as e:
+    print(f"Redis connection error: {e}")
 # For Celery or other Redis integrations
 CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
@@ -134,7 +161,7 @@ CHANNEL_LAYERS = {
     },
 }
 
-CKEDITOR_CONFIGS = {
+CKEDITOR_5_CONFIGS  = {
     'default': {
         'toolbar': 'full',  # Enables all toolbar options for the editor
         'height': 300,  # Sets the height of the editor to 300px
@@ -150,15 +177,7 @@ CKEDITOR_CONFIGS = {
 #
 # r = redis.StrictRedis(host='172.18.0.3', port=6379, db=0)
 # r.ping()
-REDIS_URL = os.getenv("REDIS_URL", "redis://red-cu9dmstds78s739cl7pg:6379")
-r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
 
-# Test connection
-try:
-    r.ping()
-    print("Connected to Redis successfully.")
-except redis.exceptions.ConnectionError as e:
-    print(f"Redis connection error: {e}")
 
 # # Example of setting up a connection:
 # redis_conn = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
@@ -197,14 +216,14 @@ EMAIL_HOST_PASSWORD = 'davedevspace'  # Replace with your email account's passwo
 DEFAULT_FROM_EMAIL = 'ValueTech Admin <admin@valuetech.co.ke>'
 
 
-# Database configuration
-# Read .env file if it exists
-env = environ.Env(
-    DEBUG=(bool, False)  # Default DEBUG to False
-)
-
-# Load .env file
-environ.Env.read_env()
+# # Database configuration
+# # Read .env file if it exists
+# env = environ.Env(
+#     DEBUG=(bool, False)  # Default DEBUG to False
+# )
+#
+# # Load .env file
+# environ.Env.read_env()
 
 # DEBUG = env('DEBUG')
 
@@ -212,8 +231,6 @@ environ.Env.read_env()
 #     'default': env.db()
 # }
 
-
-SECRET_KEY=os.getenv("DJANGO_SECRET_KEY", "fallback_default_secret_key")
 
 
 LOGGING = {
@@ -257,14 +274,59 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 #     }
 # }
 
+
+# General Settings
+DEBUG = config("DEBUG", default=True, cast=bool)
+SECRET_KEY = config("DJANGO_SECRET_KEY", default="fallback_secret_key")
+
+# Database Configuration
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv(
-            'DATABASE_URL',  # This should be set in your Render environment
-            'postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a/school_db_1j40'
-        )
-    )
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "HOST": config("DB_HOST", default="localhost"),
+        "PORT": config("DB_PORT", default="5432"),
+    }
 }
+
+# Static/Media File Handling
+USE_S3 = config("USE_S3", default=False, cast=bool)
+if USE_S3:
+    AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
+    AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
+    STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/static/"
+    MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/"
+else:
+    STATIC_URL = "/static/"
+    MEDIA_URL = "/media/"
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    STATIC_ROOT = os.path.join(BASE_DIR, "static_files")
+
+
+
+# STATIC_URL = '/static/'
+#
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')  # for  deployment
+#
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+#
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Optional: Debugging output for confirmation (remove or comment in production)
+
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default=os.getenv(
+#             'DATABASE_URL',  # This should be set in your Render environment
+#             'postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a/school_db_1j40'
+#         )
+#     )
+# }
 
 
 
@@ -333,15 +395,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = '/static/'
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')  # for  deployment
-
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

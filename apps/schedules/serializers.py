@@ -1,64 +1,35 @@
-from rest_framework import serializers, generics
-
-from apps.management.models import Subject, Timetable, Event, EventParticipant
-from apps.students.models import GradeSection
-from apps.teachers.models import TeacherAssignment
+from rest_framework import serializers
+from .models import Instructor, Course, Room, TimetableSlot, TimeSlot
 
 
-#teacher management
-class SubjectSerializer(serializers.ModelSerializer):
+class InstructorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Subject
-        fields = ['id', 'name']
+        model = Instructor
+        fields = ['instructor_id', 'name', 'subjects_grades']
 
-class GradeSectionSerializer(serializers.ModelSerializer):
-    grade = serializers.StringRelatedField()
-    section = serializers.StringRelatedField()
-
+class CourseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GradeSection
-        fields = ['id', 'grade', 'section']
+        model = Course
+        fields = ['course_id', 'course_name', 'department', 'grades', 'requires_special_room', 'special_room_name']
 
-class TeacherAssignmentSerializer(serializers.ModelSerializer):
-    teacher = serializers.StringRelatedField()
-    subject = SubjectSerializer()
-    grade_section = GradeSectionSerializer()
+class RoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = ['room_id', 'room_name', 'is_special']
+
+
+class TimeSlotSerializer(serializers.ModelSerializer):
+    # Only include the time_range instead of the whole TimeSlot object
+    time_range = serializers.CharField(source='time_slot', read_only=True)
 
     class Meta:
-        model = TeacherAssignment
-        fields = ['id', 'teacher', 'subject', 'grade_section', 'assigned_date']
+        model = TimeSlot
+        fields = ['time_range']
 
-class CreateTeacherAssignmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TeacherAssignment
-        fields = ['teacher', 'subject', 'grade_section']
-
-class TeacherAssignmentCreateView(generics.CreateAPIView):
-    queryset = TeacherAssignment.objects.all()
-    serializer_class = CreateTeacherAssignmentSerializer
-
-
-
-
-#student timetable
-class TimetableSerializer(serializers.ModelSerializer):
-    subject = serializers.StringRelatedField()
-    teacher = serializers.StringRelatedField()
-    grade_section = GradeSectionSerializer()
+class TimetableSlotSerializer(serializers.ModelSerializer):
+    # Directly show the time_range from the TimeSlot model
+    time_range = serializers.CharField(source='time_slot.time_range', read_only=True)
 
     class Meta:
-        model = Timetable
-        fields = ['id', 'day', 'start_time', 'end_time', 'subject', 'teacher', 'grade_section']
-
-
-#events
-class EventSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Event
-        fields = ['id', 'name', 'description', 'event_type', 'date', 'time', 'recurring']
-
-class EventParticipantSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EventParticipant
-        fields = ['event', 'participant_content_type', 'participant_object_id']
-
+        model = TimetableSlot
+        fields = ['course', 'instructor', 'room', 'day_of_week', 'time_range']

@@ -8,6 +8,7 @@ from django.db.models import Max
 from django.utils.timezone import now
 from phonenumber_field.modelfields import PhoneNumberField
 
+from apps.schedules.models import Room
 from apps.teachers.models import Teacher
 
 
@@ -39,7 +40,8 @@ class Section(models.Model):
         ordering = ['name']
 
 
-class GradeSection(models.Model):  # Renamed to avoid "Class" keyword conflict
+
+class GradeSection(models.Model):
     grade = models.ForeignKey(
         Grade, on_delete=models.CASCADE, related_name="grade_sections"
     )
@@ -57,14 +59,29 @@ class GradeSection(models.Model):  # Renamed to avoid "Class" keyword conflict
 
     class Meta:
         unique_together = ("grade", "section")
-        ordering = ["grade__level", "section__name"]
+        ordering = ["grade", "grade__level", "section__name"]
 
     def __str__(self):
         return f"{self.grade.name} {self.section.name}"
 
+    def save(self, *args, **kwargs):
+        # Save the GradeSection instance first
+        super().save(*args, **kwargs)
 
+        # Ensure grade and section names are valid
+        grade_name = self.grade.name.strip() if self.grade.name else "Grade"
+        section_name = self.section.name.strip() if self.section.name else "Section"
 
+        # Generate a room name (e.g., "G1A" for Grade 1, Section A)
+        room_name = f"{grade_name[0].upper()}{self.grade.level}{section_name[0].upper()}"
 
+        # Check if a room with this name already exists
+        if not Room.objects.filter(room_name=room_name).exists():
+            # Create a new Room with the generated name
+            Room.objects.create(
+                room_name=room_name,
+                is_special=False  # Default to non-special rooms
+            )
 
 
 class Parent(models.Model):

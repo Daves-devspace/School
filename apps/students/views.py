@@ -16,7 +16,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
 
 from apps.accounts.models import FeeStructure, FeeRecord
-from apps.management.models import Term, SubjectMark, ReportCard, ExamType, Subject
+from apps.management.models import Term, SubjectMark, ReportCard, ExamType
 from apps.students.forms import StudentForm, PromoteStudentsForm, SendSMSForm
 # from apps.students.forms import StudentForm
 from apps.students.models import Student, Parent, StudentParent, Grade

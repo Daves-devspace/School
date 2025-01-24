@@ -154,18 +154,18 @@ class Term(models.Model):
 
 
 # TeacherSubject Model
-class Subject(models.Model):
-    name = models.CharField(max_length=100)
-    grade = models.ManyToManyField('students.Grade', blank=True, related_name='subjects')
-    single_grade = models.ForeignKey('students.Grade', null=True, blank=True, on_delete=models.SET_NULL, related_name='single_subjects')
-
-    def __str__(self):
-        if self.single_grade:
-            return f"{self.name} (Only in {self.single_grade.name})"
-        grades_list = ", ".join(grade.name for grade in self.grade.all())
-        return f"{self.name} ({grades_list})" if grades_list else self.name
-
-
+# class Subject(models.Model):
+#     name = models.CharField(max_length=100)
+#     grade = models.ManyToManyField('students.Grade', blank=True, related_name='subjects')
+#     single_grade = models.ForeignKey('students.Grade', null=True, blank=True, on_delete=models.SET_NULL, related_name='single_subjects')
+#
+#     def __str__(self):
+#         if self.single_grade:
+#             return f"{self.name} (Only in {self.single_grade.name})"
+#         grades_list = ", ".join(grade.name for grade in self.grade.all())
+#         return f"{self.name} ({grades_list})" if grades_list else self.name
+#
+#
 
 # ExamType Model
 class ExamType(models.Model):
@@ -271,7 +271,7 @@ logger = logging.getLogger(__name__)
 
 class SubjectMark(models.Model):
     student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='subject_marks')
+    subject = models.ForeignKey('schedules.Subject', on_delete=models.CASCADE, related_name='subject_marks')
     term = models.ForeignKey(Term, on_delete=models.CASCADE)
     exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE)  # Reuse ExamType
     marks = models.FloatField(null=True, blank=True)  # Marks obtained by the student
@@ -354,7 +354,7 @@ class Timetable(models.Model):
     day = models.CharField(max_length=10, choices=DAYS_OF_WEEK)
     start_time = models.TimeField()
     end_time = models.TimeField()
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    subject = models.ForeignKey('schedules.Subject', on_delete=models.CASCADE)
     teacher = models.ForeignKey("teachers.Teacher", on_delete=models.CASCADE)
     grade_section = models.ForeignKey("students.GradeSection", on_delete=models.CASCADE, related_name="timetables")
     academic_year = models.CharField(max_length=9, null=True, blank=True)  # Optional field for academic year tracking

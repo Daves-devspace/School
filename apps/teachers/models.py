@@ -11,7 +11,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from phonenumber_field.modelfields import PhoneNumberField
 
-from apps.management.models import Subject, Profile
+from apps.management.models import  Profile
 
 
 # Create your models here.
@@ -39,7 +39,7 @@ class Role(models.Model):
 # Teacher model remains the same
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)  # Links to User model
-    teacher_id = models.CharField(max_length=20, unique=True)
+    id_No = models.CharField(max_length=20, unique=True)  # Represents the ID number
     staff_number = models.CharField(max_length=20, unique=True, default='TCH/000/00')
     full_name = models.CharField(max_length=50)
     gender = models.CharField(
@@ -52,7 +52,7 @@ class Teacher(models.Model):
     country = models.CharField(max_length=50)
     joining_date = models.DateTimeField()
     subjects = models.ManyToManyField(
-        'management.Subject',
+        'schedules.Subject',
         related_name="teachers"
     )  # Link to Subject model
     is_headteacher = models.BooleanField(default=False)
@@ -84,13 +84,17 @@ class Teacher(models.Model):
 
     def __str__(self):
         role = "Headteacher" if self.is_headteacher else "Teacher"
-        return f"{self.user.username if self.user else self.teacher_id} - {role}"
+        return f"{self.user.username if self.user else self.id_No} - {role}"
 
 
 class TeacherAssignment(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    grade_section = models.ForeignKey("students.GradeSection", on_delete=models.CASCADE)
+    subject = models.ForeignKey('schedules.Subject', on_delete=models.CASCADE)
+    grade_section = models.ForeignKey(
+        "students.GradeSection",
+        on_delete=models.CASCADE,
+        related_name="teacher_assignments"  # Add related_name here
+    )
     assigned_date = models.DateField(auto_now_add=True)
 
     class Meta:
@@ -99,7 +103,6 @@ class TeacherAssignment(models.Model):
 
     def __str__(self):
         return f"{self.teacher} assigned to {self.subject.name} ({self.grade_section})"
-
 
 
 

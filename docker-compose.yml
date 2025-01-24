@@ -1,5 +1,3 @@
-
-
 services:
   django-app:
     build: .

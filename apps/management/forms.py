@@ -2,7 +2,8 @@ from ckeditor.widgets import CKEditorWidget
 from django import forms
 from django.forms import TimeInput
 
-from .models import Subject, Term, SubjectMark, Timetable, LessonExchangeRequest, Profile, HolidayPresentation, Feedback
+from .models import Term, SubjectMark, Timetable, LessonExchangeRequest, Profile, HolidayPresentation, Feedback
+from ..schedules.models import Subject
 from ..students.models import Student, Book, GradeSection, Grade
 from ..teachers.models import Teacher
 

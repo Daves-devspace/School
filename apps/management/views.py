@@ -29,9 +29,10 @@ from rest_framework.views import APIView
 from apps.accounts.models import FeePayment, Expense
 from apps.management.forms import SubjectForm, BookForm, TimetableForm, LessonExchangeForm, ProfileForm, \
     HolidayPresentationForm, FeedbackForm
-from apps.management.models import Term, Subject, ReportCard, SubjectMark, ExamType, \
+from apps.management.models import Term,ReportCard, SubjectMark, ExamType, \
     Attendance, Timetable, LessonExchangeRequest, HolidayPresentation
 from apps.management.serializers import TimetableSerializer
+from apps.schedules.models import Subject
 from apps.students.forms import SendSMSForm, SendClassForm, ResultsSMSForm
 from apps.students.models import Book, Transaction, Student, Payment, Parent, StudentParent, Grade, GradeSection
 

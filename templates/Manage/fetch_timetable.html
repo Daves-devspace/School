@@ -1,0 +1,72 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Generated TT</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
+                            <li class="breadcrumb-item active">Time table</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <h1>Timetable for {{ grade_section.name }}</h1>
+
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Time</th>
+                                    <th>Subject</th>
+                                    <th>Teacher</th>
+                                    <th>Room</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for slot in timetable_slots %}
+                                    <tr>
+                                        <td>{{ slot.day_of_week }}</td>
+                                        <td>{{ slot.time_slot.start_time }} - {{ slot.time_slot.end_time }}</td>
+                                        <td>{{ slot.teacher_assignment.subject.name }}</td>
+                                        <td>{{ slot.teacher_assignment.teacher.name }}</td>
+                                        <td>{{ slot.room.room_name }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+{% endblock %}
