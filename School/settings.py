@@ -19,7 +19,7 @@ from django.contrib import messages
 from django.core.cache.backends.redis import RedisCache
 from dotenv import load_dotenv
 import environ
-
+from redis.connection import BlockingConnectionPool
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -143,16 +143,30 @@ CKEDITOR_CONFIGS = {
     },
 }
 
-REDIS_HOST = os.getenv('REDIS_HOST', 'redis')  # Use the Redis container name
-REDIS_URL = "redis://redis:6379/0"  # Make sure 'redis' is the correct container name
-REDIS_PORT = 6379  # Default Redis port
-REDIS_DB = 0
+# REDIS_HOST = os.getenv('REDIS_HOST', 'redis')  # Use the Redis container name
+# REDIS_URL = "redis://redis:6379/0"  # Make sure 'redis' is the correct container name
+# REDIS_PORT = 6379  # Default Redis port
+# REDIS_DB = 0
+#
+# r = redis.StrictRedis(host='172.18.0.3', port=6379, db=0)
+# r.ping()
+REDIS_URL = os.getenv("REDIS_URL", "redis://red-cu9dmstds78s739cl7pg:6379")
+r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
 
-r = redis.StrictRedis(host='172.18.0.3', port=6379, db=0)
-r.ping()
+# Test connection
+try:
+    r.ping()
+    print("Connected to Redis successfully.")
+except redis.exceptions.ConnectionError as e:
+    print(f"Redis connection error: {e}")
 
-# Example of setting up a connection:
-redis_conn = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+# # Example of setting up a connection:
+# redis_conn = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+
+pool = BlockingConnectionPool.from_url(
+    REDIS_URL, max_connections=50, timeout=10
+)
+r = redis.StrictRedis(connection_pool=pool, decode_responses=True)
 
 WSGI_APPLICATION = 'School.wsgi.application'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'

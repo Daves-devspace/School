@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="render8">
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="render10">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/render.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/render.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -227,7 +227,7 @@
       <workItem from="1737441838494" duration="6211000" />
       <workItem from="1737529126485" duration="38685000" />
       <workItem from="1737611579569" duration="8727000" />
-      <workItem from="1737621367732" duration="18742000" />
+      <workItem from="1737621367732" duration="25734000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -389,7 +389,23 @@
       <option name="project" value="LOCAL" />
       <updated>1737670082727</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="render9">
+      <option name="closed" value="true" />
+      <created>1737670967999</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1737670967999</updated>
+    </task>
+    <task id="LOCAL-00022" summary="render10">
+      <option name="closed" value="true" />
+      <created>1737677050829</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1737677050829</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -407,7 +423,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="students crud" />
     <MESSAGE value="added teachers crud" />
     <MESSAGE value="added departments" />
     <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;apps/teachers/forms.py&#10;#&#9;apps/teachers/urls.py" />
@@ -431,7 +446,9 @@
     <MESSAGE value="render6" />
     <MESSAGE value="render7" />
     <MESSAGE value="render8" />
-    <option name="LAST_COMMIT_MESSAGE" value="render8" />
+    <MESSAGE value="render9" />
+    <MESSAGE value="render10" />
+    <option name="LAST_COMMIT_MESSAGE" value="render10" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -476,6 +493,11 @@
           <url>file://$PROJECT_DIR$/apps/management/models.py</url>
           <line>156</line>
           <option name="timeStamp" value="21" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/Manage/views.py</url>
+          <line>169</line>
+          <option name="timeStamp" value="22" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
