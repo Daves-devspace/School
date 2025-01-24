@@ -33,7 +33,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # change to false in production
 #
-ALLOWED_HOSTS = ['*']  # Replace '*' with your domain or IP for production
+ALLOWED_HOSTS = ['school-kbah.onrender.com']  # Replace '*' with your domain or IP for production
 
 # Application definition
 
@@ -246,16 +246,26 @@ LOGGING = {
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('DB_NAME'),
+#         'USER': os.environ.get('DB_USER'),
+#         'PASSWORD': os.environ.get('DB_PASSWORD'),
+#         'HOST': os.environ.get('DB_HOST', 'localhost'),
+#         'PORT': os.environ.get('DB_PORT', '5432'),
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
-    }
+    'default': dj_database_url.config(
+        default=os.getenv(
+            'DATABASE_URL',  # This should be set in your Render environment
+            'postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a/school_db_1j40'
+        )
+    )
 }
+
 
 
 REST_FRAMEWORK = {
