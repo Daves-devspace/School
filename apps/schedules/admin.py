@@ -43,11 +43,23 @@ class TimeSlotAdmin(admin.ModelAdmin):
 # Register the TimetableSlot model
 @admin.register(TimetableSlot)
 class TimetableSlotAdmin(admin.ModelAdmin):
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        if obj and obj.subject.is_special:
-            form.base_fields['room'].queryset = Room.objects.filter(is_special=True)
-        else:
-            form.base_fields['room'].queryset = Room.objects.filter(is_special=False)
-        return form
+    # Other admin settings
 
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        Customize the form for the TimetableSlot.
+        """
+        form = super().get_form(request, obj, **kwargs)
+
+        if obj:  # If editing an existing TimetableSlot
+            timetable_slot = obj
+            teacher_assignment = timetable_slot.teacher_assignment
+
+            if teacher_assignment:
+                subject = teacher_assignment.subject
+                # You can now access subject through teacher_assignment
+                print(f"Subject for this timetable slot: {subject}")
+
+                # You can add custom logic to prepopulate other fields based on the subject or teacher assignment
+
+        return form

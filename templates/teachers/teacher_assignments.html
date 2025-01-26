@@ -1,0 +1,90 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Assign Subject</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Classes</a></li>
+                            <li class="breadcrumb-item active">Subjects</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-auto text-end float-end ms-auto download-grp">
+                    <a href="#"
+                       class="btn btn-outline custom-bg text-white me-2 active"><i
+                            class="fas fa-list"></i></a>
+                    <a href="#"
+                       class="btn btn-outline custom-bg text-white me-2"><i
+                            class="fas fa-th-large"></i></a>
+                    <a href="#" class="btn btn custom-bg text-white me-2"><i
+                            class="fas fa-download"></i>
+                        Download</a>
+                    <a href="{% url 'add_teacher_assignment' %}" class="btn btn custom-bg text-white"><i
+                            class="fas fa-plus"></i></a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Teacher</th>
+                                    <th>Subject</th>
+                                    <th>Grade</th>
+                                    <th>Section</th>
+                                    <th>Assigned Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for assignment in assignments %}
+                                    <tr>
+                                        <td>{{ assignment.teacher.get_display_name }}</td>
+                                        <td>{{ assignment.subject.name }}</td>
+                                        <td>{{ assignment.grade_section.grade.name }}</td>
+                                        <td>{{ assignment.grade_section.section }}</td>
+                                        <td>{{ assignment.assigned_date }}</td>
+                                        <td>
+                                            <div class="actions ">
+                                                <a href="{% url 'edit_teacher_assignment' assignment.id %}"
+                                                   class="btn btn-sm custom-bg text-white me-2" title="Edit Assignment">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No assignments found.</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+{% endblock %}

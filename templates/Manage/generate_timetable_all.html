@@ -18,7 +18,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="card">
+                    <div class="card card-table comman-shadow">
                         <div class="card-body">
                             {% if messages %}
                                 {% for message in messages %}
@@ -28,7 +28,6 @@
                                 {% endfor %}
                             {% endif %}
 
-
                             <div class="container py-5">
                                 <p class="text-center text-muted">
                                     Click the button below to generate timetables for all grade sections.
@@ -36,135 +35,203 @@
 
                                 <!-- Generate Button -->
                                 <div class="text-center">
-                                    <button id="generate-btn" class="btn btn-success btn-lg"
-                                            onclick="generateTimetable()">
-                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
-                                              style="display: none;"></span>
+                                    {#                                    <button id="generate-btn" class="btn btn-success btn-lg"#}
+                                    {#                                            onclick="generateTimetable()">#}
+                                    {#                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"#}
+                                    {#                                              style="display: none;"></span>#}
+                                    {#                                        Generate Timetable#}
+                                    {#                                    </button>#}
+                                    <button id="generateButton" class="btn btn-primary" onclick="generateTimetable()">
                                         Generate Timetable
                                     </button>
-
                                 </div>
-                                <div id="status-message" class="mt-3 text-center"></div>
+                                <!-- Button to trigger timetable generation -->
 
-                                <!-- Timetable Section -->
+                                <p id="statusMessage"></p> <!-- For displaying success/error messages -->
+
+                                <!-- Table displaying the timetable -->
                                 <div class="timetable mt-5">
                                     <h2 class="text-center mb-4">Generated Timetables</h2>
                                     <div class="table-responsive">
                                         <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
                                             <thead class="student-thread">
+
                                             <tr>
                                                 <th>Grade</th>
                                                 <th>Section</th>
                                                 <th>Subject</th>
+                                                <th>Teacher</th>
                                                 <th>Day</th>
-                                                <th>Time</th>
+                                                <th>Time Slot</th>
                                                 <th>Room</th>
                                             </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody id="timetableBody">
                                             {% for slot in timetables %}
                                                 <tr>
                                                     <td>{{ slot.teacher_assignment.grade_section.grade.name }}</td>
                                                     <td>{{ slot.teacher_assignment.grade_section.section }}</td>
                                                     <td>{{ slot.teacher_assignment.subject.name }}</td>
+                                                    <td>{{ slot.teacher_assignment.teacher.get_display_name }}</td>
                                                     <td>{{ slot.day_of_week }}</td>
-                                                    <td>{{ slot.time_slot.start_time }}
-                                                        - {{ slot.time_slot.end_time }}</td>
+                                                    <td>{{ slot.time_slot.time_range }}</td>
                                                     <td>{{ slot.room.room_name }}</td>
                                                 </tr>
                                             {% empty %}
                                                 <tr>
-                                                    <td colspan="6" class="text-center text-muted">
-                                                        No timetables generated yet.
+                                                    <td colspan="7" class="text-center text-muted">No timetables
+                                                        generated yet.
                                                     </td>
                                                 </tr>
                                             {% endfor %}
                                             </tbody>
                                         </table>
+
                                     </div>
                                 </div>
+
+
                             </div>
-
-
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    </div>
-<script>
-    // Function to retrieve the CSRF token from cookies
-    function getCSRFToken() {
-        const name = "csrftoken";
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + '=')) {
-                return cookie.substring(name.length + 1);
-            }
-        }
-        console.error('CSRF token not found.');
-        return null;
-    }
+    <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+    <script>
+        async function generateTimetable() {
+            try {
+                // Get the button and show loading state
+                const generateButton = document.getElementById('generateButton');
+                const statusMessage = document.getElementById('statusMessage');
+                generateButton.innerText = 'Generating...';
+                generateButton.disabled = true;
+                statusMessage.innerText = '';
 
-    // Retrieve CSRF token
-    const csrfToken = getCSRFToken();
-
-    // Function to handle timetable generation
-    async function generateTimetable() {
-        const button = document.getElementById('generate-btn');
-        const statusMessage = document.getElementById('status-message');
-        
-        // Disable the button to prevent multiple clicks
-        button.disabled = true;
-        button.textContent = 'Generating...';
-        
-        // Reset status message
-        statusMessage.classList.remove('text-danger', 'text-success');
-        statusMessage.textContent = '';
-
-        try {
-            // Make a POST request to generate the timetable
-            const response = await axios.post(
-                '/schedules/generate_timetable/',  // Update the endpoint if needed
-                {},  // Add any additional data here if needed
-                {
+                // Send a POST request to generate timetable
+                const response = await fetch("{% url 'generate_timetable_view' %}", {
+                    method: 'POST',
                     headers: {
-                        'X-CSRFToken': csrfToken,  // Include the CSRF token in the request headers
-                    },
+                        'X-CSRFToken': document.getElementById('csrfToken').value,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Handle errors
+                    statusMessage.innerText = `Error: ${data.error}`;
+                    statusMessage.style.color = 'red';
+                } else {
+                    // Update success message
+                    statusMessage.innerText = data.message;
+                    statusMessage.style.color = 'green';
+
+                    // Update timetable table
+                    updateTimetable(data.timetable_slots);
                 }
-            );
-
-            // If the response contains a message, display it
-            if (response.data.message) {
-                statusMessage.classList.add('text-success');
-                statusMessage.textContent = response.data.message;
-                setTimeout(() => location.reload(), 2000); // Reload the page after 2 seconds
-            } else {
-                throw new Error('An unexpected error occurred.');
+            } catch (error) {
+                console.error('Error generating timetable:', error);
+                alert('An unexpected error occurred.');
+            } finally {
+                // Reset button state
+                generateButton.innerText = 'Generate Timetable';
+                generateButton.disabled = false;
             }
-        } catch (error) {
-            // Display error message
-            statusMessage.classList.add('text-danger');
-            if (error.response) {
-                // Handle server errors (e.g., invalid CSRF token, internal server errors)
-                statusMessage.textContent = error.response.data?.error || 'An error occurred on the server.';
-            } else if (error.request) {
-                // Handle network errors (e.g., request timeout)
-                statusMessage.textContent = 'Network error. Please try again.';
-            } else {
-                // Handle any other unexpected errors
-                statusMessage.textContent = 'An unexpected error occurred.';
-            }
-        } finally {
-            // Re-enable the button and reset its text after the request is complete
-            button.disabled = false;
-            button.textContent = 'Generate Timetable';
         }
-    }
-</script>
 
+        function updateTimetable(timetableSlots) {
+            const tableBody = document.getElementById('timetableBody');
+            tableBody.innerHTML = ''; // Clear current rows
+
+            timetableSlots.forEach(slot => {
+                const row = `
+            <tr>
+                <td>${slot.teacher_assignment.grade_section.grade.name || 'N/A'}</td>
+                <td>${slot.teacher_assignment.grade_section.section || 'N/A'}</td>
+                <td>${slot.teacher_assignment.subject.name || 'N/A'}</td>
+                <td>${slot.teacher_assignment.teacher.display_name || 'N/A'}</td>
+                <td>${slot.day_of_week || 'N/A'}</td>
+                <td>${slot.time_slot.time_range || 'N/A'}</td>
+                <td>${slot.room.room_name || 'N/A'}</td>
+            </tr>
+        `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+
+    </script>
+    {#    <script>#}
+    {#        // Function to retrieve CSRF token from cookies#}
+    {#        function getCSRFToken() {#}
+    {#            const name = "csrftoken";#}
+    {#            const cookies = document.cookie.split(';');#}
+    {#            for (let i = 0; i < cookies.length; i++) {#}
+    {#                const cookie = cookies[i].trim();#}
+    {#                if (cookie.startsWith(name + '=')) {#}
+    {#                    return cookie.substring(name.length + 1);#}
+    {#                }#}
+    {#            }#}
+    {#            console.error('CSRF token not found.');#}
+    {#            return null;#}
+    {#        }#}
+    {##}
+    {#        // Retrieve CSRF token and automatically set axios headers globally#}
+    {#        const csrfToken = getCSRFToken();#}
+    {#        axios.defaults.headers.common['X-CSRFToken'] = csrfToken;#}
+    {##}
+    {#        // Function to handle timetable generation#}
+    {#        async function generateTimetable() {#}
+    {#            const button = document.getElementById('generate-btn');#}
+    {#            const statusMessage = document.getElementById('status-message');#}
+    {##}
+    {#            // Disable the button to prevent multiple clicks#}
+    {#            button.disabled = true;#}
+    {#            button.textContent = 'Generating...';#}
+    {##}
+    {#            // Reset status message#}
+    {#            statusMessage.classList.remove('text-danger', 'text-success');#}
+    {#            statusMessage.textContent = '';#}
+    {##}
+    {#            try {#}
+    {#                // Make a POST request to generate the timetable#}
+    {#                const response = await axios.post('/schedules/generate_timetable/', {}, {#}
+    {#                    headers: {#}
+    {#                        'X-CSRFToken': csrfToken,  // Ensure the CSRF token is included in the request headers#}
+    {#                    },#}
+    {#                });#}
+    {##}
+    {#                // If the response contains a message, display it#}
+    {#                if (response.data.message) {#}
+    {#                    statusMessage.classList.add('text-success');#}
+    {#                    statusMessage.textContent = response.data.message;#}
+    {#                    setTimeout(() => location.reload(), 2000); // Reload the page after 2 seconds#}
+    {#                } else {#}
+    {#                    throw new Error('An unexpected error occurred.');#}
+    {#                }#}
+    {#            } catch (error) {#}
+    {#                // Display error message#}
+    {#                statusMessage.classList.add('text-danger');#}
+    {#                if (error.response) {#}
+    {#                    // Handle server errors (e.g., invalid CSRF token, internal server errors)#}
+    {#                    statusMessage.textContent = error.response.data?.error || 'An error occurred on the server.';#}
+    {#                } else if (error.request) {#}
+    {#                    // Handle network errors (e.g., request timeout)#}
+    {#                    statusMessage.textContent = 'Network error. Please try again.';#}
+    {#                } else {#}
+    {#                    // Handle other unexpected errors#}
+    {#                    statusMessage.textContent = 'An unexpected error occurred.';#}
+    {#                }#}
+    {#            } finally {#}
+    {#                // Re-enable the button and reset its text after the request is complete#}
+    {#                button.disabled = false;#}
+    {#                button.textContent = 'Generate Timetable';#}
+    {#            }#}
+    {#        }#}
+    {#    </script>#}
 
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -173,7 +240,5 @@
     <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
     <script src="{% static 'assets/js/script.js' %}"></script>
-    </body>
 
-    </html>
 {% endblock %}

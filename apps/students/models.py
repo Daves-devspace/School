@@ -119,6 +119,7 @@ class Student(models.Model):
     religion = models.CharField(max_length=10, choices=RELIGION_CHOICES)
     joining_date = models.DateField()
     admission_number = models.CharField(max_length=15, unique=True)
+    document = models.FileField(upload_to='student_documents/', blank=True, null=True)
     student_image = models.ImageField(upload_to='students', blank=True, null=True)
 
     documents = models.FileField(upload_to='student_documents/', blank=True, null=True,

@@ -5,7 +5,7 @@ from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumber_field.validators import validate_international_phonenumber
 
-from .models import Teacher
+from .models import Teacher, TeacherAssignment
 from ..management.models import Profile
 
 
@@ -148,6 +148,32 @@ class TeacherForm(forms.ModelForm):
             )
 
         return teacher
+
+
+
+class TeacherAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = TeacherAssignment
+        fields = ['teacher','subject','grade_section']
+        widgets = {
+            'teacher' : forms.Select(attrs={'class':'form-control'}),
+            'subject' : forms.Select(attrs={'class':'form-control'}),
+            'grade_section' : forms.Select(attrs={'class':'form-control'}),
+
+        }
+    #validation
+    def clean(self):
+        cleaned_data = super().clean()
+        teacher = cleaned_data.get('teacher')
+        subject = cleaned_data.get('subject')
+        grade_section = cleaned_data.get('grade_section')
+
+        if TeacherAssignment.objects.filter(teacher=teacher, subject=subject, grade_section=grade_section).exists():
+            raise forms.ValidationError('This teacher is already assigned to this subject and grade section.')
+
+        return cleaned_data
+
+
 
 #
 # class TeacherForm(forms.ModelForm):

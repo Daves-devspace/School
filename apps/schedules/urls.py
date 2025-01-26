@@ -7,7 +7,10 @@ urlpatterns = [
     # path('generate_timetable/', generate_timetable_for_all, name='generate_timetable'),
     path('generate_timetable/', views.
          generate_timetable_view, name='generate_timetable_view'),
+         path('api/shuffles',views.auto_create_timetable_slots_for_all, name='generate_timetable_for_all'),
     path('timetables/', views.timetable_page_view, name='timetable_page'),
+    path('timetable/', views.get_filtered_timetable, name='get_filtered_timetable'),
+
     path('fetch_timetable/<int:grade_section_id>/', views.fetch_timetable_by_grade_section,
          name='fetch_timetable_by_grade_section'),
 ]

@@ -5,6 +5,10 @@ from .views import TimetableCreateAPIView, TimetableCreateView, TimetableAPIView
     LessonExchangeListView
 
 urlpatterns = [
+    path('term/', views.add_term, name='add_terms'),
+    path('terms/', views.term_list, name='term_list'),
+
+    path('terms/edit/<int:pk>/', views.edit_term, name='edit_term'),
 
     path('manage-users/', views.manage_users, name='manage_users'),
     path('profile/', views.user_profile, name='user_profile'),

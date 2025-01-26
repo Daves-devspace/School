@@ -1,6 +1,8 @@
 import json
 import logging
 from datetime import date, timedelta, datetime
+
+from asgiref.sync import async_to_sync
 from django.db.models import F, Value, CharField
 from django.db.models.functions import Concat
 
@@ -28,7 +30,7 @@ from rest_framework.views import APIView
 
 from apps.accounts.models import FeePayment, Expense
 from apps.management.forms import SubjectForm, BookForm, TimetableForm, LessonExchangeForm, ProfileForm, \
-    HolidayPresentationForm, FeedbackForm
+    HolidayPresentationForm, FeedbackForm, TermForm
 from apps.management.models import Term,ReportCard, SubjectMark, ExamType, \
     Attendance, Timetable, LessonExchangeRequest, HolidayPresentation
 from apps.management.serializers import TimetableSerializer
@@ -44,6 +46,35 @@ from apps.students.views import get_current_term
 from apps.teachers.models import Department, Teacher  # Revenue
 
 logger = logging.getLogger(__name__)
+
+def add_term(request):
+    if request.method == 'POST':
+        form = TermForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('terms')
+    else:
+        form = TermForm()
+    return render(request,'Manage/terms.html',{'form': form})
+
+
+def term_list(request):
+    terms = Term.objects.all()
+    return render(request,'Manage/term_list.html',{'terms': terms})
+
+
+def edit_term(request):
+    term = get_object_or_404(Term,pk=pk)
+
+    if request.method == 'POST':
+        form = TermForm(request.POST,instance=term)
+        if form.is_valid():
+            form.save()
+            return redirect('term_list')
+    else:
+        form = TermForm(insatnce=term)
+
+    return render(request,'Manage/edit_term.html',{'form':form,'term':term})
 
 
 def send_notification(user, message):

@@ -7,11 +7,9 @@ from django.utils.timezone import now
 
 from apps.management.models import  Profile
 from apps.students.models import  Grade
-from .forms import TeacherForm
+from .forms import TeacherForm, TeacherAssignmentForm
 # from .forms import TeacherForm
-from .models import Teacher, Department, TeacherRole, Role
-
-
+from .models import Teacher, Department, TeacherRole, Role, TeacherAssignment
 
 
 @login_required
@@ -100,6 +98,39 @@ def teacher_detail(request, id):
     teacher = get_object_or_404(Teacher, pk=id)
     teachers_subject = teacher.subjects.all()
     return render(request, 'teachers/teacher_detail.html', {'teacher': teacher ,'subjects':teachers_subject})
+
+
+
+def add_teacher_assignments(request):
+    if request.method == 'POST':
+        form = TeacherAssignmentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('teacher_assignments')
+    else:
+        form = TeacherAssignmentForm()
+    return render(request,'teachers/add_teacher_assignments.html',{'form':form})
+
+
+
+def teacher_assignments_list(request):
+    assignments = TeacherAssignment.objects.all().order_by('grade_section__grade','subject__name')
+    return render(request,'teachers/teacher_assignments.html',{'assignments':assignments})
+
+
+def edit_teacher_assignment(request,pk):
+    assignment = get_object_or_404(TeacherAssignment,pk=pk)
+    if request.method == 'POST':
+        form = TeacherAssignmentForm(request.POST,instance=assignment)
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Teacher Assignment updated successfully!')
+            return redirect('teacher_assignments')
+        else:
+            messages.error(request,'Please correct the error below')
+    else:
+        form = TeacherAssignmentForm(instance=assignment)
+    return render(request,'teachers/edit_teacher_assignmet.html')
 
 
 # def record_marks_view(request, subject_id, term_id):

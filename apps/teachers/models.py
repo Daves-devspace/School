@@ -80,11 +80,28 @@ class Teacher(models.Model):
             last_number = 0  # Default to 0 if no teacher exists
 
         new_number = f"{last_number + 1:03d}"  # Increment and format as 3 digits
-        return f"TCH-{new_number}-{year_suffix}"
+        return f"TCH/{new_number}/{year_suffix}"
+
+    def get_display_name(self):
+        """
+        Returns a shortened display name for the teacher using their surname's first letter.
+        Example: 'Mr. K' for a male teacher with the last name starting with K.
+        """
+        if self.full_name:
+            # Split full name to extract the last name
+            name_parts = self.full_name.split()
+            last_name = name_parts[-1] if len(name_parts) > 1 else name_parts[0]
+            prefix = "Mr." if self.gender == "Male" else "Ms." if self.gender == "Female" else "Mx."
+            return f"{prefix} {last_name[0].upper()}"  # Use the first letter of the last name, uppercase
+        return "Unknown"
 
     def __str__(self):
         role = "Headteacher" if self.is_headteacher else "Teacher"
         return f"{self.user.username if self.user else self.id_No} - {role}"
+
+
+
+
 
 
 class TeacherAssignment(models.Model):
@@ -127,25 +144,16 @@ class Department(models.Model):
 
 
 
-
 class TeacherRole(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    role = models.CharField(max_length=100, choices=[('HOD', 'Head of Department'), ('Teacher', 'Teacher')])
 
     class Meta:
-        unique_together = ('teacher', 'department', 'role')  # Prevent duplicate assignments
-
-    def clean(self):
-        # Ensure teacher belongs to the department
-        if self.role.name == "Dean" and self.department.hod != self.teacher:
-            raise ValidationError(f"{self.teacher} is not the HOD for {self.department}.")
+        unique_together = ['teacher', 'department']  # Ensure each teacher can only have one role per department
 
     def __str__(self):
-        return f"{self.teacher.full_name} - {self.role.name} - ({self.department.name})"
-
-
-
+        return f'{self.teacher.full_name} - {self.role}'
 
 
 

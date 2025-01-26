@@ -4,8 +4,32 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="render12">
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="timetable">
+      <change afterPath="$PROJECT_DIR$/templates/Manage/class_timetable.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Manage/edit_term.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Manage/term_list.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Manage/terms.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/teachers/add_teacher_assignments.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/teachers/edit_teacher_assignmet.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/teachers/teacher_assignments.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/generate_timetable_all.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/generate_timetable_all.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,7 +105,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;Docker&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.grazie&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -227,6 +251,10 @@
       <workItem from="1737529126485" duration="38685000" />
       <workItem from="1737611579569" duration="8727000" />
       <workItem from="1737621367732" duration="27730000" />
+      <workItem from="1737704394635" duration="54383000" />
+      <workItem from="1737783652178" duration="16799000" />
+      <workItem from="1737803699672" duration="13175000" />
+      <workItem from="1737819071416" duration="6077000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -420,7 +448,15 @@
       <option name="project" value="LOCAL" />
       <updated>1737678929802</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="timetable">
+      <option name="closed" value="true" />
+      <created>1737762176974</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1737762176974</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -444,7 +480,6 @@
     <MESSAGE value="ui customization" />
     <MESSAGE value="sms" />
     <MESSAGE value="dockerize" />
-    <MESSAGE value="timetable" />
     <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
     <MESSAGE value="render prodctn" />
     <MESSAGE value="build" />
@@ -463,7 +498,8 @@
     <MESSAGE value="render10" />
     <MESSAGE value="render11" />
     <MESSAGE value="render12" />
-    <option name="LAST_COMMIT_MESSAGE" value="render12" />
+    <MESSAGE value="timetable" />
+    <option name="LAST_COMMIT_MESSAGE" value="timetable" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -491,7 +527,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/students/models.py</url>
-          <line>20</line>
+          <line>21</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -510,9 +546,29 @@
           <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/apps/Manage/views.py</url>
-          <line>169</line>
-          <option name="timeStamp" value="22" />
+          <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
+          <line>558</line>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
+          <line>480</line>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/students/models.py</url>
+          <line>78</line>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/teachers/models.py</url>
+          <line>39</line>
+          <option name="timeStamp" value="35" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/teachers/admin.py</url>
+          <line>16</line>
+          <option name="timeStamp" value="36" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

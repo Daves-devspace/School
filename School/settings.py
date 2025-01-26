@@ -160,6 +160,10 @@ CHANNEL_LAYERS = {
         },
     },
 }
+CSRF_COOKIE_NAME = "csrftoken"
+CSRF_COOKIE_SECURE = False  # Ensures CSRF cookie is sent only over HTTPS
+CSRF_COOKIE_SAMESITE = 'Strict'  # Helps to prevent cross-site request forgery attacks
+
 
 CKEDITOR_5_CONFIGS  = {
     'default': {
@@ -292,30 +296,30 @@ DATABASES = {
 }
 
 # Static/Media File Handling
-USE_S3 = config("USE_S3", default=False, cast=bool)
-if USE_S3:
-    AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
-    AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
-    STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/static/"
-    MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/"
-else:
-    STATIC_URL = "/static/"
-    MEDIA_URL = "/media/"
-    STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-    STATIC_ROOT = os.path.join(BASE_DIR, "static_files")
+# USE_S3 = config("USE_S3", default=False, cast=bool)
+# if USE_S3:
+#     AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
+#     AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
+#     AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
+#     STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/static/"
+#     MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/"
+# else:
+#     STATIC_URL = "/static/"
+#     MEDIA_URL = "/media/"
+#     STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+#     MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+#     STATIC_ROOT = os.path.join(BASE_DIR, "static_files")
+#
 
 
+STATIC_URL = '/static/'
 
-# STATIC_URL = '/static/'
-#
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')  # for  deployment
-#
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-#
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')  # for  deployment
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Optional: Debugging output for confirmation (remove or comment in production)
 
