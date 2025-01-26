@@ -244,39 +244,120 @@
 
 
                                                 <div class="#">
-    <div class="dropdown-container">
-        <!-- Term Dropdown -->
-        <label for="term-select">Select Term:</label>
-        <select id="term-select" name="term" required>
-            <option value="" disabled selected>Select Term</option>
-            {% if terms %}
-                {% for term in terms %}
-                    <option value="{{ term.name }}">{{ term.name }}</option>
-                {% endfor %}
-            {% else %}
-                <option value="" disabled>No terms available</option>
-            {% endif %}
-        </select>
+                                                    <div class="dropdown-container">
+                                                        <!-- Term Dropdown -->
+                                                        <label for="term-select">Select Term:</label>
+                                                        <select id="term-select" name="term" required>
+                                                            <option value="" disabled selected>Select Term</option>
+                                                            {% if terms %}
+                                                                {% for term in terms %}
+                                                                    <option value="{{ term.name }}">{{ term.name }}</option>
+                                                                {% endfor %}
+                                                            {% else %}
+                                                                <option value="" disabled>No terms available</option>
+                                                            {% endif %}
+                                                        </select>
 
-        <!-- Year Dropdown -->
-        <label for="exam-type-select">Select Year:</label>
-        <select id="exam-type-select" name="year" required>
-            <option value="" disabled selected>Select Year</option>
-            {% if years %}
-                {% for year in years %}
-                    <option value="{{ year }}">{{ year }}</option>
-                {% endfor %}
-            {% else %}
-                <option value="" disabled>No years available</option>
-            {% endif %}
-        </select>
-    </div>
+                                                        <!-- Year Dropdown -->
+                                                        <label for="exam-type-select">Select Year:</label>
+                                                        <select id="exam-type-select" name="year" required>
+                                                            <option value="" disabled selected>Select Year</option>
+                                                            {% if years %}
+                                                                {% for year in years %}
+                                                                    <option value="{{ year }}">{{ year }}</option>
+                                                                {% endfor %}
+                                                            {% else %}
+                                                                <option value="" disabled>No years available</option>
+                                                            {% endif %}
+                                                        </select>
+                                                    </div>
 
-    <div id="chart"
-         data-student-id="{{ student.id }}"
-         data-initial-chart-data='{{ chart_data|safe }}'>
-    </div>
-</div>
+                                                    <div id="chart"
+                                                         data-student-id="{{ student.id }}"
+                                                         data-initial-chart-data='{{ chart_data|safe }}'>
+                                                    </div>
+                                                </div>
+                                                <div class="container mt-4">
+                                                    <h2>Student Details: {{ student.name }}</h2>
+                                                    <p><strong>Grade:</strong> {{ student.grade.grade_name }}</p>
+                                                    <p><strong>Section:</strong> {{ student.grade.section }}</p>
+
+                                                    <!-- Attendance Summary -->
+                                                    <h3>Attendance Summary</h3>
+                                                    <p><strong>Term:</strong> {{ latest_term.name }}</p>
+                                                    <p><strong>Total Days
+                                                        Present:</strong> {{ attendance_summary.total_present }}</p>
+                                                    <p><strong>Total Days
+                                                        Absent:</strong> {{ attendance_summary.total_absent }}</p>
+                                                    <p><strong>Attendance
+                                                        Percentage:</strong> {{ attendance_summary.percentage }}%</p>
+
+                                                    <!-- Filter Form -->
+                                                    <form method="get" class="my-4">
+                                                        <div class="row g-3">
+                                                            <div class="col-md-4">
+                                                                <label for="term_id" class="form-label">Select
+                                                                    Term:</label>
+                                                                <select name="term_id" id="term_id" class="form-select">
+                                                                    {% for term in terms %}
+                                                                        <option value="{{ term.id }}"
+                                                                                {% if term.id == latest_term.id %}selected{% endif %}>
+                                                                            {{ term.name }}
+                                                                        </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label for="year" class="form-label">Select
+                                                                    Year:</label>
+                                                                <select name="year" id="year" class="form-select">
+                                                                    {% for yr in years %}
+                                                                        <option value="{{ yr }}"
+                                                                                {% if yr == latest_term.start_date.year %}selected{% endif %}>
+                                                                            {{ yr }}
+                                                                        </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4 align-self-end">
+                                                                <button type="submit" class="btn btn-primary">Filter
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+
+                                                    <!-- Chart Container -->
+                                                    <div class="mt-4">
+                                                        <h3>Attendance Chart</h3>
+                                                        <canvas id="attendanceChart"></canvas>
+                                                    </div>
+                                                </div>
+
+                                                <div class="doc">
+                                                    <!-- Document Upload Section -->
+                                                    <h3>Upload Student Documents</h3>
+                                                    <form method="post" enctype="multipart/form-data">
+                                                        {% csrf_token %}
+                                                        {{ document_form.as_p }}
+                                                        <button type="submit" name="upload_document">Upload Document
+                                                        </button>
+                                                    </form>
+
+                                                    <!-- Existing Documents -->
+                                                    <h4>Uploaded Documents</h4>
+                                                    <ul>
+                                                        {% for doc in documents %}
+                                                            <li>
+                                                                <a href="{{ doc.document.url }}"
+                                                                   target="_blank">{{ doc.document.name }}</a>
+                                                                <a href="{% url 'delete_document' document.id %}">Delete</a>
+                                                                <!-- Delete link -->
+                                                            </li>
+                                                        {% empty %}
+                                                            <li>No documents uploaded yet.</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
 
 
                                             </div>
@@ -295,23 +376,14 @@
         </div>
 
 
-        <footer>
-            <p>Generated on {{ student.date_created }}</p>
-        </footer>
-    </div>
     </div>
 
-
-    </div>
-    </div>
-    </div>
 
     <footer>
         <p>Copyright © 2024 Davedev</p>
     </footer>
-    </div>
 
-    </div>
+
     <!-- JavaScript to Handle AJAX -->
 
     {#    <script>#}
@@ -432,116 +504,159 @@
     {#        });#}
     {##}
     {#    </script>#}
+    #attendance
 
 
+    <!-- Include Chart.js -->
+    {#<script src="{% static 'js/chart.min.js' %}"></script>#}
+    <script>
+        // Prepare data for the chart
+        const chartData = {
+            labels: {{ chart_data|safe|default:'[]'|json_script:"labels" }}, // Dates
+            datasets: [
+                {
+                    label: 'Present',
+                    data: {{ chart_data|safe|default:'[]'|json_script:"data" }}, // Attendance (1 = Present, 0 = Absent)
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)', // Teal
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                }
+            ]
+        };
 
-
-
-
-   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const termSelect = document.getElementById("term-select");
-        const yearSelect = document.getElementById("exam-type-select");
-        const chartContainer = document.querySelector("#chart");
-
-        // Parse and validate initial chart data
-        const initialChartData = {{ chart_data|safe }};
-        console.log("Initial Chart Data:", initialChartData);
-
-        // Function to render the chart
-        function renderChart(data) {
-            if (window.chart) {
-                window.chart.destroy(); // Destroy the previous chart instance to avoid duplicates
-            }
-
-            const options = {
-                chart: {
-                    type: 'bar',
-                    height: 350,
+        // Chart.js Configuration
+        const config = {
+            type: 'bar',
+            data: chartData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {display: false},
+                    tooltip: {callbacks: {label: (context) => context.raw ? 'Present' : 'Absent'}}
                 },
-                series: data.datasets, // Chart datasets (e.g., marks per exam type)
-                xaxis: {
-                    categories: [...new Set(data.labels)], // Deduplicate labels for x-axis (subjects)
-                },
-                title: {
-                    text: `Student Performance (${termSelect.value || 'Select Term'} - ${yearSelect.value || 'Select Year'})`,
-                    align: 'center',
-                    style: {
-                        fontSize: '18px',
-                        fontWeight: 'bold',
-                    },
-                },
-                plotOptions: {
-                    bar: {
-                        horizontal: false,
-                        columnWidth: '50%',
-                    },
-                },
-                tooltip: {
+                scales: {
+                    x: {title: {display: true, text: 'Dates'}},
                     y: {
-                        formatter: (value) => value || 'No data', // Show 'No data' for null/undefined values
+                        title: {display: true, text: 'Attendance'},
+                        ticks: {stepSize: 1, callback: (value) => value ? 'Present' : 'Absent'}
+                    }
+                }
+            }
+        };
+
+        // Render the chart
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(ctx, config);
+    </script>
+
+
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const termSelect = document.getElementById("term-select");
+            const yearSelect = document.getElementById("exam-type-select");
+            const chartContainer = document.querySelector("#chart");
+
+            // Parse and validate initial chart data
+            const initialChartData = {{ chart_data|safe }};
+            console.log("Initial Chart Data:", initialChartData);
+
+            // Function to render the chart
+            function renderChart(data) {
+                if (window.chart) {
+                    window.chart.destroy(); // Destroy the previous chart instance to avoid duplicates
+                }
+
+                const options = {
+                    chart: {
+                        type: 'bar',
+                        height: 350,
                     },
-                },
-                colors: ['#1E90FF', '#28a745', '#FF6347'], // Customize bar colors
-                legend: {
-                    position: 'top',
-                },
-            };
+                    series: data.datasets, // Chart datasets (e.g., marks per exam type)
+                    xaxis: {
+                        categories: [...new Set(data.labels)], // Deduplicate labels for x-axis (subjects)
+                    },
+                    title: {
+                        text: `Student Performance (${termSelect.value || 'Select Term'} - ${yearSelect.value || 'Select Year'})`,
+                        align: 'center',
+                        style: {
+                            fontSize: '18px',
+                            fontWeight: 'bold',
+                        },
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '50%',
+                        },
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: (value) => value || 'No data', // Show 'No data' for null/undefined values
+                        },
+                    },
+                    colors: ['#1E90FF', '#28a745', '#FF6347'], // Customize bar colors
+                    legend: {
+                        position: 'top',
+                    },
+                };
 
-            window.chart = new ApexCharts(chartContainer, options);
-            window.chart.render();
-        }
-
-        // Render the initial chart on page load
-        if (initialChartData && initialChartData.labels && initialChartData.datasets) {
-            renderChart(initialChartData);
-        } else {
-            console.error("No valid initial chart data provided.");
-        }
-
-        // Function to update the chart based on dropdown selections
-        function updateChart() {
-            const term = termSelect.value;
-            const year = yearSelect.value;
-            const studentId = chartContainer.getAttribute('data-student-id');
-
-            if (!term || !year) {
-                console.warn("Both Term and Year must be selected before updating the chart.");
-                return;
+                window.chart = new ApexCharts(chartContainer, options);
+                window.chart.render();
             }
 
-            console.log("Fetching data for:", { term, year, studentId });
+            // Render the initial chart on page load
+            if (initialChartData && initialChartData.labels && initialChartData.datasets) {
+                renderChart(initialChartData);
+            } else {
+                console.error("No valid initial chart data provided.");
+            }
 
-            fetch(`/api/student-performance/${term}/${year}/${studentId}`)
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then((data) => {
-                    console.log("Updated Chart Data:", data);
-                    if (data && data.labels && data.datasets) {
-                        renderChart(data);
-                    } else {
-                        console.error("Invalid data structure returned from the server:", data);
-                    }
-                })
-                .catch((error) => console.error("Error fetching chart data:", error));
-        }
+            // Function to update the chart based on dropdown selections
+            function updateChart() {
+                const term = termSelect.value;
+                const year = yearSelect.value;
+                const studentId = chartContainer.getAttribute('data-student-id');
 
-        // Add event listeners for dropdown changes
-        termSelect.addEventListener("change", () => {
-            console.log("Selected Term:", termSelect.value);
-            updateChart();
+                if (!term || !year) {
+                    console.warn("Both Term and Year must be selected before updating the chart.");
+                    return;
+                }
+
+                console.log("Fetching data for:", {term, year, studentId});
+
+                fetch(`/api/student-performance/${term}/${year}/${studentId}`)
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log("Updated Chart Data:", data);
+                        if (data && data.labels && data.datasets) {
+                            renderChart(data);
+                        } else {
+                            console.error("Invalid data structure returned from the server:", data);
+                        }
+                    })
+                    .catch((error) => console.error("Error fetching chart data:", error));
+            }
+
+            // Add event listeners for dropdown changes
+            termSelect.addEventListener("change", () => {
+                console.log("Selected Term:", termSelect.value);
+                updateChart();
+            });
+
+            yearSelect.addEventListener("change", () => {
+                console.log("Selected Year:", yearSelect.value);
+                updateChart();
+            });
         });
-
-        yearSelect.addEventListener("change", () => {
-            console.log("Selected Year:", yearSelect.value);
-            updateChart();
-        });
-    });
-</script>
+    </script>
 
 
 

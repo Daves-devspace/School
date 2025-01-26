@@ -1,6 +1,6 @@
 import logging
 import os
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from ckeditor.fields import RichTextField
 
@@ -10,6 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum, Avg, Count, Max
+from django.utils import timezone
 from django.utils.timezone import now
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -30,7 +31,7 @@ class Profile(models.Model):
     )
     profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
-    address = models.CharField(max_length=255,default="Unknown Address")
+    address = models.CharField(max_length=255, default="Unknown Address")
     cv = RichTextField(blank=True, null=True)  # Enables rich text editing
     skills = RichTextField(blank=True, null=True)
     certifications = RichTextField(blank=True, null=True)
@@ -92,24 +93,16 @@ class Term(models.Model):
     end_date = models.DateField()
     midterm_start_date = models.DateField(null=True, blank=True)
     midterm_end_date = models.DateField(null=True, blank=True)
+    year = models.PositiveIntegerField(default=timezone.now().year)  # Default to current year
 
     class Meta:
         verbose_name = "Term"
         verbose_name_plural = "Terms"
-        ordering = ['-start_date']  # Display terms in reverse chronological order (latest first)
+        ordering = ['-year']  # Display terms in reverse chronological order (latest first)
 
     def __str__(self):
         # Display term with its year, e.g., "Term 1 - 2022"
-        return f"{self.name} - {self.year}"
-
-    @property
-    def year(self):
-        """
-        Returns the year of the term based on the start_date.
-        """
-        if self.start_date:
-            return self.start_date.year
-        return "Unknown Year"  # Fallback if start_date is None
+        return f"{self.name}"
 
     def get_previous_term(self):
         """
@@ -152,6 +145,25 @@ class Term(models.Model):
             return {"start": self.midterm_start_date, "end": self.midterm_end_date}
         return None  # No midterm break defined
 
+    def clean(self):
+        """
+        Override the clean method to add validation to ensure no duplicate or overlapping terms.
+        """
+        # Check if a term with the same name and year already exists
+        if Term.objects.exclude(id=self.id).filter(name=self.name, year=self.year).exists():
+            raise ValidationError(f"A term with the name '{self.name}' for the year {self.year} already exists.")
+
+        # Check for overlapping terms within the same year
+        overlapping_terms = Term.objects.exclude(id=self.id).filter(
+            year=self.year,
+            start_date__lt=self.end_date,  # Check if this term starts before the other one ends
+            end_date__gt=self.start_date  # Check if this term ends after the other one starts
+        )
+        if overlapping_terms.exists():
+            raise ValidationError(f"The term '{self.name}' for the year {self.year} overlaps with an existing term.")
+
+        super().clean()  # Call the parent class's clean method
+
 
 # TeacherSubject Model
 # class Subject(models.Model):
@@ -173,7 +185,6 @@ class ExamType(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 # Result Model
@@ -208,7 +219,8 @@ class ExamType(models.Model):
 class ReportCard(models.Model):
     student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name="report_cards")
     term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name="report_cards")
-    exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name="report_cards", null=True, blank=True)
+    exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name="report_cards", null=True,
+                                  blank=True)
     date = models.DateField(auto_now_add=True)
     total_marks = models.FloatField(null=True, blank=True)
     average_marks = models.FloatField(null=True, blank=True)
@@ -229,7 +241,8 @@ class ReportCard(models.Model):
 
     def calculate_average_marks(self):
         total_marks = self.calculate_total_marks()
-        total_subjects = SubjectMark.objects.filter(student=self.student, term=self.term, exam_type=self.exam_type).count()
+        total_subjects = SubjectMark.objects.filter(student=self.student, term=self.term,
+                                                    exam_type=self.exam_type).count()
         return total_marks / total_subjects if total_subjects else 0  # Average of percentages
 
     def performance_grade(self):
@@ -263,7 +276,6 @@ class ReportCard(models.Model):
 
     def __str__(self):
         return f"{self.student} - {self.term} - {self.exam_type}"
-
 
 
 logger = logging.getLogger(__name__)
@@ -311,8 +323,6 @@ class SubjectMark(models.Model):
         marks_str = f"{self.marks}/{self.max_score}" if self.marks is not None else "No marks"
         percentage_str = f"{self.percentage:.2f}%" if self.percentage is not None else "No percentage"
         return f"{self.student} - {self.subject} - {self.exam_type} ({marks_str}, {percentage_str})"
-
-
 
 
 # SchoolPerformance Model
@@ -400,14 +410,13 @@ class EventParticipant(models.Model):
 
 
 class Attendance(models.Model):
+    student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
+    section = models.ForeignKey('students.GradeSection', on_delete=models.CASCADE)
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField()
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True)
-    student = models.ForeignKey('students.Student', on_delete=models.CASCADE, null=True, blank=True)
-    teacher = models.ForeignKey("teachers.Teacher", on_delete=models.CASCADE, null=True, blank=True)
-    status = models.CharField(max_length=10, choices=[('Present', 'Present'), ('Absent', 'Absent')], default='Absent')
-
-    class Meta:
-        unique_together = ['date', 'event', 'student', 'teacher']
+    term = models.ForeignKey(Term, on_delete=models.CASCADE)
+    is_present = models.BooleanField(default=False)
+    absence_reason = models.TextField(blank=True, null=True)
 
 
 class LessonExchangeRequest(models.Model):
@@ -464,17 +473,20 @@ def validate_google_meet_url(value):
     if not value.startswith('https://meet.google.com/'):
         raise ValidationError("Please enter a valid Google Meet link.")
 
+
 class HolidayPresentation(models.Model):
     user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='profile')
     title = models.CharField(max_length=200)
     description = models.TextField()
     file = models.FileField(upload_to='presentations/', blank=True, null=True)
     live_link = models.URLField(max_length=500, blank=True, null=True)  # For live meeting links
-    embed_code = models.TextField(blank=True, null=True,validators=[validate_google_meet_url])  # For embedding external slides
+    embed_code = models.TextField(blank=True, null=True,
+                                  validators=[validate_google_meet_url])  # For embedding external slides
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.title} by {self.user_profile.user.username}"
+
 
 class Feedback(models.Model):
     presentation = models.ForeignKey(HolidayPresentation, on_delete=models.CASCADE, related_name='feedbacks')

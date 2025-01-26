@@ -6,7 +6,7 @@ from .views import TimetableCreateAPIView, TimetableCreateView, TimetableAPIView
 
 urlpatterns = [
     path('term/', views.add_term, name='add_terms'),
-    path('terms/', views.term_list, name='term_list'),
+    path('terms/', views.term_list, name='terms'),
 
     path('terms/edit/<int:pk>/', views.edit_term, name='edit_term'),
 
@@ -62,15 +62,19 @@ urlpatterns = [
     # path('view_results/', views.view_results_table, name='view_results_table'),
     path('view_results/<int:grade_id>/<int:term_id>/<int:subject_id>/<int:exam_type_id>/', views.view_results_table,
          name='view_results_table'),
+    path('top_students/', views.top_students_view, name='top_students'),
 
     path('report_card/<int:student_id>/<int:term_id>/', views.report_card_view, name='report_card_view'),
 
-    path('mark-attendance/<int:grade_section_id>/<int:term_id>/', views.mark_attendance, name='mark_attendance'),
-
+    path('attendance/mark/<int:grade_section_id>/<int:term_id>/', views.mark_attendance, name='mark_attendance'),
+    path('attendance/summary/<int:grade_section_id>/<int:term_id>/', views.attendance_summary,
+         name='attendance_summary'),
+    path('attendance/report/<int:student_id>/', views.student_attendance_report, name='student_attendance_report'),
+    path('attendance/chart-data/<int:student_id>/', views.attendance_chart_data, name='attendance_chart_data'),
     path('view_report_card/<int:student_id>/<int:term_id>/<int:exam_type_id>/', views.view_report_card,
          name='view_report_card'),
 
-    path('top_students/', views.top_students_view, name='top_students'),
+
 
     # URL to view a single student's performance
     # path('performance/student/<int:student_id>/', views.student_performance, name='student_performance'),

@@ -119,12 +119,7 @@ class Student(models.Model):
     religion = models.CharField(max_length=10, choices=RELIGION_CHOICES)
     joining_date = models.DateField()
     admission_number = models.CharField(max_length=15, unique=True)
-    document = models.FileField(upload_to='student_documents/', blank=True, null=True)
     student_image = models.ImageField(upload_to='students', blank=True, null=True)
-
-    documents = models.FileField(upload_to='student_documents/', blank=True, null=True,
-                                 help_text="Upload student-related documents")
-
     parent = models.ManyToManyField(
         Parent, through='StudentParent', related_name="students"
     )
@@ -219,6 +214,17 @@ class StudentParent(models.Model):
 
     class Meta:
         unique_together = ('student', 'parent')
+
+class StudentDocument(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='documents')
+    document = models.FileField(upload_to='student_documents/', blank=True, null=True,
+                                 help_text="Upload student-related documents")
+    upload_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Document for {self.student.first_name} uploaded on {self.upload_date}"
+
+
 
 class Book(models.Model):
     title = models.CharField(max_length=100)

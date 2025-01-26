@@ -5,7 +5,7 @@ from django.db.models import Sum
 
 from apps.management import models
 from apps.management.models import Term, ReportCard, SubjectMark, ExamType, Timetable, \
-    LessonExchangeRequest,  Institution, Profile, HolidayPresentation
+    LessonExchangeRequest, Institution, Profile, HolidayPresentation, Attendance
 from ckeditor.widgets import CKEditorWidget
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -31,6 +31,7 @@ class SubjectMarkInline(admin.TabularInline):
 
 # Admin classes
 class TermAdmin(admin.ModelAdmin):
+    search_fields = ['name']
     list_display = ('name', 'get_year', 'start_date', 'end_date')
     list_filter = ('name',)
 
@@ -104,6 +105,34 @@ class HolidayPresentationAdmin(admin.ModelAdmin):
     list_display = ('user_profile','title','created_at')
 
 
+class AttendanceAdmin(admin.ModelAdmin):
+    # Fields to display in the admin list view
+    list_display = ('student', 'section', 'teacher', 'date', 'term', 'is_present', 'absence_reason')
+
+    # Fields to make searchable
+    search_fields = ('student__name', 'teacher__username', 'section__grade_name', 'term__name')
+
+    # Filters for narrowing down records
+    list_filter = ('term', 'section', 'is_present', 'date')
+
+    # Fields to edit in the detail view
+    fields = ('student', 'section', 'teacher', 'date', 'term', 'is_present', 'absence_reason')
+
+    # Display related dropdowns for ForeignKey fields
+    autocomplete_fields = ('student', 'section', 'teacher', 'term')
+
+    # Ordering of records
+    ordering = ('-date',)
+
+    # Customizing the admin panel labels
+    def get_queryset(self, request):
+        # Optimize database queries by using select_related
+        queryset = super().get_queryset(request)
+        return queryset.select_related('student', 'section', 'teacher', 'term')
+
+
+# Register the model with the custom admin configuration
+
 
 # Registering models with admin
 admin.site.register(Institution,InstitutionAdmin)
@@ -117,3 +146,4 @@ admin.site.register(ExamType, ExamTypeAdmin)
 admin.site.register(SubjectMark, SubjectMarkAdmin)
 admin.site.register(ReportCard, ReportCardAdmin)
 admin.site.register(HolidayPresentation,HolidayPresentationAdmin)
+admin.site.register(Attendance, AttendanceAdmin)

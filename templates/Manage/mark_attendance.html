@@ -8,10 +8,10 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">Send message</h3>
+                        <h3 class="page-title">Students</h3>
                         <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
-                            <li class="breadcrumb-item active">Send Sms</li>
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Term</a></li>
+                            <li class="breadcrumb-item active">Attendance</li>
                         </ul>
                     </div>
                 </div>
@@ -33,20 +33,33 @@
 
                             <form method="POST">
                                 {% csrf_token %}
-                                {% for student in students %}
-                                    <div class="attendance-row">
-                                        <label for="student_{{ student.id }}">
-                                            {{ student.first_name }} {{ student.last_name }}
-                                            - {{ student.admission_number }}
-                                        </label>
-                                        <!-- Attendance Status -->
-                                        <input type="checkbox" name="present_{{ student.id }}" value="True"> Present
-                                        <input type="text" name="absence_reason_{{ student.id }}"
-                                               placeholder="Reason (if absent)">
-                                    </div>
-                                {% endfor %}
-
-                                <button type="submit" class="btn btn-success">Submit Attendance</button>
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Student Name</th>
+                                        <th>Present</th>
+                                        <th>Reason for Absence</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for student in students %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ student.name }}</td>
+                                            <td>
+                                                <input type="checkbox" name="present_{{ student.id }}"
+                                                       class="form-check-input">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="absence_reason_{{ student.id }}"
+                                                       class="form-control">
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <button type="submit" class="btn btn-primary">Submit Attendance</button>
                             </form>
 
 

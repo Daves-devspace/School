@@ -22,10 +22,10 @@ class TermForm(forms.ModelForm):
        fields = ['name','start_date','end_date','midterm_start_date','midterm_end_date']
        widgets = {
            'name':forms.TextInput(attrs={'class':'form-control','placeholder':'Term Name'}),
-           'start_date':forms.TimeInput(attrs={'class':'form-control','type':'time'}),
-           'end_date':forms.TimeInput(attrs={'class':'form-control','type':'time'}),
-           'midterm_start_date':forms.TimeInput(attrs={'class':'form-control','type':'time'}),
-           'midterm_end_date':forms.TimeInput(attrs={'class':'form-control','type':'time'}),
+           'start_date':forms.DateInput(attrs={'class':'form-control','type':'date'}),
+           'end_date':forms.DateInput(attrs={'class':'form-control','type':'date'}),
+           'midterm_start_date':forms.DateInput(attrs={'class':'form-control','type':'date'}),
+           'midterm_end_date':forms.DateInput(attrs={'class':'form-control','type':'date'}),
 
        }
 

@@ -130,7 +130,7 @@ def edit_teacher_assignment(request,pk):
             messages.error(request,'Please correct the error below')
     else:
         form = TeacherAssignmentForm(instance=assignment)
-    return render(request,'teachers/edit_teacher_assignmet.html')
+    return render(request,'teachers/edit_teacher_assignmet.html',{'form':form})
 
 
 # def record_marks_view(request, subject_id, term_id):

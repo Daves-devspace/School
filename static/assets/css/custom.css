@@ -1,0 +1,38 @@
+
+.multipleSelection {
+    position: relative;
+    margin-bottom: 20px
+}
+
+.sidebar-menu li.active > a::before {
+    background: #0a3622;
+}
+
+.sidebar-menu ul ul a.active {
+    background: #0a3622;
+}
+
+.sidebar-menu li a:hover {
+    text-decoration: none;
+    background: #0a3622;
+
+}
+
+.sidebar-menu li.active > a {
+    color: #0a3622;
+}
+
+.custom-color {
+    color: #0a3622;
+}
+
+.custom-bg {
+    background: #0a3622;
+
+
+}
+
+#toggle_btn {
+    background: #0a3622;
+
+}

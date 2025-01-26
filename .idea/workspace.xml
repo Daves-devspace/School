@@ -4,32 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="timetable">
-      <change afterPath="$PROJECT_DIR$/templates/Manage/class_timetable.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Manage/edit_term.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Manage/term_list.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Manage/terms.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/teachers/add_teacher_assignments.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/teachers/edit_teacher_assignmet.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/teachers/teacher_assignments.html" afterDir="false" />
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="teacher assignments">
+      <change afterPath="$PROJECT_DIR$/static/assets/css/custom.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Manage/attendance_summary.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/admin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/management/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/management/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/management/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/forms.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/students/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/teachers/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/teachers/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/teachers/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/teachers/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/teachers/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/Home/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Manage/generate_timetable_all.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/generate_timetable_all.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/edit_term.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/edit_term.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/mark_attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/mark_attendance.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/term_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/term_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/student-details.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/student-details.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/edit_teacher_assignmet.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/edit_teacher_assignmet.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +38,7 @@
         <option value="JavaScript File" />
         <option value="HTML File" />
         <option value="Python Script" />
+        <option value="CSS File" />
       </list>
     </option>
   </component>
@@ -84,36 +78,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Django Server.DjangoProject4.executor&quot;: &quot;Run&quot;,
-    &quot;Docker.School.executor&quot;: &quot;Run&quot;,
-    &quot;Docker.Unnamed.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP Request.generated-requests | #1.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.pycharm.django.structure.promotion.once.per.project&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/HP/PycharmProjects/DjangoProject4&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.grazie&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Django Server.DjangoProject4.executor": "Run",
+    "Docker.School.executor": "Run",
+    "Docker.Unnamed.executor": "Run",
+    "HTTP Request.generated-requests | #1.executor": "Run",
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/HP/PycharmProjects/DjangoProject4",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.grazie",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\schedules" />
@@ -254,7 +249,8 @@
       <workItem from="1737704394635" duration="54383000" />
       <workItem from="1737783652178" duration="16799000" />
       <workItem from="1737803699672" duration="13175000" />
-      <workItem from="1737819071416" duration="6077000" />
+      <workItem from="1737819071416" duration="6156000" />
+      <workItem from="1737905516451" duration="15616000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -456,7 +452,15 @@
       <option name="project" value="LOCAL" />
       <updated>1737762176974</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="teacher assignments">
+      <option name="closed" value="true" />
+      <created>1737851167298</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1737851167298</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -474,7 +478,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;apps/teachers/forms.py&#10;#&#9;apps/teachers/urls.py" />
     <MESSAGE value="added the chart data and dashbaoard revenue count" />
     <MESSAGE value="expenses and net revenue" />
     <MESSAGE value="ui customization" />
@@ -499,7 +502,8 @@
     <MESSAGE value="render11" />
     <MESSAGE value="render12" />
     <MESSAGE value="timetable" />
-    <option name="LAST_COMMIT_MESSAGE" value="timetable" />
+    <MESSAGE value="teacher assignments" />
+    <option name="LAST_COMMIT_MESSAGE" value="teacher assignments" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -537,12 +541,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/models.py</url>
-          <line>88</line>
-          <option name="timeStamp" value="19" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/apps/management/models.py</url>
-          <line>156</line>
+          <line>168</line>
           <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">

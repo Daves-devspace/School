@@ -3,7 +3,7 @@ from django.db.models.fields import CharField
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.validators import validate_international_phonenumber
 
-from .models import Student, Parent, StudentParent, Grade
+from .models import Student, Parent, StudentParent, Grade, StudentDocument
 from ..management.models import ExamType, Term
 
 # Define Choices
@@ -51,7 +51,7 @@ class StudentForm(forms.ModelForm):
         fields = [
             'first_name', 'last_name', 'gender', 'date_of_birth',
             'grade', 'religion', 'joining_date',
-            'admission_number', 'student_image','documents',
+            'admission_number', 'student_image',
         ]
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
@@ -60,10 +60,7 @@ class StudentForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={'placeholder': 'Student Last Name'}),
             'admission_number': forms.TextInput(attrs={'readonly': 'readonly'}),
             'student_image': forms.FileInput(),
-            'documents': forms.ClearableFileInput(attrs={
-                'class': 'form-control-file',  # Bootstrap class for file inputs
-                'accept': '.pdf,.doc,.docx,.jpg,.png',  # Restrict file types
-            }),
+
         }
 
     def __init__(self, *args, **kwargs):
@@ -121,6 +118,19 @@ class StudentForm(forms.ModelForm):
         StudentParent.objects.get_or_create(student=student, parent=parent, relationship=relationship)
 
         return student
+
+
+class DocumentUploadForm(forms.ModelForm):
+    class Meta:
+        model = StudentDocument
+        fields = ['document']
+        widgets ={
+            'documents': forms.ClearableFileInput(attrs={
+                'class': 'form-control-file',  # Bootstrap class for file inputs
+                'accept': '.pdf,.doc,.docx,.jpg,.png',  # Restrict file types
+            }),
+        }
+
 
 
 class PromoteStudentsForm(forms.Form):

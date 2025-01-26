@@ -3,7 +3,7 @@ import logging
 from datetime import date, timedelta, datetime
 
 from asgiref.sync import async_to_sync
-from django.db.models import F, Value, CharField
+from django.db.models import F, Value, CharField, Case, When
 from django.db.models.functions import Concat
 
 
@@ -19,7 +19,7 @@ from django.db.models.functions.datetime import TruncMonth, ExtractYear
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware, now
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, TemplateView
@@ -63,16 +63,16 @@ def term_list(request):
     return render(request,'Manage/term_list.html',{'terms': terms})
 
 
-def edit_term(request):
+def edit_term(request,pk):
     term = get_object_or_404(Term,pk=pk)
 
     if request.method == 'POST':
         form = TermForm(request.POST,instance=term)
         if form.is_valid():
             form.save()
-            return redirect('term_list')
+            return redirect('terms')
     else:
-        form = TermForm(insatnce=term)
+        form = TermForm(instance=term)
 
     return render(request,'Manage/edit_term.html',{'form':form,'term':term})
 
@@ -1474,39 +1474,119 @@ def mark_attendance(request, grade_section_id, term_id):
     # Get the teacher's assigned GradeSection
     grade_section = get_object_or_404(GradeSection, id=grade_section_id, class_teacher=request.user)
 
-    # Fetch the list of students in that GradeSection
+    # Fetch the list of students in the GradeSection
     students = Student.objects.filter(grade=grade_section)
 
     # Fetch the term object
     term = get_object_or_404(Term, id=term_id)
 
+    # If attendance is being submitted
     if request.method == 'POST':
-        # Iterate over the students and mark attendance based on the submitted form
         for student in students:
-            is_present = request.POST.get(f'present_{student.id}', False)
+            # Get attendance status and reason for absence
+            is_present = request.POST.get(f'present_{student.id}', 'off') == 'on'
             absence_reason = request.POST.get(f'absence_reason_{student.id}', '')
 
             # Update or create attendance record
             Attendance.objects.update_or_create(
                 student=student,
-                section=grade_section.section,
+                section=grade_section,
                 teacher=request.user,
-                date=datetime.today(),
+                date=now().date(),  # Ensure attendance is recorded for today
                 term=term,
                 defaults={'is_present': is_present, 'absence_reason': absence_reason}
             )
 
-        # After submitting the form, redirect to a confirmation or summary page
+        # Redirect to confirmation or a summary page
         return redirect('attendance_summary', grade_section_id=grade_section.id, term_id=term.id)
 
     return render(request, 'Manage/mark_attendance.html', {
         'grade_section': grade_section,
         'students': students,
-        'term': term
+        'term': term,
     })
 
 
 
+def attendance_summary(request, grade_section_id, term_id):
+    # Get the GradeSection and Term
+    grade_section = get_object_or_404(GradeSection, id=grade_section_id)
+    term = get_object_or_404(Term, id=term_id)
+
+    # Fetch attendance records grouped by student
+    attendance_records = (
+        Attendance.objects.filter(section=grade_section, term=term)
+        .values('student__id', 'student__name')
+        .annotate(
+            total_present=Count(Case(When(is_present=True, then=1))),
+            total_absent=Count(Case(When(is_present=False, then=1)))
+        )
+    )
+
+    # Calculate overall percentages for each student
+    for record in attendance_records:
+        total_days = record['total_present'] + record['total_absent']
+        record['attendance_percentage'] = (
+            (record['total_present'] / total_days) * 100 if total_days > 0 else 0
+        )
+
+    return render(request, 'Manage/attendance_summary.html', {
+        'grade_section': grade_section,
+        'term': term,
+        'attendance_records': attendance_records,
+    })
+
+
+def student_attendance_report(request, student_id):
+    # Get the student
+    student = get_object_or_404(Student, id=student_id)
+
+    # Fetch all attendance records for the student
+    attendance_records = Attendance.objects.filter(student=student).order_by('date')
+
+    # Total school days and attendance stats
+    total_school_days = attendance_records.values('date').distinct().count()
+    total_days_present = attendance_records.filter(is_present=True).count()
+
+    # Calculate attendance percentage
+    attendance_percentage = (
+        (total_days_present / total_school_days) * 100 if total_school_days > 0 else 0
+    )
+
+    # Group attendance by date for chart visualization
+    daily_attendance = (
+        attendance_records
+        .values('date')
+        .annotate(
+            present_count=Count(Case(When(is_present=True, then=1))),
+            absent_count=Count(Case(When(is_present=False, then=1))),
+        )
+    )
+
+    return render(request, 'Manage/student_attendance_report.html', {
+        'student': student,
+        'attendance_percentage': attendance_percentage,
+        'daily_attendance': daily_attendance,
+        'total_school_days': total_school_days,
+        'total_days_present': total_days_present,
+    })
+
+
+def attendance_chart_data(request, student_id):
+    # Get the student
+    student = get_object_or_404(Student, id=student_id)
+
+    # Fetch attendance records grouped by date
+    daily_attendance = (
+        Attendance.objects.filter(student=student)
+        .values('date')
+        .annotate(
+            present_count=Count(Case(When(is_present=True, then=1))),
+            absent_count=Count(Case(When(is_present=False, then=1))),
+        )
+    )
+
+    return JsonResponse(list(daily_attendance), safe=False)
 
 
 class TimetableCreateView(View):

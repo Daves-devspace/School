@@ -16,8 +16,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
 
 from apps.accounts.models import FeeStructure, FeeRecord
-from apps.management.models import Term, SubjectMark, ReportCard, ExamType
-from apps.students.forms import StudentForm, PromoteStudentsForm, SendSMSForm
+from apps.management.models import Term, SubjectMark, ReportCard, ExamType, Attendance
+from apps.students.forms import StudentForm, PromoteStudentsForm, SendSMSForm, DocumentUploadForm
 # from apps.students.forms import StudentForm
 from apps.students.models import Student, Parent, StudentParent, Grade
 
@@ -365,56 +365,76 @@ def student_details(request, id):
     # Fetch student details
     student = get_object_or_404(Student, pk=id)
 
-    # Fetch report cards and subject marks for the student
-    report_cards = ReportCard.objects.filter(student=student).select_related('term').only('term', 'exam_type', 'student')
-    subject_marks = SubjectMark.objects.filter(report_card__student=student).select_related('subject', 'exam_type').only('marks', 'subject', 'report_card')
-
-    student_parents = StudentParent.objects.filter(student=student)
+    # Handle document uploads
+    if request.method == 'POST' and 'upload_document' in request.POST:
+        document_form = DocumentUploadForm(request.POST, request.FILES)
+        if document_form.is_valid():
+            document_form.save(student=student)
+            messages.success(request, "Document uploaded successfully!")
+            return redirect('student_details', id=student.id)
+        else:
+            messages.error(request, "Failed to upload document. Please try again.")
+    else:
+        document_form = DocumentUploadForm()
 
     # Fetch all terms and distinct years
     terms = Term.objects.all()
     years = Term.objects.values_list('start_date__year', flat=True).distinct().order_by('start_date__year')
 
-    # Fetch the current or latest term's report card
+    # Get selected term and year from the request
+    selected_term_id = request.GET.get('term_id')
+    selected_year = request.GET.get('year')
+
+    # Default to the latest term and its year if not specified
     latest_term = get_current_term()
-    latest_report_card = None
-    if latest_term:
-        latest_report_card = report_cards.filter(term=latest_term).first()
+    if not selected_term_id:
+        selected_term_id = latest_term.id if latest_term else None
+    if not selected_year:
+        selected_year = latest_term.start_date.year if latest_term else None
 
-    # Prepare detailed report card information
-    report_card_details = [
-        {
-            'report_card': rc,
-            'total_marks': rc.calculate_total_marks() if hasattr(rc, 'total_marks') else 0,  # Safe handling
-            'rank': rc.student_rank() if hasattr(rc, 'student_rank') else None,
+    # Filter attendance data for the selected term and year
+    attendance_data = []
+    attendance_summary = {'total_present': 0, 'total_absent': 0, 'percentage': 0}
+
+    if selected_term_id and selected_year:
+        attendance_records = Attendance.objects.filter(
+            student=student,
+            term_id=selected_term_id,
+            date__year=selected_year
+        ).order_by('date')
+
+        # Prepare attendance data and calculate statistics
+        attendance_data = [{'date': record.date, 'present': record.is_present} for record in attendance_records]
+        total_present = attendance_records.filter(is_present=True).count()
+        total_days = attendance_records.count()
+        total_absent = total_days - total_present
+        attendance_summary = {
+            'total_present': total_present,
+            'total_absent': total_absent,
+            'percentage': (total_present / total_days * 100) if total_days > 0 else 0,
         }
-        for rc in report_cards
-    ]
 
-    # Get chart data by passing the required parameters
-    # Ensure that 'term_id' and 'year' are properly selected or default to the current term and year
-    term_id = request.GET.get('term_id', latest_term.id if latest_term else None)
-    year = request.GET.get('year', latest_term.start_date.year if latest_term else None)
-
-    if term_id and year:
-        chart_data = get_student_performance_data(request, term_id, year, student.id)
-    else:
-        chart_data = None
-
-    # Context for rendering the template
+    # Prepare context
     context = {
         'student': student,
-        'report_cards': report_card_details,
-        'subject_marks': subject_marks,
-        'latest_report_card': latest_report_card,
-        'latest_term': latest_term,
-        'student_parents': student_parents,
-        'chart_data': chart_data,
-        'terms': terms,  # Pass terms to populate dropdown
-        'years': years,  # Pass years to populate dropdown
+        'terms': terms,
+        'years': years,
+        'attendance_data': attendance_data,
+        'attendance_summary': attendance_summary,
+        'selected_term_id': selected_term_id,
+        'selected_year': selected_year,
+        'document_form': document_form,  # Pass the form for document upload
+        'documents': student.documents.all(),  # Display all uploaded documents
     }
     return render(request, 'students/student-details.html', context)
 
+
+def delete_document(request, document_id):
+    document = get_object_or_404(StudentDocument, pk=document_id)
+    student_id = document.student.id
+    document.delete()
+    messages.success(request, "Document deleted successfully.")
+    return redirect('student_details', id=student_id)
 
 
 
