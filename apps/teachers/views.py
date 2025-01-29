@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
+from phonenumbers import is_valid_number, parse
 
 from apps.management.models import  Profile
 from apps.students.models import  Grade
@@ -23,7 +24,7 @@ def add_teacher(request):
     if request.method == 'POST':
         form = TeacherForm(request.POST)
         if form.is_valid():
-            teacher = form.save(commit=False)  # Prepare the Teacher instance without saving it yet
+            teacher = form.save(commit=False)  # Prepare Teacher instance without saving yet
 
             # Generate staff number if not already provided
             if not teacher.staff_number:
@@ -33,19 +34,40 @@ def add_teacher(request):
             user = User.objects.create_user(
                 username=teacher.staff_number,  # Use staff number as username
                 email=form.cleaned_data['email'],  # Use email for password reset
-                password=form.cleaned_data['password'],  # Password from the form
+                password=form.cleaned_data['password'],  # Password from form
             )
             user.first_name = form.cleaned_data.get('first_name', '')  # Optionally set first name
             user.last_name = form.cleaned_data.get('last_name', '')    # Optionally set last name
             user.save()
 
+            # Ensure phone number is properly formatted
+            phone_number = form.cleaned_data.get('phone', '')  # Corrected from 'phone_no' to 'phone'
+            if phone_number:
+                # Convert the phone number to string if it's a PhoneNumber object
+                if isinstance(phone_number, str):
+                    raw_phone_number = phone_number
+                else:
+                    raw_phone_number = str(phone_number)  # Get string representation of PhoneNumber object
+
+                if raw_phone_number.startswith('07'):
+                    phone_number = '+254' + raw_phone_number[1:]  # Format Kenyan number to international format
+
+                # Check if the phone number is valid using phonenumbers library
+                try:
+                    parsed_number = parse(phone_number, 'KE')
+                    if not is_valid_number(parsed_number):
+                        raise ValueError("Invalid phone number format.")
+                except Exception as e:
+                    messages.error(request, f"Phone number validation failed: {str(e)}")
+                    return render(request, 'teachers/add-teacher.html', {'form': form})
+
             # Create the Profile model for the teacher
             profile = Profile.objects.create(
                 user=user,  # Link the profile to the user
                 role='Teacher',  # Role is set to 'Teacher' by default
-                phone_number=form.cleaned_data.get('phone_no', ''),  # Phone number from the form
-                address=form.cleaned_data.get('address', ''),  # Address from the form
-                created_at=now(),  # Set the profile creation time
+                phone_number=phone_number,  # Formatted phone number
+                address=form.cleaned_data.get('address', ''),  # Address from form
+                created_at=now(),  # Set profile creation time
             )
 
             # Link the Teacher model to the user and save it
@@ -60,12 +82,12 @@ def add_teacher(request):
             messages.success(request, "Teacher added successfully.")
             return redirect('teachers')  # Adjust 'teachers' to your desired redirect URL
         else:
+            # Form is not valid
             messages.error(request, "Please correct the errors below.")
     else:
         form = TeacherForm()
 
     return render(request, 'teachers/add-teacher.html', {'form': form})
-
 
 @login_required
 def edit_teacher(request, id):

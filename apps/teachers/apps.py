@@ -2,6 +2,19 @@ from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 from django.db import connection
 
+
+
+
+class TeacherConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'apps.teachers'
+
+    def ready(self):
+        import apps.teachers.signals  # Import the signals to register them
+
+
+
+
 class TeachersConfig(AppConfig):
     name = 'apps.teachers'
 

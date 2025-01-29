@@ -1471,8 +1471,14 @@ def revenue_line_chart(request):
 
 @login_required
 def mark_attendance(request, grade_section_id, term_id):
-    # Get the teacher's assigned GradeSection
-    grade_section = get_object_or_404(GradeSection, id=grade_section_id, class_teacher=request.user)
+    # Fetch Teacher instance correctly using `user` from the request (login user)
+    teacher = get_object_or_404(Teacher, user=request.user)  # Correctly fetch Teacher instance
+
+    # Get the grade section assigned to the teacher
+    grade_section = get_object_or_404(GradeSection, id=grade_section_id, class_teacher=teacher.user)
+    print(f"Teacher Object: {teacher}, Type: {type(teacher)}")
+    print(f"Teacher User Object: {teacher.user}, Type: {type(teacher.user)}")
+    print(f"Teacher User Username: {teacher.user.username if teacher.user else 'None'}")
 
     # Fetch the list of students in the GradeSection
     students = Student.objects.filter(grade=grade_section)
@@ -1487,11 +1493,11 @@ def mark_attendance(request, grade_section_id, term_id):
             is_present = request.POST.get(f'present_{student.id}', 'off') == 'on'
             absence_reason = request.POST.get(f'absence_reason_{student.id}', '')
 
-            # Update or create attendance record
+            # Ensure the teacher object is passed properly, not a string identifier
             Attendance.objects.update_or_create(
                 student=student,
                 section=grade_section,
-                teacher=request.user,
+                teacher=teacher,  # Use the correct Teacher instance here
                 date=now().date(),  # Ensure attendance is recorded for today
                 term=term,
                 defaults={'is_present': is_present, 'absence_reason': absence_reason}
@@ -1505,6 +1511,10 @@ def mark_attendance(request, grade_section_id, term_id):
         'students': students,
         'term': term,
     })
+
+
+
+
 
 
 

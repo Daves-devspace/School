@@ -1,9 +1,11 @@
 from datetime import date
 
+from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import ManyToManyField
 from django.template.loader import render_to_string
@@ -28,7 +30,22 @@ class Role(models.Model):
 #     def __str__(self):
 #         return self.name
 
+class StaffNumberBackend(BaseBackend):
+    def authenticate(self, request, username=None, password=None, **kwargs):
+        try:
+            # Look for a User with the provided staff_number
+            user = User.objects.get(username=username)  # username is the staff_number here
+            if user.check_password(password):
+                return user
+            return None
+        except User.DoesNotExist:
+            return None
 
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return None
 
 
 
@@ -38,19 +55,20 @@ class Role(models.Model):
 
 # Teacher model remains the same
 class Teacher(models.Model):
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)  # Links to User model
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Links to User model
     id_No = models.CharField(max_length=20, unique=True)  # Represents the ID number
-    staff_number = models.CharField(max_length=20, unique=True, default='TCH/000/00')
+    staff_number = models.CharField(max_length=20, unique=True, default='TCH/000/00')  # This will be used as username
     full_name = models.CharField(max_length=50)
     gender = models.CharField(
         max_length=10,
         choices=[('Male', 'Male'), ('Female', 'Female'), ('Others', 'Others')]
     )
     email = models.EmailField(unique=True)
+    phone = PhoneNumberField(region="KE", blank=False, null=False, default="0000000000")
     qualification = models.CharField(max_length=100)
     experience = models.PositiveIntegerField(help_text="Years of experience")
     country = models.CharField(max_length=50)
-    joining_date = models.DateTimeField()
+    joining_date = models.DateField()
     subjects = models.ManyToManyField(
         'schedules.Subject',
         related_name="teachers"
@@ -60,6 +78,9 @@ class Teacher(models.Model):
     def save(self, *args, **kwargs):
         if not self.staff_number:  # Generate staff number only if it doesn't exist
             self.staff_number = self.generate_staff_number()
+        if self.user:
+            self.user.username = self.staff_number  # Assign the staff_number as the username for the User
+            self.user.save()
         super().save(*args, **kwargs)
 
     @staticmethod
@@ -82,22 +103,8 @@ class Teacher(models.Model):
         new_number = f"{last_number + 1:03d}"  # Increment and format as 3 digits
         return f"TCH/{new_number}/{year_suffix}"
 
-    def get_display_name(self):
-        """
-        Returns a shortened display name for the teacher using their surname's first letter.
-        Example: 'Mr. K' for a male teacher with the last name starting with K.
-        """
-        if self.full_name:
-            # Split full name to extract the last name
-            name_parts = self.full_name.split()
-            last_name = name_parts[-1] if len(name_parts) > 1 else name_parts[0]
-            prefix = "Mr." if self.gender == "Male" else "Ms." if self.gender == "Female" else "Mx."
-            return f"{prefix} {last_name[0].upper()}"  # Use the first letter of the last name, uppercase
-        return "Unknown"
-
     def __str__(self):
-        role = "Headteacher" if self.is_headteacher else "Teacher"
-        return f"{self.user.username if self.user else self.id_No} - {role}"
+        return f"{self.staff_number} - {self.full_name}"
 
 
 
@@ -112,7 +119,7 @@ class TeacherAssignment(models.Model):
         on_delete=models.CASCADE,
         related_name="teacher_assignments"  # Add related_name here
     )
-    assigned_date = models.DateField(auto_now_add=True)
+    assigned_date = models.DateField(auto_now=True)
 
     class Meta:
         unique_together = ['teacher', 'subject', 'grade_section']  # Ensure no duplicate assignments

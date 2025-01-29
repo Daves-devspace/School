@@ -2,6 +2,8 @@
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 from django.utils import timezone
 
 from django.db import models
@@ -13,6 +15,125 @@ from apps.students.models import Student
 
 # Create your models here.
 # Fee structure for each grade and term
+
+
+# #fee record
+# class FeeRecord(models.Model):
+#     student = models.ForeignKey(
+#         "students.Student", on_delete=models.CASCADE, related_name="fee_records"
+#     )
+#     term = models.ForeignKey("management.Term", on_delete=models.CASCADE)
+#     tuition_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+#
+#     # Optional fees with activation status
+#     transport_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+#     transport_active = models.BooleanField(default=False)
+#
+#     lunch_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+#     lunch_active = models.BooleanField(default=False)
+#
+#     remedial_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+#     remedial_active = models.BooleanField(default=False)
+#
+#     total_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+#     paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+#     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+#     overpayment = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+#     due_date = models.DateField(null=True, blank=True)
+#
+#     class Meta:
+#         constraints = [
+#             models.UniqueConstraint(
+#                 fields=["student", "term"], name="unique_fee_record_per_term"
+#             )
+#         ]
+#
+#     def save(self, *args, **kwargs):
+#         """
+#         Override the save method to recalculate total fees, balance, and overpayment.
+#         This includes updating the balance with the previous term's balance.
+#         """
+#         # Fetch previous balance and adjust if necessary
+#         previous_balance = self.fetch_previous_balance()
+#
+#         # Add the previous balance to the current balance (carry-over)
+#         self.balance += previous_balance
+#
+#         # Apply fee statuses, calculate total fee, and update balance and overpayment
+#         self.apply_fee_statuses()
+#         self.total_fee = self.calculate_total_fee()
+#         self.update_balance_and_overpayment()
+#
+#         super().save(*args, **kwargs)
+#
+#     def fetch_previous_balance(self):
+#         """
+#         Fetches the previous term's balance for this student.
+#         """
+#         try:
+#             # Fetch the previous term for this student (assuming there is a method to get previous term)
+#             previous_term = self.term.get_previous_term()
+#
+#             # Find the fee record for the previous term
+#             previous_fee_record = FeeRecord.objects.get(student=self.student, term=previous_term)
+#
+#             # Return the balance of the previous term
+#             print(
+#                 f"Fetched previous balance: {previous_fee_record.balance} for student {self.student} in term {previous_term}")
+#             return previous_fee_record.balance
+#
+#         except FeeRecord.DoesNotExist:
+#             print(f"No previous fee record found for student {self.student} in term {self.term}")
+#             return Decimal("0.0")
+#
+#     def apply_fee_statuses(self):
+#         """
+#         Ensures optional fees are applied or reset based on their activation statuses.
+#         """
+#         if self.transport_active and not self.transport_fee:
+#             self.transport_fee = self.get_fee_from_structure('transport_fee')
+#
+#         if self.lunch_active and not self.lunch_fee:
+#             self.lunch_fee = self.get_fee_from_structure('lunch_fee')
+#
+#         if self.remedial_active and not self.remedial_fee:
+#             self.remedial_fee = self.get_fee_from_structure('remedial_fee')
+#
+#     def get_fee_from_structure(self, fee_type):
+#         """
+#         Fetches the fee from the FeeStructure model if available.
+#         """
+#         try:
+#             fee_structure = FeeStructure.objects.get(
+#                 grade=self.student.grade.grade,
+#                 term=self.term
+#             )
+#             return getattr(fee_structure, fee_type, Decimal("0.0"))
+#         except FeeStructure.DoesNotExist:
+#             return Decimal("0.0")
+#
+#     def calculate_total_fee(self):
+#         """
+#         Calculates the total fee by adding tuition and activated optional fees.
+#         """
+#         optional_fees = (
+#             self.transport_fee if self.transport_active else Decimal("0.0"),
+#             self.lunch_fee if self.lunch_active else Decimal("0.0"),
+#             self.remedial_fee if self.remedial_active else Decimal("0.0"),
+#         )
+#         return self.tuition_fee + sum(optional_fees)
+#
+#     def update_balance_and_overpayment(self):
+#         """
+#         Calculates and updates the balance and overpayment based on paid amounts.
+#         """
+#         self.balance = max(self.total_fee - self.paid_amount, Decimal("0.0"))
+#         self.overpayment = max(self.paid_amount - self.total_fee, Decimal("0.0"))
+#
+#     def __str__(self):
+#         return f"FeeRecord for {self.student} (Term: {self.term})"
+
+
 class FeeStructure(models.Model):
     grade = models.ForeignKey('students.Grade', on_delete=models.CASCADE)
     term = models.ForeignKey("management.Term", on_delete=models.CASCADE)
@@ -28,15 +149,20 @@ class FeeStructure(models.Model):
         return self.tuition_fee + self.transport_fee + self.lunch_fee + self.remedial_fee
 
 
-# Fee record for individual students
+
+
+
+
 class FeeRecord(models.Model):
-    student = models.ForeignKey("students.Student", on_delete=models.CASCADE, related_name="fee_records")
+    student = models.ForeignKey(
+        "students.Student", on_delete=models.CASCADE, related_name="fee_records"
+    )
     term = models.ForeignKey("management.Term", on_delete=models.CASCADE)
     tuition_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     # Optional fees with activation status
     transport_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    transport_active = models.BooleanField(default=False)  # Active or not
+    transport_active = models.BooleanField(default=False)
 
     lunch_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     lunch_active = models.BooleanField(default=False)
@@ -47,82 +173,177 @@ class FeeRecord(models.Model):
     total_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    previous_term_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # New field for previous term balance
+    previous_term_overpayment = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # New field for previous term overpayment
     overpayment = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     due_date = models.DateField(null=True, blank=True)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['student', 'term'], name='unique_fee_record_per_term')
+            models.UniqueConstraint(
+                fields=["student", "term"], name="unique_fee_record_per_term"
+            )
         ]
 
     def save(self, *args, **kwargs):
-        # Fetch previous term's fee record if it exists
-        previous_term_record = FeeRecord.objects.filter(
-            student=self.student,
-            term=self.term.get_previous_term()  # Using get_previous_term method
-        ).first()
+        """
+        Override the save method to recalculate total fees, balance, overpayment,
+        and previous term balance/overpayment. This ensures the object is always in a consistent state.
+        """
+        self.apply_fee_statuses()  # Ensure fee statuses are applied
+        self.previous_term_balance, self.previous_term_overpayment = self.get_previous_term_balance_and_overpayment()  # Fetch previous term balance and overpayment
+        self.total_fee = self.calculate_total_fee()  # Recalculate total fee using the previous term balance/overpayment
+        self.update_balance_and_overpayment()  # Recalculate balance and overpayment
+        super().save(*args, **kwargs)  # Save the object after recalculations
 
-        # Calculate previous balance
-        previous_balance = previous_term_record.balance if previous_term_record else 0
+    # def apply_fee_statuses(self):
+    #     if self.transport_active:
+    #         self.transport_fee = self.get_fee_from_structure('transport_fee')
+    #     else:
+    #         self.transport_fee = Decimal("0.0")
+    #
+    #     if self.lunch_active:
+    #         self.lunch_fee = self.get_fee_from_structure('lunch_fee')
+    #     else:
+    #         self.lunch_fee = Decimal("0.0")
+    #
+    #     if self.remedial_active:
+    #         self.remedial_fee = self.get_fee_from_structure('remedial_fee')
+    #     else:
+    #         self.remedial_fee = Decimal("0.0")
 
-        # Calculate total fee for the current term
-        self.total_fee = self.calculate_total_fee() + previous_balance
+    def apply_fee_statuses(self):
+        """
+        Ensure optional fees are applied or reset based on their activation statuses.
+        """
+        if self.transport_active and not self.transport_fee:
+            self.transport_fee = self.get_fee_from_structure('transport_fee')
 
-        # Update balance and overpayment
-        self.balance = self.total_fee - self.paid_amount
-        self.overpayment = Decimal('0.0') if self.balance > Decimal('0.0') else abs(self.balance)
+        if self.lunch_active and not self.lunch_fee:
+            self.lunch_fee = self.get_fee_from_structure('lunch_fee')
 
-        super().save(*args, **kwargs)
+        if self.remedial_active and not self.remedial_fee:
+            self.remedial_fee = self.get_fee_from_structure('remedial_fee')
+
+    def get_fee_from_structure(self, fee_type):
+        """
+        Fetch the fee from the FeeStructure model if available.
+        """
+        try:
+            fee_structure = FeeStructure.objects.get(
+                grade=self.student.grade.grade,
+                term=self.term
+            )
+            return getattr(fee_structure, fee_type, Decimal("0.0"))
+        except FeeStructure.DoesNotExist:
+            return Decimal("0.0")
 
     def calculate_total_fee(self):
-        # Include only active fees (tuition is always included)
-        total = self.tuition_fee
-        if self.transport_active:
-            total += self.transport_fee
-        if self.lunch_active:
-            total += self.lunch_fee
-        if self.remedial_active:
-            total += self.remedial_fee
-        return total
+        """
+        Calculate the total fee by adding tuition, activated optional fees,
+        and adjusting for the previous term's balance/overpayment.
+        """
+        optional_fees = (
+            self.transport_fee if self.transport_active else Decimal("0.0"),
+            self.lunch_fee if self.lunch_active else Decimal("0.0"),
+            self.remedial_fee if self.remedial_active else Decimal("0.0"),
+        )
 
-    def calculate_balance(self):
-        total_fee = self.calculate_total_fee()
-        return total_fee - self.paid_amount
+        # Add previous term balance (if any) and subtract previous term overpayment (if any)
+        total_fee = self.tuition_fee + sum(optional_fees)
+        if self.previous_term_balance > 0:
+            total_fee += self.previous_term_balance  # Add balance from previous term
+        elif self.previous_term_overpayment > 0:
+            total_fee -= self.previous_term_overpayment  # Subtract overpayment from previous term
 
-    def calculate_overpayment(self):
-        balance = self.calculate_balance()
-        return Decimal('0.0') if balance > Decimal('0.0') else abs(balance)
+        return total_fee
 
-    def previous_balance(self):
-        # Example logic: Fetch the balance from the last term
-        previous_record = FeeRecord.objects.filter(
-            student=self.student
-        ).exclude(term=self.term).order_by('-term').first()
-        return previous_record.calculate_balance() if previous_record else 0
+    def update_balance_and_overpayment(self):
+        """
+        Calculate and update the balance and overpayment based on paid amounts.
+        """
+        self.balance = max(self.total_fee - self.paid_amount, Decimal("0.0"))
+        self.overpayment = max(self.paid_amount - self.total_fee, Decimal("0.0"))
 
-    def get_previous_record(self):
-        # Fetch the previous fee record for the same student based on term order
-        previous_record = FeeRecord.objects.filter(
-            student=self.student,
-            term__start_date__lt=self.term.start_date  # Ensure correct term ordering
-        ).order_by('-term__start_date').first()
-        return previous_record
-
-
+    def get_previous_term_balance_and_overpayment(self):
+        """
+        Fetch the previous term's balance and overpayment if available, to be used in the total fee calculation.
+        """
+        previous_term = self.term.get_previous_term()
+        if previous_term:
+            # Fetch the fee record for the previous term
+            try:
+                previous_fee_record = FeeRecord.objects.get(student=self.student, term=previous_term)
+                return previous_fee_record.balance, previous_fee_record.overpayment  # Return both balance and overpayment
+            except FeeRecord.DoesNotExist:
+                return Decimal("0.0"), Decimal("0.0")  # No balance or overpayment from previous term
+        return Decimal("0.0"), Decimal("0.0")  # No previous term balance/overpayment if no previous term
 
     def __str__(self):
-        return f"{self.student.first_name} - {self.term.name} Fee Record"
+        return f"FeeRecord for {self.student} (Term: {self.term})"
 
 
-# Fee adjustments for specific students
+
+
+
+
 class FeeAdjustment(models.Model):
+    DISCOUNT = 'Discount'
+    EXTRA_CHARGE = 'Extra Charge'
+    ADJUSTMENT_TYPES = [
+        (DISCOUNT, 'Discount'),
+        (EXTRA_CHARGE, 'Extra Charge'),
+    ]
+
+    FEE_TYPES = [
+        ('tuition_fee', 'Tuition Fee'),
+        ('transport_fee', 'Transport Fee'),
+        ('lunch_fee', 'Lunch Fee'),
+        ('remedial_fee', 'Remedial Fee'),
+    ]
+
     fee_record = models.ForeignKey(FeeRecord, on_delete=models.CASCADE, related_name="adjustments")
-    adjustment_type = models.CharField(max_length=50)  # e.g., Discount, Extra Charge
+    adjustment_type = models.CharField(max_length=50, choices=ADJUSTMENT_TYPES)
+    fee_type = models.CharField(max_length=20, choices=FEE_TYPES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.CharField(max_length=255, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        fee_record = self.fee_record
+        adjustment_amount = self.amount
+
+        # Ensure discounts or extra charges are only applied to active fees
+        if self.fee_type in ['transport_fee', 'lunch_fee', 'remedial_fee']:
+            if not getattr(fee_record, f"{self.fee_type.replace('_fee', '')}_active"):
+                raise ValueError(f"{self.fee_type} is not active for this student. Activate the service first.")
+
+        # Restrict extra charges for tuition fees
+        if self.fee_type == 'tuition_fee' and self.adjustment_type == self.EXTRA_CHARGE:
+            raise ValueError("Extra charges cannot be applied to tuition fees.")
+
+        # Determine adjustment type (Discount or Extra Charge)
+        if self.adjustment_type == self.DISCOUNT:
+            adjustment_amount = -abs(self.amount)
+        elif self.adjustment_type == self.EXTRA_CHARGE:
+            adjustment_amount = abs(self.amount)
+
+        # Update the specific fee type
+        setattr(fee_record, self.fee_type, getattr(fee_record, self.fee_type) + adjustment_amount)
+
+        # Recalculate total fee, balance, and overpayment
+        fee_record.total_fee = fee_record.calculate_total_fee()
+        fee_record.balance = fee_record.total_fee - fee_record.paid_amount
+        fee_record.overpayment = Decimal('0.0') if fee_record.balance > Decimal('0.0') else abs(fee_record.balance)
+
+        # Save the updated FeeRecord
+        fee_record.save()
+
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.adjustment_type} - {self.amount} for {self.fee_record}"
+        return f"{self.adjustment_type} ({self.fee_type})"
+
+
 
 
 # Payment records for individual students

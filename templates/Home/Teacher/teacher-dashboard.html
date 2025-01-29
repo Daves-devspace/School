@@ -1,4 +1,4 @@
-{% extends 'Home/Student/../Student/../base.html' %}
+{% extends 'Home/base.html' %}
 {% load static %}
 
 
@@ -311,207 +311,159 @@
                         </div>
 
                         <div class="card">
-                            <p>Date:{{ today }}</p>
-                            <p>Assigned Grade Sections:</p>
-                            <h2>Grade:</h2>
-                            {% if assigned_grade_sections %}
+                            {% if grade_sections %}
                                 <ul>
-                                    {% for section in assigned_grade_sections %}
-                                        <li>{{ section.name }}</li>
+                                    {% for grade_section in grade_sections %}
+                                        <li>
+                                            {{ grade_section.name }}
+                                            <a href="{% url 'mark_attendance' grade_section.id current_term.id %}"
+                                               class="btn btn-primary">
+                                                Mark Attendance
+                                            </a>
+                                        </li>
                                     {% endfor %}
                                 </ul>
                             {% else %}
-                                <p>You have not been assigned any grade sections yet.</p>
+                                <p>You are not assigned to any grade sections.</p>
                             {% endif %}
-                            <h2>Attendance Records for Today:</h2>
-                            {% if attendance_records %}
-                                <ul>
-                                    {% for record in attendance_records %}
-                                        <li>Class: {{ record.grade_section.name }}, Date: {{ record.date }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <p>No attendance records for today.</p>
-                            {% endif %}
+
+
                         </div>
 
 
-                        <h2>Assigned Grade Sections</h2>
-                        <ul>
-                            {% for section in assigned_grade_sections %}
-                                <li>{{ section.name }}</li>
-                            {% endfor %}
-                        </ul>
-
-                        <h2>Today's Attendance</h2>
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>Student Name</th>
-                                <th>Section</th>
-                                <th>Status</th>
-                                <th>Reason (if absent)</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for record in attendance_records %}
-                                <tr>
-                                    <td>{{ record.student.first_name }} {{ record.student.last_name }}</td>
-                                    <td>{{ record.section.name }}</td>
-                                    <td>{{ "Present" }} if record.is_present else {{ "Absent" }}</td>
-                                    <td>{{ record.absence_reason }}</td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="4">No attendance records for today.</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-
                     </div>
-                </div>
-                <div class="col-12 col-lg-12 col-xl-4 d-flex">
-                    <div class="card flex-fill comman-shadow">
-                        <div class="card-body">
-                            <div id="calendar-doctor" class="calendar-container"></div>
-                            {#                            <div id="calendar" class="calendar-container">#}
-                            {#                            </div>#}
-                            <div class="calendar-info calendar-info1">
-                                <div class="up-come-header">
-                                    <h2>Upcoming Events</h2>
-                                    <span><a href="javascript:;"><i class="feather-plus"></i></a></span>
-                                </div>
-                                <div class="upcome-event-date">
-                                    <h3>10 Jan</h3>
-                                    <span><i class="fas fa-ellipsis-h"></i></span>
-                                </div>
-                                <div class="calendar-details">
-                                    <p>08:00 am</p>
-                                    <div class="calendar-box normal-bg">
-                                        <div class="calandar-event-name">
-                                            <h4>Botony</h4>
-                                            <h5>Lorem ipsum sit amet</h5>
-                                        </div>
-                                        <span>08:00 - 09:00 am</span>
+                    <div class="col-12 col-lg-12 col-xl-4 d-flex">
+                        <div class="card flex-fill comman-shadow">
+                            <div class="card-body">
+                                <div id="calendar-doctor" class="calendar-container"></div>
+                                {#                            <div id="calendar" class="calendar-container">#}
+                                {#                            </div>#}
+                                <div class="calendar-info calendar-info1">
+                                    <div class="up-come-header">
+                                        <h2>Upcoming Events</h2>
+                                        <span><a href="javascript:;"><i class="feather-plus"></i></a></span>
                                     </div>
-                                </div>
-                                <div class="calendar-details">
-                                    <p>09:00 am</p>
-                                    <div class="calendar-box normal-bg">
-                                        <div class="calandar-event-name">
-                                            <h4>Botony</h4>
-                                            <h5>Lorem ipsum sit amet</h5>
-                                        </div>
-                                        <span>09:00 - 10:00 am</span>
+                                    <div class="upcome-event-date">
+                                        <h3>10 Jan</h3>
+                                        <span><i class="fas fa-ellipsis-h"></i></span>
                                     </div>
-                                </div>
-                                <div class="calendar-details">
-                                    <p>10:00 am</p>
-                                    <div class="calendar-box normal-bg">
-                                        <div class="calandar-event-name">
-                                            <h4>Botony</h4>
-                                            <h5>Lorem ipsum sit amet</h5>
+                                    <div class="calendar-details">
+                                        <p>08:00 am</p>
+                                        <div class="calendar-box normal-bg">
+                                            <div class="calandar-event-name">
+                                                <h4>Botony</h4>
+                                                <h5>Lorem ipsum sit amet</h5>
+                                            </div>
+                                            <span>08:00 - 09:00 am</span>
                                         </div>
-                                        <span>10:00 - 11:00 am</span>
                                     </div>
-                                </div>
-                                <div class="upcome-event-date">
-                                    
-                                    
-                                    
+                                    <div class="calendar-details">
+                                        <p>09:00 am</p>
+                                        <div class="calendar-box normal-bg">
+                                            <div class="calandar-event-name">
+                                                <h4>Botony</h4>
+                                                <h5>Lorem ipsum sit amet</h5>
+                                            </div>
+                                            <span>09:00 - 10:00 am</span>
+                                        </div>
+                                    </div>
+                                    <div class="calendar-details">
+                                        <p>10:00 am</p>
+                                        <div class="calendar-box normal-bg">
+                                            <div class="calandar-event-name">
+                                                <h4>Botony</h4>
+                                                <h5>Lorem ipsum sit amet</h5>
+                                            </div>
+                                            <span>10:00 - 11:00 am</span>
+                                        </div>
+                                    </div>
+                                    <div class="upcome-event-date">
 
 
-                                    <h2>Lessons for <span id="today"></span></h2>
-                                    <table id="lessons-table">
-                                        <thead>
-                                        <tr>
-                                            <th>Time</th>
-                                            <th>Subject</th>
-                                            <th>Grade Section</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <!-- Lessons will be dynamically added here -->
-                                        </tbody>
-                                    </table>
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    <h3>10 Jan</h3>
-                                    <span><i class="fas fa-ellipsis-h"></i></span>
-                                </div>
-                                
-                                
-                                
-                                
-                                <div class="calendar-details">
-                                    <p>08:00 am</p>
-                                    <div class="calendar-box normal-bg">
-                                        <div class="calandar-event-name">
-                                            <h4>English</h4>
-                                            <h5>Lorem ipsum sit amet</h5>
-                                        </div>
-                                        <span>08:00 - 09:00 am</span>
+                                        <h2>Lessons for <span id="today"></span></h2>
+                                        <table id="lessons-table">
+                                            <thead>
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>Subject</th>
+                                                <th>Grade Section</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <!-- Lessons will be dynamically added here -->
+                                            </tbody>
+                                        </table>
+
+
+                                        <h3>10 Jan</h3>
+                                        <span><i class="fas fa-ellipsis-h"></i></span>
                                     </div>
-                                </div>
-                                <div class="calendar-details">
-                                    <p>09:00 am</p>
-                                    <div class="calendar-box normal-bg">
-                                        <div class="calandar-event-name">
-                                            <h4>Mathematics </h4>
-                                            <h5>Lorem ipsum sit amet</h5>
+
+
+                                    <div class="calendar-details">
+                                        <p>08:00 am</p>
+                                        <div class="calendar-box normal-bg">
+                                            <div class="calandar-event-name">
+                                                <h4>English</h4>
+                                                <h5>Lorem ipsum sit amet</h5>
+                                            </div>
+                                            <span>08:00 - 09:00 am</span>
                                         </div>
-                                        <span>09:00 - 10:00 am</span>
                                     </div>
-                                </div>
-                                <div class="calendar-details">
-                                    <p>10:00 am</p>
-                                    <div class="calendar-box normal-bg">
-                                        <div class="calandar-event-name">
-                                            <h4>History</h4>
-                                            <h5>Lorem ipsum sit amet</h5>
+                                    <div class="calendar-details">
+                                        <p>09:00 am</p>
+                                        <div class="calendar-box normal-bg">
+                                            <div class="calandar-event-name">
+                                                <h4>Mathematics </h4>
+                                                <h5>Lorem ipsum sit amet</h5>
+                                            </div>
+                                            <span>09:00 - 10:00 am</span>
                                         </div>
-                                        <span>10:00 - 11:00 am</span>
                                     </div>
-                                </div>
-                                <div class="calendar-details">
-                                    <p>11:00 am</p>
-                                    <div class="calendar-box break-bg">
-                                        <div class="calandar-event-name">
-                                            <h4>Break</h4>
-                                            <h5>Lorem ipsum sit amet</h5>
+                                    <div class="calendar-details">
+                                        <p>10:00 am</p>
+                                        <div class="calendar-box normal-bg">
+                                            <div class="calandar-event-name">
+                                                <h4>History</h4>
+                                                <h5>Lorem ipsum sit amet</h5>
+                                            </div>
+                                            <span>10:00 - 11:00 am</span>
                                         </div>
-                                        <span>11:00 - 12:00 am</span>
                                     </div>
-                                </div>
-                                <div class="calendar-details">
-                                    <p>11:30 am</p>
-                                    <div class="calendar-box normal-bg">
-                                        <div class="calandar-event-name">
-                                            <h4>History</h4>
-                                            <h5>Lorem ipsum sit amet</h5>
+                                    <div class="calendar-details">
+                                        <p>11:00 am</p>
+                                        <div class="calendar-box break-bg">
+                                            <div class="calandar-event-name">
+                                                <h4>Break</h4>
+                                                <h5>Lorem ipsum sit amet</h5>
+                                            </div>
+                                            <span>11:00 - 12:00 am</span>
                                         </div>
-                                        <span>11:30 - 12:00 am</span>
+                                    </div>
+                                    <div class="calendar-details">
+                                        <p>11:30 am</p>
+                                        <div class="calendar-box normal-bg">
+                                            <div class="calandar-event-name">
+                                                <h4>History</h4>
+                                                <h5>Lorem ipsum sit amet</h5>
+                                            </div>
+                                            <span>11:30 - 12:00 am</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
 
+            <footer>
+                <p>Copyright © 2022 Dreamguys.</p>
+            </footer>
+
+
         </div>
-
-        <footer>
-            <p>Copyright © 2022 Dreamguys.</p>
-        </footer>
-
-
-    </div>
 
     </div>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>

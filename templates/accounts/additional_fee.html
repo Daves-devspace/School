@@ -61,39 +61,212 @@
                                     <div class="col-sm-12">
                                         <div class="card">
                                             <div class="card-body">
-                                                <h3>Update Fee for {{ student.first_name }} {{ student.last_name }}</h3>
-                                                <form method="POST" action="{% url 'update_student_fee' student.id %}">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="term_id" value="{{ term.id }}">
+                                                {#                                                <h3>Update Fee for {{ student.first_name }} {{ student.last_name }}</h3>#}
+                                                {#                                                <form method="POST" action="{% url 'update_student_fee' student.id %}">#}
+                                                {#                                                    {% csrf_token %}#}
+                                                {#                                                    <input type="hidden" name="term_id" value="{{ term.id }}">#}
+                                                {##}
+                                                {#                                                    <div class="form-group">#}
+                                                {#                                                        <label>Fees Type</label>#}
+                                                {#                                                        <select name="fee_type" class="form-control" required>#}
+                                                {#                                                            <option value="">Select Fee Type</option>#}
+                                                {#                                                            <option value="Transport fee">Transport Fee</option>#}
+                                                {#                                                            <option value="Lunch Fees">Lunch Fees</option>#}
+                                                {#                                                            <option value="Remedial Fees">Remedial Fees</option>#}
+                                                {#                                                        </select>#}
+                                                {#                                                    </div>#}
+                                                {##}
+                                                {#                                                    <div class="form-group">#}
+                                                {#                                                        <label>Fee Amount</label>#}
+                                                {#                                                        <input type="number" name="amount" class="form-control"#}
+                                                {#                                                               required>#}
+                                                {#                                                    </div>#}
+                                                {##}
+                                                {#                                                    <div class="form-group">#}
+                                                {#                                                        <label>Action</label>#}
+                                                {#                                                        <select name="action" class="form-control" required>#}
+                                                {#                                                            <option value="activate">Activate</option>#}
+                                                {#                                                            <option value="deactivate">Deactivate</option>#}
+                                                {#                                                        </select>#}
+                                                {#                                                    </div>#}
+                                                {##}
+                                                {#                                                    <button type="submit" class="btn btn-primary">Submit</button>#}
+                                                {#                                                    <a href="{% url 'students_with_balances' %}"#}
+                                                {#                                                       class="btn btn-secondary">Cancel</a>#}
+                                                {#                                                </form>#}
 
-                                                    <div class="form-group">
-                                                        <label>Fees Type</label>
-                                                        <select name="fee_type" class="form-control" required>
-                                                            <option value="">Select Fee Type</option>
-                                                            <option value="Transport fee">Transport Fee</option>
-                                                            <option value="Lunch Fees">Lunch Fees</option>
-                                                            <option value="Remedial Fees">Remedial Fees</option>
-                                                        </select>
-                                                    </div>
+                                                {#                                          <div class="accordion" id="feeAccordion">#}
+                                                {#    <!-- Accordion for Fee Adjustments -->#}
+                                                {#    <div class="accordion-item">#}
+                                                {#        <h2 class="accordion-header" id="adjustFeeHeader">#}
+                                                {#            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"#}
+                                                {#                data-bs-target="#adjustFeeBody" aria-expanded="false" aria-controls="adjustFeeBody">#}
+                                                {#                <i class="bi bi-pencil-square me-2"></i> Adjust Fees#}
+                                                {#            </button>#}
+                                                {#        </h2>#}
+                                                {#        <div id="adjustFeeBody" class="accordion-collapse collapse" aria-labelledby="adjustFeeHeader"#}
+                                                {#            data-bs-parent="#feeAccordion">#}
+                                                {#            <div class="accordion-body">#}
+                                                {#                <form method="POST">#}
+                                                {#                    {% csrf_token %}#}
+                                                {#                    <input type="hidden" name="action_type" value="adjust_fee">#}
+                                                {#                    <h5 class="mb-3">Fee Adjustment Form</h5>#}
+                                                {##}
+                                                {#                    <div class="row mb-3">#}
+                                                {#                        <div class="col-12 col-md-6">#}
+                                                {#                            {{ adjustment_form.fee_type.as_p }}#}
+                                                {#                        </div>#}
+                                                {#                        <div class="col-12 col-md-6">#}
+                                                {#                            {{ adjustment_form.adjustment_type.as_p }}#}
+                                                {#                        </div>#}
+                                                {#                    </div>#}
+                                                {##}
+                                                {#                    <div class="mb-3">#}
+                                                {#                        <label for="amount" class="form-label">Amount</label>#}
+                                                {#                        <input type="number" name="amount" class="form-control" id="amount" required placeholder="Enter amount">#}
+                                                {#                    </div>#}
+                                                {##}
+                                                {#                    <div class="mb-3">#}
+                                                {#                        <label for="description" class="form-label">Description</label>#}
+                                                {#                        <textarea name="description" class="form-control" id="description" rows="3" placeholder="Describe the adjustment"></textarea>#}
+                                                {#                    </div>#}
+                                                {##}
+                                                {#                    <button type="submit" class="btn btn-primary mt-3">#}
+                                                {#                        <i class="bi bi-check-circle me-1"></i> Apply Adjustment#}
+                                                {#                    </button>#}
+                                                {#                </form>#}
+                                                {#            </div>#}
+                                                {#        </div>#}
+                                                {#    </div>#}
+                                                {##}
+                                                {#    <!-- Accordion for Fee Updates -->#}
+                                                {#    <div class="accordion-item">#}
+                                                {#        <h2 class="accordion-header" id="updateFeeHeader">#}
+                                                {#            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"#}
+                                                {#                data-bs-target="#updateFeeBody" aria-expanded="false" aria-controls="updateFeeBody">#}
+                                                {#                <i class="bi bi-arrow-up-circle me-2"></i> Update Fees#}
+                                                {#            </button>#}
+                                                {#        </h2>#}
+                                                {#        <div id="updateFeeBody" class="accordion-collapse collapse" aria-labelledby="updateFeeHeader"#}
+                                                {#            data-bs-parent="#feeAccordion">#}
+                                                {#            <div class="accordion-body">#}
+                                                {#                <form method="POST">#}
+                                                {#                    {% csrf_token %}#}
+                                                {#                    <input type="hidden" name="action_type" value="update_fee">#}
+                                                {#                    <h5 class="mb-3">Fee Update Form</h5>#}
+                                                {##}
+                                                {#                    <div class="mb-3">#}
+                                                {#                        <label for="feeType" class="form-label">Fee Type</label>#}
+                                                {#                        <select name="fee_type" class="form-select" id="feeType">#}
+                                                {#                            <option value="Transport fee">Transport Fee</option>#}
+                                                {#                            <option value="Lunch Fees">Lunch Fees</option>#}
+                                                {#                            <option value="Remedial Fees">Remedial Fees</option>#}
+                                                {#                        </select>#}
+                                                {#                    </div>#}
+                                                {##}
+                                                {#                    <div class="mb-3">#}
+                                                {#                        <label for="amount" class="form-label">Amount</label>#}
+                                                {#                        <input type="number" name="amount" class="form-control" id="amount" placeholder="Enter fee amount" required>#}
+                                                {#                    </div>#}
+                                                {##}
+                                                {#                    <div class="form-check mb-3">#}
+                                                {#                        <input type="checkbox" name="active" class="form-check-input" id="active" checked>#}
+                                                {#                        <label for="active" class="form-check-label">Active</label>#}
+                                                {#                    </div>#}
+                                                {##}
+                                                {#                    <button type="submit" class="btn btn-success">#}
+                                                {#                        <i class="bi bi-save me-1"></i> Update Fee#}
+                                                {#                    </button>#}
+                                                {#                </form>#}
+                                                {#            </div>#}
+                                                {#        </div>#}
+                                                {#    </div>#}
+                                                {#</div>#}
 
-                                                    <div class="form-group">
-                                                        <label>Fee Amount</label>
-                                                        <input type="number" name="amount" class="form-control"
-                                                               required>
-                                                    </div>
+                                              <div class="container mt-5">
+        <h2>Manage Fees for {{ student.name }}</h2>
+        <h4>Term: {{ term.name }}</h4>
 
-                                                    <div class="form-group">
-                                                        <label>Action</label>
-                                                        <select name="action" class="form-control" required>
-                                                            <option value="activate">Activate</option>
-                                                            <option value="deactivate">Deactivate</option>
-                                                        </select>
-                                                    </div>
+        <div class="accordion" id="feeAccordion">
+            <!-- Transport Fee -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTransport">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTransport" aria-expanded="true" aria-controls="collapseTransport">
+                        Transport Fee
+                    </button>
+                </h2>
+                <div id="collapseTransport" class="accordion-collapse collapse show" aria-labelledby="headingTransport" data-bs-parent="#feeAccordion">
+                    <div class="accordion-body">
+                        <form method="POST" action="{% url 'update_student_fee' student.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="fee_type" value="Transport fee">
+                            <div class="mb-3">
+                                <label for="transportAmount" class="form-label">Amount</label>
+                                <input type="number" step="0.01" name="amount" class="form-control" id="transportAmount" value="{{ fee_record.transport_fee }}">
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="transportActive" name="action" value="activate" {% if fee_record.transport_active %}checked{% endif %}>
+                                <label class="form-check-label" for="transportActive">Activate Transport Fee</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-                                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                                    <a href="{% url 'students_with_balances' %}"
-                                                       class="btn btn-secondary">Cancel</a>
-                                                </form>
+            <!-- Lunch Fees -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingLunch">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLunch" aria-expanded="false" aria-controls="collapseLunch">
+                        Lunch Fee
+                    </button>
+                </h2>
+                <div id="collapseLunch" class="accordion-collapse collapse" aria-labelledby="headingLunch" data-bs-parent="#feeAccordion">
+                    <div class="accordion-body">
+                        <form method="POST" action="{% url 'update_student_fee' student.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="fee_type" value="Lunch Fees">
+                            <div class="mb-3">
+                                <label for="lunchAmount" class="form-label">Amount</label>
+                                <input type="number" step="0.01" name="amount" class="form-control" id="lunchAmount" value="{{ fee_record.lunch_fee }}">
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="lunchActive" name="action" value="activate" {% if fee_record.lunch_active %}checked{% endif %}>
+                                <label class="form-check-label" for="lunchActive">Activate Lunch Fee</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Remedial Fees -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingRemedial">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRemedial" aria-expanded="false" aria-controls="collapseRemedial">
+                        Remedial Fee
+                    </button>
+                </h2>
+                <div id="collapseRemedial" class="accordion-collapse collapse" aria-labelledby="headingRemedial" data-bs-parent="#feeAccordion">
+                    <div class="accordion-body">
+                        <form method="POST" action="{% url 'update_student_fee' student.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="fee_type" value="Remedial Fees">
+                            <div class="mb-3">
+                                <label for="remedialAmount" class="form-label">Amount</label>
+                                <input type="number" step="0.01" name="amount" class="form-control" id="remedialAmount" value="{{ fee_record.remedial_fee }}">
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="remedialActive" name="action" value="activate" {% if fee_record.remedial_active %}checked{% endif %}>
+                                <label class="form-check-label" for="remedialActive">Activate Remedial Fee</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
                                             </div>

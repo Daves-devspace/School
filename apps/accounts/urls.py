@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('students-with-balances/', views.students_with_balances, name='students_with_balances'),
     path('students_with_overpayments_view/', views.students_with_overpayments_view, name='overpayments'),
+    #path('adjust-fee/<int:student_id>/', views.manage_student_fee, name='adjust_fee'),
     path('update-student-fee/<int:student_id>/', views.update_student_fee, name='update_student_fee'),
     path('api/fee-record/<int:fee_record_id>/update/<str:component>/', views.update_fee_component,
          name='update_fee_component'),

@@ -37,6 +37,7 @@
                                     <thead>
                                     <tr>
                                         <th>#</th>
+                                        <th>ADM</th>
                                         <th>Student Name</th>
                                         <th>Present</th>
                                         <th>Reason for Absence</th>
@@ -46,7 +47,8 @@
                                     {% for student in students %}
                                         <tr>
                                             <td>{{ forloop.counter }}</td>
-                                            <td>{{ student.name }}</td>
+                                            <td>{{ student.admission_number }}</td>
+                                            <td>{{ student.first_name }}-{{ student.last_name }}</td>
                                             <td>
                                                 <input type="checkbox" name="present_{{ student.id }}"
                                                        class="form-check-input">

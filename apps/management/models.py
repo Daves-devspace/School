@@ -30,7 +30,6 @@ class Profile(models.Model):
         default='Student',
     )
     profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
-    phone_number = models.CharField(max_length=15, blank=True, null=True)
     address = models.CharField(max_length=255, default="Unknown Address")
     cv = RichTextField(blank=True, null=True)  # Enables rich text editing
     skills = RichTextField(blank=True, null=True)
@@ -163,6 +162,83 @@ class Term(models.Model):
             raise ValidationError(f"The term '{self.name}' for the year {self.year} overlaps with an existing term.")
 
         super().clean()  # Call the parent class's clean method
+
+# class Term(models.Model):
+#     name = models.CharField(max_length=100)  # e.g., "Term 1", "Term 2"
+#     start_date = models.DateField()
+#     end_date = models.DateField()
+#     midterm_start_date = models.DateField(null=True, blank=True)
+#     midterm_end_date = models.DateField(null=True, blank=True)
+#     year = models.PositiveIntegerField(default=timezone.now().year)
+#
+#     class Meta:
+#         verbose_name = "Term"
+#         verbose_name_plural = "Terms"
+#         ordering = ['-year']
+#
+#     def __str__(self):
+#         return f"{self.name} ({self.year})"
+#
+#     @property
+#     def holiday_period(self):
+#         """
+#         Calculates the holiday period between the end of this term and the start of the next term.
+#         """
+#         next_term = self.get_next_term()
+#         if self.end_date and next_term and next_term.start_date:
+#             holiday_start = self.end_date + timedelta(days=1)
+#             holiday_end = next_term.start_date - timedelta(days=1)
+#             if holiday_end >= holiday_start:
+#                 return {"start": holiday_start, "end": holiday_end}
+#         return None  # No valid holiday period
+#
+#     def get_next_term(self):
+#         """
+#         Returns the next term based on the start_date and year.
+#         """
+#         return Term.objects.filter(
+#             year=self.year, start_date__gt=self.end_date
+#         ).order_by('start_date').first()
+#
+#     @property
+#     def has_midterm(self):
+#         """
+#         Checks if this term has a valid midterm period defined.
+#         """
+#         return self.midterm_start_date and self.midterm_end_date and self.midterm_end_date >= self.midterm_start_date
+#
+#     @property
+#     def midterm_break(self):
+#         """
+#         Returns the midterm break period if defined and valid.
+#         """
+#         if self.has_midterm:
+#             return {
+#                 "start": self.midterm_start_date,
+#                 "end": self.midterm_end_date,
+#                 "duration": (self.midterm_end_date - self.midterm_start_date).days + 1
+#             }
+#         return None
+#
+#     @property
+#     def term_duration(self):
+#         """
+#         Calculates the total duration of the term in days.
+#         """
+#         if self.start_date and self.end_date and self.end_date >= self.start_date:
+#             return (self.end_date - self.start_date).days + 1
+#         return None
+#
+#     def clean(self):
+#         """
+#         Validates term dates and prevents overlap.
+#         """
+#         if self.start_date and self.end_date and self.end_date < self.start_date:
+#             raise ValidationError(f"The end date {self.end_date} cannot be earlier than the start date {self.start_date}.")
+#         super().clean()
+
+
+
 
 
 # TeacherSubject Model

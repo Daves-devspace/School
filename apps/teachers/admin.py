@@ -1,5 +1,8 @@
 from django.contrib import admin
+from django.contrib.auth.models import User
+from django.utils.timezone import now
 
+from apps.management.models import Profile
 from apps.teachers.forms import TeacherForm
 from apps.teachers.models import  Teacher, Department, TeacherAssignment, TeacherRole, Role
 
@@ -14,12 +17,51 @@ class TeacherRoleInline(admin.TabularInline):
     extra = 1  # Allow adding roles in the admin interface
 
 
+
 class TeacherAdmin(admin.ModelAdmin):
     form = TeacherForm
-    list_display = ('id_No', 'get_display_name', 'full_name', 'staff_number', 'email', 'gender', 'is_headteacher')
+    list_display = ('id_No', 'full_name', 'staff_number', 'email', 'phone', 'gender', 'is_headteacher')
 
     # Define search fields to enable searching by teacher's name, email, etc.
-    search_fields = ['full_name', 'email', 'staff_number']
+    search_fields = ['full_name', 'email', 'staff_number', 'phone']
+
+    def save_model(self, request, obj, form, change):
+        """
+        Override the save_model method to handle User creation and linking staff_number as username.
+        """
+        # Extract email, password, and phone number from the form's cleaned data
+        email = form.cleaned_data.get('email')
+        password = form.cleaned_data.get('password')
+        phone = form.cleaned_data.get('phone')
+
+        # Ensure phone is properly formatted
+        if phone and phone.startswith('07'):
+            phone = '+254' + phone[1:]  # Format Kenyan number to international format
+            obj.phone = phone  # Update the Teacher's phone field with the formatted number
+
+        if change:  # If updating an existing Teacher
+            if obj.user:  # If the Teacher is already linked to a User
+                user = obj.user
+                user.email = email
+                user.username = obj.staff_number  # Update username with the staff number
+                if password:  # Update password if provided
+                    user.set_password(password)
+                user.save()
+            else:
+                # If no User is linked, create a new User
+                user = User.objects.create_user(username=obj.staff_number, email=email, password=password)
+                obj.user = user
+        else:  # If creating a new Teacher
+            # Generate staff_number if it's not yet set
+            if not obj.staff_number:
+                obj.staff_number = obj.generate_staff_number()
+
+            # Create a new User using the staff_number as username
+            user = User.objects.create_user(username=obj.staff_number, email=email, password=password)
+            obj.user = user
+
+        # Save the Teacher instance
+        super().save_model(request, obj, form, change)
 
     def get_form(self, request, obj=None, **kwargs):
         """
@@ -34,7 +76,9 @@ class TeacherAdmin(admin.ModelAdmin):
         """
         Display the prefix part of the staff_number.
         """
-        return obj.staff_number.split('-')[0]  # Assuming staff number format is "TCH-XXX-YY"
+        if obj.staff_number:
+            return obj.staff_number.split("/")[0]  # Adjust the split for format "TCH/XXX/YY"
+        return 'N/A'
 
     staff_number_prefix.short_description = 'Staff Number Prefix'
 
@@ -45,6 +89,9 @@ class TeacherAdmin(admin.ModelAdmin):
         if obj:  # If editing an existing object
             return ['staff_number']
         return []
+
+
+
 
 
 

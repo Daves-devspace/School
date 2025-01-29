@@ -174,22 +174,18 @@ def teacher_dashboard(request):
 
     # Retrieve the corresponding Teacher instance for the logged-in user
     teacher = get_object_or_404(Teacher, user=request.user)
+    # Fetch the grade sections assigned to this teacher
+    grade_sections = GradeSection.objects.filter(class_teacher=teacher)
 
-    # Fetch the GradeSections assigned to the Teacher
-    assigned_grade_sections = GradeSection.objects.filter(class_teacher=teacher)
+    current_term = get_current_term()
 
-    # Fetch attendance data for today
-    today = date.today()
-    attendance_records = Attendance.objects.filter(
-        teacher=request.user,  # Ensure it's filtered by the logged-in teacher
-        date=today
-    )
+
 
     # Render the teacher dashboard template with attendance data
     return render(request, 'Home/Teacher/teacher-dashboard.html', {
-        'assigned_grade_sections': assigned_grade_sections,
-        'attendance_records': attendance_records,
-        'today':today
+        'grade_sections':grade_sections,
+        'current_term':current_term,
+
     })
 
 

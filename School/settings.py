@@ -79,6 +79,12 @@ MIDDLEWARE = [
     # 'apps.Manage.middleware.GroupRedirectMiddleware',
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # Default authentication backend
+    'apps.teachers.backend.StaffNumberBackend',  # Your custom backend
+)
+
+
 ROOT_URLCONF = 'School.urls'
 
 TEMPLATES = [

@@ -147,7 +147,11 @@ class Student(models.Model):
 
         # Extract the sequential number
         if last_student and last_student.admission_number:
-            last_number = int(last_student.admission_number.split("/")[1])  # Get the middle part (001)
+            try:
+                # Safely split the admission number and get the middle part (the sequential number)
+                last_number = int(last_student.admission_number.split("/")[1])  # Get the middle part (001)
+            except (IndexError, ValueError):
+                last_number = 0  # Default to 0 if the admission_number format is unexpected
         else:
             last_number = 0  # Default to 0 if no previous student exists
 
@@ -155,7 +159,7 @@ class Student(models.Model):
         new_number = f"{last_number + 1:03d}"
 
         # Return the formatted admission number
-        return f"MFS-{new_number}-{year_suffix}"
+        return f"MFS/{new_number}/{year_suffix}"
 
     def clean(self):
         # Ensure joining date is not in the future

@@ -4,10 +4,10 @@ from django.utils.timezone import now
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumber_field.validators import validate_international_phonenumber
+from phonenumbers import parse, is_valid_number, NumberParseException
 
 from .models import Teacher, TeacherAssignment
 from ..management.models import Profile
-
 
 
 
@@ -22,132 +22,113 @@ class TeacherForm(forms.ModelForm):
             'class': 'form-control',
             'placeholder': 'Enter password'
         }),
-        required=False  # Password is not required for updates
+        required=False  # Password is optional for updates
     )
-    phone_no = PhoneNumberField(required=False)  # Optional phone number field for profile
-    address = forms.CharField(widget=forms.Textarea, required=False)  # Optional address field for profile
+    phone = PhoneNumberField(required=False)  # Optional phone number
+    address = forms.CharField(widget=forms.Textarea, required=False)  # Optional address
 
     class Meta:
         model = Teacher
         fields = [
-            'full_name', 'id_No', 'staff_number', 'phone_no', 'gender',
+            'full_name', 'id_No', 'staff_number', 'phone', 'gender',
             'qualification', 'experience', 'joining_date',
             'subjects', 'country', 'address'
         ]
         widgets = {
-            'full_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Full Name'
-            }),
-            'teacher_id': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Teacher ID'
-            }),
-            'phone_no': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Phone Number'
-            }),
-            'gender': forms.Select(attrs={
-                'class': 'form-select',
-            }),
-            'qualification': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Qualification'
-            }),
-            'experience': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Experience (in years)'
-            }),
-            'joining_date': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
-            }),
-            'subjects': forms.SelectMultiple(attrs={
-                'class': 'form-control',
-            }),
-            'country': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Country'
-            }),
-            'address': forms.Textarea(attrs={
-                'class': 'form-control',
-                'placeholder': 'Address',
-                'rows': 3
-            }),
-            'staff_number': forms.TextInput(attrs={
-                'class': 'form-control',
-                'readonly': 'readonly',  # Make the staff number read-only
-            }),
+            'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
+            'staff_number': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
+            'gender': forms.Select(attrs={'class': 'form-select'}),
+            'qualification': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Qualification'}),
+            'experience': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Experience (in years)'}),
+            'joining_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'subjects': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'country': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Country'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Address'}),
         }
 
     def __init__(self, *args, **kwargs):
-        # Check if the form is for updating an existing instance
+        # Handle instance for updates
         self.instance = kwargs.get('instance', None)
         super().__init__(*args, **kwargs)
 
-        # Generate staff number automatically if not set (new teacher)
-        if not self.instance.pk:  # Only generate for new teachers
+        # Populate email for updates
+        if self.instance and self.instance.user:
+            self.fields['email'].initial = self.instance.user.email
+            # Hide password field during updates
+            self.fields['password'].widget = forms.HiddenInput()
+
+        # Auto-generate staff number for new teachers
+        if not self.instance or not self.instance.pk:
             self.fields['staff_number'].initial = Teacher.generate_staff_number()
 
-        if self.instance and self.instance.user:  # If editing an existing teacher
-            self.fields['email'].initial = self.instance.user.email  # Prepopulate email
-            self.fields['password'].widget = forms.HiddenInput()  # Hide password field during updates
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
 
-    def clean_phone_no(self):
-        mobile = self.cleaned_data['phone_no']
+        # Ensure email is unique for the User model
+        if User.objects.filter(email=email).exclude(pk=self.instance.user.pk if self.instance and self.instance.user else None).exists():
+            raise forms.ValidationError("A user with this email already exists.")
+        return email
 
-        # Ensure the mobile number is a string
-        mobile_str = str(mobile)
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone', None)
 
-        # Validate format for Kenyan numbers
-        if mobile_str.startswith('07'):
-            mobile_str = '+254' + mobile_str[1:]  # Convert '07' to '+2547'
-        elif not mobile_str.startswith('+254'):
-            raise forms.ValidationError("Enter a valid Kenyan number starting with +254 or 07.")
+        # If phone is provided, check if it is valid
+        if phone:
+            # Ensure phone is a string, not a PhoneNumber object
+            if isinstance(phone, str):
+                raw_phone_number = phone
+            else:
+                raw_phone_number = str(phone)  # Convert PhoneNumber object to string
 
-        # Validate using phonenumber_field
-        validate_international_phonenumber(mobile_str)
+            # Check if it starts with '07' for Kenyan numbers and format correctly
+            if raw_phone_number.startswith('07'):
+                phone = '+254' + raw_phone_number[1:]  # Convert '07' to '+2547'
+            elif not raw_phone_number.startswith('+254'):
+                raise forms.ValidationError("Enter a valid Kenyan number starting with +254 or 07.")
 
-        # Convert back to a PhoneNumber object and return
-        return PhoneNumber.from_string(mobile_str)
+            # Validate the phone number using phonenumbers library
+            try:
+                parsed_number = parse(phone, 'KE')
+                if not is_valid_number(parsed_number):
+                    raise ValueError("Invalid phone number format.")
+            except (NumberParseException, ValueError) as e:
+                raise forms.ValidationError(f"Invalid phone number: {str(e)}")
+
+            self.cleaned_data['phone'] = phone  # Update the phone number after formatting
+
+        return phone
 
     def save(self, commit=True):
-        # Extract email and password from cleaned data
         email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')
 
-        if self.instance and self.instance.user:  # Updating existing teacher
+        # Update or create the associated User
+        if self.instance and self.instance.user:
             user = self.instance.user
-            user.email = email  # Update email
-            user.username = email  # Update username (if needed)
-            if password:  # Update password if provided
+            user.email = email
+            user.username = self.instance.staff_number  # Use staff_number as username
+            if password:
                 user.set_password(password)
             if commit:
                 user.save()
-        else:  # Creating a new teacher
-            user = User.objects.create_user(username=email, email=email, password=password)
+        else:
+            # Create new user for new teacher
+            user = User.objects.create_user(username=self.instance.staff_number, email=email, password=password)
 
-        # Save the Teacher instance, generating staff_number automatically if not set
+        # Save Teacher instance
         teacher = super().save(commit=False)
-        if not teacher.staff_number:  # Only generate staff_number for new teachers
-            teacher.staff_number = Teacher.generate_staff_number()  # Assuming you have this method in your model
         teacher.user = user
 
-        # Save the Teacher instance
         if commit:
             teacher.save()
-            self.save_m2m()  # Save many-to-many relationships (e.g., subjects)
-
-            # Create Profile instance
-            profile = Profile.objects.create(
-                user=user,  # Link the profile to the user
-                role='Teacher',  # Role is set to 'Teacher' by default
-                phone_number=self.cleaned_data.get('phone_no', ''),  # Phone number
-                address=self.cleaned_data.get('address', ''),  # Address
-                created_at=now(),  # Set the profile creation time
-            )
+            self.save_m2m()
 
         return teacher
+
+
+
+
 
 
 
