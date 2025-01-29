@@ -3,7 +3,7 @@ from django.db.models.fields import CharField
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.validators import validate_international_phonenumber
 
-from .models import Student, Parent, StudentParent, Grade, StudentDocument
+from .models import Student, Parent, StudentParent, Grade, StudentDocument, GradeSection
 from ..management.models import ExamType, Term
 
 # Define Choices
@@ -181,4 +181,17 @@ class SendClassForm(forms.Form):
         required=True,
         label="Class",
         widget=forms.Select(attrs={"class": "form-control"})
+    )
+
+
+
+
+class StudentSearchForm(forms.Form):
+    grade = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter Grade Name"})
+    )
+    section = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter Section Name"})
     )

@@ -1,0 +1,222 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+    <style>
+        @media print {
+            body * {
+                visibility: hidden; /* Hide everything */
+            }
+
+            #pdf-content, #pdf-content * {
+                visibility: visible; /* Show only the printable content */
+            }
+
+            #pdf-content {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                page-break-before: always; /* Start content on a new page */
+                page-break-inside: avoid; /* Avoid breaking inside sections */
+            }
+
+            /* Table Styling */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                page-break-inside: auto; /* Allow the table rows to break */
+            }
+
+            tr {
+                page-break-inside: avoid; /* Prevent breaking in the middle of a row */
+            }
+
+            td {
+                page-break-inside: avoid; /* Prevent breaking inside table cells */
+            }
+        }
+    </style>
+
+
+
+
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+
+            <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="page-sub-header">
+                            <h3 class="page-title">Students</h3>
+                            <ul class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="students.html">Student</a></li>
+                                <li class="breadcrumb-item active">All Students</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+            {#            <div class="student-group-form">#}
+            {#                <div class="row">#}
+            {#                    <div class="col-lg-3 col-md-6">#}
+            {#                        <div class="form-group">#}
+            {#                            <input type="text" class="form-control" placeholder="Search by ID ...">#}
+            {#                        </div>#}
+            {#                    </div>#}
+            {#                    <div class="col-lg-3 col-md-6">#}
+            {#                        <div class="form-group">#}
+            {#                            <input type="text" class="form-control" placeholder="Search by Name ...">#}
+            {#                        </div>#}
+            {#                    </div>#}
+            {#                    <div class="col-lg-4 col-md-6">#}
+            {#                        <div class="form-group">#}
+            {#                            <input type="text" class="form-control" placeholder="Search by Phone ...">#}
+            {#                        </div>#}
+            {#                    </div>#}
+            {#                    <div class="col-lg-2">#}
+            {#                        <div class="search-student-btn">#}
+            {#                            <button type="btn" class="btn btn custom-bg text-white">Search</button>#}
+            {#                        </div>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {#            </div>#}
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table comman-shadow">
+                        <div class="card-body">
+
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+
+
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a onclick="printPDF()" class="btn btn-success  no-print text-white me-2"><i
+                                                class="fas fa-print"></i>
+                                            Print</a>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+
+
+                                <form method="GET" class="d-flex mb-3">
+                                    <input type="text" name="grade" class="form-control me-2" placeholder="Enter Grade">
+                                    <input type="text" name="section" class="form-control me-2"
+                                           placeholder="Enter Section">
+                                    <button type="submit" class="btn btn-primary">Search</button>
+                                </form>
+                                {#                                <button  class="btn btn-success">Download as PDF</button>#}
+
+                                <div id="pdf-content">
+                                    <div style="display: flex; justify-content: center;">
+                                        <img src="{% static 'assets/img/new-logo.png' %}" class="mb-2"
+                                             alt="School Logo" style="width: 25%;">
+                                    </div>
+                                    <h4>
+                                        {% if grade and not section %}
+                                            Grade {{ grade.name }} Students
+                                        {% elif grade and section %}
+                                            Grade {{ grade }} {{ section }} Students
+                                        {% else %}
+                                            All Students
+                                        {% endif %}
+                                    </h4>
+
+
+                                    <table class="table border-0 star-student table-hover table-center mb-0 datatable table-stripe">
+                                        <thead class="student-thread">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>ADM</th>
+                                            <th>Name</th>
+                                            <th>Class</th>
+                                            <th>DOB</th>
+                                            <th>Parent Name</th>
+                                            <th>Mobile Number</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for student in students %}
+                                            <tr class="pdf-page">
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ student.admission_number }}</td>
+                                                <td>{{ student.first_name }} {{ student.last_name }}</td>
+                                                <td>{{ student.grade }}</td>
+                                                <td>{{ student.date_of_birth }}</td>
+                                                <td>{{ student.parent.first.first_name }} {{ student.parent.first.last_name }}</td>
+                                                <td>{{ student.parent.first.mobile }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Copyright © 2024 davedev </p>
+    </footer>
+
+    </div>
+
+    </div>
+
+
+    <script>
+        function printPDF() {
+            window.print(); // Uses print styles to show only #pdf-content
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById("pdf-content");
+            html2pdf().from(element).save("Student_List.pdf");
+        }
+    </script>
+
+
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/js/feather.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </body>
+
+    </html>
+
+
+{% endblock %}

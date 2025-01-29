@@ -17,10 +17,10 @@ from django.utils.timezone import now
 
 from apps.accounts.models import FeeStructure, FeeRecord
 from apps.management.models import Term, SubjectMark, ReportCard, ExamType, Attendance
-from apps.students.forms import StudentForm, PromoteStudentsForm, SendSMSForm, DocumentUploadForm
+from apps.students.forms import StudentForm, PromoteStudentsForm, SendSMSForm, DocumentUploadForm,  \
+    StudentSearchForm
 # from apps.students.forms import StudentForm
-from apps.students.models import Student, Parent, StudentParent, Grade
-
+from apps.students.models import Student, Parent, StudentParent, Grade, GradeSection
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,29 @@ logger = logging.getLogger(__name__)
 def students(request):
     student_list = Student.objects.filter(status="Active")
     return render(request, "students/students.html", {"student_list": student_list})
+
+
+
+def student_query(request):
+    form = StudentSearchForm(request.GET)
+    students = Student.objects.all()  # Start with all students
+
+    if form.is_valid():
+        grade_name = form.cleaned_data.get('grade')  # User enters grade name
+        section_name = form.cleaned_data.get('section')  # User enters section name
+
+        if grade_name:
+            students = students.filter(grade__grade__name__icontains=grade_name)  # Correct field reference
+        if section_name:
+            students = students.filter(grade__section__name__icontains=section_name)
+
+    context = {
+        'students': students,
+        'form': form,
+        'student_count': students.count()
+    }
+    return render(request, 'students/query_students.html', context)
+
 
 
 def active_students(request):

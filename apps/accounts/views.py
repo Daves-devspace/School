@@ -786,52 +786,52 @@ def generate_receipt(request, fee_record_id):
     return render(request, "accounts/receipt.html", context)
 
 
-def generate_pdf_receipt(request, fee_record_id):
-    # Fetch the fee record
-    fee_record = get_object_or_404(FeeRecord, id=fee_record_id)
-
-    # Fetch the parents associated with the student
-    student = fee_record.student
-    student_parents = StudentParent.objects.filter(student=student)
-    institution = Institution.objects.last()
-
-    parent_details = [
-        {
-            "first_name": parent.parent.first_name,
-            "last_name": parent.parent.last_name,
-            "contact_number": parent.parent.mobile,
-            "email": parent.parent.email,
-            "relationship": parent.relationship,
-        }
-        for parent in student_parents
-    ]
-
-    guardian_names = ", ".join(
-        [f"{parent['first_name']} {parent.get('last_name', '')}".strip()
-         for parent in parent_details]
-    ) if parent_details else "N/A"
-
-    # Context for the receipt template
-    context = {
-        "fee_record": fee_record,
-        "student_first_name": fee_record.student.first_name,
-        "student_last_name": fee_record.student.last_name,
-        "student_grade": fee_record.student.grade,
-        "guardian_name": guardian_names,
-        "term_name": fee_record.term.name,
-        "tuition_fee": fee_record.tuition_fee,
-        "transport_fee": fee_record.transport_fee if fee_record.transport_active else 0,
-        "lunch_fee": fee_record.lunch_fee if fee_record.lunch_active else 0,
-        "remedial_fee": fee_record.remedial_fee if fee_record.remedial_active else 0,
-        "previous_balance": fee_record.previous_term_balance,
-        "payments_made": fee_record.paid_amount,
-        "total_fee": fee_record.total_fee,
-        "balance": fee_record.balance,
-        "overpayment": fee_record.overpayment,
-        "institution": institution,
-    }
-
-    return Render.render('accounts/receipt.html',context) # Render the receipt template for PDF generation
+# def generate_pdf_receipt(request, fee_record_id):
+#     # Fetch the fee record
+#     fee_record = get_object_or_404(FeeRecord, id=fee_record_id)
+#
+#     # Fetch the parents associated with the student
+#     student = fee_record.student
+#     student_parents = StudentParent.objects.filter(student=student)
+#     institution = Institution.objects.last()
+#
+#     parent_details = [
+#         {
+#             "first_name": parent.parent.first_name,
+#             "last_name": parent.parent.last_name,
+#             "contact_number": parent.parent.mobile,
+#             "email": parent.parent.email,
+#             "relationship": parent.relationship,
+#         }
+#         for parent in student_parents
+#     ]
+#
+#     guardian_names = ", ".join(
+#         [f"{parent['first_name']} {parent.get('last_name', '')}".strip()
+#          for parent in parent_details]
+#     ) if parent_details else "N/A"
+#
+#     # Context for the receipt template
+#     context = {
+#         "fee_record": fee_record,
+#         "student_first_name": fee_record.student.first_name,
+#         "student_last_name": fee_record.student.last_name,
+#         "student_grade": fee_record.student.grade,
+#         "guardian_name": guardian_names,
+#         "term_name": fee_record.term.name,
+#         "tuition_fee": fee_record.tuition_fee,
+#         "transport_fee": fee_record.transport_fee if fee_record.transport_active else 0,
+#         "lunch_fee": fee_record.lunch_fee if fee_record.lunch_active else 0,
+#         "remedial_fee": fee_record.remedial_fee if fee_record.remedial_active else 0,
+#         "previous_balance": fee_record.previous_term_balance,
+#         "payments_made": fee_record.paid_amount,
+#         "total_fee": fee_record.total_fee,
+#         "balance": fee_record.balance,
+#         "overpayment": fee_record.overpayment,
+#         "institution": institution,
+#     }
+#
+#     return Render.render('accounts/receipt.html',context) # Render the receipt template for PDF generation
 
 
 
