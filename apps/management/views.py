@@ -6,7 +6,6 @@ from asgiref.sync import async_to_sync
 from django.db.models import F, Value, CharField, Case, When
 from django.db.models.functions import Concat
 
-
 import requests
 from channels.layers import get_channel_layer
 from django.contrib import messages
@@ -30,8 +29,8 @@ from rest_framework.views import APIView
 
 from apps.accounts.models import FeePayment, Expense
 from apps.management.forms import SubjectForm, BookForm, TimetableForm, LessonExchangeForm, ProfileForm, \
-    HolidayPresentationForm, FeedbackForm, TermForm
-from apps.management.models import Term,ReportCard, SubjectMark, ExamType, \
+    HolidayPresentationForm, FeedbackForm, TermForm, ExamTypeForm
+from apps.management.models import Term, ReportCard, SubjectMark, ExamType, \
     Attendance, Timetable, LessonExchangeRequest, HolidayPresentation
 from apps.management.serializers import TimetableSerializer
 from apps.schedules.models import Subject
@@ -47,34 +46,66 @@ from apps.teachers.models import Department, Teacher  # Revenue
 
 logger = logging.getLogger(__name__)
 
-def add_term(request):
-    if request.method == 'POST':
-        form = TermForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('terms')
+
+def manage_terms(request, id=None):
+    if id:
+        term = get_object_or_404(Term, pk=id)
     else:
-        form = TermForm()
-    return render(request,'Manage/terms.html',{'form': form})
-
-
-def term_list(request):
-    terms = Term.objects.all()
-    return render(request,'Manage/term_list.html',{'terms': terms})
-
-
-def edit_term(request,pk):
-    term = get_object_or_404(Term,pk=pk)
+        term = None
 
     if request.method == 'POST':
-        form = TermForm(request.POST,instance=term)
+        form = TermForm(request.POST, instance=term)
         if form.is_valid():
             form.save()
             return redirect('terms')
     else:
         form = TermForm(instance=term)
 
-    return render(request,'Manage/edit_term.html',{'form':form,'term':term})
+    terms = Term.objects.all()
+
+    return render(request, 'Manage/term_list.html', {
+        'form': form,
+        'terms': terms,
+        'term': term,
+    })
+
+
+def delete_term(request, id):
+    term = get_object_or_404(Term, pk=id)
+    term.delete()
+    return redirect('terms')
+
+
+def manage_exam_types(request, id=None):
+    """Handles both adding and editing exam types."""
+
+    if id:
+        exam_type = get_object_or_404(ExamType, pk=id)  # Fetch exam type for editing
+    else:
+        exam_type = None  # No ID means it's an add operation
+
+    if request.method == 'POST':
+        form = ExamTypeForm(request.POST, instance=exam_type)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_exam_types')  # Stay on the same page
+    else:
+        form = ExamTypeForm(instance=exam_type)
+
+    exam_types = ExamType.objects.all()  # Get all exam types
+
+    return render(request, 'Manage/exam_types.html', {
+        'form': form,
+        'exam_types': exam_types,
+        'exam_type': exam_type,  # Pass for edit mode check
+    })
+
+
+def delete_exam_type(request, id):
+    """deleting an exam type."""
+    exam_type = get_object_or_404(ExamType, pk=id)
+    exam_type.delete()
+    return redirect('manage_exam_types')
 
 
 def send_notification(user, message):
@@ -86,6 +117,7 @@ def send_notification(user, message):
             "message": {"message": message},
         }
     )
+
 
 @login_required
 def user_profile(request):
@@ -110,7 +142,9 @@ def user_profile(request):
     else:
         additional_info = {}
 
-    return render(request, 'Manage/profile.html', {'profile_form': profile_form, 'profile': profile, 'additional_info': additional_info})
+    return render(request, 'Manage/profile.html',
+                  {'profile_form': profile_form, 'profile': profile, 'additional_info': additional_info})
+
 
 def create_presentation(request):
     if request.method == 'POST':
@@ -126,7 +160,7 @@ def create_presentation(request):
     return render(request, 'Manage/create_presentation.html', {'form': form})
 
 
-def presentation_detail(request,id):
+def presentation_detail(request, id):
     # Get the specific presentation
     presentation = get_object_or_404(HolidayPresentation, id=id)
     feedback_form = FeedbackForm(request.POST or None)
@@ -143,7 +177,6 @@ def presentation_detail(request,id):
         'presentation': presentation,
         'feedback_form': feedback_form,
     })
-
 
 
 @login_required
@@ -179,21 +212,23 @@ def presentation_list(request):
         'form': form
     })
 
+
 @staff_member_required
 def manage_users(request):
     users = User.objects.all()
-    return render(request,'Manage/manage_users.html',{'users': users})
+    return render(request, 'Manage/manage_users.html', {'users': users})
+
 
 @staff_member_required
-def toggle_user_status(request,user_id):
+def toggle_user_status(request, user_id):
     try:
         user = User.objects.get(pk=user_id)
-        user.is_active = not user.is_active #toggle activation status
+        user.is_active = not user.is_active  # toggle activation status
         user.save()
         status = "Activated" if user.is_active else "Deactivated"
-        messages.success(request,f"User {user.username} has been {status}")
+        messages.success(request, f"User {user.username} has been {status}")
     except User.DoesNotExist:
-        messages.error(request,"User not found")
+        messages.error(request, "User not found")
     return redirect('manage_users')
 
 
@@ -278,10 +313,6 @@ def send_results_sms(request):
     return render(request, 'Manage/send_result_sms.html', {'terms': terms, 'exam_types': exam_types})
 
 
-
-
-
-
 @login_required
 def send_bulk_sms_view(request):
     parents = Parent.objects.filter(mobile__isnull=False)
@@ -354,6 +385,7 @@ def send_sms_to_class(request):
         "message": message,
         "error": error
     })
+
 
 #
 # def messages_view(request):
@@ -440,7 +472,8 @@ def messages_view(request):
         # Handle grade selection for filtering
         elif "grade" in request.POST:
             selected_grade = request.POST.get("grade")
-            parents = StudentParent.objects.filter(student__grade_id=selected_grade) if selected_grade else StudentParent.objects.all()
+            parents = StudentParent.objects.filter(
+                student__grade_id=selected_grade) if selected_grade else StudentParent.objects.all()
             parents_choices = [
                 (p.id, f"{p.parent.first_name} {p.parent.last_name} ({p.student.first_name})")
                 for p in parents
@@ -458,7 +491,6 @@ def messages_view(request):
         "selected_grade": selected_grade,
         "parents_choices": parents_choices
     })
-
 
 
 # @csrf_exempt
@@ -714,7 +746,8 @@ def get_students_by_class(request):
 
 @login_required
 def view_results(request):
-    results = Result.objects.select_related('student', 'teacher_subject__teacher', 'teacher_subject__subject', 'term')
+    results = SubjectMark.objects.select_related('student', 'teacher_subject__teacher', 'teacher_subject__subject',
+                                                 'term')
     return render(request, 'performance/results.html', {'results': results})
 
 
@@ -740,7 +773,7 @@ def edit_subject(request, id):
 @login_required
 def subject_teachers(request):
     teacher_subjects = Subject.objects.select_related('teacher', 'subject',
-                                                             'grade_assigned').all()  # or use any other filter you need
+                                                      'grade_assigned').all()  # or use any other filter you need
     return render(request, 'performance/subject_teachers.html', {'teacher_subjects': teacher_subjects})
 
 
@@ -748,21 +781,45 @@ def subject_teachers(request):
 def subjects_by_grade(request, grade_id):
     grade = Grade.objects.get(id=grade_id)
     subjects = Subject.objects.filter(grade_assigned=grade).select_related('teacher', 'subject',
-                                                                                  'grade_assigned')
+                                                                           'grade_assigned')
     return render(request, 'performance/subjects.html', {'grade': grade, 'subjects': subjects})
 
 
 # top 5 students
 @login_required
-def class_performance(request):
-    results = Result.objects.filter().values(
-        'student__first_name'
-    ).annotate(total_score=Sum('score')).order_by('-total_score')
+def class_performance_view(request):
+    grade_id = request.GET.get('grade_id')
+    grade_section_id = request.GET.get('grade_section_id')
+    term_id = request.GET.get('term_id')
+    exam_type_id = request.GET.get('exam_type_id')
 
-    top_students = results[:5]
-    return render(request, 'performance/class_performance.html', {
-        'top_students': top_students,
-        'results': results,
+    # Fetch necessary data for the form dropdowns
+    grades = Grade.objects.all()
+    terms = Term.objects.all()
+    exam_types = ExamType.objects.all()
+
+    # Ensure all required parameters are present
+    if not (grade_id and term_id and exam_type_id):
+        return redirect('some_error_page')  # Redirect to an error page if needed
+
+    # Initialize query_params
+    query_params = f'?grade_id={grade_id}&term_id={term_id}&exam_type_id={exam_type_id}'
+
+    if grade_section_id:
+        query_params += f'&grade_section_id={grade_section_id}'
+
+    return redirect(reverse('view_results_table') + query_params)
+
+
+def render_filter_form(request):
+    grades = Grade.objects.all()
+    terms = Term.objects.all()
+    exam_types = ExamType.objects.all()
+
+    return render(request, 'performance/class_results_view.html', {
+        'grades': grades,
+        'terms': terms,
+        'exam_types': exam_types,
     })
 
 
@@ -846,13 +903,14 @@ def add_results_table(request):
 
     # Handling form submission (POST)
     if request.method == 'POST':
-        max_score = float(request.POST.get('max_score', 100))  # Default max score if not provided
+        max_score_str = request.POST.get('max_score', '100')  # Default to '100'
+        max_score = float(max_score_str) if max_score_str.strip() else 100  # Convert only if not empty
 
         for student in students:
-            marks = request.POST.get(f'marks_{student.id}')
-            if marks:
+            marks_str = request.POST.get(f'marks_{student.id}', '').strip()
+            if marks_str:  # Ensure marks is not empty before converting
                 try:
-                    marks = float(marks)
+                    marks = float(marks_str)
                     # Ensure marks are within range
                     if 0 <= marks <= max_score:
                         subject_mark, created = SubjectMark.objects.update_or_create(
@@ -883,32 +941,38 @@ def add_results_table(request):
     return render(request, 'performance/add_results_table.html', context)
 
 
-def view_results_table(request, grade_id, term_id, exam_type_id, subject_id):
-    # Get the GradeSection based on grade_id
-    selected_grade_section = get_object_or_404(GradeSection, id=grade_id)
+def view_results_table(request, grade_id, term_id, exam_type_id, subject_id=None, grade_section_id=None):
+    """
+    Fetches student results for a selected grade or grade section.
+    If grade_section_id is provided, it filters students by that section.
+    If only grade_id is provided, it fetches students across all sections in the grade.
+    """
 
-    # Fetch the associated Grade from the GradeSection
-    selected_class = selected_grade_section.grade
+    # Get the Grade object based on grade_id
+    selected_class = get_object_or_404(Grade, id=grade_id)
 
-    # Get selected term, exam type, and subject
+    # Get term and exam type
     selected_term = get_object_or_404(Term, id=term_id)
     selected_exam_type = get_object_or_404(ExamType, id=exam_type_id)
 
-    # Fetch all subjects that the students are taking
-    subjects = Subject.objects.all()  # You can modify this to filter subjects by grade if needed
+    # Get all subjects (can be filtered based on the grade if needed)
+    subjects = Subject.objects.all()
 
-    # Fetch all GradeSections for the selected grade (e.g., all sections for Grade1)
-    grade_sections = GradeSection.objects.filter(grade=selected_class)
+    # Get all GradeSections under the selected grade
+    if grade_section_id:
+        grade_sections = GradeSection.objects.filter(id=grade_section_id)  # Specific section
+    else:
+        grade_sections = GradeSection.objects.filter(grade=selected_class)  # All sections in grade
 
-    # Fetch all students from the selected grade's sections
-    students = Student.objects.filter(grade__in=grade_sections)
+    # Fetch all students from the selected sections
+    students = Student.objects.filter(grade_section__in=grade_sections)
 
+    # Prepare student data with marks
     student_data = []
     for student in students:
         marks = []
         total_marks = 0
 
-        # Get marks for each subject the student is taking
         for subject in subjects:
             subject_mark = SubjectMark.objects.filter(
                 student=student,
@@ -917,12 +981,10 @@ def view_results_table(request, grade_id, term_id, exam_type_id, subject_id):
                 exam_type=selected_exam_type
             ).first()
 
-            # If marks are available, calculate percentage and add to the list
             if subject_mark and subject_mark.marks != "-":
-                # Calculate the percentage if marks are available
                 percentage = round((subject_mark.marks / subject_mark.max_score) * 100)
-                marks.append(f"{percentage}%")  # Append percentage with % symbol
-                total_marks += percentage  # Add percentage to total_marks for rank calculation
+                marks.append(f"{percentage}%")
+                total_marks += percentage
             else:
                 marks.append("-")
 
@@ -933,10 +995,10 @@ def view_results_table(request, grade_id, term_id, exam_type_id, subject_id):
             'total_marks': total_marks,
         })
 
-    # Sort by total_marks in descending order
+    # Sort students by total marks (for ranking)
     student_data = sorted(student_data, key=lambda x: x['total_marks'], reverse=True)
 
-    # Add ranking
+    # Assign rank
     for index, student in enumerate(student_data):
         student['rank'] = index + 1
 
@@ -945,12 +1007,80 @@ def view_results_table(request, grade_id, term_id, exam_type_id, subject_id):
         'selected_term': selected_term,
         'selected_exam_type': selected_exam_type,
         'subjects': subjects,
-        'grade_sections': grade_sections,
-        'student_data': student_data,
+        'grade_sections': grade_sections,  # Sections of the selected grade
+        'student_data': student_data,  # Processed student results
     }
 
     return render(request, 'performance/view_results_table.html', context)
 
+
+# def view_results_table(request, grade_id, term_id, exam_type_id, subject_id):
+#     # Get the GradeSection based on grade_id
+#     selected_grade_section = get_object_or_404(GradeSection, id=grade_id)
+#
+#     # Fetch the associated Grade from the GradeSection
+#     selected_class = selected_grade_section.grade
+#
+#     # Get selected term, exam type, and subject
+#     selected_term = get_object_or_404(Term, id=term_id)
+#     selected_exam_type = get_object_or_404(ExamType, id=exam_type_id)
+#
+#     # Fetch all subjects that the students are taking
+#     subjects = Subject.objects.all()  # You can modify this to filter subjects by grade if needed
+#
+#     # Fetch all GradeSections for the selected grade (e.g., all sections for Grade1)
+#     grade_sections = GradeSection.objects.filter(grade=selected_class)
+#
+#     # Fetch all students from the selected grade's sections
+#     students = Student.objects.filter(grade__in=grade_sections)
+#
+#     student_data = []
+#     for student in students:
+#         marks = []
+#         total_marks = 0
+#
+#         # Get marks for each subject the student is taking
+#         for subject in subjects:
+#             subject_mark = SubjectMark.objects.filter(
+#                 student=student,
+#                 subject=subject,
+#                 term=selected_term,
+#                 exam_type=selected_exam_type
+#             ).first()
+#
+#             # If marks are available, calculate percentage and add to the list
+#             if subject_mark and subject_mark.marks != "-":
+#                 # Calculate the percentage if marks are available
+#                 percentage = round((subject_mark.marks / subject_mark.max_score) * 100)
+#                 marks.append(f"{percentage}%")  # Append percentage with % symbol
+#                 total_marks += percentage  # Add percentage to total_marks for rank calculation
+#             else:
+#                 marks.append("-")
+#
+#         student_data.append({
+#             'admission_number': student.admission_number,
+#             'name': f"{student.first_name} {student.last_name}",
+#             'marks': marks,
+#             'total_marks': total_marks,
+#         })
+#
+#     # Sort by total_marks in descending order
+#     student_data = sorted(student_data, key=lambda x: x['total_marks'], reverse=True)
+#
+#     # Add ranking
+#     for index, student in enumerate(student_data):
+#         student['rank'] = index + 1
+#
+#     context = {
+#         'selected_class': selected_class,
+#         'selected_term': selected_term,
+#         'selected_exam_type': selected_exam_type,
+#         'subjects': subjects,
+#         'grade_sections': grade_sections,
+#         'student_data': student_data,
+#     }
+#
+#     return render(request, 'performance/view_results_table.html', context)
 
 
 def report_card_view(request, student_id, term_id):
@@ -1099,9 +1229,6 @@ def top_students_view(request):
     return render(request, 'performance/top_students.html', context)
 
 
-
-
-
 # calculating performance by grade and term
 @login_required
 def grade_performance_view(request, grade_id, term_id):
@@ -1234,9 +1361,6 @@ def dashboard_view(request):
     return render(request, "Home/Admin/index.html", {"total_revenue": total_revenue})
 
 
-
-
-
 @login_required
 def pie_data(request):
     # Count boys and girls in your dataset
@@ -1253,8 +1377,6 @@ def pie_data(request):
             "hoverBorderColor": "rgba(234, 236, 244, 1)",
         }]
     })
-
-
 
 
 @login_required
@@ -1302,7 +1424,6 @@ def trends_bar_chart_data(request):
             }
         ]
     })
-
 
 
 @login_required
@@ -1513,11 +1634,6 @@ def mark_attendance(request, grade_section_id, term_id):
     })
 
 
-
-
-
-
-
 def attendance_summary(request, grade_section_id, term_id):
     # Get the GradeSection and Term
     grade_section = get_object_or_404(GradeSection, id=grade_section_id)
@@ -1612,7 +1728,6 @@ class TimetableCreateView(View):
         return render(request, 'performance/add_time_table.html', {'form': form})
 
 
-
 class TimetableCreateAPIView(generics.CreateAPIView):
     queryset = Timetable.objects.all()
     serializer_class = TimetableSerializer
@@ -1631,9 +1746,10 @@ class TimetableCreateAPIView(generics.CreateAPIView):
             raise ValidationError("This time slot is already occupied.")
 
 
-#render page for:TimetableAPIView --data
+# render page for:TimetableAPIView --data
 def class_timetable_view(request):
     return render(request, 'performance/time_table.html')
+
 
 class TimetableAPIView(View):
     def get(self, request, *args, **kwargs):
@@ -1746,9 +1862,6 @@ class LessonExchangeView(View):
         return render(request, 'performance/exchange_lessons.html', {'form': form})
 
 
-
-
-
 class LessonExchangeApproveView(View):
     def get(self, request, pk):
         try:
@@ -1785,8 +1898,8 @@ class LessonExchangeApproveView(View):
 class LessonExchangeListView(View):
     def get(self, request):
         lesson_exchange_requests = LessonExchangeRequest.objects.filter(status='pending')
-        return render(request, 'performance/lesson_exchange_list.html', {'lesson_exchange_requests': lesson_exchange_requests})
-
+        return render(request, 'performance/lesson_exchange_list.html',
+                      {'lesson_exchange_requests': lesson_exchange_requests})
 
 
 def swap_lessons(request, pk):
@@ -1811,9 +1924,6 @@ def swap_lessons(request, pk):
 
     messages.success(request, "Lessons have been successfully swapped.")
     return redirect('class-timetable')
-
-
-
 
 
 # class GradeSectionTimetableView(DetailView):
@@ -1898,15 +2008,9 @@ class TeacherScheduleAPIView(APIView):
             return JsonResponse({'error': str(e)}, status=500)
 
 
-
-
-
-
-
 def get_grade_sections(request):
     grade_sections = GradeSection.objects.all().values('id', 'grade__name', 'section__name')  # Adjust fields as needed
     return JsonResponse(list(grade_sections), safe=False)
-
 
 
 def timetable_create(request):
@@ -1927,5 +2031,3 @@ def transport_view(request):
 
 def events_view(request):
     return render(request, 'Manage/event.html')
-
-

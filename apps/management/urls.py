@@ -5,10 +5,13 @@ from .views import TimetableCreateAPIView, TimetableCreateView, TimetableAPIView
     LessonExchangeListView
 
 urlpatterns = [
-    path('term/', views.add_term, name='add_terms'),
-    path('terms/', views.term_list, name='terms'),
+    path('edit/term/<int:id>/', views.manage_terms, name='edit_terms'),
+    path('terms/', views.manage_terms, name='terms'),
 
-    path('terms/edit/<int:pk>/', views.edit_term, name='edit_term'),
+    path('manage-exam-types/', views.manage_exam_types, name='manage_exam_types'),  # Add
+    path('manage-exam-types/<int:id>/', views.manage_exam_types, name='edit_exam_type'),
+    path('delete-exam-type/<int:id>/', views.delete_exam_type, name='delete_exam_type'),
+
 
     path('manage-users/', views.manage_users, name='manage_users'),
     path('profile/', views.user_profile, name='user_profile'),
@@ -53,7 +56,7 @@ urlpatterns = [
     # path('results/add/<int:subject_id>/', views.add_results, name='add_results'),
 
     # URL to view the class performance and top 5 students
-    path('performance/class/', views.class_performance, name='class_performance'),
+    path('performance/class/', views.class_performance_view, name='class_performance'),
     # path("add_results/", views.add_results, name="add_results"),
     # path("results/", views.add_results_by_class, name="add_results_by_class"),
 
@@ -73,8 +76,6 @@ urlpatterns = [
     path('attendance/chart-data/<int:student_id>/', views.attendance_chart_data, name='attendance_chart_data'),
     path('view_report_card/<int:student_id>/<int:term_id>/<int:exam_type_id>/', views.view_report_card,
          name='view_report_card'),
-
-
 
     # URL to view a single student's performance
     # path('performance/student/<int:student_id>/', views.student_performance, name='student_performance'),

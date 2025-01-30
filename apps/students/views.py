@@ -14,6 +14,7 @@ from django.http import JsonResponse, Http404
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
+from django.views.decorators.csrf import csrf_exempt
 
 from apps.accounts.models import FeeStructure, FeeRecord
 from apps.management.models import Term, SubjectMark, ReportCard, ExamType, Attendance
@@ -314,70 +315,69 @@ def add_student(request):
 #     }
 #     return render(request, 'students/student-details.html', context)
 
-
-
+@csrf_exempt
 def get_student_performance_data(request, term_id, year, student_id):
-    # Ensure the term corresponds to the correct year
-    term = Term.objects.get(id=term_id, start_date__year=year)
+    try:
+        term = Term.objects.get(id=term_id, start_date__year=year)
 
-    # Filter SubjectMark based on the selected term and student
-    subject_marks = SubjectMark.objects.filter(
-        student_id=student_id,
-        term=term
-    ).select_related('exam_type', 'subject')
 
-    # Group the data by exam_type
-    exam_types = subject_marks.values_list('exam_type__name', flat=True).distinct()
-    chart_data = {
-        "labels": [mark.subject.name for mark in subject_marks],  # List of subjects
-        "datasets": []
-    }
+        # Fetch subject marks for the student in the selected term
+        subject_marks = SubjectMark.objects.filter(
+            student_id=student_id,
+            term=term
+        ).select_related('exam_type', 'subject')
 
-    for exam_type in exam_types:
-        dataset = {
-            "name": exam_type,
-            "data": []
+        if not subject_marks.exists():
+            return {"labels": [], "datasets": []}  # Return empty data
+
+        # Ensure unique subjects for labels
+        subjects = subject_marks.values_list('subject__name', flat=True).distinct()
+        chart_data = {
+            "labels": list(subjects),  # Unique subjects list
+            "datasets": []
         }
-        for mark in subject_marks.filter(exam_type__name=exam_type):
-            dataset["data"].append(mark.marks)  # Add the marks for the current exam_type and subject
 
-        chart_data["datasets"].append(dataset)
+        # Group data by exam_type
+        exam_types = subject_marks.values_list('exam_type__name', flat=True).distinct()
+        for exam_type in exam_types:
+            dataset = {
+                "name": exam_type,
+                "data": [mark.marks for mark in subject_marks.filter(exam_type__name=exam_type)]
+            }
+            chart_data["datasets"].append(dataset)
 
-    return chart_data  # Return chart data directly, not a JsonResponse
+        return chart_data  # Return structured data
 
 
+    except Term.DoesNotExist:
+
+        return JsonResponse({"error": f"No term found for {term_id} in {year}."}, status=404)
+
+
+@csrf_exempt
 def get_student_chart_data(request, student_id, term, year):
     try:
         # Fetch student by ID
-        student = Student.objects.get(id=student_id)
-    except Student.DoesNotExist:
-        # Return error if student doesn't exist
-        return JsonResponse({"error": f"Student with ID {student_id} does not exist."}, status=404)
+        student = get_object_or_404(Student, id=student_id)
 
-    try:
         # Find term for the specific year
         selected_term = Term.objects.filter(name=term, start_date__year=year).first()
         if not selected_term:
             return JsonResponse({"error": f"No term found for {term} in {year}."}, status=404)
-    except Term.DoesNotExist:
-        # Return error if term doesn't exist
-        return JsonResponse({"error": f"Term {term} not found for year {year}."}, status=404)
 
-    try:
-        # Get performance data for the student and selected term
+        # Get performance data
         chart_data = get_student_performance_data(
             request, term_id=selected_term.id, year=year, student_id=student.id
         )
 
-        if not chart_data:
-            return JsonResponse({"error": "No performance data available for the selected term."}, status=404)
-
-        # Return chart data as a JSON response
+        # Return JSON response
         return JsonResponse(chart_data, safe=False)
 
     except Exception as e:
-        # Handle unexpected errors
         return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+
+
+
 
 
 

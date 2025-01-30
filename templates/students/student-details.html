@@ -242,8 +242,7 @@
                                         <div class="card mb-0">
                                             <div class="card-body">
 
-
-                                                <div class="#">
+                                                <div class="chart-container">
                                                     <div class="dropdown-container">
                                                         <!-- Term Dropdown -->
                                                         <label for="term-select">Select Term:</label>
@@ -258,9 +257,10 @@
                                                             {% endif %}
                                                         </select>
 
-                                                        <!-- Year Dropdown -->
-                                                        <label for="exam-type-select">Select Year:</label>
-                                                        <select id="exam-type-select" name="year" required>
+                                                        <!-- Year Dropdown (Fixed ID) -->
+                                                        <label for="year-select">Select Year:</label>
+                                                        <select id="year-select" name="year" required>
+                                                            <!-- FIXED ID -->
                                                             <option value="" disabled selected>Select Year</option>
                                                             {% if years %}
                                                                 {% for year in years %}
@@ -272,16 +272,15 @@
                                                         </select>
                                                     </div>
 
+                                                    <!-- Chart Container (Fixed Data Attribute) -->
                                                     <div id="chart"
                                                          data-student-id="{{ student.id }}"
-                                                         data-initial-chart-data='{{ chart_data|safe }}'>
+                                                         data-initial-chart-data='{{ chart_data|safe|escapejs }}'>
+                                                        <!-- FIXED JSON HANDLING -->
                                                     </div>
                                                 </div>
-                                                <div class="container mt-4">
-                                                    <h2>Student Details: {{ student.name }}</h2>
-                                                    <p><strong>Grade:</strong> {{ student.grade.grade_name }}</p>
-                                                    <p><strong>Section:</strong> {{ student.grade.section }}</p>
 
+                                                <div class="container mt-4">
                                                     <!-- Attendance Summary -->
                                                     <h3>Attendance Summary</h3>
                                                     <p><strong>Term:</strong> {{ latest_term.name }}</p>

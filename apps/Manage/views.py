@@ -269,3 +269,6 @@ class CustomPasswordResetCompleteView(PasswordResetCompleteView):
 def website_page(request):
     return render(request,'Home/website/index.html')
 
+
+def settings_page(request):
+    return render(request,'Manage/settings.html')

@@ -1,41 +1,40 @@
 {% extends 'Home/base.html' %}
 {% load static %}
- <style>
-        @media print {
-            body * {
-                visibility: hidden; /* Hide everything */
-            }
-
-            #pdf-content, #pdf-content * {
-                visibility: visible; /* Show only the printable content */
-            }
-
-            #pdf-content {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                page-break-before: always; /* Start content on a new page */
-                page-break-inside: avoid; /* Avoid breaking inside sections */
-            }
-
-            /* Table Styling */
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                page-break-inside: auto; /* Allow the table rows to break */
-            }
-
-            tr {
-                page-break-inside: avoid; /* Prevent breaking in the middle of a row */
-            }
-
-            td {
-                page-break-inside: avoid; /* Prevent breaking inside table cells */
-            }
+<style>
+    @media print {
+        body * {
+            visibility: hidden; /* Hide everything */
         }
-    </style>
 
+        #pdf-content, #pdf-content * {
+            visibility: visible; /* Show only the printable content */
+        }
+
+        #pdf-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            page-break-before: always; /* Start content on a new page */
+            page-break-inside: avoid; /* Avoid breaking inside sections */
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            page-break-inside: auto; /* Allow the table rows to break */
+        }
+
+        tr {
+            page-break-inside: avoid; /* Prevent breaking in the middle of a row */
+        }
+
+        td {
+            page-break-inside: avoid; /* Prevent breaking inside table cells */
+        }
+    }
+</style>
 
 
 <body>
@@ -54,7 +53,7 @@
                                             <div class="invoice-logo">
                                                 <table class="title1">
                                                     <tr>
-                                                        <th><img src="#"
+                                                        <th><img src="{{ institution.logo }}"
                                                                  width="100" height="85" alt="school logo"></th>
 
 
@@ -122,7 +121,7 @@
                                                     </thead>
                                                     <tbody>
                                                     {% for fee in active_fees %}
-                                                        <tr>
+                                                        <tr class="pdf-page">
                                                             <td>{{ fee.description }}</td>
                                                             <td>{{ term_name }}</td>
                                                             <td>{{ fee.amount }}</td>
@@ -175,7 +174,7 @@
                     <div class="text-center mt-4">
                         {% if fee_record.id %}
                             <button class="btn btn-primary no-print"
-                                    onclick="printPDF()" >
+                                    onclick="printPDF()">
                                 print
                             </button>
                         {% else %}
@@ -186,7 +185,7 @@
             </div>
         </div>
     </div>
-{% endblock %}
+
     <script>
         function printPDF() {
             window.print(); // Uses print styles to show only #pdf-content
@@ -204,9 +203,10 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<!-- Scripts -->
-<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
-<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-<script src="{% static 'assets/js/script.js' %}"></script>
-</body>
-</html>
+    <!-- Scripts -->
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+    </html>
+{% endblock %}

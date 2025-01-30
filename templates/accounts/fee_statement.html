@@ -1,0 +1,342 @@
+{% extends 'Home/base.html' %}
+{% load custom_tags %}
+{% load static %}
+
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Records</li>
+                        </ul>
+                    </div>
+                    <div class="col-auto text-right float-right ml-auto">
+                        <a href="{% url 'students_with_balances' %}"
+                           class="btn btn accent-background ">Back</a>
+                        <a href="#" class="btn btn-outline-success  mr-2"><i class="fas fa-download"></i>
+                            Download</a>
+                        {#                        <a href="{% url 'add_student' %}" class="btn btn-info bg-default-light"><i class="fas fa-plus"></i></a>#}
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <h5 class="mt-4">Fee Statement for {{ student.admission_number }}</h5>
+                                {% if statement_data %}
+                                    {% for term in terms %}
+                                        <th class="text-success ">Term: {{ term.name }}-{{ term.year }}</th>
+                                        <table class="table border-1 table-striped table-bordered">
+                                            <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Reference</th>
+                                                <th>Description</th>
+                                                <th>Debit</th>
+                                                <th>Credit</th>
+                                                <th>Balance</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for transaction in statement_data %}
+                                                {% if transaction.term_id == term.id %}
+                                                    <tr>
+                                                        <td>{{ transaction.date }}</td>
+                                                        <td>{{ transaction.ref }}</td>
+                                                        <td>{{ transaction.description }}</td>
+                                                        <td>{{ transaction.debit }}</td>
+                                                        <td>{{ transaction.credit }}</td>
+                                                        <td>{{ transaction.balance }}</td>
+                                                    </tr>
+                                                {% endif %}
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No fee statement found.</p>
+                                {% endif %}
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <p>Copyright © 2024 Davedev</p>
+        </footer>
+    </div>
+
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{#{% extends 'Home/base.html' %}#}
+{#{% load static %}#}
+{#{% block body %}#}
+{##}
+{#    <div class="page-wrapper">#}
+{#        <div class="content container-fluid">#}
+{#            <div class="page-header">#}
+{#                <div class="row align-items-center">#}
+{#                    <div class="col">#}
+{#                        <h3 class="page-title">Fee Record</h3>#}
+{#                        <ul class="breadcrumb">#}
+{#                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>#}
+{#                            <li class="breadcrumb-item active">Records</li>#}
+{#                        </ul>#}
+{#                    </div>#}
+{#                    <div class="col-auto text-right float-right ml-auto">#}
+{#                        <a href="#" class="btn btn-outline-primary mr-2"><i class="fas fa-download"></i> Download</a>#}
+{#                        <a href="{% url 'add_student' %}" class="btn btn-primary"><i class="fas fa-plus"></i></a>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="row">#}
+{#                <div class="col-sm-12">#}
+{#                    <div class="card card-table">#}
+{#                        <div class="card-body" id="fee-records-table">#}
+{#                            <a href="{% url 'students_with_balances' %}" class="btn btn-outline-success">Back</a>#}
+{#                            <h5>Payment Records for {{ student.first_name }}</h5>#}
+{##}
+{#                            <table class="table table-responsive table-hover table-center mb-0 datatable">#}
+{#                                <thead>#}
+{#                                <tr>#}
+{#                                    <th>ID</th>#}
+{#                                    <th>Term</th>#}
+{#                                    <th>Amount</th>#}
+{#                                    <th>Balance</th>#}
+{#                                    <th>Installments</th>#}
+{#                                    <th>Amount Paid</th>#}
+{#                                    <th>Balance</th>#}
+{#                                    <th>Due Date</th>#}
+{#                                    <th>Payment Date</th>#}
+{#                                </tr>#}
+{#                                </thead>#}
+{#                                <tbody>#}
+{#                                {% for record in fee_records %}#}
+{#                                    <tr>#}
+{#                                        <td>{{ record.id }}</td>#}
+{#                                        <td>{{ record.term.name }}</td>#}
+{#                                        <td>{{ record.total_fee }}</td>#}
+{#                                        <td>{{ record.balance }}</td>#}
+{#                                        <td>{{ record.paid_amount }}</td>#}
+{#                                        <td>{{ record.balance }}</td>#}
+{#                                        <td>{{ record.due_date }}</td>#}
+{#                                        <td>{{ record.payment_date }}</td>#}
+{#                                        <td>#}
+{#                                            <ul class="list-group">#}
+{#                                                {% for installment in record.installments.all %}#}
+{#                                                    <li class="list-group-item">#}
+{#                                                        <strong> Amount:</strong> {{ installment.amount }} <br>#}
+{#                                                        <strong> Date:</strong> {{ installment.payment_date }} <br>#}
+{#                                                       <strong>  | Reference: </strong>{{ installment.reference }}#}
+{#                                                    </li>#}
+{#                                                {% empty %}#}
+{#                                                    <li class="list-group-item">No payments made yet.</li>#}
+{#                                                {% endfor %}#}
+{#                                            </ul>#}
+{#                                        </td>#}
+{#                                    </tr>#}
+{#                                {% empty %}#}
+{#                                    <tr>#}
+{#                                        <td colspan="6">No payment records found.</td>#}
+{##}
+{#                                    </tr>#}
+{#                                {% endfor %}#}
+{#                                {% for payment in fee_records %}#}
+{#                                    <tr>#}
+{#                                        <td>{{ payment.term.name }}</td>#}
+{#                                        <td>{{ payment.paid_amount }}</td>#}
+{#                                        <td>{{ payment.balance_due }}</td>  <!-- Display balance for each payment -->#}
+{#                                    </tr>#}
+{#                                {% endfor %}#}
+{##}
+{##}
+{#                                </tbody>#}
+{#                            </table>#}
+{#                            <h1>Payment Records for {{ student.first_name }} {{ student.last_name }}</h1>#}
+{##}
+{#                            {% for record in fee_record_details %}#}
+{#                                <h2>Term: {{ record.term }}</h2>#}
+{#                                <p>Total Fee: {{ record.total_fee }}</p>#}
+{#                                <p>Balance Due: {{ record.balance_due }}</p>#}
+{##}
+{#                                <table>#}
+{#                                    <thead>#}
+{#                                    <tr>#}
+{#                                        <th>Date</th>#}
+{#                                        <th>Amount Paid</th>#}
+{#                                        <th>Reference</th>#}
+{#                                        <th>Balance Due</th>#}
+{#                                    </tr>#}
+{#                                    </thead>#}
+{#                                    <tbody>#}
+{#                                    {% for payment in record.payments %}#}
+{#                                        <tr>#}
+{#                                            <td>{{ payment.date }}</td>#}
+{#                                            <td>{{ payment.amount }}</td>#}
+{#                                            <td>{{ payment.reference }}</td>#}
+{#                                            <td>{{ payment.balance_due }}</td>#}
+{#                                        </tr>#}
+{#                                    {% endfor %}#}
+{#                                    </tbody>#}
+{#                                </table>#}
+{#                            {% endfor %}#}
+{##}
+{#                            <h3>Total Balance Due: {{ total_balance_due }}</h3>#}
+{##}
+{##}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#        <footer>#}
+{#            <p>Copyright © 2024 Davedev</p>#}
+{#        </footer>#}
+{#    </div>#}
+{#    </div>#}
+{#    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>#}
+{#    <script src="{% static 'assets/js/popper.min.js' %}"></script>#}
+{#    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>#}
+{#    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>#}
+{#    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>#}
+{#    <script src="{% static 'assets/js/script.js' %}"></script>#}
+{#    </body>#}
+{##}
+{#    </html>#}
+{##}
+{##}
+{#{% endblock %}#}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+{#{% extends 'Home/base.html' %}#}
+{##}
+{#{%block content%}#}
+{#<div class="row mt-3">#}
+{#                          <div class="col-md-12">#}
+{#                                <h2>Fee Details:</h2>#}
+{#                                <a class="btn btn-success" href="{% url 'add_fee' student.id %}">Pay Fee</a>#}
+{#                                #}
+{#                                <table class="table table-striped mt-3">#}
+{#                                    <thead>#}
+{#                                        <tr>#}
+{#                                            <th>Date</th>#}
+{#                                            <th>Amount Due</th>#}
+{#                                            <th>Amount Paid</th>#}
+{#                                        </tr>#}
+{#                                    </thead>#}
+{#                                    <tbody>#}
+{#                                        {% if fees %}#}
+{#                                            {% for fee in fee_records %}#}
+{#                                            <tr>#}
+{#                                                <td>{{ fee.date }}</td>#}
+{#                                                <td>{{ fee.amount_due }}</td>#}
+{#                                                <td>{{ student.fee.amount_paid }}</td>#}
+{#                                            </tr>#}
+{#                                            {% endfor %}#}
+{#                                        {% else %}#}
+{#                                            <tr>#}
+{#                                                <td colspan="3" class="text-center">No fee records found.</td>#}
+{#                                            </tr>#}
+{#                                        {% endif %}#}
+{#                                    </tbody>#}
+{#                                </table>    #}
+{#                                <p>ADD MORE DETAILS</p>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        {% endblock %}#}

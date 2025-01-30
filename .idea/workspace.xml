@@ -4,19 +4,32 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="optional fee">
-      <change afterPath="$PROJECT_DIR$/static/assets/img/new-logo.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/students/query_students.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/DjangoProject4.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/DjangoProject4.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="print">
+      <change afterPath="$PROJECT_DIR$/apps/accounts/custom_filters.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Manage/exam_types.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Manage/settings.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/accounts/fee_statement.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/performance/class_results_view.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/accounts/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/accounts/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/accounts/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/accounts/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/accounts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/accounts/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/accounts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/accounts/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/templatetags/custom_tags.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/templatetags/custom_tags.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/students/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/Home/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/edit_term.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/term_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/term_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/accounts/additional_fee.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/additional_fee.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/accounts/receipt.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/receipt.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/accounts/students_with_balances.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/students_with_balances.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/student-details.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/student-details.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,6 +72,7 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/apps/management/views.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/requirements.txt" root0="SKIP_INSPECTION" />
   </component>
   <component name="ProjectColorInfo">{
@@ -80,6 +94,7 @@
     "Docker.School.executor": "Run",
     "Docker.Unnamed.executor": "Run",
     "HTTP Request.generated-requests | #1.executor": "Run",
+    "Python.views.executor": "Profiler",
     "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -105,10 +120,10 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\static\assets\img" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\schedules" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home\Teacher" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home\Admin" />
-      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\static\assets\img" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home\website" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -119,8 +134,31 @@
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\apps" />
     </key>
   </component>
-  <component name="RunManager" selected="Docker.School">
+  <component name="RunManager" selected="Python.views">
     <configuration name="generated-requests | #1" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#1" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="views" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="DjangoProject4" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/apps/management" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/apps/management/views.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
     <configuration name="DjangoProject4" type="Python.DjangoServer" factoryName="Django server">
@@ -186,9 +224,11 @@
       <item itemvalue="Django Server.DjangoProject4" />
       <item itemvalue="Docker.School" />
       <item itemvalue="HTTP Request.generated-requests | #1" />
+      <item itemvalue="Python.views" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.views" />
         <item itemvalue="HTTP Request.generated-requests | #1" />
       </list>
     </recent_temporary>
@@ -245,7 +285,7 @@
       <workItem from="1737803699672" duration="13175000" />
       <workItem from="1737819071416" duration="6156000" />
       <workItem from="1737905516451" duration="15616000" />
-      <workItem from="1737960916532" duration="107907000" />
+      <workItem from="1737960916532" duration="155015000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -463,7 +503,15 @@
       <option name="project" value="LOCAL" />
       <updated>1738160829087</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="print">
+      <option name="closed" value="true" />
+      <created>1738176739017</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1738176739019</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -481,7 +529,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="expenses and net revenue" />
     <MESSAGE value="ui customization" />
     <MESSAGE value="sms" />
     <MESSAGE value="dockerize" />
@@ -506,7 +553,8 @@
     <MESSAGE value="timetable" />
     <MESSAGE value="teacher assignments" />
     <MESSAGE value="optional fee" />
-    <option name="LAST_COMMIT_MESSAGE" value="optional fee" />
+    <MESSAGE value="print" />
+    <option name="LAST_COMMIT_MESSAGE" value="print" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -534,7 +582,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/accounts/views.py</url>
-          <line>786</line>
+          <line>1084</line>
           <option name="timeStamp" value="17" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -564,7 +612,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>1472</line>
+          <line>1593</line>
           <option name="timeStamp" value="38" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -573,33 +621,53 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/accounts/views.py</url>
-          <line>912</line>
+          <line>1210</line>
           <option name="timeStamp" value="42" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/accounts/views.py</url>
-          <line>687</line>
+          <line>985</line>
           <option name="timeStamp" value="43" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/accounts/forms.py</url>
-          <line>39</line>
+          <line>44</line>
           <option name="timeStamp" value="44" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/accounts/views.py</url>
-          <line>964</line>
+          <line>1262</line>
           <option name="timeStamp" value="45" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/accounts/views.py</url>
-          <line>246</line>
+          <line>248</line>
           <option name="timeStamp" value="46" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/models.py</url>
           <line>165</line>
           <option name="timeStamp" value="49" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/accounts/views.py</url>
+          <line>896</line>
+          <option name="timeStamp" value="59" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/accounts/models.py</url>
+          <line>175</line>
+          <option name="timeStamp" value="62" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/accounts/views.py</url>
+          <line>822</line>
+          <option name="timeStamp" value="64" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/management/forms.py</url>
+          <line>93</line>
+          <option name="timeStamp" value="65" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

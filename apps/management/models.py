@@ -324,13 +324,13 @@ class ReportCard(models.Model):
     def performance_grade(self):
         avg_marks = self.calculate_average_marks()
         if avg_marks >= 80:
-            return "A"
-        elif avg_marks >= 60:
-            return "B"
+            return "EE"
         elif avg_marks >= 50:
-            return "C"
+            return "ME"
+        elif avg_marks >= 40:
+            return "AE"
         else:
-            return "D"
+            return "BE"
 
     def student_rank(self):
         all_students = (

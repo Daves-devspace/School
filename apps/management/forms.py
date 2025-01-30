@@ -2,7 +2,8 @@ from ckeditor.widgets import CKEditorWidget
 from django import forms
 from django.forms import TimeInput
 
-from .models import Term, SubjectMark, Timetable, LessonExchangeRequest, Profile, HolidayPresentation, Feedback
+from .models import Term, SubjectMark, Timetable, LessonExchangeRequest, Profile, HolidayPresentation, Feedback, \
+    ExamType
 from ..schedules.models import Subject
 from ..students.models import Student, Book, GradeSection, Grade
 from ..teachers.models import Teacher
@@ -120,6 +121,13 @@ class TimetableForm(forms.ModelForm):
 
         return cleaned_data
 
+class ExamTypeForm(forms.ModelForm):
+    class Meta:
+        model = ExamType
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class':'form-control'}),
+        }
 
 
 

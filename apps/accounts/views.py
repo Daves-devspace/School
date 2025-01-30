@@ -1,5 +1,7 @@
 import json
+import logging
 import os
+from collections import defaultdict
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -244,6 +246,87 @@ from apps.students.views import get_current_term
 #     })
 
 
+# def update_student_fee(request, student_id):
+#     student = get_object_or_404(Student, id=student_id)
+#     term = get_current_term()  # Assuming active term is marked `active=True`
+#
+#     # Handle GET request to render the form
+#     if request.method == "GET":
+#         fee_record, created = FeeRecord.objects.get_or_create(student=student, term=term)
+#
+#         # Populate optional fees from FeeStructure if not already set
+#         if created or not fee_record.transport_fee:
+#             fee_record.transport_fee = fee_record.get_fee_from_structure('transport_fee')
+#         if created or not fee_record.lunch_fee:
+#             fee_record.lunch_fee = fee_record.get_fee_from_structure('lunch_fee')
+#         if created or not fee_record.remedial_fee:
+#             fee_record.remedial_fee = fee_record.get_fee_from_structure('remedial_fee')
+#
+#         fee_record.save()  # Save any changes made to the record
+#
+#         return render(request, "accounts/additional_fee.html", {
+#             "student": student,
+#             "term": term,
+#             "fee_record": fee_record
+#         })
+#
+#     # Handle POST request to update fees
+#     elif request.method == "POST":
+#         fee_type = request.POST.get('fee_type')
+#         amount = Decimal(request.POST.get('amount', '0'))
+#         action = request.POST.get('action', 'activate')  # 'activate' or 'deactivate'
+#
+#         fee_record, _ = FeeRecord.objects.get_or_create(student=student, term=term)
+#
+#         # Handle activation/deactivation for different fee types
+#         if fee_type == "Transport fee":
+#             if action == "deactivate":
+#                 fee_record.transport_active = False
+#                 fee_record.transport_fee = Decimal("0.0")
+#             else:
+#                 fee_record.transport_active = True
+#                 fee_record.transport_fee = amount
+#
+#         elif fee_type == "Lunch Fees":
+#             if action == "deactivate":
+#                 fee_record.lunch_active = False
+#                 fee_record.lunch_fee = Decimal("0.0")
+#             else:
+#                 fee_record.lunch_active = True
+#                 fee_record.lunch_fee = amount
+#
+#         elif fee_type == "Remedial Fees":
+#             if action == "deactivate":
+#                 fee_record.remedial_active = False
+#                 fee_record.remedial_fee = Decimal("0.0")
+#             else:
+#                 fee_record.remedial_active = True
+#                 fee_record.remedial_fee = amount
+#
+#         # Ensure fee status is applied after changes
+#         fee_record.apply_fee_statuses()
+#
+#         # Recalculate balances and totals after changes
+#         fee_record.update_balance_and_overpayment()
+#
+#         # Save the updated fee record
+#         fee_record.save()
+#
+#         # Provide a success message
+#         if action == "deactivate":
+#             messages.success(request, f"{fee_type} has been deactivated successfully.")
+#         else:
+#             messages.success(request, f"{fee_type} updated successfully.")
+#
+#         # Debugging: Log the updated fee record
+#         print(f"Updated FeeRecord: {fee_record.transport_fee}, {fee_record.lunch_fee}, {fee_record.remedial_fee}")
+#         print(f"Total Fee: {fee_record.total_fee}, Balance: {fee_record.balance}")
+#
+#         # Redirect to the view displaying students with balances
+#         return redirect('students_with_balances')
+#
+#     return redirect('students_with_balances')
+
 def update_student_fee(request, student_id):
     student = get_object_or_404(Student, id=student_id)
     term = get_current_term()  # Assuming active term is marked `active=True`
@@ -281,25 +364,31 @@ def update_student_fee(request, student_id):
             if action == "deactivate":
                 fee_record.transport_active = False
                 fee_record.transport_fee = Decimal("0.0")
+                print("Transport fee deactivated successfully.")
             else:
                 fee_record.transport_active = True
                 fee_record.transport_fee = amount
+                print(f"Transport fee activated with amount: {amount}")
 
         elif fee_type == "Lunch Fees":
             if action == "deactivate":
                 fee_record.lunch_active = False
                 fee_record.lunch_fee = Decimal("0.0")
+                print("Lunch fee deactivated successfully.")
             else:
                 fee_record.lunch_active = True
                 fee_record.lunch_fee = amount
+                print(f"Lunch fee activated with amount: {amount}")
 
         elif fee_type == "Remedial Fees":
             if action == "deactivate":
                 fee_record.remedial_active = False
                 fee_record.remedial_fee = Decimal("0.0")
+                print("Remedial fee deactivated successfully.")
             else:
                 fee_record.remedial_active = True
                 fee_record.remedial_fee = amount
+                print(f"Remedial fee activated with amount: {amount}")
 
         # Ensure fee status is applied after changes
         fee_record.apply_fee_statuses()
@@ -310,15 +399,15 @@ def update_student_fee(request, student_id):
         # Save the updated fee record
         fee_record.save()
 
+        # Debugging: Log the updated fee record after saving
+        print(f"Updated FeeRecord: Transport: {fee_record.transport_fee}, Lunch: {fee_record.lunch_fee}, Remedial: {fee_record.remedial_fee}")
+        print(f"Total Fee: {fee_record.total_fee}, Balance: {fee_record.balance}, Overpayment: {fee_record.overpayment}")
+
         # Provide a success message
         if action == "deactivate":
             messages.success(request, f"{fee_type} has been deactivated successfully.")
         else:
             messages.success(request, f"{fee_type} updated successfully.")
-
-        # Debugging: Log the updated fee record
-        print(f"Updated FeeRecord: {fee_record.transport_fee}, {fee_record.lunch_fee}, {fee_record.remedial_fee}")
-        print(f"Total Fee: {fee_record.total_fee}, Balance: {fee_record.balance}")
 
         # Redirect to the view displaying students with balances
         return redirect('students_with_balances')
@@ -593,6 +682,215 @@ def edit_fee_structure(request, pk):
     else:
         form = FeeStructureForm(instance=fee_structure)
     return render(request, 'accounts/update_fee_structure.html', {'form': form, 'fee_structure': fee_structure})
+
+
+
+
+
+# def student_fee_statement(request,id):
+#     student = Student.objects.get(pk=id)
+#     fee_records = FeeRecord.objects.filter(student=student)
+#     payments = FeePayment.objects.filter(fee_record__student=student)
+#
+#     statement_data = []
+#     running_balance = Decimal("0.0")
+#
+#     for fee_record in fee_records:
+#         term = fee_record.term
+#         term_name = term.name
+#         term_id = term.id
+#
+#         # Opening balance: Add total fee (tuition + activated optional fees)
+#         opening_balance = fee_record.total_fee
+#         running_balance += opening_balance
+#         statement_data.append({
+#             "term_id": term_id,
+#             "term_name": term_name,
+#             "date": term.start_date,
+#             "ref": "Opening Balance",
+#             "description": f"Balance from {term_name}",
+#             "debit": fee_record.total_fee,
+#             "credit": Decimal("0.0"),
+#             "balance": running_balance,
+#         })
+#
+#         # Handle optional fees (Transport, Lunch, Remedial) based on activation status
+#         if fee_record.transport_active:
+#             running_balance += fee_record.transport_fee
+#             statement_data.append({
+#                 "term_id": term_id,
+#                 "term_name": term_name,
+#                 "date": term.start_date,
+#                 "ref": "Transport Fee Activated",
+#                 "description": "Transport Fee Activated",
+#                 "debit": fee_record.transport_fee,
+#                 "credit": Decimal("0.0"),
+#                 "balance": running_balance,
+#             })
+#         elif not fee_record.transport_active and fee_record.transport_fee > 0:
+#             running_balance -= fee_record.transport_fee
+#             statement_data.append({
+#                 "term_id": term_id,
+#                 "term_name": term_name,
+#                 "date": term.start_date,
+#                 "ref": "Transport Fee Deactivated",
+#                 "description": "Transport Fee Deactivated",
+#                 "debit": Decimal("0.0"),
+#                 "credit": fee_record.transport_fee,
+#                 "balance": running_balance,
+#             })
+#
+#         if fee_record.lunch_active:
+#             running_balance += fee_record.lunch_fee
+#             statement_data.append({
+#                 "term_id": term_id,
+#                 "term_name": term_name,
+#                 "date": term.start_date,
+#                 "ref": "Lunch Fee Activated",
+#                 "description": "Lunch Fee Activated",
+#                 "debit": fee_record.lunch_fee,
+#                 "credit": Decimal("0.0"),
+#                 "balance": running_balance,
+#             })
+#         elif not fee_record.lunch_active and fee_record.lunch_fee > 0:
+#             running_balance -= fee_record.lunch_fee
+#             statement_data.append({
+#                 "term_id": term_id,
+#                 "term_name": term_name,
+#                 "date": term.start_date,
+#                 "ref": "Lunch Fee Deactivated",
+#                 "description": "Lunch Fee Deactivated",
+#                 "debit": Decimal("0.0"),
+#                 "credit": fee_record.lunch_fee,
+#                 "balance": running_balance,
+#             })
+#
+#         if fee_record.remedial_active:
+#             running_balance += fee_record.remedial_fee
+#             statement_data.append({
+#                 "term_id": term_id,
+#                 "term_name": term_name,
+#                 "date": term.start_date,
+#                 "ref": "Remedial Fee Activated",
+#                 "description": "Remedial Fee Activated",
+#                 "debit": fee_record.remedial_fee,
+#                 "credit": Decimal("0.0"),
+#                 "balance": running_balance,
+#             })
+#         elif not fee_record.remedial_active and fee_record.remedial_fee > 0:
+#             running_balance -= fee_record.remedial_fee
+#             statement_data.append({
+#                 "term_id": term_id,
+#                 "term_name": term_name,
+#                 "date": term.start_date,
+#                 "ref": "Remedial Fee Deactivated",
+#                 "description": "Remedial Fee Deactivated",
+#                 "debit": Decimal("0.0"),
+#                 "credit": fee_record.remedial_fee,
+#                 "balance": running_balance,
+#             })
+#
+#         # Fetch payments and adjust balance accordingly
+#         for payment in payments.filter(fee_record=fee_record):
+#             running_balance -= payment.amount
+#             statement_data.append({
+#                 "term_id": term_id,
+#                 "term_name": term_name,
+#                 "date": payment.date,
+#                 "ref": payment.id,
+#                 "description": f"Payment ({payment.payment_method})",
+#                 "debit": Decimal("0.0"),
+#                 "credit": payment.amount,
+#                 "balance": running_balance,
+#             })
+#
+#         # Closing balance for the term
+#         statement_data.append({
+#             "term_id": term_id,
+#             "term_name": term_name,
+#             "date": term.end_date,
+#             "ref": "Closing Balance",
+#             "description": f"End of {term_name}",
+#             "debit": Decimal("0.0"),
+#             "credit": Decimal("0.0"),
+#             "balance": running_balance,
+#         })
+#
+#     return render(request, "accounts/fee_statement.html", {"statement_data": statement_data})
+
+
+
+def student_fee_statement(request, id):
+    student = get_object_or_404(Student, pk=id)
+
+    # Fetch fee records for the student, ordered by term start date
+    fee_records = FeeRecord.objects.filter(student=student).order_by("term__start_date")
+
+    statement_data = []  # List to store grouped data with term name and transactions
+
+    # Prepare the terms list with term name and term_id
+    terms = Term.objects.all()
+
+    for fee_record in fee_records:
+        term = fee_record.term
+        term_name = term.name  # Get the term name
+        term_id = term.id  # Get the term id
+
+        # Get the opening balance (this should match the total fee at the start of the term)
+        opening_balance = fee_record.total_fee  # Set opening balance to the term's fee (e.g., 9000.00)
+
+        # Initially set running_balance to the opening_balance
+        running_balance = opening_balance
+
+        # Group opening balance under the term name
+        statement_data.append({
+            "term_id": term_id,
+            "term_name": term_name,
+            "date": term.start_date,
+            "ref": "Opening Balance",
+            "description": f"Balance from {term_name}",
+            "debit": fee_record.total_fee,
+            "credit": Decimal("0.0"),
+            "balance": running_balance,  # Opening balance as the term's total fee
+        })
+
+        # Fetch payments related to the fee record for this term
+        payments = fee_record.payments.all()
+
+        for payment in payments:
+            running_balance -= payment.amount  # Subtract payment from running balance
+            statement_data.append({
+                "term_id": term_id,
+                "term_name": term_name,
+                "date": payment.date,
+                "ref": payment.id,
+                "description": f"Payment ({payment.payment_method})",
+                "debit": Decimal("0.0"),
+                "credit": payment.amount,
+                "balance": running_balance,  # Updated running balance after payment
+            })
+
+        # Closing balance entry for this term
+        statement_data.append({
+            "term_id": term_id,
+            "term_name": term_name,
+            "date": term.end_date,
+            "ref": "Closing Balance",
+            "description": f"End of {term_name}",
+            "debit": Decimal("0.0"),
+            "credit": Decimal("0.0"),
+            "balance": running_balance,  # Use updated balance here after payments
+        })
+
+    context = {
+        "student": student,
+        "statement_data": statement_data,
+        "terms": terms,
+    }
+
+    return render(request, "accounts/fee_statement.html", context)
+
+
 
 
 @login_required

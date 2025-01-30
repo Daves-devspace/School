@@ -1,9 +1,11 @@
 # from datetime import timezone
+from collections import defaultdict
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 
 from django.db import models
@@ -152,6 +154,24 @@ class FeeStructure(models.Model):
 
 
 
+    # def apply_fee_statuses(self):
+    #     if self.transport_active:
+    #         self.transport_fee = self.get_fee_from_structure('transport_fee')
+    #     else:
+    #         self.transport_fee = Decimal("0.0")
+    #
+    #     if self.lunch_active:
+    #         self.lunch_fee = self.get_fee_from_structure('lunch_fee')
+    #     else:
+    #         self.lunch_fee = Decimal("0.0")
+    #
+    #     if self.remedial_active:
+    #         self.remedial_fee = self.get_fee_from_structure('remedial_fee')
+    #     else:
+    #         self.remedial_fee = Decimal("0.0")
+
+
+
 
 class FeeRecord(models.Model):
     student = models.ForeignKey(
@@ -196,21 +216,6 @@ class FeeRecord(models.Model):
         self.update_balance_and_overpayment()  # Recalculate balance and overpayment
         super().save(*args, **kwargs)  # Save the object after recalculations
 
-    # def apply_fee_statuses(self):
-    #     if self.transport_active:
-    #         self.transport_fee = self.get_fee_from_structure('transport_fee')
-    #     else:
-    #         self.transport_fee = Decimal("0.0")
-    #
-    #     if self.lunch_active:
-    #         self.lunch_fee = self.get_fee_from_structure('lunch_fee')
-    #     else:
-    #         self.lunch_fee = Decimal("0.0")
-    #
-    #     if self.remedial_active:
-    #         self.remedial_fee = self.get_fee_from_structure('remedial_fee')
-    #     else:
-    #         self.remedial_fee = Decimal("0.0")
 
     def apply_fee_statuses(self):
         """
@@ -367,9 +372,6 @@ class FeePayment(models.Model):
     payment_method = models.CharField(max_length=50, null=True, blank=True)  # e.g., Cash, M-Pesa
     reference = models.CharField(max_length=100, blank=True, null=True)
 
-    # previous_balance = models.DecimalField(max_digits=10, decimal_places=2,
-    #                                        default=0.0)
-    # balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)  # Store the balance# Keep track of previous balance
     def __str__(self):
         return f"{self.fee_record.student} - {self.amount} on {self.date}"
 

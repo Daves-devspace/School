@@ -227,7 +227,7 @@
                                     class="menu-arrow"></span></a>
                         <ul>
                             <li><a href="{% url 'teachers' %}">Teacher List</a></li>
-                           
+
                             <li><a href="{% url 'teacher_assignments' %}">Subject Assignments</a></li>
 
                         </ul>
@@ -269,7 +269,7 @@
                     <li class="menu-title">
                         <span>Management</span>
                     </li>
-                
+
                     {% if perms.students.view_fee_payment %}
                         <li class="submenu">
                             <a href="#"><i class="fas fa-file-invoice-dollar custom-color"></i> <span
@@ -301,31 +301,32 @@
 
                         </ul>
                     </li>
-                <li class="submenu">
+                    <li class="submenu">
                         <a href="#"><i class="fa fa-newspaper custom-color"></i> <span
                                 class="custom-color"> Management</span>
                             <span class="menu-arrow"></span>
                         </a>
                         <ul>
                             <li><a href="{% url 'terms' %}">Terms</a></li>
-{#                            <li><a href="{% url 'view_results' %}">View results</a></li>#}
-{#                            <li><a href="{% url 'filter_results' %}">Add results</a></li>#}
-{#                            <li><a href="{% url 'top_students' %}">Start Students</a></li>#}
+                            {#                            <li><a href="{% url 'view_results' %}">View results</a></li>#}
+                            {#                            <li><a href="{% url 'filter_results' %}">Add results</a></li>#}
+                            {#                            <li><a href="{% url 'top_students' %}">Start Students</a></li>#}
                         </ul>
                     </li>
                     <li class="submenu">
                         <a href="#"><i class="fa fa-newspaper custom-color"></i> <span
-                                class="custom-color"> Results</span>
+                                class="custom-color">Academics</span>
                             <span class="menu-arrow"></span>
                         </a>
                         <ul>
-                            <li><a href="{% url 'filter_results' %}">Class results</a></li>
+                            <li><a href="{% url 'class_performance' %}">Class results</a></li>
+                            <li><a href="{% url 'manage_exam_types' %}">ExamTypes</a></li>
                             <li><a href="{% url 'view_results' %}">View results</a></li>
                             <li><a href="{% url 'filter_results' %}">Add results</a></li>
                             <li><a href="{% url 'top_students' %}">Start Students</a></li>
                         </ul>
                     </li>
-                
+
                     {% if perms.students.view_fee_payment %}
                         <li>
                             <a href="{% url 'all_records' %}"><i class="fas fa-comment-dollar custom-color"></i> <span
@@ -360,15 +361,15 @@
                         <ul>
                             <li><a href="{% url 'timetable-create' %}">Create</a></li>
                             <li><a href="{% url 'class-timetable' %}">Timetable</a></li>
-{#                            <li><a href="{% url 'generate' %}">Generate</a></li>#}
+                            {#                            <li><a href="{% url 'generate' %}">Generate</a></li>#}
                             <li><a href="{% url 'timetable_page' %}">Generate Timetable</a></li>
                             <!-- Other sidebar links -->
                             <li><a href="{% url 'get_filtered_timetable' %}">Class</a></li>
                             <li><a href="{% url 'fetch_timetable_by_grade_section' grade_section_id=2 %}">View Timetable
                                 for Grade 2</a></li>
-                            <!-- 
+
                             <li><a href="{% url 'exchange-lessons' %}">Request Swap</a></li>
-                            <!-- Link to the lesson exchange list -->
+
                             <a href="{% url 'lesson-exchange-list' %}">View Lesson Exchange Requests</a>
 
 
@@ -420,6 +421,10 @@
                     {#                    </li>#}
                     <li class="menu-title">
                         <span>Others</span>
+                    </li>
+                    <li>
+                        <a href="{% url 'settings' %}"><i class="fas fa-baseball-ball custom-color"></i> <span
+                                class="custom-color">Settings</span></a>
                     </li>
                     <li>
                         <a href="sports.html"><i class="fas fa-baseball-ball custom-color"></i> <span
