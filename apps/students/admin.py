@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.db.models import F, Count
 from django.utils.timezone import now  # Correct import for timezone
 
+from apps.management.admin import ReportCardInline, SubjectMarkInline
 from apps.students.models import Student, Book, Transaction, Payment, Parent, Grade, Section, StudentParent,GradeSection
 
 # Customize admin site headers
@@ -62,10 +63,10 @@ class StudentParentAdmin(admin.ModelAdmin):
 
 
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ['first_name', 'grade', 'admission_number', 'gender']
-    search_fields = ['first_name', 'last_name', 'admission_number', 'grade__name']  # Add grade search
-    actions = [promote_students_action]
-    list_per_page = 30
+    list_display = ('first_name', 'last_name', 'admission_number', 'grade')  # Main student fields
+    search_fields = ('first_name', 'last_name', 'admission_number')
+    list_filter = ('grade',)
+    inlines = [ReportCardInline]
 
 
 class BookAdmin(admin.ModelAdmin):

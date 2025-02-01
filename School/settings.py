@@ -263,13 +263,28 @@ LOGGING = {
 }
 
 
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),  # Render automatically sets DATABASE_URL
+        conn_max_age=600,
+        ssl_require=True
+    )
+}
+
+
+
+# Database Configuration
 # DATABASES = {
-#     'default': dj_database_url.config(
-#         default=os.getenv('DATABASE_URL'),  # Render automatically sets DATABASE_URL
-#         conn_max_age=600,
-#         ssl_require=True
-#     )
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": config("DB_NAME"),
+#         "USER": config("DB_USER"),
+#         "PASSWORD": config("DB_PASSWORD"),
+#         "HOST": config("DB_HOST", default="localhost"),
+#         "PORT": config("DB_PORT", default="5432"),
+#     }
 # }
+
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
@@ -288,18 +303,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # General Settings
 DEBUG = config("DEBUG", default=True, cast=bool)
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="fallback_secret_key")
-
-# Database Configuration
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST", default="localhost"),
-        "PORT": config("DB_PORT", default="5432"),
-    }
-}
 
 # Static/Media File Handling
 # USE_S3 = config("USE_S3", default=False, cast=bool)

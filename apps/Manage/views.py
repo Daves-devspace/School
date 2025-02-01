@@ -126,30 +126,30 @@ def director_dashboard(request):
         logger.info(f"Revenue: {total_revenue}, Students: {total_students}, Teachers: {total_teachers}")
 
         # Top students data
-        top_students_data = []
-        grade_sections = GradeSection.objects.all()
-        for section in grade_sections:
-            # Get top 3 students in this grade section
-            top_3_students = (SubjectMark.objects.filter(student__grade=section)
-                              .values('student', 'student__first_name', 'student__last_name', 'student__admission_number')
-                              .annotate(total_marks=Sum('marks'))
-                              .order_by('-total_marks')[:3])
-
-            for student_data in top_3_students:
-                subject_mark = SubjectMark.objects.filter(student=student_data['student']).first()
-                term = subject_mark.term.name if subject_mark and subject_mark.term else "N/A"
-                exam_type = subject_mark.exam_type.name if subject_mark and subject_mark.exam_type else "N/A"
-                year = term_year
-
-                top_students_data.append({
-                    'student_name': f"{student_data['student__first_name']} {student_data['student__last_name']}",
-                    'admission_number': student_data['student__admission_number'],
-                    'total_marks': student_data['total_marks'],
-                    'class': section.grade,
-                    'term': term,
-                    'exam_type': exam_type,
-                    'year': year,
-                })
+        # top_students_data = []
+        # grade_sections = GradeSection.objects.all()
+        # for section in grade_sections:
+        #     # Get top 3 students in this grade section
+        #     top_3_students = (SubjectMark.objects.filter(student__grade=section)
+        #                       .values('student', 'student__first_name', 'student__last_name', 'student__admission_number')
+        #                       .annotate(total_marks=Sum('marks'))
+        #                       .order_by('-total_marks')[:3])
+        #
+        #     for student_data in top_3_students:
+        #         subject_mark = SubjectMark.objects.filter(student=student_data['student']).first()
+        #         term = subject_mark.term.name if subject_mark and subject_mark.term else "N/A"
+        #         exam_type = subject_mark.exam_type.name if subject_mark and subject_mark.exam_type else "N/A"
+        #         year = term_year
+        #
+        #         top_students_data.append({
+        #             'student_name': f"{student_data['student__first_name']} {student_data['student__last_name']}",
+        #             'admission_number': student_data['student__admission_number'],
+        #             'total_marks': student_data['total_marks'],
+        #             'class': section.grade,
+        #             'term': term,
+        #             'exam_type': exam_type,
+        #             'year': year,
+        #         })
 
         return render(request, 'Home/Admin/index.html', {
             "total_revenue": total_revenue,
@@ -157,7 +157,7 @@ def director_dashboard(request):
             "total_teachers": total_teachers,
             "total_departments": total_departments,
             'current_year': current_year,
-            'top_students_data': top_students_data,
+            # 'top_students_data': top_students_data,
         })
     except Exception as e:
         import traceback

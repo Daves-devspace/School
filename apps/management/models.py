@@ -10,6 +10,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum, Avg, Count, Max
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.timezone import now
 from phonenumber_field.modelfields import PhoneNumberField
@@ -292,12 +294,86 @@ class ExamType(models.Model):
 #         return 0
 
 
+# class ReportCard(models.Model):
+#     student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name="report_cards")
+#     term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name="report_cards")
+#     exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name="report_cards", null=True,
+#                                   blank=True)
+#     year = models.IntegerField(editable=False)  # Auto-set based on Term
+#     created_at = models.DateField(auto_now_add=True)
+#     total_marks = models.FloatField(null=True, blank=True)
+#     average_marks = models.FloatField(null=True, blank=True)
+#     grade = models.CharField(max_length=2, null=True, blank=True)
+#     rank = models.IntegerField(null=True, blank=True)
+#     attendance_percentage = models.FloatField(null=True, blank=True)
+#     teacher_remarks = models.TextField(null=True, blank=True)
+#     conduct_remarks = models.TextField(null=True, blank=True)
+#     extra_curricular_activities = models.TextField(null=True, blank=True)
+#     achievements = models.TextField(null=True, blank=True)
+#     final_comments = models.TextField(null=True, blank=True)
+#     parent_teacher_meeting_date = models.DateField(null=True, blank=True)
+#     parent_feedback = models.TextField(null=True, blank=True)
+#
+#     def calculate_total_marks(self):
+#         """Calculate total marks for subjects under this report card."""
+#         if not self.pk:
+#             return 0.0  # Return 0 if the instance is not saved
+#
+#         return SubjectMark.objects.filter(report_card=self).aggregate(Sum('marks'))['marks__sum'] or 0.0
+#
+#     def calculate_average_marks(self):
+#         """Calculate the average marks per exam type."""
+#         total_marks = self.calculate_total_marks()
+#         total_subjects = SubjectMark.objects.filter(report_card=self).count()
+#         return round(total_marks / total_subjects, 2) if total_subjects else 0.0
+#
+#     def performance_grade(self):
+#         """Determine the grade based on the average marks."""
+#         avg_marks = self.calculate_average_marks()
+#         return (
+#             "EE" if avg_marks >= 80 else
+#             "ME" if avg_marks >= 50 else
+#             "AE" if avg_marks >= 40 else
+#             "BE"
+#         )
+#
+#     def student_rank(self):
+#         """Determine the student's rank based on total marks within the same term, year, and exam type."""
+#         if not self.pk:
+#             return None
+#
+#         # Fetch all report cards for ranking
+#         ranked_students = (
+#             ReportCard.objects.filter(term=self.term, exam_type=self.exam_type, year=self.year)
+#             .order_by('-total_marks')
+#             .values_list('student_id', flat=True)
+#         )
+#         try:
+#             return list(ranked_students).index(self.student.id) + 1  # Get rank position
+#         except ValueError:
+#             return None
+#
+#     def save(self, *args, **kwargs):
+#         """Ensure year is set from the term and update calculated fields before saving."""
+#         if self.term:
+#             self.year = self.term.year  # Auto-set year
+#
+#         self.total_marks = self.calculate_total_marks()
+#         self.average_marks = self.calculate_average_marks()
+#         self.grade = self.performance_grade()
+#         self.rank = self.student_rank()
+#
+#         super().save(*args, **kwargs)  # Save once
+#
+#     def __str__(self):
+#         return f"{self.student} - {self.term} - {self.exam_type} - {self.year}"
+
 class ReportCard(models.Model):
     student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name="report_cards")
     term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name="report_cards")
-    exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name="report_cards", null=True,
-                                  blank=True)
-    date = models.DateField(auto_now_add=True)
+    exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name="report_cards", null=True, blank=True)
+    year = models.IntegerField(editable=False)  # Auto-set based on Term
+    created_at = models.DateField(auto_now_add=True)
     total_marks = models.FloatField(null=True, blank=True)
     average_marks = models.FloatField(null=True, blank=True)
     grade = models.CharField(max_length=2, null=True, blank=True)
@@ -311,17 +387,28 @@ class ReportCard(models.Model):
     parent_teacher_meeting_date = models.DateField(null=True, blank=True)
     parent_feedback = models.TextField(null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        """Ensure year is set from the term before saving."""
+        if self.term and not self.year:
+            self.year = self.term.year  # Auto-set year from the Term model
+        super().save(*args, **kwargs)  # Save instance first
+
     def calculate_total_marks(self):
-        subject_marks = SubjectMark.objects.filter(student=self.student, term=self.term, exam_type=self.exam_type)
-        return subject_marks.aggregate(Sum('percentage'))['percentage__sum'] or 0  # Use percentage instead of marks
+        """Calculate total marks for subjects under this report card and exam type."""
+        if not self.pk:
+            return 0.0  # Return 0 if the instance is not saved
+
+        total = SubjectMark.objects.filter(report_card=self).aggregate(Sum('marks'))['marks__sum']
+        return total if total else 0.0
 
     def calculate_average_marks(self):
+        """Calculate the average marks per exam type."""
         total_marks = self.calculate_total_marks()
-        total_subjects = SubjectMark.objects.filter(student=self.student, term=self.term,
-                                                    exam_type=self.exam_type).count()
-        return total_marks / total_subjects if total_subjects else 0  # Average of percentages
+        total_subjects = SubjectMark.objects.filter(report_card=self).count()
+        return round(total_marks / total_subjects, 2) if total_subjects > 0 else 0.0
 
     def performance_grade(self):
+        """Determine the grade based on the average marks."""
         avg_marks = self.calculate_average_marks()
         if avg_marks >= 80:
             return "EE"
@@ -333,72 +420,190 @@ class ReportCard(models.Model):
             return "BE"
 
     def student_rank(self):
+        """Determine the student's rank based on total marks within the same term, year, and exam type."""
+        if not self.pk:
+            return None
+
         all_students = (
-            ReportCard.objects.filter(term=self.term, exam_type=self.exam_type)
-            .annotate(annotated_total_marks=Sum('subject_marks__marks'))  # Renamed annotation
-            .order_by('-annotated_total_marks')
+            ReportCard.objects.filter(term=self.term, exam_type=self.exam_type, year=self.year)
+            .order_by('-total_marks')
         )
         for rank, report in enumerate(all_students, start=1):
             if report.student == self.student:
                 return rank
         return None
 
-    def save(self, *args, **kwargs):
-        self.total_marks = self.calculate_total_marks()
-        self.average_marks = self.calculate_average_marks()
-        self.grade = self.performance_grade()
-        self.rank = self.student_rank()
-        super().save(*args, **kwargs)
-
     def __str__(self):
-        return f"{self.student} - {self.term} - {self.exam_type}"
+        return f"{self.student} - {self.term} - {self.exam_type} - {self.year}"
 
 
-logger = logging.getLogger(__name__)
+# ✅ FIX: Prevent recursion by updating fields only if they have changed
+@receiver(post_save, sender=ReportCard)
+def update_report_card_fields(sender, instance, created, **kwargs):
+    # Get new calculated values
+    new_total_marks = instance.calculate_total_marks()
+    new_average_marks = instance.calculate_average_marks()
+    new_grade = instance.performance_grade()
+    new_rank = instance.student_rank()
+
+    # ✅ Check if any field actually needs updating before saving
+    if (
+        instance.total_marks != new_total_marks or
+        instance.average_marks != new_average_marks or
+        instance.grade != new_grade or
+        instance.rank != new_rank
+    ):
+        # Update fields **without triggering another save() call**
+        ReportCard.objects.filter(pk=instance.pk).update(
+            total_marks=new_total_marks,
+            average_marks=new_average_marks,
+            grade=new_grade,
+            rank=new_rank
+        )
+
+
+
+
+
 
 
 class SubjectMark(models.Model):
-    student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
+    report_card = models.ForeignKey(ReportCard, on_delete=models.CASCADE, related_name='subject_marks')
     subject = models.ForeignKey('schedules.Subject', on_delete=models.CASCADE, related_name='subject_marks')
-    term = models.ForeignKey(Term, on_delete=models.CASCADE)
-    exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE)  # Reuse ExamType
-    marks = models.FloatField(null=True, blank=True)  # Marks obtained by the student
-    max_score = models.FloatField(default=100)  # Default max score is 100, but it's editable
-    percentage = models.FloatField(null=True, blank=True)  # Calculated percentage
-    report_card = models.ForeignKey(
-        'ReportCard', on_delete=models.CASCADE, related_name='subject_marks', null=True, blank=True
-    )
+    marks = models.FloatField(null=True, blank=True)
+    max_score = models.FloatField(default=100)
+    percentage = models.FloatField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        # Ensure max_score is positive
         if self.max_score <= 0:
             raise ValueError("Max score must be greater than 0.")
 
-        # Convert marks to percentage if marks are provided
         if self.marks is not None:
-            if self.max_score > 0:
-                self.percentage = (self.marks / self.max_score) * 100
-            else:
-                self.percentage = 0
+            self.percentage = (self.marks / self.max_score) * 100 if self.max_score > 0 else 0
         else:
-            self.percentage = None  # Keep percentage None if marks are not provided
-
-        # Auto-create ReportCard if not linked
-        if not self.report_card:
-            report_card, created = ReportCard.objects.get_or_create(
-                student=self.student, term=self.term, exam_type=self.exam_type
-            )
-            self.report_card = report_card
+            self.percentage = None
 
         super().save(*args, **kwargs)
 
+        # After saving the SubjectMark, update the related ReportCard
+        self.report_card.save()  # This triggers the ReportCard save() method, recalculating fields
+
     class Meta:
-        unique_together = ('student', 'subject', 'term', 'exam_type')
+        unique_together = ('report_card', 'subject')
 
     def __str__(self):
         marks_str = f"{self.marks}/{self.max_score}" if self.marks is not None else "No marks"
         percentage_str = f"{self.percentage:.2f}%" if self.percentage is not None else "No percentage"
-        return f"{self.student} - {self.subject} - {self.exam_type} ({marks_str}, {percentage_str})"
+        return f"{self.report_card.student} - {self.subject} ({marks_str}, {percentage_str})"
+
+
+# class ReportCard(models.Model):
+#     student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name="report_cards")
+#     term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name="report_cards")
+#     exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name="report_cards", null=True,
+#                                   blank=True)
+#     date = models.DateField(auto_now_add=True)
+#     total_marks = models.FloatField(null=True, blank=True)
+#     average_marks = models.FloatField(null=True, blank=True)
+#     grade = models.CharField(max_length=2, null=True, blank=True)
+#     rank = models.IntegerField(null=True, blank=True)
+#     attendance_percentage = models.FloatField(null=True, blank=True)
+#     teacher_remarks = models.TextField(null=True, blank=True)
+#     conduct_remarks = models.TextField(null=True, blank=True)
+#     extra_curricular_activities = models.TextField(null=True, blank=True)
+#     achievements = models.TextField(null=True, blank=True)
+#     final_comments = models.TextField(null=True, blank=True)
+#     parent_teacher_meeting_date = models.DateField(null=True, blank=True)
+#     parent_feedback = models.TextField(null=True, blank=True)
+#
+#     def calculate_total_marks(self):
+#         subject_marks = SubjectMark.objects.filter(student=self.student, term=self.term, exam_type=self.exam_type)
+#         return subject_marks.aggregate(Sum('percentage'))['percentage__sum'] or 0  # Use percentage instead of marks
+#
+#     def calculate_average_marks(self):
+#         total_marks = self.calculate_total_marks()
+#         total_subjects = SubjectMark.objects.filter(student=self.student, term=self.term,
+#                                                     exam_type=self.exam_type).count()
+#         return total_marks / total_subjects if total_subjects else 0  # Average of percentages
+#
+#     def performance_grade(self):
+#         avg_marks = self.calculate_average_marks()
+#         if avg_marks >= 80:
+#             return "EE"
+#         elif avg_marks >= 50:
+#             return "ME"
+#         elif avg_marks >= 40:
+#             return "AE"
+#         else:
+#             return "BE"
+#
+#     def student_rank(self):
+#         all_students = (
+#             ReportCard.objects.filter(term=self.term, exam_type=self.exam_type)
+#             .annotate(annotated_total_marks=Sum('subject_marks__marks'))  # Renamed annotation
+#             .order_by('-annotated_total_marks')
+#         )
+#         for rank, report in enumerate(all_students, start=1):
+#             if report.student == self.student:
+#                 return rank
+#         return None
+#
+#     def save(self, *args, **kwargs):
+#         self.total_marks = self.calculate_total_marks()
+#         self.average_marks = self.calculate_average_marks()
+#         self.grade = self.performance_grade()
+#         self.rank = self.student_rank()
+#         super().save(*args, **kwargs)
+#
+#     def __str__(self):
+#         return f"{self.student} - {self.term} - {self.exam_type}"
+#
+#
+#
+#
+#
+# class SubjectMark(models.Model):
+#     student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
+#     subject = models.ForeignKey('schedules.Subject', on_delete=models.CASCADE, related_name='subject_marks')
+#     term = models.ForeignKey(Term, on_delete=models.CASCADE)
+#     exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE)  # Reuse ExamType
+#     marks = models.FloatField(null=True, blank=True)  # Marks obtained by the student
+#     max_score = models.FloatField(default=100)  # Default max score is 100, but it's editable
+#     percentage = models.FloatField(null=True, blank=True)  # Calculated percentage
+#     report_card = models.ForeignKey(
+#         'ReportCard', on_delete=models.CASCADE, related_name='subject_marks', null=True, blank=True
+#     )
+#
+#     def save(self, *args, **kwargs):
+#         # Ensure max_score is positive
+#         if self.max_score <= 0:
+#             raise ValueError("Max score must be greater than 0.")
+#
+#         # Convert marks to percentage if marks are provided
+#         if self.marks is not None:
+#             if self.max_score > 0:
+#                 self.percentage = (self.marks / self.max_score) * 100
+#             else:
+#                 self.percentage = 0
+#         else:
+#             self.percentage = None  # Keep percentage None if marks are not provided
+#
+#         # Auto-create ReportCard if not linked
+#         if not self.report_card:
+#             report_card, created = ReportCard.objects.get_or_create(
+#                 student=self.student, term=self.term, exam_type=self.exam_type
+#             )
+#             self.report_card = report_card
+#
+#         super().save(*args, **kwargs)
+#
+#     class Meta:
+#         unique_together = ('student', 'subject', 'term', 'exam_type')
+#
+#     def __str__(self):
+#         marks_str = f"{self.marks}/{self.max_score}" if self.marks is not None else "No marks"
+#         percentage_str = f"{self.percentage:.2f}%" if self.percentage is not None else "No percentage"
+#         return f"{self.student} - {self.subject} - {self.exam_type} ({marks_str}, {percentage_str})"
 
 
 # SchoolPerformance Model

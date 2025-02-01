@@ -1,4 +1,5 @@
 {% extends 'Home/base.html' %}
+{% load custom_filters %}
 {% load static %}
 {% block body %}
 
@@ -15,21 +16,30 @@
                     </div>
                     <div class="col-auto text-right float-right ml-auto">
                         <a href="#" class="btn btn-outline-info mr-2"><i class="fas fa-download"></i> Download</a>
-                        <a href="{% url 'add_subject' %}" class="btn btn-info"><i class="fas fa-plus"></i></a>
+                        <a href="{% url 'performance_filter' %}" class="btn btn-info"><i class="fas fa-search"></i></a>
                     </div>
                 </div>
             </div>
             <div class="results-header">
-                <h2>Results for {{ selected_class.name }}</h2>
+
+                {% if grade_section %}
+                    <h3>Results for {{ grade_section.grade }} - {{ grade_section.section }}</h3>
+                {% else %}
+                    <h3>Results for {{ grade }}</h3>
+                {% endif %}
+
                 <p>Term: {{ selected_term.name }}</p>
                 <p>Exam: {{ selected_exam_type.name }}</p>
+                <p>Year: {{ selected_term.year }}</p>
+
+
             </div>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card card-table">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                <table class="table border-0 table-hover table-center mb-0 datatable table-striped">
                                     <thead class="student-thread">
                                     <tr>
                                         <th>Position</th>
@@ -39,7 +49,8 @@
                                             <th>{{ subject.name }}</th>
                                         {% endfor %}
                                         <th>Total Marks</th>
-                                        <th>Report</th>
+                                        <th>Grade</th>
+                                        <th>Rank</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -48,21 +59,21 @@
                                             <td>{{ student.rank }}</td>
                                             <td>{{ student.admission_number }}</td>
                                             <td>{{ student.name }}</td>
-                                            {% for mark in student.marks %}
-                                                <td>{{ mark }}</td>
+                                            {% for subject in subjects %}
+                                                <!-- If subject marks are available, display here -->
+                                                <td>{{ student.student_marks|get_item:subject.id }}</td>
                                             {% endfor %}
                                             <td>{{ student.total_marks }}</td>
-                                            <td>
-                                                <!-- Link to view the student's report card -->
-                                                <a href="#">
-                                                    View Report Card
-                                                </a>
-                                            </td>
+                                            <td>{{ student.grade }}</td>
+                                            <td>{{ student.rank }}</td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
+
                                 </table>
                             </div>
+
+
                         </div>
                     </div>
                 </div>

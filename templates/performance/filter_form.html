@@ -22,79 +22,58 @@
                 </div>
             </div>
 
-
+            <!-- page1.html: Filter form -->
             <div class="container mt-5">
                 <div class="card">
-
+                    <div class="card-header bg-primary text-white">
+                        <h4>Filter Results</h4>
+                    </div>
                     <div class="card-body">
+                        <form method="GET" action="{% url 'add_results_table' %}">
+                            {% csrf_token %}
 
-                        <h1>Filter Results</h1>
-                        <form method="get" action="{% url 'filter_results' %}">
-                            <label for="grade_id">Select Grade:</label>
-                            <select name="grade_id" id="grade_id">
-                                <option value="">Select Grade</option>
-                                {% for grade in classes %}
-                                    <option value="{{ grade.id }}"
-                                            {% if grade.id == request.GET.grade_id %}selected{% endif %}>
-                                        {{ grade }}
-                                    </option>
-                                {% endfor %}
-                            </select>
+                            <div class="form-group">
+                                <label for="grade_id">Select Grade:</label>
+                                <select name="grade_id" id="grade_id" class="form-control">
+                                    {% for grade in grades %}
+                                        <option value="{{ grade.id }}">{{ grade }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
 
-                            <label for="term_id">Select Term:</label>
-                            <select name="term_id" id="term_id">
-                                <option value="">Select Term</option>
-                                {% for term in terms %}
-                                    <option value="{{ term.id }}"
-                                            {% if term.id == request.GET.term_id %}selected{% endif %}>
-                                        {{ term.display_name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
+                            <div class="form-group">
+                                <label for="term_id">Select Term:</label>
+                                <select name="term_id" id="term_id" class="form-control">
+                                    {% for term in terms %}
+                                        <option value="{{ term.id }}">{{ term.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
 
-                            <label for="subject_id">Select Subject:</label>
-                            <select name="subject_id" id="subject_id">
-                                <option value="">Select Subject</option>
-                                {% for subject in subjects %}
-                                    <option value="{{ subject.id }}"
-                                            {% if subject.id == request.GET.subject_id %}selected{% endif %}>
-                                        {{ subject.name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
+                            <div class="form-group">
+                                <label for="subject_id">Select Subject:</label>
+                                <select name="subject_id" id="subject_id" class="form-control">
+                                    {% for subject in subjects %}
+                                        <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
 
-                            <label for="exam_type_id">Select Exam Type:</label>
-                            <select name="exam_type_id" id="exam_type_id">
-                                <option value="">Select Exam Type</option>
-                                {% for exam_type in exam_types %}
-                                    <option value="{{ exam_type.id }}"
-                                            {% if exam_type.id == request.GET.exam_type_id %}selected{% endif %}>
-                                        {{ exam_type.name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
+                            <div class="form-group">
+                                <label for="exam_type_id">Select Exam Type:</label>
+                                <select name="exam_type_id" id="exam_type_id" class="form-control">
+                                    {% for exam_type in exam_types %}
+                                        <option value="{{ exam_type.id }}">{{ exam_type.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
 
-                            <button type="submit">Filter</button>
+                            <button type="submit" class="btn btn-primary">Filter</button>
                         </form>
-
-
-
-
-
-
-
-
-                        {% if messages %}
-                            <ul>
-                                {% for message in messages %}
-                                    <li>{{ message }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 

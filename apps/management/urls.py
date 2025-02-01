@@ -12,7 +12,6 @@ urlpatterns = [
     path('manage-exam-types/<int:id>/', views.manage_exam_types, name='edit_exam_type'),
     path('delete-exam-type/<int:id>/', views.delete_exam_type, name='delete_exam_type'),
 
-
     path('manage-users/', views.manage_users, name='manage_users'),
     path('profile/', views.user_profile, name='user_profile'),
     path('presentations/', views.presentation_list, name='presentation_list'),
@@ -56,15 +55,27 @@ urlpatterns = [
     # path('results/add/<int:subject_id>/', views.add_results, name='add_results'),
 
     # URL to view the class performance and top 5 students
-    path('performance/class/', views.class_performance_view, name='class_performance'),
+    # path('performance/class/', views.class_performance_view, name='class_performance_view'),
+
     # path("add_results/", views.add_results, name="add_results"),
     # path("results/", views.add_results_by_class, name="add_results_by_class"),
 
     path('results/', views.filter_results, name='filter_results'),
     path('add_results/', views.add_results_table, name='add_results_table'),
-    # path('view_results/', views.view_results_table, name='view_results_table'),
-    path('view_results/<int:grade_id>/<int:term_id>/<int:subject_id>/<int:exam_type_id>/', views.view_results_table,
+    path('view_results/', views.view_subject_results, name='view_subject_results'),
+    path('management/performance-filter/', views.performance_filter_view, name='performance_filter'),
+
+    path('view_results/<int:grade_id>/<int:term_id>/<int:exam_type_id>/', views.view_results_table,
          name='view_results_table'),
+    path('view_results/<int:grade_id>/<int:term_id>/<int:exam_type_id>/<int:grade_section_id>/',
+         views.view_results_table, name='view_results_table'),
+    # path('view_results_section/<int:grade_section_id>/<int:term_id>/<int:exam_type_id>/',
+    #      views.view_results_table_section, name='view_results_table_section'),
+
+    # Fetch performance by Grade Section (alternative to Grade)
+    # path('management/view_results/section/<int:grade_section_id>/<int:term_id>/<int:exam_type_id>/',
+    #      views.view_results_table,
+    #      name='view_results_table_section'),
     path('top_students/', views.top_students_view, name='top_students'),
 
     path('report_card/<int:student_id>/<int:term_id>/', views.report_card_view, name='report_card_view'),

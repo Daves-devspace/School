@@ -91,6 +91,56 @@ class AddResultForm(forms.ModelForm):
 
 
 
+
+
+# class PerformanceFilterForm(forms.Form):
+#     grade = forms.ModelChoiceField(
+#         queryset=Grade.objects.all(),
+#         required=True,
+#     )
+#     term = forms.ModelChoiceField(queryset=Term.objects.all(), required=True)
+#     exam_type = forms.ModelChoiceField(queryset=ExamType.objects.all(), required=True)
+#     grade_section = forms.ModelChoiceField(queryset=GradeSection.objects.all(), required=False)
+#     subject = forms.ModelChoiceField(queryset=Subject.objects.all(), required=False)
+
+class PerformanceFilterForm(forms.Form):
+    grade = forms.ModelChoiceField(
+        queryset=Grade.objects.all(),
+        required=False,
+        empty_label="Select Grade",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    grade_section = forms.ModelChoiceField(
+        queryset=GradeSection.objects.all(),
+        required=False,
+        empty_label="Select Grade Section",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    term = forms.ModelChoiceField(
+        queryset=Term.objects.all(),
+        required=True,
+        empty_label="Select Term",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    exam_type = forms.ModelChoiceField(
+        queryset=ExamType.objects.all(),
+        required=True,
+        empty_label="Select Exam Type",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        grade = cleaned_data.get('grade')
+        grade_section = cleaned_data.get('grade_section')
+
+        if not grade and not grade_section:
+            raise forms.ValidationError("Please select either a Grade or a Grade Section.")
+
+        return cleaned_data
+
+
+
 class TimetableForm(forms.ModelForm):
     class Meta:
         model = Timetable

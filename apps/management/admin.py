@@ -2,6 +2,7 @@ from datetime import timezone
 
 from django.contrib import admin
 from django.db.models import Sum
+from django.utils.html import format_html
 
 from apps.management import models
 from apps.management.models import Term, ReportCard, SubjectMark, ExamType, Timetable, \
@@ -22,12 +23,7 @@ class InstitutionAdmin(admin.ModelAdmin):
 #     list_display = ['name']
 #     search_fields = ['name','grade']
 
-# Inline classes
-class SubjectMarkInline(admin.TabularInline):
-    model = SubjectMark
-    extra = 1  # Number of empty rows to show for new marks
-    fields = ['subject', 'marks', 'exam_type']
-    readonly_fields = ['subject', 'exam_type']  # Make these fields read-only in the inline
+
 
 # Admin classes
 class TermAdmin(admin.ModelAdmin):
@@ -62,27 +58,112 @@ class ExamTypeAdmin(admin.ModelAdmin):
     list_filter = ['name']
 
 
+class SubjectMarkInline(admin.TabularInline):
+    model = SubjectMark
+    extra = 1
+    fields = ('subject', 'marks', 'max_score', 'percentage')
+    readonly_fields = ('percentage',)
+    can_delete = False
+    ordering = ['subject']
+
+
+
 
 class SubjectMarkAdmin(admin.ModelAdmin):
-    list_display = ['student', 'subject', 'term', 'marks', 'exam_type']
-    list_filter = ['term', 'subject', 'exam_type']
-    search_fields = ['student__first_name', 'student__last_name', 'subject__name']
-    ordering = ['-marks']
+    list_display = ('get_student', 'get_exam_type', 'get_term', 'get_year', 'subject__name', 'marks', 'max_score', 'percentage')
+    list_filter = ('report_card__term', 'report_card__exam_type', 'report_card__year', 'subject')
+    search_fields = ('report_card__student__first_name', 'subject__name')
 
-# Remove SubjectMarkInline and its usage in ReportCardAdmin
+    def get_student(self, obj):
+        return obj.report_card.student.first_name
+    get_student.short_description = "Student"
+
+    def get_exam_type(self, obj):
+        return obj.report_card.exam_type.name if obj.report_card.exam_type else "N/A"
+    get_exam_type.short_description = "Exam Type"
+
+    def get_term(self, obj):
+        return obj.report_card.term.name
+    get_term.short_description = "Term"
+
+    def get_year(self, obj):
+        return obj.report_card.year
+    get_year.short_description = "Year"
+
+
+
+class ReportCardInline(admin.TabularInline):
+    model = ReportCard
+    extra = 1
+    fields = ('term', 'exam_type', 'total_marks', 'average_marks', 'grade', 'rank', 'attendance_percentage',
+              'teacher_remarks', 'conduct_remarks', 'extra_curricular_activities', 'achievements',
+              'final_comments', 'parent_teacher_meeting_date', 'parent_feedback')
+    readonly_fields = ('total_marks', 'average_marks', 'grade', 'rank')  # Make computed fields readonly
+    can_delete = False
+    ordering = ['term', 'exam_type']
+    inlines = [SubjectMarkInline]  # Inline for subject marks
+
+
+
+
 class ReportCardAdmin(admin.ModelAdmin):
-    list_display = ['student', 'term', 'total_marks_display', 'student_rank_display', 'date']
-    search_fields = ['student__first_name', 'student__last_name', 'term__name']
-    list_filter = ['term']
-    ordering = ['term', '-date']
+    list_display = ('student_name', 'term', 'exam_type', 'year', 'total_marks', 'average_marks', 'rank', 'grade', 'subject_marks')
+    list_filter = ('term', 'exam_type', 'student__grade', 'year')  # Corrected filter for 'exam_type'
+    search_fields = ('student__first_name', 'student__last_name', 'student__admission_number')
 
-    def total_marks_display(self, obj):
-        return obj.calculate_total_marks()  # Call the renamed method
-    total_marks_display.short_description = 'Total Marks'
+    # Custom method to display the student's name
+    def student_name(self, obj):
+        return f"{obj.student.first_name} {obj.student.last_name}"
 
-    def student_rank_display(self, obj):
+    student_name.admin_order_field = 'student__last_name'
+
+    # Custom method for rank, which is calculated
+    def rank(self, obj):
         return obj.student_rank()
-    student_rank_display.short_description = 'Rank'
+
+    rank.admin_order_field = 'rank'
+
+    # Add links to subject marks for better usability
+    def subject_marks(self, obj):
+        subject_marks = SubjectMark.objects.filter(report_card=obj)
+        marks_details = ', '.join([f"{sm.subject.name}: {sm.marks}/{sm.max_score}" for sm in subject_marks])
+        return format_html(f"<b>{marks_details}</b>") if marks_details else "No Marks"
+
+    subject_marks.short_description = "Subject Marks"
+
+    # Display total marks as a link
+    def total_marks(self, obj):
+        return obj.total_marks
+
+    total_marks.admin_order_field = 'total_marks'
+
+    # Display average marks as a link
+    def average_marks(self, obj):
+        return obj.average_marks
+
+    average_marks.admin_order_field = 'average_marks'
+
+    # Filter by year and grade
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        grade_filter = request.GET.get('grade')
+        year_filter = request.GET.get('year')
+        if grade_filter:
+            queryset = queryset.filter(student__grade=grade_filter)
+        if year_filter:
+            queryset = queryset.filter(year=year_filter)
+        return queryset
+
+
+
+
+
+
+
+
+
+
+
 
 class TimetableAdmin(admin.ModelAdmin):
     list_display = ('grade_section', 'subject', 'teacher', 'day', 'start_time', 'end_time')
@@ -143,7 +224,8 @@ admin.site.register(Timetable, TimetableAdmin)
 admin.site.register(ExamType, ExamTypeAdmin)
 
 
-admin.site.register(SubjectMark, SubjectMarkAdmin)
+
 admin.site.register(ReportCard, ReportCardAdmin)
+admin.site.register(SubjectMark, SubjectMarkAdmin)
 admin.site.register(HolidayPresentation,HolidayPresentationAdmin)
 admin.site.register(Attendance, AttendanceAdmin)

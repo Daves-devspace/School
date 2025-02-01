@@ -3,7 +3,8 @@ import logging
 from datetime import date, timedelta, datetime
 
 from asgiref.sync import async_to_sync
-from django.db.models import F, Value, CharField, Case, When
+from django.db import transaction
+from django.db.models import F, Value, CharField, Case, When, FloatField
 from django.db.models.functions import Concat
 
 import requests
@@ -15,7 +16,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions.datetime import TruncMonth, ExtractYear
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
@@ -29,7 +30,7 @@ from rest_framework.views import APIView
 
 from apps.accounts.models import FeePayment, Expense
 from apps.management.forms import SubjectForm, BookForm, TimetableForm, LessonExchangeForm, ProfileForm, \
-    HolidayPresentationForm, FeedbackForm, TermForm, ExamTypeForm
+    HolidayPresentationForm, FeedbackForm, TermForm, ExamTypeForm, PerformanceFilterForm, AddResultForm
 from apps.management.models import Term, ReportCard, SubjectMark, ExamType, \
     Attendance, Timetable, LessonExchangeRequest, HolidayPresentation
 from apps.management.serializers import TimetableSerializer
@@ -786,232 +787,492 @@ def subjects_by_grade(request, grade_id):
 
 
 # top 5 students
-@login_required
-def class_performance_view(request):
-    grade_id = request.GET.get('grade_id')
-    grade_section_id = request.GET.get('grade_section_id')
-    term_id = request.GET.get('term_id')
-    exam_type_id = request.GET.get('exam_type_id')
 
-    # Fetch necessary data for the form dropdowns
-    grades = Grade.objects.all()
-    terms = Term.objects.all()
-    exam_types = ExamType.objects.all()
-
-    # Ensure all required parameters are present
-    if not (grade_id and term_id and exam_type_id):
-        return redirect('some_error_page')  # Redirect to an error page if needed
-
-    # Initialize query_params
-    query_params = f'?grade_id={grade_id}&term_id={term_id}&exam_type_id={exam_type_id}'
-
-    if grade_section_id:
-        query_params += f'&grade_section_id={grade_section_id}'
-
-    return redirect(reverse('view_results_table') + query_params)
+# filter by grade/section
 
 
-def render_filter_form(request):
-    grades = Grade.objects.all()
-    terms = Term.objects.all()
-    exam_types = ExamType.objects.all()
+# def performance_filter_view(request):
+#     if request.method == "POST":
+#         form = PerformanceFilterForm(request.POST)
+#         if form.is_valid():
+#             grade_id = form.cleaned_data.get('grade')
+#             grade_section_id = form.cleaned_data.get('grade_section')
+#             term_id = form.cleaned_data['term'].id
+#             exam_type_id = form.cleaned_data['exam_type'].id
+#
+#             # Redirect based on the selection
+#             if grade_id:
+#                 return redirect(reverse('view_results_table', args=[grade_id.id, term_id, exam_type_id]))
+#             elif grade_section_id:
+#                 return redirect(
+#                     reverse('view_results_table_section', args=[grade_section_id.id, term_id, exam_type_id]))
+#
+#     else:
+#         form = PerformanceFilterForm()
+#
+#     return render(request, 'performance/class_results_view.html', {'form': form})
 
-    return render(request, 'performance/class_results_view.html', {
-        'grades': grades,
-        'terms': terms,
-        'exam_types': exam_types,
-    })
 
-
-# Filter Results View
+# Filter Results View to add
 def filter_results(request):
-    # Fetch filter parameters
-    grade_id = request.GET.get('grade_id')
-    term_id = request.GET.get('term_id')
-    subject_id = request.GET.get('subject_id')
-    exam_type_id = request.GET.get('exam_type_id')
-
-    # Redirect to the results table if all parameters are provided
-    if grade_id and term_id and subject_id and exam_type_id:
-        return redirect(
-            reverse('add_results_table') +
-            f'?grade_id={grade_id}&term_id={term_id}&subject_id={subject_id}&exam_type_id={exam_type_id}'
-        )
-
-    # Populate filter form options
     grades = GradeSection.objects.all()
-    terms = Term.objects.annotate(
-        display_name=Concat(
-            F('name'),
-            Value(' - '),
-            F('start_date__year'),
-            output_field=CharField()
-        )
-    )
+    terms = Term.objects.all()
     subjects = Subject.objects.all()
     exam_types = ExamType.objects.all()
 
-    return render(request, 'performance/filter_form.html', {
-        'classes': grades,
+    context = {
+        'grades': grades,
         'terms': terms,
         'subjects': subjects,
         'exam_types': exam_types,
-    })
+    }
+
+    return render(request, 'performance/filter_form.html', context)
 
 
 # Add or Update Results Table View
+# def add_results_table(request):
+#     """Handles adding student subject marks and creating/updating report cards."""
+#
+#     # Get filtering parameters from request
+#     grade_id = request.GET.get('grade_id')
+#     term_id = request.GET.get('term_id')
+#     subject_id = request.GET.get('subject_id')
+#     exam_type_id = request.GET.get('exam_type_id')
+#
+#     # Validate required parameters
+#     if not all([grade_id, term_id, subject_id, exam_type_id]):
+#         messages.error(request, "Missing required parameters. Please ensure all fields are selected.")
+#         return render(request, 'Manage/errors/500.html', {'message': 'Missing required parameters.'})
+#
+#     # Fetch related objects
+#     selected_grade = get_object_or_404(GradeSection, id=grade_id)
+#     selected_term = get_object_or_404(Term, id=term_id)
+#     selected_subject = get_object_or_404(Subject, id=subject_id)
+#     selected_exam_type = get_object_or_404(ExamType, id=exam_type_id)
+#
+#     students = Student.objects.filter(grade=selected_grade)
+#     max_score = float(request.POST.get('max_score', 100) or 100)
+#
+#     if request.method == 'POST':
+#         try:
+#             with transaction.atomic():
+#                 # Fetch existing report cards in bulk
+#                 report_cards = {
+#                     rc.student_id: rc for rc in ReportCard.objects.filter(
+#                         student__in=students, term=selected_term, exam_type=selected_exam_type
+#                     )
+#                 }
+#
+#                 # Process marks input for each student
+#                 for student in students:
+#                     mark_value = request.POST.get(f'marks_{student.id}', '').strip()
+#
+#                     if not mark_value:  # Skip empty marks
+#                         continue
+#
+#                     try:
+#                         mark_value = float(mark_value)
+#                     except ValueError:
+#                         messages.warning(request, f"Invalid marks input for {student.name}. Skipping entry.")
+#                         continue  # Skip invalid input
+#
+#                     # Get or create the student's report card
+#                     report_card = report_cards.get(student.id)
+#                     if not report_card:
+#                         report_card = ReportCard.objects.create(
+#                             student=student, term=selected_term, exam_type=selected_exam_type, year=selected_term.year
+#                         )
+#                         report_cards[student.id] = report_card
+#
+#                     # Update or create the SubjectMark entry
+#                     SubjectMark.objects.update_or_create(
+#                         report_card=report_card,
+#                         subject=selected_subject,
+#                         defaults={'marks': mark_value, 'max_score': max_score}
+#                     )
+#
+#             messages.success(request, "Results added successfully!")
+#             return HttpResponseRedirect(
+#                 f'/management/view_results/?subject_id={subject_id}&term_id={term_id}&exam_type_id={exam_type_id}'
+#             )
+#
+#         except Exception as e:
+#             logger.error(f"Error in add_results_table: {e}", exc_info=True)
+#             messages.error(request, "An error occurred while processing results.")
+#             return render(request, 'Manage/errors/500.html', {'message': 'An error occurred while processing results.'})
+#
+#     # Fetch existing marks efficiently
+#     existing_marks = dict(
+#         SubjectMark.objects.filter(
+#             report_card__student__in=students,
+#             report_card__term=selected_term,
+#             report_card__exam_type=selected_exam_type,
+#             subject=selected_subject
+#         ).values_list('report_card__student_id', 'marks')
+#     ) if students.exists() else {}
+#
+#     # Prepare context for template rendering
+#     context = {
+#         'selected_grade': selected_grade,
+#         'selected_term': selected_term,
+#         'selected_subject': selected_subject,
+#         'selected_exam_type': selected_exam_type,
+#         'students': students,
+#         'max_score': max_score,
+#         'existing_marks': existing_marks,
+#     }
+#
+#     return render(request, 'performance/add_results_table.html', context)
+
+
+def view_subject_results(request):
+    # Get the filtering parameters from the GET request
+    subject_id = request.GET.get('subject_id')
+    term_id = request.GET.get('term_id')
+    exam_type_id = request.GET.get('exam_type_id')
+
+    # Initialize selected filters
+    selected_subject = None
+    selected_term = None
+    selected_exam_type = None
+
+    # Check if IDs are provided and fetch the corresponding objects
+    try:
+        if subject_id:
+            selected_subject = Subject.objects.get(id=subject_id)
+
+        if term_id:
+            selected_term = Term.objects.get(id=term_id)
+
+        if exam_type_id:
+            selected_exam_type = ExamType.objects.get(id=exam_type_id)
+    except (Subject.DoesNotExist, Term.DoesNotExist, ExamType.DoesNotExist) as e:
+        print(f"Error: {e}")
+        return HttpResponse("Invalid selection parameters", status=400)
+
+    # Fetch all students (or filter by grade if needed)
+    students = Student.objects.all()
+
+    # Create a dictionary to store marks for each student
+    student_marks = {}
+
+    # Get the marks for each student based on the selected subject, term, and exam type
+    for student in students:
+        try:
+            # Fetch the corresponding SubjectMark for the student and subject filters
+            subject_mark = SubjectMark.objects.get(
+                report_card__student=student,  # Ensure we're referencing through report_card's student
+                subject=selected_subject,
+                report_card__term=selected_term,
+                report_card__exam_type=selected_exam_type
+            )
+            student_marks[student.id] = subject_mark.marks  # Store the marks in the dictionary
+        except SubjectMark.DoesNotExist:
+            student_marks[student.id] = None  # No marks found for this student
+
+    # Pass the necessary context to the template
+    context = {
+        'students': students,
+        'selected_subject': selected_subject,
+        'selected_term': selected_term,
+        'selected_exam_type': selected_exam_type,
+        'student_marks': student_marks,  # Provide the student_marks dictionary to the template
+    }
+
+    return render(request, 'performance/subject_results.html', context)
 
 
 def add_results_table(request):
-    # Get query parameters
-    class_id = request.GET.get('grade_id')
+    """Handles adding student subject marks and updating report cards."""
+
+    # Get filtering parameters
+    grade_id = request.GET.get('grade_id')
     term_id = request.GET.get('term_id')
     subject_id = request.GET.get('subject_id')
     exam_type_id = request.GET.get('exam_type_id')
 
-    # Redirect to filter_results if any parameter is missing
-    if not (class_id and term_id and subject_id and exam_type_id):
-        return redirect('filter_results')
+    if not all([grade_id, term_id, subject_id, exam_type_id]):
+        messages.error(request, "Missing required parameters. Please select all fields.")
+        return render(request, 'Manage/errors/500.html', {'message': 'Missing required parameters.'})
 
-    # Fetch the objects based on the provided IDs
-    selected_grade_section = get_object_or_404(GradeSection, id=class_id)
+    # Fetch related objects
+    selected_grade = get_object_or_404(GradeSection, id=grade_id)
     selected_term = get_object_or_404(Term, id=term_id)
     selected_subject = get_object_or_404(Subject, id=subject_id)
     selected_exam_type = get_object_or_404(ExamType, id=exam_type_id)
 
-    # Fetch students in the selected grade section
-    students = Student.objects.filter(grade=selected_grade_section)
+    students = Student.objects.filter(grade=selected_grade)
+    max_score = float(request.POST.get('max_score', 100) or 100)
 
-    # Prepare initial data for students' marks
-    initial_data = []
-    subject_marks_dict = {
-        sm.student.id: sm for sm in SubjectMark.objects.filter(
-            student__in=students,
-            subject=selected_subject,
-            term=selected_term,
-            exam_type=selected_exam_type
-        )
-    }
-
-    for student in students:
-        subject_mark = subject_marks_dict.get(student.id)
-        marks = subject_mark.marks if subject_mark else None
-        initial_data.append({
-            'student': student,
-            'marks': marks
-        })
-
-    # Handling form submission (POST)
     if request.method == 'POST':
-        max_score_str = request.POST.get('max_score', '100')  # Default to '100'
-        max_score = float(max_score_str) if max_score_str.strip() else 100  # Convert only if not empty
+        try:
+            with transaction.atomic():
+                report_cards = {
+                    rc.student_id: rc for rc in ReportCard.objects.filter(
+                        student__in=students, term=selected_term, exam_type=selected_exam_type
+                    )
+                }
 
-        for student in students:
-            marks_str = request.POST.get(f'marks_{student.id}', '').strip()
-            if marks_str:  # Ensure marks is not empty before converting
-                try:
-                    marks = float(marks_str)
-                    # Ensure marks are within range
-                    if 0 <= marks <= max_score:
-                        subject_mark, created = SubjectMark.objects.update_or_create(
-                            student=student,
-                            subject=selected_subject,
-                            term=selected_term,
-                            exam_type=selected_exam_type,
-                            defaults={'marks': marks, 'max_score': max_score}
+                marks_entered = False  # Track if any marks were actually entered
+
+                for student in students:
+                    mark_value = request.POST.get(f'marks_{student.id}', '').strip()
+
+                    if not mark_value:  # Skip empty marks
+                        continue
+
+                    try:
+                        mark_value = float(mark_value)
+                        marks_entered = True  # At least one mark was entered
+                    except ValueError:
+                        messages.warning(request, f"Invalid marks input for {student.name}. Skipping entry.")
+                        continue
+
+                    # Get or create the student's report card
+                    report_card = report_cards.get(student.id)
+                    if not report_card:
+                        report_card = ReportCard.objects.create(
+                            student=student, term=selected_term, exam_type=selected_exam_type, year=selected_term.year
                         )
-                    else:
-                        raise ValueError(f"Marks should be between 0 and {max_score}")
-                except ValueError as e:
-                    messages.error(request, f"Invalid marks for {student.first_name} {student.last_name}: {e}")
-                    continue
-        messages.success(request, "Marks have been successfully updated!")
-        return redirect('view_results_table', grade_id=class_id, term_id=term_id, subject_id=subject_id,
-                        exam_type_id=exam_type_id)
+                        report_cards[student.id] = report_card
+
+                    # Update or create the SubjectMark entry
+                    SubjectMark.objects.update_or_create(
+                        report_card=report_card,
+                        subject=selected_subject,
+                        defaults={'marks': mark_value, 'max_score': max_score}
+                    )
+
+            if marks_entered:
+                messages.success(request, "Results added successfully!")
+                return HttpResponseRedirect(
+                    reverse('view_results_table',
+                            kwargs={'grade_section_id': grade_id, 'term_id': term_id, 'exam_type_id': exam_type_id})
+                )
+            else:
+                messages.warning(request, "No marks were entered. Please enter marks before submitting.")
+
+        except Exception as e:
+            logger.error(f"Error in add_results_table: {e}", exc_info=True)
+            messages.error(request, "An error occurred while processing results.")
+
+    # Fetch existing marks efficiently
+    existing_marks = dict(
+        SubjectMark.objects.filter(
+            report_card__student__in=students,
+            report_card__term=selected_term,
+            report_card__exam_type=selected_exam_type,
+            subject=selected_subject
+        ).values_list('report_card__student_id', 'marks')
+    ) if students.exists() else {}
 
     context = {
-        'selected_grade_section': selected_grade_section,
+        'selected_grade': selected_grade,
         'selected_term': selected_term,
         'selected_subject': selected_subject,
         'selected_exam_type': selected_exam_type,
         'students': students,
-        'initial_data': initial_data
+        'max_score': max_score,
+        'existing_marks': existing_marks,
     }
 
     return render(request, 'performance/add_results_table.html', context)
 
 
-def view_results_table(request, grade_id, term_id, exam_type_id, subject_id=None, grade_section_id=None):
-    """
-    Fetches student results for a selected grade or grade section.
-    If grade_section_id is provided, it filters students by that section.
-    If only grade_id is provided, it fetches students across all sections in the grade.
-    """
+# def view_results_table(request, grade_section_id, term_id=None, exam_type_id=None):
+#     grade_section = get_object_or_404(GradeSection, id=grade_section_id)
+#     grade = grade_section.grade
+#     students = Student.objects.filter(grade=grade_section)
+#     subjects = Subject.objects.filter(grade=grade_section.grade)
+#
+#     # Determine if it's a GradeSection or Grade
+#     if isinstance(grade_section, GradeSection):
+#         selected_class = grade_section
+#     else:
+#         selected_class = grade
+#
+#     # Fetch the selected term and exam type
+#     selected_term = get_object_or_404(Term, id=term_id) if term_id else None
+#     selected_exam_type = get_object_or_404(ExamType, id=exam_type_id) if exam_type_id else None
+#
+#     # Fetch report cards with optimized queries
+#     report_cards = ReportCard.objects.filter(student__in=students, term_id=term_id, exam_type_id=exam_type_id).annotate(
+#         annotated_total_marks=F('total_marks'),
+#         annotated_grade=F('grade')
+#     )
+#
+#     # Prepare student data
+#     student_data = []
+#     for report in report_cards:
+#         student_marks = {}
+#         for subject in subjects:
+#             mark = SubjectMark.objects.filter(report_card=report, subject=subject).first()
+#             student_marks[subject.id] = mark.marks if mark else None
+#
+#         student_data.append({
+#             'id': report.student.id,
+#             'name': f"{report.student.first_name} {report.student.last_name}",
+#             'admission_number': report.student.admission_number,
+#             'total_marks': report.annotated_total_marks,
+#             'grade': report.annotated_grade,
+#             'student_marks': student_marks,
+#             'rank': report.student.report_cards.filter(term_id=term_id,
+#                                                        exam_type_id=exam_type_id).first().student_rank()
+#             if report.student.report_cards.exists() else None,
+#         })
+#
+#     # Rank students based on total marks
+#     student_data.sort(key=lambda x: x['total_marks'], reverse=True)
+#     for rank, student in enumerate(student_data, 1):
+#         student['rank'] = rank
+#
+#     context = {
+#         'subjects': subjects,
+#         'student_data': student_data,
+#         'selected_class': selected_class,
+#         'selected_term': selected_term,
+#         'selected_exam_type': selected_exam_type,
+#     }
+#
+#     return render(request, 'performance/view_results_table.html', context)
 
-    # Get the Grade object based on grade_id
+def performance_filter_view(request):
+    if request.method == 'POST':
+        form = PerformanceFilterForm(request.POST)
+        if form.is_valid():
+            # Get values from the form
+            grade = form.cleaned_data['grade']
+            grade_section = form.cleaned_data['grade_section']
+
+            # Ensure either grade or grade_section is selected, but not both
+            if not grade and not grade_section:
+                form.add_error(None, 'You must select either a grade or a grade section.')
+                return render(request, 'performance/class_results_view.html', {'form': form})
+
+            if grade and grade_section:
+                form.add_error(None, 'You cannot select both grade and grade section at the same time.')
+                return render(request, 'performance/class_results_view.html', {'form': form})
+
+            # Set grade_id and grade_section_id based on user input
+            grade_id = grade.id if grade else None
+            grade_section_id = grade_section.id if grade_section else None
+            term_id = form.cleaned_data['term'].id
+            exam_type_id = form.cleaned_data['exam_type'].id
+
+            # Redirect with or without grade_section_id depending on user input
+            if grade_section_id:
+                return redirect('view_results_table', grade_id=grade_id, term_id=term_id, exam_type_id=exam_type_id,
+                                grade_section_id=grade_section_id)
+            else:
+                return redirect('view_results_table', grade_id=grade_id, term_id=term_id, exam_type_id=exam_type_id)
+
+    else:
+        form = PerformanceFilterForm()
+
+    return render(request, 'performance/class_results_view.html', {'form': form})
+
+
+def view_results_table(request, grade_id, term_id, exam_type_id, grade_section_id=None):
+    """
+    Fetches student results using ReportCard for a selected grade or grade section.
+    """
+    # Get the Grade, Term, and Exam Type from the IDs passed in the URL
     selected_class = get_object_or_404(Grade, id=grade_id)
-
-    # Get term and exam type
     selected_term = get_object_or_404(Term, id=term_id)
     selected_exam_type = get_object_or_404(ExamType, id=exam_type_id)
 
-    # Get all subjects (can be filtered based on the grade if needed)
-    subjects = Subject.objects.all()
-
-    # Get all GradeSections under the selected grade
+    # Get all grade sections under the selected grade
     if grade_section_id:
-        grade_sections = GradeSection.objects.filter(id=grade_section_id)  # Specific section
+        grade_sections = GradeSection.objects.filter(id=grade_section_id)
     else:
-        grade_sections = GradeSection.objects.filter(grade=selected_class)  # All sections in grade
+        grade_sections = GradeSection.objects.filter(grade=selected_class)
 
-    # Fetch all students from the selected sections
-    students = Student.objects.filter(grade_section__in=grade_sections)
+    # Fetch students from the selected sections
+    students = Student.objects.filter(grade__in=grade_sections)
 
-    # Prepare student data with marks
+    # Fetch ReportCards for students in the given term and exam type
+    report_cards = ReportCard.objects.filter(
+        student__in=students, term=selected_term, exam_type=selected_exam_type
+    ).select_related('student')
+
     student_data = []
-    for student in students:
-        marks = []
-        total_marks = 0
-
-        for subject in subjects:
-            subject_mark = SubjectMark.objects.filter(
-                student=student,
-                subject=subject,
-                term=selected_term,
-                exam_type=selected_exam_type
-            ).first()
-
-            if subject_mark and subject_mark.marks != "-":
-                percentage = round((subject_mark.marks / subject_mark.max_score) * 100)
-                marks.append(f"{percentage}%")
-                total_marks += percentage
-            else:
-                marks.append("-")
+    for report_card in report_cards:
+        # Fetch subject marks for this student's report card
+        subject_marks = SubjectMark.objects.filter(report_card=report_card)
+        marks = {sm.subject.name: f"{sm.percentage:.2f}%" if sm.percentage is not None else "-" for sm in subject_marks}
 
         student_data.append({
-            'admission_number': student.admission_number,
-            'name': f"{student.first_name} {student.last_name}",
+            'admission_number': report_card.student.admission_number,
+            'name': f"{report_card.student.first_name} {report_card.student.last_name}",
             'marks': marks,
-            'total_marks': total_marks,
+            'total_marks': report_card.total_marks,
+            'average_marks': report_card.average_marks,
+            'grade': report_card.grade,
+            'rank': report_card.rank,
         })
 
-    # Sort students by total marks (for ranking)
+    # Sort students by total marks for ranking
     student_data = sorted(student_data, key=lambda x: x['total_marks'], reverse=True)
-
-    # Assign rank
-    for index, student in enumerate(student_data):
-        student['rank'] = index + 1
 
     context = {
         'selected_class': selected_class,
         'selected_term': selected_term,
         'selected_exam_type': selected_exam_type,
-        'subjects': subjects,
-        'grade_sections': grade_sections,  # Sections of the selected grade
-        'student_data': student_data,  # Processed student results
+        'grade_sections': grade_sections,
+        'student_data': student_data,
     }
 
     return render(request, 'performance/view_results_table.html', context)
+
+
+
+def view_results_table_section(request, grade_section_id, term_id, exam_type_id):
+    print(
+        f"📌 Fetching View: view_results_table_section | Grade Section ID: {grade_section_id}, Term ID: {term_id}, Exam Type ID: {exam_type_id}")
+
+    grade_section = get_object_or_404(GradeSection, id=grade_section_id)
+    selected_term = get_object_or_404(Term, id=term_id)
+    selected_exam_type = get_object_or_404(ExamType, id=exam_type_id)
+
+    # Fetch students for the selected grade section
+    students = Student.objects.filter(grade=grade_section)
+
+    # Fetch report cards for the selected students, term, and exam type
+    report_cards = ReportCard.objects.filter(student__in=students, term=selected_term, exam_type=selected_exam_type)
+
+    student_data = process_student_data(students, report_cards)
+
+    return render(request, 'performance/view_results_table.html', {
+        'grade_section': grade_section,
+        'selected_term': selected_term,
+        'selected_exam_type': selected_exam_type,
+        'student_data': student_data,
+    })
+
+
+def process_student_data(students, report_cards, subjects):
+    student_data = []
+
+    for student in students:
+        report_card = report_cards.filter(student=student).first()
+
+        student_marks = {
+            subject.id: SubjectMark.objects.filter(report_card__student=student, subject=subject).first().marks
+            if SubjectMark.objects.filter(report_card__student=student, subject=subject).exists() else None
+            for subject in subjects
+        }
+
+        student_data.append({
+            'rank': report_card.rank if report_card else None,
+            'admission_number': student.admission_number,
+            'name': student.first_name,
+            'student_marks': student_marks,
+            'total_marks': report_card.total_marks if report_card else None,
+            'grade': report_card.grade if report_card else None,
+        })
+
+    return student_data
 
 
 # def view_results_table(request, grade_id, term_id, exam_type_id, subject_id):
