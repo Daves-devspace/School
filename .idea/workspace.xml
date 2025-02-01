@@ -4,25 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="feestatement">
-      <change afterPath="$PROJECT_DIR$/templates/performance/subject_results.html" afterDir="false" />
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="web_render1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/management/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/management/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/management/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/management/templatetags/custom_filters.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/templatetags/custom_filters.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/management/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/management/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Home/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Home/website/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/website/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/performance/add_results_table.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/add_results_table.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/performance/class_results_view.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/class_results_view.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/performance/filter_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/filter_form.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/performance/view_results_table.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/view_results_table.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -280,7 +264,7 @@
       <workItem from="1737905516451" duration="15616000" />
       <workItem from="1737960916532" duration="159353000" />
       <workItem from="1738319542641" duration="28507000" />
-      <workItem from="1738350286273" duration="49410000" />
+      <workItem from="1738350286273" duration="51647000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -514,7 +498,23 @@
       <option name="project" value="LOCAL" />
       <updated>1738258244790</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="web_render">
+      <option name="closed" value="true" />
+      <created>1738435338006</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1738435338006</updated>
+    </task>
+    <task id="LOCAL-00031" summary="web_render1">
+      <option name="closed" value="true" />
+      <created>1738436782272</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1738436782272</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -532,8 +532,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="sms" />
-    <MESSAGE value="dockerize" />
     <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
     <MESSAGE value="render prodctn" />
     <MESSAGE value="build" />
@@ -557,7 +555,9 @@
     <MESSAGE value="optional fee" />
     <MESSAGE value="print" />
     <MESSAGE value="feestatement" />
-    <option name="LAST_COMMIT_MESSAGE" value="feestatement" />
+    <MESSAGE value="web_render" />
+    <MESSAGE value="web_render1" />
+    <option name="LAST_COMMIT_MESSAGE" value="web_render1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
