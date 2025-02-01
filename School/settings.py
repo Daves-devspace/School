@@ -141,13 +141,13 @@ try:
 except redis.exceptions.ConnectionError as e:
     print(f"Redis connection error: {e}")
 
-
-# DATABASES = {
-#     "default": dj_database_url.config(default="postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a/school_db_1j40",conn_max_age=600,)
-# }
 DATABASES = {
     "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
 }
+# DATABASES = {
+#     "default": dj_database_url.config(default="postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a/school_db_1j40",conn_max_age=600,)
+# }
+
 # For Celery or other Redis integrations
 # CELERY_BROKER_URL = 'redis://redis:6379/0'
 # CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
