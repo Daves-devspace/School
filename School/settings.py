@@ -141,9 +141,32 @@ try:
 except redis.exceptions.ConnectionError as e:
     print(f"Redis connection error: {e}")
 
+# env = environ.Env()
+# environ.Env.read_env()
+#
+# DATABASES = {
+#     "default": env.db()
+# }
+
+
+#running below
+
+# Database Configuration
 DATABASES = {
-    "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "HOST": config("DB_HOST", default="localhost"),
+        "PORT": config("DB_PORT", default="5432"),
+    }
 }
+
+
+# DATABASES = {
+#     "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
+# }
 # DATABASES = {
 #     "default": dj_database_url.config(default="postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a/school_db_1j40",conn_max_age=600,)
 # }
@@ -215,18 +238,6 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'test_db',
-#         'USER': 'root',
-#         'PASSWORD': '',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#
-#     }
-# }
-
 
 # Email settings for mail.valuetech.co.ke
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -275,41 +286,10 @@ LOGGING = {
 }
 
 
-# DATABASES = {
-#     'default': dj_database_url.config(
-#         default=os.getenv('DATABASE_URL'),  # Render automatically sets DATABASE_URL
-#         conn_max_age=600,
-#         ssl_require=True
-#     )
-# }
-
-#running below
-
-# Database Configuration
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": config("DB_NAME"),
-#         "USER": config("DB_USER"),
-#         "PASSWORD": config("DB_PASSWORD"),
-#         "HOST": config("DB_HOST", default="localhost"),
-#         "PORT": config("DB_PORT", default="5432"),
-#     }
-# }
 
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('DB_NAME'),
-#         'USER': os.environ.get('DB_USER'),
-#         'PASSWORD': os.environ.get('DB_PASSWORD'),
-#         'HOST': os.environ.get('DB_HOST', 'localhost'),
-#         'PORT': os.environ.get('DB_PORT', '5432'),
-#     }
-# }
 
 
 # General Settings

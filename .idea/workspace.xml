@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="web_render1">
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="web_render3">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
     </list>
@@ -264,7 +264,7 @@
       <workItem from="1737905516451" duration="15616000" />
       <workItem from="1737960916532" duration="159353000" />
       <workItem from="1738319542641" duration="28507000" />
-      <workItem from="1738350286273" duration="51647000" />
+      <workItem from="1738350286273" duration="55123000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -514,7 +514,23 @@
       <option name="project" value="LOCAL" />
       <updated>1738436782272</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="web_render2">
+      <option name="closed" value="true" />
+      <created>1738437580011</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1738437580011</updated>
+    </task>
+    <task id="LOCAL-00033" summary="web_render3">
+      <option name="closed" value="true" />
+      <created>1738438689036</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1738438689036</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -532,8 +548,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
-    <MESSAGE value="render prodctn" />
     <MESSAGE value="build" />
     <MESSAGE value="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
     <MESSAGE value="custom1" />
@@ -557,7 +571,9 @@
     <MESSAGE value="feestatement" />
     <MESSAGE value="web_render" />
     <MESSAGE value="web_render1" />
-    <option name="LAST_COMMIT_MESSAGE" value="web_render1" />
+    <MESSAGE value="web_render2" />
+    <MESSAGE value="web_render3" />
+    <option name="LAST_COMMIT_MESSAGE" value="web_render3" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
