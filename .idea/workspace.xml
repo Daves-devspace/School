@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="web_render4">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
-    </list>
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="web_render5" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -265,7 +262,7 @@
       <workItem from="1737960916532" duration="159353000" />
       <workItem from="1738319542641" duration="28507000" />
       <workItem from="1738350286273" duration="56120000" />
-      <workItem from="1738476669758" duration="713000" />
+      <workItem from="1738476669758" duration="1065000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -539,7 +536,15 @@
       <option name="project" value="LOCAL" />
       <updated>1738441806855</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="web_render5">
+      <option name="closed" value="true" />
+      <created>1738478772976</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1738478772976</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -557,7 +562,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
     <MESSAGE value="custom1" />
     <MESSAGE value="Add render-build.sh" />
     <MESSAGE value="render1" />
@@ -582,7 +586,8 @@
     <MESSAGE value="web_render2" />
     <MESSAGE value="web_render3" />
     <MESSAGE value="web_render4" />
-    <option name="LAST_COMMIT_MESSAGE" value="web_render4" />
+    <MESSAGE value="web_render5" />
+    <option name="LAST_COMMIT_MESSAGE" value="web_render5" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

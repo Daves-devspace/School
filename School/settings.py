@@ -120,9 +120,12 @@ ASGI_APPLICATION = 'School.asgi.application'
 # Detect environment by checking hostname
 # Single source of truth for Redis URL
 
-REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/1')
 
-# Caching settings
+REDIS_URL = os.getenv('REDIS_URL', '')
+
+if not REDIS_URL:
+    print("Warning: No REDIS_URL set!")
+
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -133,19 +136,49 @@ CACHES = {
     }
 }
 
-# Test Redis connection
-try:
-    r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
-    r.ping()
-    print("Connected to Redis successfully.")
-except redis.exceptions.ConnectionError as e:
-    print(f"Redis connection error: {e}")
+# Test Redis connection only if REDIS_URL is set
+if REDIS_URL:
+    try:
+        r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
+        r.ping()
+        print("Connected to Redis successfully.")
+    except redis.exceptions.ConnectionError as e:
+        print(f"Redis connection error: {e}")
+
+# REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/1')
+#
+# # Caching settings
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': REDIS_URL,
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         }
+#     }
+# }
+#
+# # Test Redis connection
+# try:
+#     r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
+#     r.ping()
+#     print("Connected to Redis successfully.")
+# except redis.exceptions.ConnectionError as e:
+#     print(f"Redis connection error: {e}")
+#
 
 
+# Initialize environment variables
+env = environ.Env()
+environ.Env.read_env()  # Read from .env (for local dev)
 
-DATABASES = {
-    "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
-}
+DATABASE_URL = env.str("DATABASE_URL", default="")  # Read DATABASE_URL
+
+if DATABASE_URL:
+    DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
+else:
+    print("Warning: No DATABASE_URL set!")
+    DATABASES = {}
 
 # env = environ.Env()
 # environ.Env.read_env()
