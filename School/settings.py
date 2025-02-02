@@ -141,6 +141,12 @@ try:
 except redis.exceptions.ConnectionError as e:
     print(f"Redis connection error: {e}")
 
+
+
+DATABASES = {
+    "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
+}
+
 # env = environ.Env()
 # environ.Env.read_env()
 #
@@ -148,25 +154,22 @@ except redis.exceptions.ConnectionError as e:
 #     "default": env.db()
 # }
 
-
 #running below
 
 # Database Configuration
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST", default="localhost"),
-        "PORT": config("DB_PORT", default="5432"),
-    }
-}
-
-
 # DATABASES = {
-#     "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": config("DB_NAME"),
+#         "USER": config("DB_USER"),
+#         "PASSWORD": config("DB_PASSWORD"),
+#         "HOST": config("DB_HOST", default="localhost"),
+#         "PORT": config("DB_PORT", default="5432"),
+#     }
 # }
+#
+
+
 # DATABASES = {
 #     "default": dj_database_url.config(default="postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a/school_db_1j40",conn_max_age=600,)
 # }
