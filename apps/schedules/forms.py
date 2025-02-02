@@ -5,6 +5,90 @@ from. models import *
 from django import forms
 
 from ..management.models import Term
+from ..students.models import Grade, GradeSection
+
+
+class SubjectForm(forms.ModelForm):
+    class Meta:
+        model = Subject
+        fields = ['name', 'grade',  'department', 'requires_special_room', 'special_room']
+
+    # Dropdown for selecting multiple grades
+    grade = forms.ModelMultipleChoiceField(
+        queryset=Grade.objects.all(),
+        widget=forms.SelectMultiple,
+        required=False  # Optional if the subject applies to multiple grades
+    )
+
+    # Dropdown for selecting a single grade
+    # single_grade = forms.ModelChoiceField(
+    #     queryset=Grade.objects.all(),
+    #     required=False,
+    #     empty_label="Select a grade (optional)"
+    # )
+
+    # Text input for department
+    department = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter department (optional)'})
+    )
+
+    # Checkbox for requires special room
+    requires_special_room = forms.BooleanField(
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput()
+    )
+
+    # Dropdown for selecting a special room (optional)
+    special_room = forms.ModelChoiceField(
+        queryset=Room.objects.all(),
+        required=False,
+        empty_label="Select a special room (optional)"
+    )
+
+
+class RoomForm(forms.ModelForm):
+    class Meta:
+        model = Room
+        fields = ['room_name', 'is_special', 'related_subjects', 'grade_section']
+
+    room_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Enter room name'})
+    )
+
+    is_special = forms.BooleanField(
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput()
+    )
+
+    related_subjects = forms.ModelMultipleChoiceField(
+        queryset=Subject.objects.all(),
+        widget=forms.SelectMultiple,
+        required=False
+    )
+
+    grade_section = forms.ModelChoiceField(
+        queryset=GradeSection.objects.all(),
+        required=False,
+        empty_label="Select a grade section (optional)"
+    )
+
+
+
+class SubjectPreferenceForm(forms.ModelForm):
+    class Meta:
+        model = SubjectPreference
+        fields = ['subject', 'grade_section', 'sessions_per_week', 'is_core_subject']
+
+
+
+
+
+
 
 
 

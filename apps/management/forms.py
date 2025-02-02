@@ -46,24 +46,7 @@ class BookForm(forms.ModelForm):
         }
 
 
-class SubjectForm(forms.ModelForm):
-    class Meta:
-        model = Subject
-        fields = ['name', 'grade', 'single_grade']  # Include both fields
 
-    # Dropdown for selecting multiple grades (optional: you can use a multiple select dropdown)
-    grade = forms.ModelMultipleChoiceField(
-        queryset=Grade.objects.all(),  # Display all grades to choose from
-        widget=forms.SelectMultiple,  # Use a multiple select dropdown (for multiple grades)
-        required=False  # Make this field optional if the subject is for only one grade
-    )
-
-    # Dropdown for selecting a single grade (e.g., for Comp)
-    single_grade = forms.ModelChoiceField(
-        queryset=Grade.objects.all(),  # Display all grades to choose from
-        required=False,  # Make this field optional if the subject belongs to multiple grades
-        empty_label="Select a grade (optional)"
-    )
 
 
 class AddResultForm(forms.ModelForm):

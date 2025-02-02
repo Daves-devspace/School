@@ -30,7 +30,7 @@ class TeacherForm(forms.ModelForm):
     class Meta:
         model = Teacher
         fields = [
-            'full_name', 'id_No', 'staff_number', 'phone', 'gender',
+            'first_name','last_name', 'id_No', 'staff_number', 'phone', 'gender',
             'qualification', 'experience', 'joining_date',
             'subjects', 'country', 'address'
         ]

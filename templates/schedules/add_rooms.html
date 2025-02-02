@@ -1,0 +1,136 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Subject</a></li>
+                            <li class="breadcrumb-item active">Rooms</li>
+                        </ul>
+                    </div>
+
+                    <div class="col-auto text-end float-end ms-auto download-grp">
+                        <a href="{% url 'terms' %}"
+                           class="btn btn-outline custom-bg text-white me-2 active"><i
+                                class="fas fa-list"></i></a>
+                        <a href="{% url 'students_grid' %}"
+                           class="btn btn-outline custom-bg text-white me-2"><i
+                                class="fas fa-th-large"></i></a>
+                        <a href="#" class="btn btn-success text-white me-2"><i
+                                class="fas fa-download"></i>
+                            Download</a>
+                        <a href="{% url 'terms' %}" class="btn btn-success text-white"><i
+                                class="fas fa-plus"></i></a>
+                    </div>
+                </div>
+            </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+
+
+                            <h3>{% if edit_mode %}Edit Room{% else %}Add a Room{% endif %}</h3>
+                            <form method="post">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <button type="submit">{% if edit_mode %}Update Room{% else %}Save
+                                    Room{% endif %}</button>
+                            </form>
+
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card card-table">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <h5>School Lesson/Exam Rooms</h5>
+                                    <table class="table table-hover table-center mb-0 datatable">
+                                        <thead>
+                                        <tr>
+                                            <th>Room Name</th>
+                                            <th>Special Room</th>
+                                            <th>Related Subjects</th>
+                                            <th>Grade Section</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for room in rooms %}
+                                            <tr>
+                                                <td>{{ room.room_name }}</td>
+                                                <td>
+                                                    {% if room.is_special %}
+                                                        <span class="badge bg-success-dark">Yes</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">No</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if room.related_subjects.exists %}
+                                                        {% for subject in room.related_subjects.all %}
+                                                            {{ subject.name }}{% if not forloop.last %}, {% endif %}
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if room.is_special %}
+                                                        <span class="badge bg-warning">Shared Across School</span>
+                                                    {% elif room.grade_section %}
+                                                        {{ room.grade_section.grade.name }} -
+                                                        {{ room.grade_section.section.name }}
+                                                    {% else %}
+                                                        <span class="text-muted">Not Assigned</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>    
+                                                    <a href="{% url 'edit_room' room.id %}"
+                                                       class="btn btn-sm btn-outline-primary">Edit</a>
+                                                </td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="5" class="text-center">No rooms available.</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+{% endblock %}

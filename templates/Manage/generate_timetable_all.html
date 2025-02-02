@@ -16,6 +16,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card card-table comman-shadow">
@@ -35,12 +36,6 @@
 
                                 <!-- Generate Button -->
                                 <div class="text-center">
-                                    {#                                    <button id="generate-btn" class="btn btn-success btn-lg"#}
-                                    {#                                            onclick="generateTimetable()">#}
-                                    {#                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"#}
-                                    {#                                              style="display: none;"></span>#}
-                                    {#                                        Generate Timetable#}
-                                    {#                                    </button>#}
                                     <button id="generateButton" class="btn btn-primary" onclick="generateTimetable()">
                                         Generate Timetable
                                     </button>
@@ -49,13 +44,51 @@
 
                                 <p id="statusMessage"></p> <!-- For displaying success/error messages -->
 
+                                <hr>
+
+                                <h3>Configure Subject Preferences</h3>
+                                <form method="POST" id="subjectForm">
+                                    {% csrf_token %}
+                                    {{ form.as_p }}
+                                    <button type="submit" class="btn btn-success">Save Preferences</button>
+                                </form>
+
+                                <div class="mt-4">
+                                    <h3>Subject Preferences</h3>
+                                    <table class="table table-bordered">
+                                        <thead>
+                                        <tr>
+                                            <th>Subject</th>
+                                            <th>Grade Section</th>
+                                            <th>Sessions/Week</th>
+                                            <th>Core Subject</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for pref in subject_preferences %}
+                                            <tr>
+                                                <td>{{ pref.subject.name }}</td>
+                                                <td>{{ pref.grade_section }}</td>
+                                                <td>{{ pref.sessions_per_week }}</td>
+                                                <td>{{ pref.is_core_subject }}</td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted">No subject preferences
+                                                    found.
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+
                                 <!-- Table displaying the timetable -->
                                 <div class="timetable mt-5">
                                     <h2 class="text-center mb-4">Generated Timetables</h2>
                                     <div class="table-responsive">
                                         <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
                                             <thead class="student-thread">
-
                                             <tr>
                                                 <th>Grade</th>
                                                 <th>Section</th>
@@ -86,10 +119,8 @@
                                             {% endfor %}
                                             </tbody>
                                         </table>
-
                                     </div>
                                 </div>
-
 
                             </div>
                         </div>
@@ -98,7 +129,9 @@
             </div>
         </div>
     </div>
+
     <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+
     <script>
         async function generateTimetable() {
             try {
@@ -148,22 +181,21 @@
 
             timetableSlots.forEach(slot => {
                 const row = `
-            <tr>
-                <td>${slot.teacher_assignment.grade_section.grade.name || 'N/A'}</td>
-                <td>${slot.teacher_assignment.grade_section.section || 'N/A'}</td>
-                <td>${slot.teacher_assignment.subject.name || 'N/A'}</td>
-                <td>${slot.teacher_assignment.teacher.display_name || 'N/A'}</td>
-                <td>${slot.day_of_week || 'N/A'}</td>
-                <td>${slot.time_slot.time_range || 'N/A'}</td>
-                <td>${slot.room.room_name || 'N/A'}</td>
-            </tr>
-        `;
+                <tr>
+                    <td>${slot.teacher_assignment.grade_section.grade.name || 'N/A'}</td>
+                    <td>${slot.teacher_assignment.grade_section.section || 'N/A'}</td>
+                    <td>${slot.teacher_assignment.subject.name || 'N/A'}</td>
+                    <td>${slot.teacher_assignment.teacher.display_name || 'N/A'}</td>
+                    <td>${slot.day_of_week || 'N/A'}</td>
+                    <td>${slot.time_slot.time_range || 'N/A'}</td>
+                    <td>${slot.room.room_name || 'N/A'}</td>
+                </tr>
+            `;
                 tableBody.innerHTML += row;
             });
         }
-
-
     </script>
+
     {#    <script>#}
     {#        // Function to retrieve CSRF token from cookies#}
     {#        function getCSRFToken() {#}

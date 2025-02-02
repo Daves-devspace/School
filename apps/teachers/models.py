@@ -49,16 +49,12 @@ class StaffNumberBackend(BaseBackend):
 
 
 
-
-
-
-
-# Teacher model remains the same
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)  # Links to User model
     id_No = models.CharField(max_length=20, unique=True)  # Represents the ID number
     staff_number = models.CharField(max_length=20, unique=True, default='TCH/000/00')  # This will be used as username
-    full_name = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
     gender = models.CharField(
         max_length=10,
         choices=[('Male', 'Male'), ('Female', 'Female'), ('Others', 'Others')]
@@ -103,8 +99,77 @@ class Teacher(models.Model):
         new_number = f"{last_number + 1:03d}"  # Increment and format as 3 digits
         return f"TCH/{new_number}/{year_suffix}"
 
+    def get_title(self):
+        """
+        Generate the title based on the gender and last name of the teacher.
+        If gender is male, prefix 'Mr.', if female, prefix 'Mrs.'
+        """
+        if self.gender == 'Male':
+            return f"Mr. {self.last_name}"
+        elif self.gender == 'Female':
+            return f"Mrs. {self.last_name}"
+        else:
+            return f"{self.first_name} {self.last_name}"
+
     def __str__(self):
-        return f"{self.staff_number} - {self.full_name}"
+        return f"{self.staff_number} - {self.first_name}-{self.last_name}"
+
+
+
+
+# # Teacher model remains the same
+# class Teacher(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)  # Links to User model
+#     id_No = models.CharField(max_length=20, unique=True)  # Represents the ID number
+#     staff_number = models.CharField(max_length=20, unique=True, default='TCH/000/00')  # This will be used as username
+#     first_name = models.CharField(max_length=50)
+#     last_name = models.CharField(max_length=50)
+#     gender = models.CharField(
+#         max_length=10,
+#         choices=[('Male', 'Male'), ('Female', 'Female'), ('Others', 'Others')]
+#     )
+#     email = models.EmailField(unique=True)
+#     phone = PhoneNumberField(region="KE", blank=False, null=False, default="0000000000")
+#     qualification = models.CharField(max_length=100)
+#     experience = models.PositiveIntegerField(help_text="Years of experience")
+#     country = models.CharField(max_length=50)
+#     joining_date = models.DateField()
+#     subjects = models.ManyToManyField(
+#         'schedules.Subject',
+#         related_name="teachers"
+#     )  # Link to Subject model
+#     is_headteacher = models.BooleanField(default=False)
+#
+#     def save(self, *args, **kwargs):
+#         if not self.staff_number:  # Generate staff number only if it doesn't exist
+#             self.staff_number = self.generate_staff_number()
+#         if self.user:
+#             self.user.username = self.staff_number  # Assign the staff_number as the username for the User
+#             self.user.save()
+#         super().save(*args, **kwargs)
+#
+#     @staticmethod
+#     def generate_staff_number():
+#         """
+#         Generate a unique staff number for teachers.
+#         Format: TCH/001/25 (e.g., "TCH/{sequential_number}/{last_two_digits_of_year}")
+#         """
+#         current_year = date.today().year
+#         year_suffix = str(current_year)[-2:]
+#
+#         # Fetch the last registered teacher
+#         last_teacher = Teacher.objects.order_by('-id').first()
+#
+#         if last_teacher and last_teacher.staff_number:
+#             last_number = int(last_teacher.staff_number.split("/")[1])  # Get the middle number
+#         else:
+#             last_number = 0  # Default to 0 if no teacher exists
+#
+#         new_number = f"{last_number + 1:03d}"  # Increment and format as 3 digits
+#         return f"TCH/{new_number}/{year_suffix}"
+#
+#     def __str__(self):
+#         return f"{self.staff_number} - {self.full_name}"
 
 
 

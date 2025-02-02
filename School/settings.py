@@ -107,47 +107,15 @@ TEMPLATES = [
 # ASGI application path
 ASGI_APPLICATION = 'School.asgi.application'
 
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         'LOCATION': "redis://red-cu9dmstds78s739cl7pg:6379/1",  # This should be the correct Redis container name and port
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         }
+
+
+#when deploying:
+
+# REDIS_URL = os.getenv('REDIS_URL', '')
 #
-#     }
-# }
-# Detect environment by checking hostname
-# Single source of truth for Redis URL
-
-
-REDIS_URL = os.getenv('REDIS_URL', '')
-
-if not REDIS_URL:
-    print("Warning: No REDIS_URL set!")
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': REDIS_URL,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
-
-# Test Redis connection only if REDIS_URL is set
-if REDIS_URL:
-    try:
-        r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
-        r.ping()
-        print("Connected to Redis successfully.")
-    except redis.exceptions.ConnectionError as e:
-        print(f"Redis connection error: {e}")
-
-# REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/1')
+# if not REDIS_URL:
+#     print("Warning: No REDIS_URL set!")
 #
-# # Caching settings
 # CACHES = {
 #     'default': {
 #         'BACKEND': 'django_redis.cache.RedisCache',
@@ -158,27 +126,54 @@ if REDIS_URL:
 #     }
 # }
 #
-# # Test Redis connection
-# try:
-#     r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
-#     r.ping()
-#     print("Connected to Redis successfully.")
-# except redis.exceptions.ConnectionError as e:
-#     print(f"Redis connection error: {e}")
-#
+# Test Redis connection only if REDIS_URL is set
+# if REDIS_URL:
+#     try:
+#         r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
+#         r.ping()
+#         print("Connected to Redis successfully.")
+#     except redis.exceptions.ConnectionError as e:
+#         print(f"Redis connection error: {e}")
 
 
 # Initialize environment variables
-env = environ.Env()
-environ.Env.read_env()  # Read from .env (for local dev)
+# env = environ.Env()
+# environ.Env.read_env()  # Read from .env (for local dev)
+#
+# DATABASE_URL = env.str("DATABASE_URL", default="")  # Read DATABASE_URL
+#
+# if DATABASE_URL:
+#     DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
+# else:
+#     print("Warning: No DATABASE_URL set!")
+#     DATABASES = {}
 
-DATABASE_URL = env.str("DATABASE_URL", default="")  # Read DATABASE_URL
 
-if DATABASE_URL:
-    DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
-else:
-    print("Warning: No DATABASE_URL set!")
-    DATABASES = {}
+
+
+REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/1')
+
+# Caching settings
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# Test Redis connection
+try:
+    r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
+    r.ping()
+    print("Connected to Redis successfully.")
+except redis.exceptions.ConnectionError as e:
+    print(f"Redis connection error: {e}")
+
+
+
 
 # env = environ.Env()
 # environ.Env.read_env()
@@ -189,18 +184,18 @@ else:
 
 #running below
 
-# Database Configuration
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": config("DB_NAME"),
-#         "USER": config("DB_USER"),
-#         "PASSWORD": config("DB_PASSWORD"),
-#         "HOST": config("DB_HOST", default="localhost"),
-#         "PORT": config("DB_PORT", default="5432"),
-#     }
-# }
-#
+#Database Configuration
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "HOST": config("DB_HOST", default="localhost"),
+        "PORT": config("DB_PORT", default="5432"),
+    }
+}
+
 
 
 # DATABASES = {

@@ -20,10 +20,10 @@ class TeacherRoleInline(admin.TabularInline):
 
 class TeacherAdmin(admin.ModelAdmin):
     form = TeacherForm
-    list_display = ('id_No', 'full_name', 'staff_number', 'email', 'phone', 'gender', 'is_headteacher')
+    list_display = ('id_No', 'first_name','last_name', 'staff_number', 'email', 'phone', 'gender', 'is_headteacher')
 
     # Define search fields to enable searching by teacher's name, email, etc.
-    search_fields = ['full_name', 'email', 'staff_number', 'phone']
+    search_fields = ['first_name','last_name', 'email', 'staff_number', 'phone']
 
     def save_model(self, request, obj, form, change):
         """

@@ -65,8 +65,7 @@ class GradeSection(models.Model):
         return f"{self.grade.name} {self.section.name}"
 
     def save(self, *args, **kwargs):
-        # Save the GradeSection instance first
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)  # Save the GradeSection first
 
         # Ensure grade and section names are valid
         grade_name = self.grade.name.strip() if self.grade.name else "Grade"
@@ -75,12 +74,20 @@ class GradeSection(models.Model):
         # Generate a room name (e.g., "G1A" for Grade 1, Section A)
         room_name = f"{grade_name[0].upper()}{self.grade.level}{section_name[0].upper()}"
 
-        # Check if a room with this name already exists
-        if not Room.objects.filter(room_name=room_name).exists():
-            # Create a new Room with the generated name
+        # Check if this GradeSection already has a room
+        room = Room.objects.filter(grade_section=self).first()
+
+        if room:
+            # If room exists but has a different name, update it
+            if room.room_name != room_name:
+                room.room_name = room_name
+                room.save()
+        else:
+            # If no room exists for this GradeSection, create a new one
             Room.objects.create(
                 room_name=room_name,
-                is_special=False  # Default to non-special rooms
+                is_special=False,
+                grade_section=self  # Ensure the room is linked to this GradeSection
             )
 
 

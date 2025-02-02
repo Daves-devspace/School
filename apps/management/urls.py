@@ -38,7 +38,6 @@ urlpatterns = [
     path('performance/<int:grade_id>/<int:term_id>/', views.grade_performance_view, name='grade_performance'),
 
     # URL for adding a subject
-    path('subjects/add/', views.add_subject, name='add_subject'),
     path('timetable/', views.time_table, name='time_table'),
     path('exam/', views.exam_list, name='exam_list'),
     path('transport/', views.transport_view, name='transport'),

@@ -1,99 +1,113 @@
 {% extends 'Home/base.html' %}
+{% load custom_filters %}
 {% load crispy_forms_filters %}
 {% load static %}
 {% block body %}
 
-<div class="page-wrapper">
-    <div class="content container-fluid">
-        <div class="page-header">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h3 class="page-title">Generated TT</h3>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
-                        <li class="breadcrumb-item active">Time table</li>
-                    </ul>
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Generated TT</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
+                            <li class="breadcrumb-item active">Time table</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-body">
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert {{ message.tags }}">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-
-                        <form method="GET" action="{% url 'get_filtered_timetable' %}">
-                            <label for="grade_section">Choose a Grade Section:</label>
-                            <select name="grade_section_id" id="grade_section">
-                                {% for grade_section in grade_sections %}
-                                    <option value="{{ grade_section.id }}">{{ grade_section.grade.name }}
-                                        - {{ grade_section.section }}</option>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }}">
+                                        {{ message }}
+                                    </div>
                                 {% endfor %}
-                            </select>
-                            <button type="submit">View Timetable</button>
-                        </form>
-                        <div class="timetable mt-5">
-                            <h2 class="text-center mb-4">Generated Timetables</h2>
-                            <div class="table-responsive">
-                                <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
-                                    <thead class="student-thread">
-                                    <tr>
-                                        <th>Grade</th>
-                                        <th>Section</th>
-                                        <th>Subject</th>
-                                        <th>Day</th>
-                                        <th>Time</th>
-                                        <th>Room</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for day in days %}
+                            {% endif %}
+
+                            <form method="GET" action="{% url 'get_filtered_timetable' %}">
+                                <label for="grade_section">Choose a Grade Section:</label>
+                                <select name="grade_section_id" id="grade_section">
+                                    {% for grade_section in grade_sections %}
+                                        <option value="{{ grade_section.id }}">{{ grade_section.grade.name }}
+                                            - {{ grade_section.section }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit">View Timetable</button>
+                            </form>
+                            <div class="timetable mt-5">
+                                <h2 class="text-center mb-4">Generated Timetables</h2>
+                                <div class="table-responsive">
+                                    <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                        <thead class="student-thread">
                                         <tr>
-                                            <td colspan="6" class="text-center font-weight-bold">{{ day }}</td>
+                                            <th>Grade</th>
+                                            <th>Section</th>
+                                            <th>Subject</th>
+                                            <th>Day</th>
+                                            <th>Time</th>
+                                            <th>Room</th>
                                         </tr>
-                                        {% for time_range, slots in timetable_by_day|get_item:day.items %}
+                                        </thead>
+                                        <tbody>
+                                        {% for day in days %}
                                             <tr>
-                                                <td>{{ grade_section.grade.name }}</td>
-                                                <td>{{ grade_section.section }}</td>
-                                                <td>{{ slots.0.teacher_assignment.subject.name }}</td>
-                                                <td>{{ day }}</td>
-                                                <td>{{ time_range }}</td>
-                                                <td>{{ slots.0.room.room_name }}</td>
+                                                <td colspan="6" class="text-center font-weight-bold">{{ day }}</td>
                                             </tr>
+
+                                            {% with timetable_by_day|get_item:day as day_slots %}
+                                                {% if day_slots %}
+                                                    {% for time_range, slots in day_slots.items %}
+                                                        {% for slot in slots %}
+                                                            <tr>
+                                                                <td>{{ grade_section.grade.name }}</td>
+                                                                <td>{{ grade_section.section }}</td>
+                                                                <td>{{ slot.teacher_assignment.subject.name }}</td>
+                                                                <td>{{ day }}</td>
+                                                                <td>{{ time_range }}</td>
+                                                                <td>{{ slot.room.room_name }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <tr>
+                                                        <td colspan="6" class="text-center text-muted">No slots
+                                                            available for {{ day }}.
+                                                        </td>
+                                                    </tr>
+                                                {% endif %}
+                                            {% endwith %}
                                         {% endfor %}
-                                    {% endfor %}
-                                  
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted">
-                                            No timetables generated yet.
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">
+                                                No timetables generated yet.
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+
                             </div>
+
+
                         </div>
-
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-</div>
-<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
-<script src="{% static 'assets/js/popper.min.js' %}"></script>
-<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
-<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
-<script src="{% static 'assets/js/script.js' %}"></script>
-</body>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
 
-</html>
+    </html>
 {% endblock %}

@@ -29,11 +29,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.models import FeePayment, Expense
-from apps.management.forms import SubjectForm, BookForm, TimetableForm, LessonExchangeForm, ProfileForm, \
+from apps.management.forms import BookForm, TimetableForm, LessonExchangeForm, ProfileForm, \
     HolidayPresentationForm, FeedbackForm, TermForm, ExamTypeForm, PerformanceFilterForm, AddResultForm
 from apps.management.models import Term, ReportCard, SubjectMark, ExamType, \
     Attendance, Timetable, LessonExchangeRequest, HolidayPresentation
 from apps.management.serializers import TimetableSerializer
+from apps.schedules.forms import SubjectForm
 from apps.schedules.models import Subject
 from apps.students.forms import SendSMSForm, SendClassForm, ResultsSMSForm
 from apps.students.models import Book, Transaction, Student, Payment, Parent, StudentParent, Grade, GradeSection
@@ -566,70 +567,7 @@ def send_sms_view(request, student_parent_id):
     return render(request, "manage/send_sms.html", {"form": form, "student_parent": student_parent})
 
 
-@login_required
-def add_subject(request):
-    if request.method == 'POST':
-        form = SubjectForm(request.POST)
 
-        if form.is_valid():
-            subject_name = form.cleaned_data[
-                'name'].strip()  # Don't normalize the name here if you want to preserve original case
-            grades_selected = form.cleaned_data['grade']  # Get the grades selected in the form
-            single_grade_selected = form.cleaned_data['single_grade']  # Get the single grade, if any
-
-            # Check if the subject already exists (case insensitive)
-            existing_subject = Subject.objects.filter(name__iexact=subject_name).first()
-
-            if existing_subject:
-                # If the subject exists, check for new grades to add
-                existing_grades = existing_subject.grade.all()
-                new_grades = grades_selected.exclude(id__in=existing_grades.values_list('id', flat=True))
-
-                if new_grades.exists():
-                    # Add the new grades to the existing subject
-                    existing_subject.grade.add(*new_grades)
-                    messages.success(
-                        request,
-                        f"Updated '{existing_subject.name}' to include new grades: {', '.join(grade.name for grade in new_grades)}."
-                    )
-                else:
-                    messages.info(
-                        request,
-                        f"No new grades were added. '{existing_subject.name}' already has the selected grades."
-                    )
-
-                # Check and set the single_grade if provided
-                if single_grade_selected:
-                    existing_subject.single_grade = single_grade_selected
-                    existing_subject.save()
-                    messages.success(
-                        request,
-                        f"Updated the 'single grade' for '{existing_subject.name}' to {single_grade_selected.name}."
-                    )
-
-                return redirect('subjects_list')
-
-            else:
-                # Create a new subject if it doesn't exist
-                new_subject = form.save()
-
-                # If a single grade is provided, assign it to the new subject
-                if single_grade_selected:
-                    new_subject.single_grade = single_grade_selected
-                    new_subject.save()
-                    messages.success(
-                        request,
-                        f"Subject '{new_subject.name}' added successfully with the single grade {single_grade_selected.name}."
-                    )
-                else:
-                    messages.success(request, f"Subject '{new_subject.name}' added successfully!")
-
-                return redirect('subjects_list')
-
-    else:
-        form = SubjectForm()
-
-    return render(request, 'performance/add_subject.html', {'form': form})
 
 
 def add_book(request):

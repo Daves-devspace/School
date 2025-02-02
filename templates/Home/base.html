@@ -249,6 +249,7 @@
                         <ul>
                             <li><a href="{% url 'subjects_list' %}">Subject List</a></li>
                             <li><a href="{% url 'add_subject' %}">Subject Add</a></li>
+                           
                         </ul>
                     </li>
                     {% if perms.students.view_invoice %}
@@ -335,7 +336,7 @@
                     {% endif %}
                     <li>
                         <a href="#"><i class="fas fa-inbox custom-color"></i> <span
-                                class="custom-color"> Messages</span>
+                                class="custom-color"> Communication</span>
                             <span class="menu-arrow"></span>
                         </a>
                         <ul>
@@ -356,10 +357,11 @@
                         {#                       <a href="{% url 'timetable-create-api' %}"><i class="fas fa-table custom-color"></i> <span class="custom-color">Time Table</span></a>#}
                         <a href="#">
                             <i class="fas fa-table custom-color"></i>
-                            <span class="custom-color">Timetable</span> <span class="menu-arrow"></span>
+                            <span class="custom-color">Schedules</span> <span class="menu-arrow"></span>
                         </a>
                         <ul>
                             <li><a href="{% url 'timetable-create' %}">Create</a></li>
+                             <li><a href="{% url 'add_edit_room_and_list' %}">Rooms</a></li>
                             <li><a href="{% url 'class-timetable' %}">Timetable</a></li>
                             {#                            <li><a href="{% url 'generate' %}">Generate</a></li>#}
                             <li><a href="{% url 'timetable_page' %}">Generate Timetable</a></li>

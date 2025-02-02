@@ -4,10 +4,17 @@ from . import views
 # from .views import generate_timetable_for_all
 
 urlpatterns = [
+    # subjects
+    path('subjects/add/', views.add_subject, name='add_subject'),
+
+    # rooms
+    path('rooms/', views.add_room_and_list, name='add_edit_room_and_list'),  # For adding rooms
+    path('rooms/edit/<int:room_id>/', views.add_room_and_list, name='edit_room'),  # For editing rooms
+
     # path('generate_timetable/', generate_timetable_for_all, name='generate_timetable'),
     path('generate_timetable/', views.
          generate_timetable_view, name='generate_timetable_view'),
-         path('api/shuffles',views.auto_create_timetable_slots_for_all, name='generate_timetable_for_all'),
+    path('api/shuffles', views.auto_create_timetable_slots_for_all, name='generate_timetable_for_all'),
     path('timetables/', views.timetable_page_view, name='timetable_page'),
     path('timetable/', views.get_filtered_timetable, name='get_filtered_timetable'),
 

@@ -20,13 +20,8 @@ class Subject(models.Model):
     # Many-to-many relationship to Grade, as a subject can be taught across multiple grades
     grade = models.ManyToManyField('students.Grade', blank=True, related_name='subjects_schedules')
 
-    # Optional Foreign Key if the subject is taught only in one specific grade
-    single_grade = models.ForeignKey(
-        'students.Grade', null=True, blank=True, on_delete=models.SET_NULL, related_name='single_subjects_schedules'
-    )
-
     # Department and special room details
-    department = models.CharField(max_length=100, blank=True, null=True)
+    department = models.ForeignKey('teachers.Department', on_delete=models.SET_NULL, max_length=100, blank=True, null=True)
     requires_special_room = models.BooleanField(
         default=False  # Whether the subject needs a special room (e.g., computer lab)
     )
@@ -35,13 +30,19 @@ class Subject(models.Model):
     )  # Reference to the special room if required
 
     def __str__(self):
-        if self.single_grade:
-            return f"{self.name} (Only in {self.single_grade.name})"
         grades_list = ", ".join(grade.name for grade in self.grade.all())
         return f"{self.name} ({grades_list})" if grades_list else self.name
 
 
 
+class SubjectPreference(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    grade_section = models.ForeignKey('students.GradeSection', on_delete=models.CASCADE)
+    sessions_per_week = models.PositiveIntegerField(default=3)
+    is_core_subject = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.subject.name} ({self.grade_section}) - {self.sessions_per_week} sessions/week"
 
 
 
@@ -113,6 +114,6 @@ class TimetableSlot(models.Model):
     time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)  # Specific time slot
 
     def __str__(self):
-        return f"{self.teacher_assignment.subject.name} with {self.teacher_assignment.teacher.full_name} on {self.day_of_week} at {self.time_slot}"
+        return f"{self.teacher_assignment.subject.name} with {self.teacher_assignment.teacher.first_name} on {self.day_of_week} at {self.time_slot}"
 
 
