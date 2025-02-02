@@ -35,7 +35,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # change to false in production
 #
-ALLOWED_HOSTS = ['school-kbah.onrender.com','localhost']  # Replace '*' with your domain or IP for production
+ALLOWED_HOSTS = ['school-kbah.onrender.com','www.stitchngalore.com','localhost']  # Replace '*' with your domain or IP for production
 
 # Application definition
 
