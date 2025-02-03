@@ -4,39 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="TT">
-      <change afterPath="$PROJECT_DIR$/apps/Manage/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/website/consumers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/website/forms.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/website/routing.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/website/signals.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Home/website/appointment_form.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Manage/inbox.html" afterDir="false" />
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="dave">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/management/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/website/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/website/apps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/website/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/website/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/website/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/website/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/website/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/website/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/nginx/nginx.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Home/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Home/website/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/website/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Manage/class_timetable.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/class_timetable.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Manage/generate_timetable_all.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/generate_timetable_all.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Manage/send_sms.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/send_sms.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Manage/settings.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/settings.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -296,7 +266,7 @@
       <workItem from="1738319542641" duration="28507000" />
       <workItem from="1738350286273" duration="56120000" />
       <workItem from="1738476669758" duration="45275000" />
-      <workItem from="1738559973603" duration="38789000" />
+      <workItem from="1738559973603" duration="39651000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -602,7 +572,23 @@
       <option name="project" value="LOCAL" />
       <updated>1738501835833</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="Comm ui">
+      <option name="closed" value="true" />
+      <created>1738603075770</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1738603075770</updated>
+    </task>
+    <task id="LOCAL-00040" summary="dave">
+      <option name="closed" value="true" />
+      <created>1738603451268</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1738603451268</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -620,8 +606,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="render2" />
-    <MESSAGE value="render3" />
     <MESSAGE value="render4" />
     <MESSAGE value="render5" />
     <MESSAGE value="render6" />
@@ -645,7 +629,9 @@
     <MESSAGE value="web_render6" />
     <MESSAGE value="Dns" />
     <MESSAGE value="TT" />
-    <option name="LAST_COMMIT_MESSAGE" value="TT" />
+    <MESSAGE value="Comm ui" />
+    <MESSAGE value="dave" />
+    <option name="LAST_COMMIT_MESSAGE" value="dave" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

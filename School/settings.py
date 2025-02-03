@@ -134,7 +134,17 @@ except redis.exceptions.ConnectionError as e:
     print(f"Redis connection error: {e}")
 
 
+# Initialize environment variables
+env = environ.Env()
+environ.Env.read_env()  # Read from .env (for local dev)
 
+DATABASE_URL = env.str("DATABASE_URL", default="")  # Read DATABASE_URL
+
+if DATABASE_URL:
+    DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
+else:
+    print("Warning: No DATABASE_URL set!")
+    DATABASES = {}
 
 
 
