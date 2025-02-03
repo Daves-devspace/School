@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="dave">
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="render-db">
+      <change afterPath="$PROJECT_DIR$/apps/management/templatetags/sms_filters.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/render-build.sh" beforeDir="false" afterPath="$PROJECT_DIR$/render-build.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/send_sms.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/send_sms.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -266,7 +269,7 @@
       <workItem from="1738319542641" duration="28507000" />
       <workItem from="1738350286273" duration="56120000" />
       <workItem from="1738476669758" duration="45275000" />
-      <workItem from="1738559973603" duration="39651000" />
+      <workItem from="1738559973603" duration="43983000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -588,7 +591,23 @@
       <option name="project" value="LOCAL" />
       <updated>1738603451268</updated>
     </task>
-    <option name="localTasksCounter" value="41" />
+    <task id="LOCAL-00041" summary="db">
+      <option name="closed" value="true" />
+      <created>1738603941629</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1738603941629</updated>
+    </task>
+    <task id="LOCAL-00042" summary="render-db">
+      <option name="closed" value="true" />
+      <created>1738606452781</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1738606452781</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -606,8 +625,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="render4" />
-    <MESSAGE value="render5" />
     <MESSAGE value="render6" />
     <MESSAGE value="render7" />
     <MESSAGE value="render8" />
@@ -631,7 +648,9 @@
     <MESSAGE value="TT" />
     <MESSAGE value="Comm ui" />
     <MESSAGE value="dave" />
-    <option name="LAST_COMMIT_MESSAGE" value="dave" />
+    <MESSAGE value="db" />
+    <MESSAGE value="render-db" />
+    <option name="LAST_COMMIT_MESSAGE" value="render-db" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -684,7 +703,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>1986</line>
+          <line>2017</line>
           <option name="timeStamp" value="38" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -753,17 +772,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>1060</line>
+          <line>1091</line>
           <option name="timeStamp" value="77" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>1212</line>
+          <line>1243</line>
           <option name="timeStamp" value="81" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>923</line>
+          <line>954</line>
           <option name="timeStamp" value="82" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">

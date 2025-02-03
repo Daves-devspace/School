@@ -1,4 +1,5 @@
 {% extends 'Home/base.html' %}
+{% load sms_filters %}
 {% load crispy_forms_filters %}
 {% load static %}
 {% block body %}
@@ -16,7 +17,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Messages -->
         {% if messages %}
             <div class="mb-4">
@@ -51,7 +52,7 @@
                                         <div class="row g-3">
                                             <!-- All Parents -->
                                             <div class="col-12">
-                                                <div class="card sms-type-card {% if sms_type == 'all' %}active{% endif %}" 
+                                                <div class="card sms-type-card {% if sms_type == 'all' %}active{% endif %}"
                                                      data-type="all" data-url="{% url 'send_bulk_sms' %}">
                                                     <div class="card-body">
                                                         <h5 class="card-title">📢 All Parents</h5>
@@ -61,10 +62,10 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <!-- Class Specific -->
                                             <div class="col-12">
-                                                <div class="card sms-type-card {% if sms_type == 'class' %}active{% endif %}" 
+                                                <div class="card sms-type-card {% if sms_type == 'class' %}active{% endif %}"
                                                      data-type="class" data-url="{% url 'send_sms_to_class' %}">
                                                     <div class="card-body">
                                                         <h5 class="card-title">🏫 Class Specific</h5>
@@ -74,10 +75,10 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <!-- Exam Results -->
                                             <div class="col-12">
-                                                <div class="card sms-type-card {% if sms_type == 'results' %}active{% endif %}" 
+                                                <div class="card sms-type-card {% if sms_type == 'results' %}active{% endif %}"
                                                      data-type="results" data-url="{% url 'result_sms' %}">
                                                     <div class="card-body">
                                                         <h5 class="card-title">📊 Exam Results</h5>
@@ -105,7 +106,7 @@
                                             </a>
                                             {% endif %}
                                         </div>
-                                        
+
                                         <div class="card-body">
                                             <!-- Dynamic Fields -->
                                             <div class="dynamic-fields mb-3">
@@ -113,7 +114,7 @@
                                                 <div class="class-selection {% if sms_type != 'class' %}d-none{% endif %} dynamic-field">
                                                     {{ send_class_form.class_choice|as_crispy_field }}
                                                 </div>
-                                                
+
                                                 <!-- Exam Results Selection -->
                                                 <div class="result-selection {% if sms_type != 'results' %}d-none{% endif %} dynamic-field">
                                                     <div class="row g-3">
@@ -140,7 +141,7 @@
                                             <!-- Message Content -->
                                             <div class="mb-3">
                                                 <label class="form-label">Message Content</label>
-                                                <textarea name="message" class="form-control" id="messageContent" 
+                                                <textarea name="message" class="form-control" id="messageContent"
                                                           rows="5" required>{{ form_data.message }}</textarea>
                                                 <div class="form-text">
                                                     <span id="charCount">0</span>/160 characters
@@ -158,7 +159,7 @@
                                                     {{ preview.message|linebreaksbr }}
                                                 </div>
                                                 <div class="text-muted small mt-2">
-                                                    Length: {{ preview.message|length }} characters 
+                                                    Length: {{ preview.message|length }} characters
                                                     ({{ preview.message|length|divide:160|ceil }} SMS)
                                                 </div>
                                             </div>
@@ -226,11 +227,11 @@ $(document).ready(function() {
     $('.sms-type-card').click(function() {
         const type = $(this).data('type');
         const formUrl = $(this).data('url');
-        
+
         $('.sms-type-card').removeClass('active');
         $(this).addClass('active');
         $('#smsForm').attr('action', formUrl);
-        
+
         // Toggle dynamic fields
         $('.dynamic-field').addClass('d-none');
         if(type === 'class') {
@@ -238,7 +239,7 @@ $(document).ready(function() {
         } else if(type === 'results') {
             $('.result-selection').removeClass('d-none');
         }
-        
+
         updateRecipientCount();
     });
 
@@ -252,7 +253,7 @@ $(document).ready(function() {
     // Form Submission Handler
     $('#smsForm').submit(function(e) {
         if ($(this).attr('submitting')) return false;
-        
+
         const isPreview = $('button[name="preview"]').is(':focus');
         if (!isPreview) {
             e.preventDefault();
@@ -274,7 +275,7 @@ $(document).ready(function() {
     async function updateRecipientCount() {
         const type = $('.sms-type-card.active').data('type');
         let count = 0;
-        
+
         try {
             if(type === 'class') {
                 const classes = $('.class-selection select').val();
@@ -290,7 +291,7 @@ $(document).ready(function() {
             else {
                 count = {{ parent_count|default:0 }};
             }
-            
+
             $('#recipientCount').text(count);
         } catch(error) {
             console.error('Error fetching recipient count:', error);
