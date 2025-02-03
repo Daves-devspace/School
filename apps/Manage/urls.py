@@ -5,7 +5,7 @@ from . import views
 from django.contrib.auth import views as auth_views
 
 from .views import CustomPasswordResetView, CustomPasswordResetDoneView, CustomPasswordResetConfirmView, \
-    CustomPasswordResetCompleteView
+    CustomPasswordResetCompleteView, SettingsView
 
 urlpatterns = [
 
@@ -15,6 +15,12 @@ urlpatterns = [
     path('', views.website_page, name='merry-land'),
     path('teacher-dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
     path('director-dashboard/', views.director_dashboard, name='director_dashboard'),
+    path('inbox/', views.inbox_view, name='inbox_page'),
+    path('get-appointment/<int:appointment_id>/', views.get_appointment_details, name='get_appointment_details'),
+    path('reply-appointment/<int:appointment_id>/', views.reply_appointment, name='reply_appointment'),
+
+    path('settings/', SettingsView.as_view(), name='settings_page'),
+
 
     path('signup/', views.signup, name='signup'),
     path('login', views.login_user, name='login'),
@@ -27,8 +33,6 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
-    path('settings', views.settings_page, name='settings'),
-
-
+    # path('settings', views.settings_page, name='settings'),
 
 ]

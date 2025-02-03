@@ -1,0 +1,230 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Inbox</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
+                            <li class="breadcrumb-item active">Inbox</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <!-- Success and Failures Section -->
+                            <div class="container mt-4">
+                                <h5>SMS Responses</h5>
+
+                                {% if successful_replies %}
+                                    <div class="alert alert-success">
+                                        <strong>Successful Replies:</strong>
+                                        <ul>
+                                            {% for reply in successful_replies %}
+                                                <li>Phone: {{ reply.phone }} | Message Sent: {{ reply.message }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+
+                                {% if failed_replies %}
+                                    <div class="alert alert-danger" id="failed-reply-message">
+                                        <strong>Failed Replies:</strong>
+                                        <ul>
+                                            {% for reply in failed_replies %}
+                                                <li>Phone: {{ reply.phone }} | Reason: {{ reply.reason }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="container mt-4">
+                                <div class="row">
+                                    <!-- Sidebar: Appointments List -->
+                                    <div class="col-md-4">
+                                        <div class="list-group">
+                                            <h5 class="p-3">Appointments</h5>
+                                            {% for appointment in appointments %}
+                                                <a href="#"
+                                                   class="list-group-item list-group-item-action appointment-item"
+                                                   data-id="{{ appointment.id }}">
+                                                    <strong>{{ appointment.guardian_name }}</strong>
+                                                    ({{ appointment.child_name }})
+                                                    <br>
+                                                    <small class="text-muted">{{ appointment.date }}
+                                                        at {{ appointment.time }}</small>
+                                                </a>
+                                            {% empty %}
+                                                <p class="text-muted p-3">No new appointments</p>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Main Content: Appointment Details & Reply -->
+                                    <div class="col-md-8">
+                                        <div class="card">
+                                            <div class="card-header bg-primary text-white">
+                                                <h5>Message Details</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="appointment-details">
+                                                    <p class="text-muted">Select an appointment to view details.</p>
+                                                </div>
+                                                <hr>
+                                                <h6>Reply</h6>
+                                                <textarea id="reply-message" class="form-control" rows="3"
+                                                          placeholder="Type your reply..."></textarea>
+                                                <button class="btn btn-success mt-2" id="send-reply">Send Reply</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hide the message after 5 seconds if it exists
+        document.addEventListener("DOMContentLoaded", function () {
+            const failedMessageElement = document.getElementById('failed-reply-message');
+            if (failedMessageElement) {
+                setTimeout(function () {
+                    failedMessageElement.style.display = 'none';
+                }, 5000);
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const appointmentItems = document.querySelectorAll(".appointment-item");
+            const detailsDiv = document.getElementById("appointment-details");
+            const replyBtn = document.getElementById("send-reply");
+            const replyInput = document.getElementById("reply-message");
+
+            appointmentItems.forEach(item => {
+                item.addEventListener("click", function () {
+                    const appointmentId = this.getAttribute("data-id");
+
+                    fetch(`/get-appointment/${appointmentId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            detailsDiv.innerHTML = `
+                            <strong>Guardian:</strong> ${data.guardian} <br>
+                            <strong>Child:</strong> ${data.child} <br>
+                            <strong>Date:</strong> ${data.date} at ${data.time} <br>
+                            <strong>Phone:</strong> ${data.phone} <br>
+                            <strong>Email:</strong> ${data.email} <br>
+                            <hr>
+                            <p>${data.message || 'No message provided'}</p>
+                        `;
+                            replyBtn.setAttribute("data-id", appointmentId);
+                        });
+                });
+            });
+
+            replyBtn.addEventListener("click", function () {
+                const appointmentId = this.getAttribute("data-id");
+                const replyMessage = replyInput.value;
+
+                if (replyMessage.trim() === "") {
+                    alert("Reply cannot be empty!");
+                    return;
+                }
+
+                fetch(`/reply-appointment/${appointmentId}/`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({ message: replyMessage })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            alert("Reply sent!");
+                            replyInput.value = ""; // Clear the input after successful reply
+                        } else {
+                            alert(data.message || "Failed to send reply.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("An error occurred.");
+                    });
+            });
+        });
+    </script>
+    
+    <script>
+    let socket = new WebSocket("ws://127.0.0.1:8000/ws/appointments/");
+
+    socket.onmessage = function (event) {
+        let data = JSON.parse(event.data);
+        if (data.count !== undefined) {
+            document.getElementById("appointment-count").innerText = data.count;
+        }
+        if (data.message) {
+            alert(data.message);
+        }
+    };
+</script> 
+    <script>
+    const appointmentCounter = document.getElementById("appointmentCounter");
+
+    const socket = new WebSocket("ws://" + window.location.host + "/ws/appointments/");
+
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        appointmentCounter.innerText = data.count;
+    };
+
+    socket.onclose = function() {
+        console.log("WebSocket disconnected. Trying to reconnect...");
+        setTimeout(function() {
+            location.reload();
+        }, 5000);
+    };
+</script>
+<script>
+    const inboxSocket = new WebSocket("ws://" + window.location.host + "/ws/inbox/");
+
+    inboxSocket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        alert(data.message);
+    };
+
+    inboxSocket.onclose = function() {
+        console.log("WebSocket disconnected. Trying to reconnect...");
+    };
+</script>
+
+
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+
+{% endblock %}

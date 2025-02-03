@@ -141,7 +141,8 @@
                         approaches to enable them face the ever-increasing challenges and competition for opportunities
                         in life</p>
                     <h5><strong>VISION:</strong></h5>
-                    <p class="mb-4">To raise a Godly and self-reliant generation based on high academic exellence and social integrity</p>
+                    <p class="mb-4">To raise a Godly and self-reliant generation based on high academic exellence and
+                        social integrity</p>
                     <div class="row g-4 align-items-center">
                         <div class="col-sm-6">
                             <a class="btn btn-success rounded-pill py-3 px-5" href="{% url 'about_us' %}">Read More</a>
@@ -494,41 +495,49 @@
                     <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
                         <div class="h-100 d-flex flex-column justify-content-center p-5">
                             <h1 class="mb-4">Make Appointment</h1>
-                            <form>
+                            <form method="post" id="appointmentForm">
+                                {% csrf_token %}
                                 <div class="row g-3">
                                     <div class="col-sm-6">
                                         <div class="form-floating">
-                                            <input type="text" class="form-control border-0" id="gname"
-                                                   placeholder="Gurdian Name">
-                                            <label for="gname">Gurdian Name</label>
+                                            {{ form.guardian_name }}
+                                            <label for="{{ form.guardian_name.id_for_label }}">Guardian Name</label>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-floating">
-                                            <input type="email" class="form-control border-0" id="gmail"
-                                                   placeholder="Gurdian Email">
-                                            <label for="gmail">Gurdian Email</label>
+                                            {{ form.email }}
+                                            <label for="{{ form.email.id_for_label }}">Guardian Email</label>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-floating">
-                                            <input type="text" class="form-control border-0" id="cname"
-                                                   placeholder="Child Name">
-                                            <label for="cname">Child Name</label>
+                                            {{ form.phone }}
+                                            <label for="{{ form.phone.id_for_label }}">Phone</label>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-floating">
-                                            <input type="text" class="form-control border-0" id="cage"
-                                                   placeholder="Child Age">
-                                            <label for="cage">Child Age</label>
+                                            {{ form.child_name }}
+                                            <label for="{{ form.child_name.id_for_label }}">Child Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-floating">
+                                            {{ form.date }}
+                                            <label for="{{ form.date.id_for_label }}">Appointment Date</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-floating">
+                                            {{ form.time }}
+                                            <label for="{{ form.time.id_for_label }}">Appointment Time</label>
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="form-floating">
-                                            <textarea class="form-control border-0" placeholder="Leave a message here"
-                                                      id="message" style="height: 100px"></textarea>
-                                            <label for="message">Message</label>
+                                            {{ form.message }}
+                                            <label for="{{ form.message.id_for_label }}">Message</label>
                                         </div>
                                     </div>
                                     <div class="col-12">
@@ -536,6 +545,9 @@
                                     </div>
                                 </div>
                             </form>
+                            <div id="successMessage" style="display: none;" class="alert alert-success mt-3">
+                                Appointment booked successfully!
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s" style="min-height: 400px;">
@@ -662,6 +674,26 @@
         </div>
     </div>
     <!-- Testimonial End -->
+    <script>
+        document.getElementById("appointmentForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            let formData = new FormData(this);
+
+            fetch("{% url 'appointment_view' %}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                }
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        document.getElementById("successMessage").style.display = "block";
+                        document.getElementById("appointmentForm").reset();
+                    }
+                });
+        });
+    </script>
 
 {% endblock %}
 

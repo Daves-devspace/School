@@ -1,4 +1,6 @@
-from collections import defaultdict
+import json
+from collections import defaultdict, deque
+from heapq import heappop, heappush
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,6 +11,7 @@ from django.db.models import Prefetch
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -23,14 +26,14 @@ from ..students.models import GradeSection
 logger = logging.getLogger(__name__)
 
 
-
 @login_required
 def add_subject(request):
     if request.method == 'POST':
         form = SubjectForm(request.POST)
 
         if form.is_valid():
-            subject_name = form.cleaned_data['name'].strip()  # Don't normalize the name here if you want to preserve original case
+            subject_name = form.cleaned_data[
+                'name'].strip()  # Don't normalize the name here if you want to preserve original case
             grades_selected = form.cleaned_data['grade']  # Get the grades selected in the form
 
             # Check if the subject already exists (case insensitive)
@@ -103,11 +106,6 @@ def add_room_and_list(request, room_id=None):
     })
 
 
-
-
-
-
-
 def rule_based_schedule():
     teacher_assignments = TeacherAssignment.objects.all()
     timetable = []
@@ -151,7 +149,7 @@ def fitness_function(timetable):
 
         # Check for teacher conflicts
         if TimetableSlot.objects.filter(teacher_assignment__teacher=slot.teacher_assignment.teacher,
-                                         time_slot=slot.time_slot).exists():
+                                        time_slot=slot.time_slot).exists():
             conflicts += 1
 
     return -conflicts  # Lower conflicts = better fitness
@@ -195,10 +193,6 @@ def genetic_algorithm(pop_size=10, generations=50):
     return sorted(population, key=fitness_function, reverse=True)[0]
 
 
-
-
-
-
 # Function to generate room name based on grade and section
 def generate_room_name_from_grade_section(grade, section):
     grade_name = grade.name.strip()
@@ -208,272 +202,459 @@ def generate_room_name_from_grade_section(grade, section):
 
 
 
+class TimetableScheduler:
+    def __init__(self, grade_section, days, time_slots, subject_preferences):
+        self.grade_section = grade_section
+        self.days = days
+        self.time_slots = time_slots
+        self.subject_preferences = subject_preferences
+        self.scheduled_slots = defaultdict(set)
+        self.teacher_schedule = defaultdict(set)
+        self.room_schedule = defaultdict(set)
+        self.priority_queue = []
+        self.special_room_registry = defaultdict(dict)
+        self.core_subject_limit = 2  # Max core subjects per day
+
+        # Initialize data structures
+        self._prepare_teacher_assignments()
+        self._prepare_subject_queue()
+        self._prepare_special_rooms()
+
+    def _prepare_teacher_assignments(self):
+        """Create a mapping of subjects to teacher assignments"""
+        self.teacher_assignments = {
+            ta.subject: ta for ta in self.grade_section.teacher_assignments.all()
+        }
+
+    def _prepare_subject_queue(self):
+        """Create a priority queue based on subject preferences with stable sorting"""
+        for pref in self.subject_preferences.filter(grade_section=self.grade_section):
+            priority = self._calculate_priority(pref)
+            # Use subject ID as secondary key for stable sorting
+            heappush(self.priority_queue, (-priority, pref.subject.id, pref))
+
+    def _calculate_priority(self, preference):
+        """Calculate scheduling priority based on multiple factors"""
+        priority = 0
+        if preference.is_core_subject:
+            priority += 100
+        if preference.subject.requires_special_room:
+            priority += 50
+        priority += preference.sessions_per_week * 10
+        return priority
+
+    def _prepare_special_rooms(self):
+        """Cache special room availability"""
+        self.special_rooms = Room.objects.filter(is_special=True).prefetch_related('timetable_slots')
+        for room in self.special_rooms:
+            self.special_room_registry[room] = {
+                (slot.day_of_week, slot.time_slot_id) for slot in room.timetable_slots.all()
+            }
+
+    def generate_schedule(self):
+        """Main scheduling method"""
+        scheduled_slots = []
+
+        # Process core subjects first
+        while self.priority_queue:
+            priority, subject_id, pref = heappop(self.priority_queue)
+            scheduled_slots += self._schedule_subject(pref)
+
+        # Handle remaining subjects
+        scheduled_slots += self._schedule_remaining_subjects()
+
+        return scheduled_slots
+
+    def _schedule_subject(self, preference):
+        """Schedule a single subject with conflict checking"""
+        subject = preference.subject
+        teacher_assignment = self.teacher_assignments.get(subject)
+        if not teacher_assignment:
+            return []
+
+        scheduled = []
+        required_sessions = preference.sessions_per_week
+        days = deque(self.days)
+        random.shuffle(days)  # Distribute across days
+
+        while required_sessions > 0 and days:
+            day = days.popleft()
+            core_count = self._count_core_subjects(day)
+
+            if core_count >= self.core_subject_limit:
+                continue
+
+            time_slots = self._get_optimal_time_slots(subject, day)
+            for time_slot in time_slots:
+                if required_sessions <= 0:
+                    break
+
+                room = self._select_room(subject, day, time_slot)
+                if self._is_available(teacher_assignment, day, time_slot, room):
+                    scheduled.append(self._create_slot(teacher_assignment, day, time_slot, room))
+                    required_sessions -= 1
+                    self._update_schedules(day, time_slot, teacher_assignment, room)
+
+        return scheduled
+
+    def _count_core_subjects(self, day):
+        """Count core subjects scheduled on a given day"""
+        return sum(1 for pref in self.subject_preferences
+                   if pref.is_core_subject and day in self.scheduled_slots[pref.subject])
+
+    def _get_optimal_time_slots(self, subject, day):
+        """Get time slots ordered by suitability for the subject"""
+        if subject.is_lab:
+            return sorted(self.time_slots, key=lambda ts: ts.is_afternoon, reverse=True)
+        return sorted(self.time_slots, key=lambda ts: ts.is_morning, reverse=True)
+
+    def _select_room(self, subject, day, time_slot):
+        """Select appropriate room for the subject"""
+        if subject.requires_special_room:
+            return self._find_available_special_room(day, time_slot)
+
+        # Use the correct related_name "rooms" instead of "room_set"
+        return self.grade_section.rooms.filter(is_special=False).first()
+
+    def _find_available_special_room(self, day, time_slot):
+        """Find available special room using registry"""
+        for room, bookings in self.special_room_registry.items():
+            if (day, time_slot.id) not in bookings:
+                bookings.add((day, time_slot.id))
+                return room
+        return None
+
+    def _is_available(self, teacher_assignment, day, time_slot, room):
+        """Check availability using in-memory tracking"""
+        teacher_key = (teacher_assignment.teacher.id, day, time_slot.id)
+        room_key = (room.id, day, time_slot.id) if room else None
+
+        return not (
+                teacher_key in self.teacher_schedule or
+                (room_key and room_key in self.room_schedule) or
+                self._has_conflicting_core_subjects(day, time_slot)
+        )
+
+    def _has_conflicting_core_subjects(self, day, time_slot):
+        """Prevent back-to-back core subjects"""
+        prev_slot = time_slot.get_previous_by_time()
+        next_slot = time_slot.get_next_by_time()
+        return any(
+            self._is_core_subject(day, ts)
+            for ts in [prev_slot, next_slot]
+            if ts
+        )
+
+    def _is_core_subject(self, day, time_slot):
+        """Check if time slot contains a core subject"""
+        return any(
+            pref.is_core_subject
+            for pref in self.subject_preferences
+            if (day, time_slot.id) in self.scheduled_slots[pref.subject]
+        )
+
+    def _create_slot(self, teacher_assignment, day, time_slot, room):
+        """Create timetable slot and update tracking"""
+        return {
+            'teacher_assignment': teacher_assignment,
+            'day_of_week': day,
+            'time_slot': time_slot,
+            'room': room
+        }
+
+    def _update_schedules(self, day, time_slot, teacher_assignment, room):
+        """Update in-memory schedules"""
+        self.teacher_schedule[(teacher_assignment.teacher.id, day, time_slot.id)] = True
+        if room:
+            self.room_schedule[(room.id, day, time_slot.id)] = True
+
+    def _schedule_remaining_subjects(self):
+        """Handle subjects without preferences"""
+        scheduled = []
+        remaining_subjects = set(self.teacher_assignments.keys()) - {
+            pref.subject for pref in self.subject_preferences
+        }
+
+        for subject in remaining_subjects:
+            teacher_assignment = self.teacher_assignments[subject]
+            day = random.choice(self.days)
+            time_slot = random.choice(self.time_slots)
+            room = self._select_room(subject, day, time_slot)
+
+            if self._is_available(teacher_assignment, day, time_slot, room):
+                scheduled.append(self._create_slot(teacher_assignment, day, time_slot, room))
+                self._update_schedules(day, time_slot, teacher_assignment, room)
+
+        return scheduled
 
 
 def auto_create_timetable_slots_for_all():
-    # Fetch all grade sections and prefetch teacher assignments and subjects
-    grade_sections = GradeSection.objects.prefetch_related(
-        Prefetch('teacher_assignments', queryset=TeacherAssignment.objects.select_related('subject', 'teacher'))
-    )
+    try:
+        with transaction.atomic():
+            # Corrected prefetch with proper nesting
+            grade_sections = GradeSection.objects.prefetch_related(
+                Prefetch('teacher_assignments',
+                         queryset=TeacherAssignment.objects.select_related('teacher', 'subject').prefetch_related(
+                             Prefetch('timetable_slots',
+                                      queryset=TimetableSlot.objects.select_related('time_slot', 'room')
+                                      )
+                         )
+                         ),
+                Prefetch('rooms', queryset=Room.objects.filter(is_special=False))
+            ).all()
 
-    if not grade_sections.exists():
-        raise ValueError("No grade sections found.")
+            days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+            time_slots = TimeSlot.objects.order_by('start_time')
+            subject_preferences = SubjectPreference.objects.select_related('subject', 'grade_section')
 
-    # Fetch subject preferences (this now includes user-defined sessions per week and core subject flags)
-    subject_preferences = SubjectPreference.objects.select_related('subject', 'grade_section').all()
+            total_created = 0
+            total_deleted = 0
 
-    # Define days and time slots
-    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-    time_slots = list(TimeSlot.objects.all())  # Convert to a list to allow shuffling
+            for grade_section in grade_sections:
+                # Delete existing slots using the relationship
+                deleted_count, _ = TimetableSlot.objects.filter(
+                    teacher_assignment__grade_section=grade_section
+                ).delete()
+                total_deleted += deleted_count
 
-    if not time_slots:
-        raise ValueError("No time slots available.")
+                # Initialize scheduler
+                scheduler = TimetableScheduler(
+                    grade_section=grade_section,
+                    days=days,
+                    time_slots=time_slots,
+                    subject_preferences=subject_preferences
+                )
 
-    total_deleted_slots = 0
-    created_slots = []
+                # Generate and create slots
+                new_slots = [
+                    TimetableSlot(
+                        teacher_assignment=slot['teacher_assignment'],
+                        day_of_week=slot['day_of_week'],
+                        time_slot=slot['time_slot'],
+                        room=slot['room']
+                    ) for slot in scheduler.generate_schedule()
+                ]
 
-    with transaction.atomic():
-        for grade_section in grade_sections:
-            print(f"Processing GradeSection: {grade_section} - Teacher Assignments: {grade_section.teacher_assignments.all()}")
-            teacher_assignments = list(grade_section.teacher_assignments.all())  # Convert to list for shuffling
-            if not teacher_assignments:
-                print(f"No teacher assignments found for {grade_section}. Skipping...")
-                continue
+                TimetableSlot.objects.bulk_create(new_slots)
+                total_created += len(new_slots)
 
-            # Clear existing timetable slots for this grade section
-            deleted_count, _ = TimetableSlot.objects.filter(
-                teacher_assignment__in=teacher_assignments
-            ).delete()
-            print(f"Deleted {deleted_count} existing slots for {grade_section}.")
-            total_deleted_slots += deleted_count
+            return {
+                'status': 'success',
+                'deleted': total_deleted,
+                'created': total_created
+            }
 
-            # Generate room name for the grade section
-            grade = grade_section.grade
-            section = grade_section.section
-            room_name = generate_room_name_from_grade_section(grade, section)
-            print(f"Generated room name: {room_name}")
-
-            # Get or create the room for this grade section
-            default_room, room_created = Room.objects.get_or_create(
-                room_name=room_name, defaults={"is_special": False}
-            )
-            print(f"Room created: {room_created} - Room details: {default_room}")
-
-            # Loop through subject preferences for the grade section
-            for pref in subject_preferences.filter(grade_section=grade_section):
-                subject = pref.subject
-                assigned_sessions = 0
-
-                # Shuffle the time slots for randomness
-                random.shuffle(time_slots)
-
-                # Assign the subject based on the user preference for sessions per week
-                for day in days:
-                    if assigned_sessions >= pref.sessions_per_week:
-                        break
-
-                    for time_slot in time_slots:
-                        if assigned_sessions >= pref.sessions_per_week:
-                            break
-
-                        # Avoid back-to-back core subjects if necessary
-                        if pref.is_core_subject and assigned_sessions > 1:
-                            continue
-
-                        # Ensure that teacher assignment is available before creating the slot
-                        teacher_assignment = next((ta for ta in teacher_assignments if ta.subject == subject), None)
-                        if teacher_assignment:
-                            slot = TimetableSlot.objects.create(
-                                teacher_assignment=teacher_assignment,  # Assign teacher here
-                                room=default_room,
-                                day_of_week=day,
-                                time_slot=time_slot
-                            )
-                            created_slots.append(slot)
-                            assigned_sessions += 1
-                        else:
-                            print(f"No teacher assignment found for subject {subject} on {day}. Skipping...")
-
-            # Handle subjects without saved preferences (random assignment)
-            # Loop through teacher assignments and randomly assign them if no preference exists
-            for teacher_assignment in teacher_assignments:
-                if teacher_assignment.subject not in [pref.subject for pref in subject_preferences.filter(grade_section=grade_section)]:
-                    # This subject does not have saved preferences, so create random slots
-                    assigned_sessions = 0
-                    for day in days:
-                        if assigned_sessions >= 1:  # Randomly assign only one session for non-preferred subjects
-                            break
-
-                        for time_slot in time_slots:
-                            if assigned_sessions >= 1:
-                                break
-
-                            slot = TimetableSlot.objects.create(
-                                teacher_assignment=teacher_assignment,  # Assign teacher here
-                                room=default_room,
-                                day_of_week=day,
-                                time_slot=time_slot
-                            )
-                            created_slots.append(slot)
-                            assigned_sessions += 1
-
-    return f"Timetable slots refreshed for all grade sections. {total_deleted_slots} slots deleted, {len(created_slots)} new slots created."
+    except Exception as e:
+        logger.error(f"Timetable generation failed: {str(e)}", exc_info=True)
+        return {
+            'status': 'error',
+            'message': f"Generation failed: {str(e)}"
+        }
 
 
 
 
-
+@require_http_methods(["POST"])
 def generate_timetable_view(request):
-    if request.method == "POST":
-        try:
-            # Handle form submission and save preferences
-            form = SubjectPreferenceForm(request.POST)
-            if form.is_valid():
-                form.save()
-                messages.success(request, "Subject preferences updated successfully!")
+    """Handle AJAX timetable generation requests only"""
+    try:
+        with transaction.atomic():
+            # Generate timetable
+            generation_result = auto_create_timetable_slots_for_all()
 
-            # Call timetable generation logic
-            message = auto_create_timetable_slots_for_all()
+            if generation_result['status'] != 'success':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': generation_result.get('message', 'Generation failed')
+                }, status=400)
 
-            # Fetch and serialize timetable slots, ensuring teacher assignments are not NULL
+            # Serialize timetable data
             timetable_slots = TimetableSlot.objects.select_related(
                 'teacher_assignment__grade_section__grade',
                 'teacher_assignment__subject',
                 'teacher_assignment__teacher',
                 'room',
                 'time_slot'
-            ).all()
-
-            serialized_slots = []
-            for slot in timetable_slots:
-                if slot.teacher_assignment is None:
-                    continue  # Skip slots without a valid teacher assignment
-                serialized_slots.append({
-                    "teacher_assignment": {
-                        "grade_section": {
-                            "grade": {"name": slot.teacher_assignment.grade_section.grade.name},
-                            "section": slot.teacher_assignment.grade_section.section.name
-                        },
-                        "subject": {"name": slot.teacher_assignment.subject.name},
-                        "teacher": {"username": slot.teacher_assignment.teacher.get_title()}
-                    },
-                    "day_of_week": slot.day_of_week,
-                    "time_slot": {"time_range": slot.time_slot.time_range},
-                    "room": {"room_name": slot.room.room_name}
-                })
+            ).filter(teacher_assignment__isnull=False)
 
             return JsonResponse({
-                "message": message,
-                "timetable_slots": serialized_slots
-            }, status=200, encoder=DjangoJSONEncoder)
+                'status': 'success',
+                'message': f"Generated {generation_result['created']} slots",
+                'timetable': [serialize_slot(slot) for slot in timetable_slots]
+            })
 
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+    except Exception as e:
+        logger.error(f"Timetable generation failed: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
 
-    return JsonResponse({"error": "Invalid request method."}, status=400)
-
-
-
+@require_http_methods(["GET", "POST"])
 def timetable_page_view(request):
-    """
-    Render the timetable generation page, which also includes the subject preference configuration form.
-    """
+    """Handle page rendering and form submissions"""
     if request.method == "POST":
-        # Handle the form submission for subject preferences
         form = SubjectPreferenceForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, "Subject preferences updated successfully!")
-            return redirect("timetable_page")  # Redirect to the same page to show updated form and preferences
+            return redirect("timetable_page")
     else:
         form = SubjectPreferenceForm()
 
-    # Fetch subject preferences, grade sections, and timetable slots
-    subject_preferences = SubjectPreference.objects.all()
-    grade_sections = GradeSection.objects.all()
-    timetables = TimetableSlot.objects.select_related('teacher_assignment', 'room', 'time_slot', 'teacher_assignment__subject')
-
-    # If the user has submitted the form, generate the timetable
-    if request.POST and form.is_valid():
-        try:
-            # Call the function to create timetable slots based on subject preferences
-            message = auto_create_timetable_slots_for_all()  # Function you created for auto timetable generation
-
-            # Fetch newly created timetable slots to display them
-            timetables = TimetableSlot.objects.select_related(
-                'teacher_assignment', 'room', 'time_slot', 'teacher_assignment__subject'
-            ).all()
-
-            # Serialize timetable slots into a format for the response if needed
-            # Add to the context if you plan to return any specific success messages
-            messages.success(request, message)
-        except Exception as e:
-            messages.error(request, f"Error generating timetable: {str(e)}")
-
     context = {
-        'form': form,
-        'subject_preferences': subject_preferences,
-        'grade_sections': grade_sections,
-        'timetables': timetables,
+        # Update prefetch to use "rooms"
+        'grade_sections': GradeSection.objects.prefetch_related(
+            Prefetch('rooms', queryset=Room.objects.filter(is_special=False)),  # Changed from room_set
+            'teacher_assignments__subject',
+            'teacher_assignments__teacher'
+        ).all(),
+        'timetables': TimetableSlot.objects.select_related(
+            'teacher_assignment__grade_section',
+            'teacher_assignment__subject',
+            'teacher_assignment__teacher',
+            'room',
+            'time_slot'
+        ).filter(teacher_assignment__isnull=False)
+    }
+    return render(request, 'Manage/generate_timetable_all.html', context)
+
+def serialize_slot(slot):
+    return {
+        'grade': slot.teacher_assignment.grade_section.grade.name,
+        'section': slot.teacher_assignment.grade_section.section.name,
+        'subject': slot.teacher_assignment.subject.name,
+        'teacher': slot.teacher_assignment.teacher.get_title(),
+        'day': slot.day_of_week,
+        'time': slot.time_slot.time_range,
+        'room': slot.room.room_name
     }
 
-    return render(request, 'Manage/generate_timetable_all.html', context)
+
+def handle_ajax_generation(request):
+    """Process AJAX timetable generation requests"""
+    try:
+        generation_result = auto_create_timetable_slots_for_all()
+
+        if generation_result['status'] != 'success':
+            return JsonResponse({
+                'status': 'error',
+                'message': generation_result.get('message', 'Generation failed')
+            }, status=500)
+
+        # Serialize updated timetable
+        timetable_slots = TimetableSlot.objects.select_related(
+            'teacher_assignment__grade_section__grade',
+            'teacher_assignment__subject',
+            'teacher_assignment__teacher',
+            'room',
+            'time_slot'
+        ).filter(teacher_assignment__isnull=False)
+
+        return JsonResponse({
+            'status': 'success',
+            'message': f"Generated {generation_result['created']} slots, deleted {generation_result['deleted']}",
+            'timetable': [serialize_slot(slot) for slot in timetable_slots]
+        })
+
+    except Exception as e:
+        logger.error(f"Timetable generation failed: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
 
 
 
 
 def get_filtered_timetable(request):
-    # Get all GradeSections
     grade_sections = GradeSection.objects.all()
-    print(f"Grade Sections: {grade_sections}")  # Debugging print
 
-    # Check if a grade_section_id is provided in the GET request
-    grade_section_id = request.GET.get('grade_section_id')
-    print(f"Selected Grade Section ID: {grade_section_id}")  # Debugging print
-
-    # If a grade_section_id is selected, fetch the timetable for that grade section
-    if grade_section_id:
+    if request.method == 'POST':
         try:
+            data = json.loads(request.body)  # Parse JSON data
+            grade_section_id = data.get('grade_section_id')
+
+            if not grade_section_id:
+                return JsonResponse({'error': 'Missing grade_section_id'}, status=400)
+
             grade_section = GradeSection.objects.get(id=grade_section_id)
-            print(f"Grade Section: {grade_section}")  # Debugging print
+            timetable_slots = TimetableSlot.objects.filter(
+                teacher_assignment__grade_section=grade_section
+            ).select_related('teacher_assignment', 'teacher_assignment__teacher', 'teacher_assignment__subject',
+                             'time_slot', 'room')
+
+            timetable_by_day = defaultdict(lambda: defaultdict(list))
+
+            # Iterate over timetable slots to print subjects and other details
+            for slot in timetable_slots:
+                subject_name = slot.teacher_assignment.subject.name
+                timetable_by_day[slot.day_of_week][slot.time_slot.time_range].append({
+                    'time_range': slot.time_slot.time_range,
+                    'teacher': slot.teacher_assignment.teacher.get_title(),
+                    'room': slot.room.room_name,
+                    'subject': subject_name
+                })
+
+            # Print the data before returning
+            print("Timetable Data:", timetable_by_day)
+
+            return JsonResponse({
+                'status': 'success',
+                'timetable_by_day': dict(timetable_by_day),  # Timetable data for rendering
+                'grade_section_name': str(grade_section)  # Add the grade section name as before
+            })
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
         except GradeSection.DoesNotExist:
-            return HttpResponse("Grade section not found", status=404)
+            return JsonResponse({'error': 'Grade section not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
-        timetable_slots = TimetableSlot.objects.filter(
-            teacher_assignment__grade_section=grade_section
-        ).select_related('teacher_assignment', 'teacher_assignment__teacher', 'time_slot', 'room')
-        print(f"Fetched Timetable Slots: {timetable_slots}")  # Debugging print
-
-        # Organize timetable by day and time range
-        timetable_by_day = defaultdict(lambda: defaultdict(list))
-        for slot in timetable_slots:
-            print(f"Processing Slot: {slot}")  # Debugging print
-            timetable_by_day[slot.day_of_week][slot.time_slot.time_range].append(slot)
-
-        print(f"Timetable by Day: {dict(timetable_by_day)}")  # Debugging print
-
-        # Pagination (Optional)
-        paginator = Paginator(timetable_slots, 10)  # Show 10 slots per page
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-
-        # List of days (you could make this dynamic if needed)
-        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-
-        return render(request, 'Manage/class_timetable.html', {
-            'grade_sections': grade_sections,
-            'grade_section': grade_section,
-            'timetable_by_day': timetable_by_day,
-            'days': days,
-            'page_obj': page_obj,
-        })
-
+    # If GET request, render the template with grade sections
     return render(request, 'Manage/class_timetable.html', {'grade_sections': grade_sections})
 
 
-
-
-
+# def get_filtered_timetable(request):
+#     grade_sections = GradeSection.objects.all()
+#
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body)  # Parse JSON data
+#             grade_section_id = data.get('grade_section_id')
+#
+#             if not grade_section_id:
+#                 return JsonResponse({'error': 'Missing grade_section_id'}, status=400)
+#
+#             grade_section = GradeSection.objects.get(id=grade_section_id)
+#             timetable_slots = TimetableSlot.objects.filter(
+#                 teacher_assignment__grade_section=grade_section
+#             ).select_related('teacher_assignment', 'teacher_assignment__teacher', 'teacher_assignment__subject', 'time_slot', 'room')
+#
+#             timetable_by_day = defaultdict(lambda: defaultdict(list))
+#             for slot in timetable_slots:
+#                 timetable_by_day[slot.day_of_week][slot.time_slot.time_range].append({
+#                     'time_range': slot.time_slot.time_range,
+#                     'teacher': slot.teacher_assignment.teacher.get_title(),
+#                     'room': slot.room.room_name,
+#                     'subject': slot.teacher_assignment.subject.name  # Add the subject here
+#                 })
+#
+#             return JsonResponse({
+#                 'status': 'success',
+#                 'timetable_by_day': dict(timetable_by_day),
+#                 'grade_section_name': str(grade_section)  # Add the grade section name as before
+#             })
+#
+#         except json.JSONDecodeError:
+#             return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+#         except GradeSection.DoesNotExist:
+#             return JsonResponse({'error': 'Grade section not found'}, status=404)
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)}, status=500)
+#
+#     return render(request, 'Manage/class_timetable.html', {'grade_sections': grade_sections})
 
 
 def fetch_timetable_by_grade_section(request, grade_section_id):
@@ -492,12 +673,6 @@ def fetch_timetable_by_grade_section(request, grade_section_id):
         'grade_section': grade_section,
         'timetable_slots': timetable_slots
     })
-
-
-
-
-
-
 
 # def generate_timetable_for_all(request):
 #     if request.method == "GET":
@@ -634,12 +809,7 @@ def fetch_timetable_by_grade_section(request, grade_section_id):
 #     return {"success": f"{len(created_slots)} timetable slots created."}
 
 
-
-
-
-
-#convert asignments to  list before querying
-
+# convert asignments to  list before querying
 
 
 # def auto_create_timetable_slots_for_all():
@@ -725,11 +895,6 @@ def fetch_timetable_by_grade_section(request, grade_section_id):
 #         raise
 
 
-
-
-
-
-
 # def generate_timetable_for_all(request):
 #     if request.method == "POST":  # Button triggers POST
 #         print("POST request received for timetable generation!")
@@ -771,19 +936,6 @@ def fetch_timetable_by_grade_section(request, grade_section_id):
 #
 #     # If GET request, render the page with the button
 #     return render(request, 'Manage/generate_timetable_all.html')
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # from datetime import timezone

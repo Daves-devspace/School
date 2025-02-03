@@ -20,3 +20,6 @@ class WebsiteConfig(AppConfig):
         except Exception as e:
             # Handle any exceptions during the database operation
             print(f"Error during post_migrate signal: {e}")
+
+def ready(self):
+    import apps.website.signals  # Import the signals file

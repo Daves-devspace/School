@@ -126,7 +126,7 @@
 
             <li class="nav-item dropdown noti-dropdown me-2">
                 <a href="#" class="dropdown-toggle nav-link header-nav-list" data-bs-toggle="dropdown">
-                    <img src="assets/img/icons/header-icon-05.svg" alt="">
+                    <img src="{% static 'assets/img/icons/header-icon-05.svg' %}" alt="">
                 </a>
                 <div class="dropdown-menu notifications">
                     <div class="topnav-dropdown-header">
@@ -171,7 +171,7 @@
                         </div>
                     </div>
                     <a class="dropdown-item" href="{% url 'user_profile' %}">My Profile</a>
-                    <a class="dropdown-item" href="#">Inbox</a>
+                    <a class="dropdown-item" href="{% url 'inbox_page' %}">Inbox<span id="appointmentCounter">0</span></a>
                     <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
                 </div>
             </li>
@@ -425,7 +425,7 @@
                         <span>Others</span>
                     </li>
                     <li>
-                        <a href="{% url 'settings' %}"><i class="fas fa-baseball-ball custom-color"></i> <span
+                        <a href="{% url 'settings_page' %}"><i class="fas fa-baseball-ball custom-color"></i> <span
                                 class="custom-color">Settings</span></a>
                     </li>
                     <li>
@@ -553,6 +553,9 @@
         }
     });
 </script>
+
+
+
 <script>
     setTimeout(function () {
         let alerts = document.querySelectorAll('.alert');

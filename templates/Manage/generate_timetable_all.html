@@ -34,24 +34,24 @@
                                     Click the button below to generate timetables for all grade sections.
                                 </p>
 
-                                <!-- Generate Button -->
-                                <div class="text-center">
-                                    <button id="generateButton" class="btn btn-primary" onclick="generateTimetable()">
-                                        Generate Timetable
-                                    </button>
-                                </div>
-                                <!-- Button to trigger timetable generation -->
-
-                                <p id="statusMessage"></p> <!-- For displaying success/error messages -->
+                                <!-- For displaying success/error messages -->
 
                                 <hr>
 
                                 <h3>Configure Subject Preferences</h3>
-                                <form method="POST" id="subjectForm">
-                                    {% csrf_token %}
-                                    {{ form.as_p }}
-                                    <button type="submit" class="btn btn-success">Save Preferences</button>
-                                </form>
+                                <div class="col-md-8">
+                                    <form method="post" novalidate>
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label class="form-label">Subject Preferences</label>
+                                            {{ form.as_p }}
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            Save Preferences
+                                        </button>
+                                    </form>
+                                </div>
+
 
                                 <div class="mt-4">
                                     <h3>Subject Preferences</h3>
@@ -82,46 +82,73 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                <div class="card-body">
+                                    <!-- Preference Form -->
+                                    <div class="row mb-5">
 
-                                <!-- Table displaying the timetable -->
-                                <div class="timetable mt-5">
-                                    <h2 class="text-center mb-4">Generated Timetables</h2>
-                                    <div class="table-responsive">
-                                        <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
-                                            <thead class="student-thread">
-                                            <tr>
-                                                <th>Grade</th>
-                                                <th>Section</th>
-                                                <th>Subject</th>
-                                                <th>Teacher</th>
-                                                <th>Day</th>
-                                                <th>Time Slot</th>
-                                                <th>Room</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody id="timetableBody">
-                                            {% for slot in timetables %}
+                                        <div class="col-md-4 border-start">
+                                            <div class="d-grid gap-2">
+                                                <!-- Generate Button -->
+                                                <div class="text-center">
+                                                    <button id="generateButton" class="btn btn-primary"
+                                                            onclick="generateTimetable()">
+                                                        Generate Timetable
+                                                    </button>
+                                                </div>
+                                                <!-- Button to trigger timetable generation -->
+
+                                                <p id="statusMessage"></p>
+{#                                                <div id="statusMessage" class="text-center mt-2">#}
+{#                                                    <p id="statusMessage"></p>#}
+{#                                                    <!-- For displaying success/error messages -->#}
+{#                                                </div>#}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Timetable Display -->
+                                    <div class="timetable-section">
+                                        <h5 class="mb-3">Current Timetable</h5>
+                                        <div class="table-responsive">
+                                            <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                                <thead class="student-thread">
                                                 <tr>
-                                                    <td>{{ slot.teacher_assignment.grade_section.grade.name }}</td>
-                                                    <td>{{ slot.teacher_assignment.grade_section.section }}</td>
-                                                    <td>{{ slot.teacher_assignment.subject.name }}</td>
-                                                    <td>{{ slot.teacher_assignment.teacher.get_display_name }}</td>
-                                                    <td>{{ slot.day_of_week }}</td>
-                                                    <td>{{ slot.time_slot.time_range }}</td>
-                                                    <td>{{ slot.room.room_name }}</td>
+                                                    <th>Grade</th>
+                                                    <th>Section</th>
+                                                    <th>Subject</th>
+                                                    <th>Teacher</th>
+                                                    <th>Day</th>
+                                                    <th>Time Slot</th>
+                                                    <th>Room</th>
                                                 </tr>
-                                            {% empty %}
-                                                <tr>
-                                                    <td colspan="7" class="text-center text-muted">No timetables
-                                                        generated yet.
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody id="timetableBody">
+                                                {% for slot in timetables %}
+                                                    <tr>
+                                                        <td>{{ slot.teacher_assignment.grade_section.grade.name }}</td>
+                                                        <td>{{ slot.teacher_assignment.grade_section.section.name }}</td>
+                                                        <td>{{ slot.teacher_assignment.subject.name }}</td>
+                                                        <td>{{ slot.teacher_assignment.teacher.get_title }}</td>
+                                                        <td>{{ slot.day_of_week }}</td>
+                                                        <td>{{ slot.time_slot.time_range }}</td>
+                                                        <td>
+                                                            {% with default_room=slot.teacher_assignment.grade_section.room_set.first %}
+                                                                {{ default_room.room_name|default:"N/A" }}
+                                                            {% endwith %}
+                                                        </td>
+                                                    </tr>
+                                                {% empty %}
+                                                    <tr>
+                                                        <td colspan="7" class="text-center text-muted">
+                                                            No timetables generated yet.
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -130,72 +157,71 @@
         </div>
     </div>
 
-    <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
-
     <script>
         async function generateTimetable() {
-            try {
-                // Get the button and show loading state
-                const generateButton = document.getElementById('generateButton');
-                const statusMessage = document.getElementById('statusMessage');
-                generateButton.innerText = 'Generating...';
-                generateButton.disabled = true;
-                statusMessage.innerText = '';
+            const generateBtn = document.getElementById('generateButton');
+            const statusEl = document.getElementById('statusMessage');
 
-                // Send a POST request to generate timetable
+            try {
+                generateBtn.disabled = true;
+                generateBtn.innerHTML = `
+            <span class="spinner-border spinner-border-sm" role="status"></span>
+            Generating...
+        `;
+                statusEl.textContent = '';
+                statusEl.style.color = 'inherit';
+
                 const response = await fetch("{% url 'generate_timetable_view' %}", {
                     method: 'POST',
                     headers: {
-                        'X-CSRFToken': document.getElementById('csrfToken').value,
-                        'Content-Type': 'application/json'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}'
                     }
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
-                    // Handle errors
-                    statusMessage.innerText = `Error: ${data.error}`;
-                    statusMessage.style.color = 'red';
-                } else {
-                    // Update success message
-                    statusMessage.innerText = data.message;
-                    statusMessage.style.color = 'green';
-
-                    // Update timetable table
-                    updateTimetable(data.timetable_slots);
+                    throw new Error(data.message || 'Generation failed');
                 }
+
+                updateTimetable(data.timetable);
+                statusEl.textContent = data.message;
+                statusEl.style.color = 'green';
+
             } catch (error) {
-                console.error('Error generating timetable:', error);
-                alert('An unexpected error occurred.');
+                console.error('Error:', error);
+                statusEl.textContent = error.message;
+                statusEl.style.color = 'red';
             } finally {
-                // Reset button state
-                generateButton.innerText = 'Generate Timetable';
-                generateButton.disabled = false;
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = 'Generate Timetable';
             }
         }
 
-        function updateTimetable(timetableSlots) {
-            const tableBody = document.getElementById('timetableBody');
-            tableBody.innerHTML = ''; // Clear current rows
+        function updateTimetable(slots) {
+            const tbody = document.getElementById('timetableBody');
+            tbody.innerHTML = slots.length ? '' : `
+        <tr>
+            <td colspan="7" class="text-center text-muted">
+                No timetable generated yet
+            </td>
+        </tr>`;
 
-            timetableSlots.forEach(slot => {
-                const row = `
-                <tr>
-                    <td>${slot.teacher_assignment.grade_section.grade.name || 'N/A'}</td>
-                    <td>${slot.teacher_assignment.grade_section.section || 'N/A'}</td>
-                    <td>${slot.teacher_assignment.subject.name || 'N/A'}</td>
-                    <td>${slot.teacher_assignment.teacher.display_name || 'N/A'}</td>
-                    <td>${slot.day_of_week || 'N/A'}</td>
-                    <td>${slot.time_slot.time_range || 'N/A'}</td>
-                    <td>${slot.room.room_name || 'N/A'}</td>
-                </tr>
-            `;
-                tableBody.innerHTML += row;
+            slots.forEach(slot => {
+                tbody.innerHTML += `
+            <tr>
+                <td>${slot.grade}</td>
+                <td>${slot.section}</td>
+                <td>${slot.subject}</td>
+                <td>${slot.teacher}</td>
+                <td>${slot.day}</td>
+                <td>${slot.time}</td>
+                <td>${slot.room}</td>
+            </tr>`;
             });
         }
     </script>
-
     {#    <script>#}
     {#        // Function to retrieve CSRF token from cookies#}
     {#        function getCSRFToken() {#}

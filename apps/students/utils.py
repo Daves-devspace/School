@@ -1,6 +1,8 @@
 import logging
 import requests
 from django.conf import settings
+
+from apps.Manage.utils import get_sms_provider_token
 from apps.management.models import ReportCard
 from apps.students.models import StudentParent
 
@@ -11,17 +13,31 @@ class MobileSasaAPI:
     BASE_URL_BULK_PERSONALIZED = "https://api.mobilesasa.com/v1/send/bulk-personalized"
 
     def __init__(self):
-        self.api_token = settings.MOBILESASA_API_TOKEN
-        self.sender_id = settings.MOBILESASA_SENDER_ID
+        # Fetch the API token and sender_id using the correct method
+        token_data = get_sms_provider_token()
+
+        # Ensure token_data is correctly retrieved and contains the necessary keys
+        if token_data:
+            self.api_token = token_data.get('api_token')  # Now you're getting the actual token value
+            self.sender_id = token_data.get('sender_id')  # Now you're getting the actual sender ID
+        else:
+            raise ValueError("No API token or sender ID found. Please check the token setup.")
+
+        # Log the actual values for debugging
+        print("Using API Token:", self.api_token)
+        print("Using Sender ID:", self.sender_id)
+
+        # Set up the headers for API requests
         self.headers = {
             "Authorization": f"Bearer {self.api_token}",
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
+
         self.logger = logging.getLogger(__name__)
 
     def clean_phone_number(self, phone):
-        """Standardize phone number format to match API requirements.txt."""
+        """Standardize phone number format to match API requirements."""
         if not phone:
             return None
 
@@ -39,14 +55,7 @@ class MobileSasaAPI:
         return phone
 
     def send_bulk_sms(self, message, phone_numbers):
-        """
-        Sends bulk SMS to the provided phone numbers in batches of 50.
-        Args:
-            message (str): The SMS message to send.
-            phone_numbers (list): List of phone numbers in E.164 format (e.g., '2547XXXXXXX').
-        Returns:
-            list: A list of responses for each batch.
-        """
+        """Sends bulk SMS to the provided phone numbers in batches of 50."""
         responses = []
         batch_size = 50
 
@@ -67,7 +76,7 @@ class MobileSasaAPI:
 
             try:
                 response = requests.post(self.BASE_URL_BULK, headers=self.headers, json=payload)
-                response.raise_for_status()
+                response.raise_for_status()  # Will raise an HTTPError if the HTTP request returned an unsuccessful status code
                 response_data = response.json()
                 self.logger.debug(f"Bulk SMS response: {response_data}")
                 responses.append(response_data)
@@ -75,6 +84,11 @@ class MobileSasaAPI:
                 error_msg = {"status": False, "message": f"Request error: {str(e)}"}
                 self.logger.error(f"Bulk SMS error: {error_msg}")
                 responses.append(error_msg)
+            except ValueError as e:
+                error_msg = {"status": False, "message": f"Error parsing response: {str(e)}"}
+                self.logger.error(f"Bulk SMS error: {error_msg}")
+                responses.append(error_msg)
+
         return responses
 
     def send_single_sms(self, message, phone):
@@ -101,22 +115,28 @@ class MobileSasaAPI:
         try:
             response = requests.post(self.BASE_URL_SINGLE, headers=self.headers, json=payload)
             response.raise_for_status()
+
+            # Log the raw response text for debugging
+            self.logger.debug(f"Response Text: {response.text}")
+
+            # Attempt to parse the JSON response
             response_data = response.json()
-            self.logger.debug(f"Single SMS response: {response_data}")
-            return response_data
+
+            # Ensure the response is always a dictionary with expected keys
+            return response_data if isinstance(response_data, dict) else {"status": False,
+                                                                          "message": "Unexpected response format"}
+
         except requests.RequestException as e:
             error_msg = {"status": False, "message": f"Request error: {str(e)}"}
             self.logger.error(f"Single SMS error: {error_msg}")
             return error_msg
+        except ValueError as e:
+            error_msg = {"status": False, "message": f"JSON parse error: {str(e)}"}
+            self.logger.error(f"JSON parse error: {error_msg}")
+            return error_msg
 
     def send_bulk_personalized_sms(self, personalized_messages):
-        """
-        Sends bulk personalized SMS where each phone number gets a different message.
-        Args:
-            personalized_messages (list): List of dicts with 'phone' and 'message' keys
-        Returns:
-            dict: API response with status and message
-        """
+        """Sends bulk personalized SMS."""
         # Clean phone numbers and format message body
         message_body = []
         for msg in personalized_messages:
@@ -155,7 +175,6 @@ class MobileSasaAPI:
             self.logger.debug(f"API Response Status: {response.status_code}")
             self.logger.debug(f"API Response Body: {response.text}")
 
-            # Parse response
             response_data = response.json()
 
             if response.status_code == 200 and response_data.get('status'):
@@ -204,10 +223,12 @@ def format_and_send_sms(active_students, term, exam_type, message_template):
         try:
             report_card = ReportCard.objects.get(student=student, term=term, exam_type=exam_type)
         except ReportCard.DoesNotExist:
+            logging.warning(f"Report card not found for student {student.first_name}.")
             continue
 
         student_parent = StudentParent.objects.filter(student=student).first()
         if not student_parent or not student_parent.parent.mobile:
+            logging.warning(f"No mobile number found for parent of student {student.first_name}.")
             continue
 
         try:

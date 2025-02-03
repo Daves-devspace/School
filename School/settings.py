@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.Manage.apps.ManageConfig',
@@ -109,46 +110,6 @@ ASGI_APPLICATION = 'School.asgi.application'
 
 
 
-#when deploying:
-
-# REDIS_URL = os.getenv('REDIS_URL', '')
-#
-# if not REDIS_URL:
-#     print("Warning: No REDIS_URL set!")
-#
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         'LOCATION': REDIS_URL,
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         }
-#     }
-# }
-#
-# Test Redis connection only if REDIS_URL is set
-# if REDIS_URL:
-#     try:
-#         r = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
-#         r.ping()
-#         print("Connected to Redis successfully.")
-#     except redis.exceptions.ConnectionError as e:
-#         print(f"Redis connection error: {e}")
-
-
-# Initialize environment variables
-# env = environ.Env()
-# environ.Env.read_env()  # Read from .env (for local dev)
-#
-# DATABASE_URL = env.str("DATABASE_URL", default="")  # Read DATABASE_URL
-#
-# if DATABASE_URL:
-#     DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
-# else:
-#     print("Warning: No DATABASE_URL set!")
-#     DATABASES = {}
-
-
 
 
 REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/1')
@@ -175,14 +136,7 @@ except redis.exceptions.ConnectionError as e:
 
 
 
-# env = environ.Env()
-# environ.Env.read_env()
-#
-# DATABASES = {
-#     "default": env.db()
-# }
 
-#running below
 
 #Database Configuration
 DATABASES = {
@@ -198,30 +152,12 @@ DATABASES = {
 
 
 
-# DATABASES = {
-#     "default": dj_database_url.config(default="postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a/school_db_1j40",conn_max_age=600,)
-# }
 
-# For Celery or other Redis integrations
-# CELERY_BROKER_URL = 'redis://redis:6379/0'
-# CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 
 # If using Celery
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 
-# settings.py
-#
-# # Redis setup for caching (if using Redis for caching)
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         'LOCATION': 'redis://redis:6379/1',  # Redis container name from docker-compose.yml
-#         'OPTIONS': {
-#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-#         }
-#     }
-# }
 
 # Redis setup for Django Channels (if using WebSockets)
 CHANNEL_LAYERS = {
@@ -246,17 +182,7 @@ CKEDITOR_5_CONFIGS  = {
     },
 }
 
-# REDIS_HOST = os.getenv('REDIS_HOST', 'redis')  # Use the Redis container name
-# REDIS_URL = "redis://redis:6379/0"  # Make sure 'redis' is the correct container name
-# REDIS_PORT = 6379  # Default Redis port
-# REDIS_DB = 0
-#
-# r = redis.StrictRedis(host='172.18.0.3', port=6379, db=0)
-# r.ping()
 
-
-# # Example of setting up a connection:
-# redis_conn = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
 pool = BlockingConnectionPool.from_url(
     REDIS_URL, max_connections=50, timeout=10
@@ -266,8 +192,7 @@ r = redis.StrictRedis(connection_pool=pool, decode_responses=True)
 WSGI_APPLICATION = 'School.wsgi.application'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
 
 
 # Email settings for mail.valuetech.co.ke
@@ -279,21 +204,6 @@ EMAIL_HOST_USER = 'admin@valuetech.co.ke'  # Your email address
 EMAIL_HOST_PASSWORD = 'davedevspace'  # Replace with your email account's password
 DEFAULT_FROM_EMAIL = 'ValueTech Admin <admin@valuetech.co.ke>'
 
-
-# # Database configuration
-# # Read .env file if it exists
-# env = environ.Env(
-#     DEBUG=(bool, False)  # Default DEBUG to False
-# )
-#
-# # Load .env file
-# environ.Env.read_env()
-
-# DEBUG = env('DEBUG')
-
-# DATABASES = {
-#     'default': env.db()
-# }
 
 
 
@@ -353,16 +263,6 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Optional: Debugging output for confirmation (remove or comment in production)
-
-# DATABASES = {
-#     'default': dj_database_url.config(
-#         default=os.getenv(
-#             'DATABASE_URL',  # This should be set in your Render environment
-#             'postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a/school_db_1j40'
-#         )
-#     )
-# }
 
 
 
@@ -385,23 +285,9 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,  # Blacklist old refresh tokens
 }
 
-# MobileSasa API Credentials
-MOBILESASA_API_TOKEN = os.getenv("MOBILESASA_API_TOKEN")
-MOBILESASA_SENDER_ID = os.getenv("MOBILESASA_SENDER_ID")
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': os.environ.get('DB_NAME', 'test_db'),
-#         'USER': os.environ.get('DB_USER', 'root'),
-#         'PASSWORD': os.environ.get('DB_PASSWORD', 'yourpassword'),
-#         'HOST': os.environ.get('DB_HOST', 'mysql-db'),  # Use the service name as host
-#         'PORT': os.environ.get('DB_PORT', '3306'),
-#     }
-# }
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -429,11 +315,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

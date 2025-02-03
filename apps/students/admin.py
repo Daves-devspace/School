@@ -63,10 +63,29 @@ class StudentParentAdmin(admin.ModelAdmin):
 
 
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'admission_number', 'grade')  # Main student fields
+    list_display = ('first_name', 'last_name', 'admission_number', 'grade','deleted_at', 'is_deleted_display')  # Main student fields
     search_fields = ('first_name', 'last_name', 'admission_number')
-    list_filter = ('grade',)
+    list_filter = ('grade','deleted_at',)
     inlines = [ReportCardInline]
+    actions = ['restore_students']
+
+    def is_deleted_display(self, obj):
+        return obj.is_deleted()
+    is_deleted_display.boolean = True  # Show as a checkbox in the admin list
+    is_deleted_display.short_description = "Deleted"
+
+    def get_queryset(self, request):
+        """
+        Show all students, including soft-deleted ones, in the admin panel.
+        """
+        return super().get_queryset(request)
+
+    @admin.action(description="Restore selected students")
+    def restore_students(self, request, queryset):
+        """
+        Restore soft-deleted students by setting `deleted_at` to None.
+        """
+        queryset.update(deleted_at=None)
 
 
 class BookAdmin(admin.ModelAdmin):

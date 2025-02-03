@@ -3,8 +3,9 @@ import uuid
 from datetime import date
 
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Max
+from django.utils import timezone
 from django.utils.timezone import now
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -18,6 +19,16 @@ def generate_unique_name(instance,filename):
     name = uuid.uuid4()
     full_file_name=f"{name}-{filename}"
     return os.path.join("student_images",full_file_name)
+
+class StudentManager(models.Manager):
+    def active(self):
+        """Return students who are not soft-deleted."""
+        return self.filter(deleted_at__isnull=True)
+
+    def deleted(self):
+        """Return students who are soft-deleted."""
+        return self.filter(deleted_at__isnull=False)
+
 
 class Grade(models.Model):
     name = models.CharField(max_length=100)  # e.g., "Grade 1", "Grade 2"
@@ -40,7 +51,6 @@ class Section(models.Model):
         ordering = ['name']
 
 
-
 class GradeSection(models.Model):
     grade = models.ForeignKey(
         Grade, on_delete=models.CASCADE, related_name="grade_sections"
@@ -48,14 +58,13 @@ class GradeSection(models.Model):
     section = models.ForeignKey(
         Section, on_delete=models.CASCADE, related_name="section_grade_sections"
     )
-
     class_teacher = models.OneToOneField(
         Teacher,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="class_teacher_of",
-    )  # A teacher can only teach one section
+    )
 
     class Meta:
         unique_together = ("grade", "section")
@@ -64,30 +73,24 @@ class GradeSection(models.Model):
     def __str__(self):
         return f"{self.grade.name} {self.section.name}"
 
+    def get_default_room(self):
+        """Get the generated default room"""
+        return self.rooms.filter(is_special=False).first()  # Use 'rooms' instead of 'room_set'
+
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # Save the GradeSection first
+        with transaction.atomic():
+            super().save(*args, **kwargs)
 
-        # Ensure grade and section names are valid
-        grade_name = self.grade.name.strip() if self.grade.name else "Grade"
-        section_name = self.section.name.strip() if self.section.name else "Section"
+            grade_name = self.grade.name.strip() if self.grade.name else "Grade"
+            section_name = self.section.name.strip() if self.section.name else "Section"
+            room_name = f"{grade_name[0].upper()}{self.grade.level}{section_name[0].upper()}".strip().upper()
 
-        # Generate a room name (e.g., "G1A" for Grade 1, Section A)
-        room_name = f"{grade_name[0].upper()}{self.grade.level}{section_name[0].upper()}"
-
-        # Check if this GradeSection already has a room
-        room = Room.objects.filter(grade_section=self).first()
-
-        if room:
-            # If room exists but has a different name, update it
-            if room.room_name != room_name:
-                room.room_name = room_name
-                room.save()
-        else:
-            # If no room exists for this GradeSection, create a new one
-            Room.objects.create(
-                room_name=room_name,
-                is_special=False,
-                grade_section=self  # Ensure the room is linked to this GradeSection
+            # Get or create room using the reverse relationship
+            self.rooms.update_or_create(  # Use 'rooms' here
+                defaults={
+                    'room_name': room_name,
+                    'is_special': False
+                }
             )
 
 
@@ -104,6 +107,8 @@ class Parent(models.Model):
     class Meta:
         unique_together = ('first_name', 'last_name', 'mobile')
         verbose_name_plural = "Parents"  # Use proper pluralization in admin
+
+
 
 
 class Student(models.Model):
@@ -131,6 +136,20 @@ class Student(models.Model):
         Parent, through='StudentParent', related_name="students"
     )
     last_promoted = models.DateTimeField(null=True, blank=True)  # Track last promotion date
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    objects = StudentManager()
+
+    def soft_delete(self):
+        self.deleted_at = timezone.now()
+        self.save()
+
+    def restore(self):
+        self.deleted_at = None
+        self.save()
+
+    def is_deleted(self):
+        return self.deleted_at is not None
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.admission_number})"
@@ -234,6 +253,8 @@ class StudentDocument(models.Model):
 
     def __str__(self):
         return f"Document for {self.student.first_name} uploaded on {self.upload_date}"
+
+
 
 
 

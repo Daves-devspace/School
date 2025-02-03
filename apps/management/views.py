@@ -3,8 +3,9 @@ import logging
 from datetime import date, timedelta, datetime
 
 from asgiref.sync import async_to_sync
+from django.conf import settings
 from django.db import transaction
-from django.db.models import F, Value, CharField, Case, When, FloatField
+from django.db.models import F, Value, CharField, Case, When, FloatField, QuerySet, Prefetch
 from django.db.models.functions import Concat
 
 import requests
@@ -21,6 +22,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, TemplateView
 from django_daraja.mpesa.core import MpesaClient
@@ -234,159 +236,349 @@ def toggle_user_status(request, user_id):
     return redirect('manage_users')
 
 
-def send_results_sms(request):
-    if request.method == "POST":
-        term_id = request.POST.get('term')
-        exam_type_id = request.POST.get('exam_type')
-        message_template = request.POST.get('message')
 
+
+class SMSHandler:
+    @staticmethod
+    def send_bulk_sms(message, phone_numbers):
+        """Handle SMS sending with error tracking and chunking"""
         try:
-            # Validate selected Term and ExamType
-            term = Term.objects.get(id=term_id)
-            exam_type = ExamType.objects.get(id=exam_type_id)
+            api = MobileSasaAPI()
+            # Send in chunks of 100 numbers to avoid API limits
+            chunk_size = 100
+            success_count = 0
+            errors = []
 
-            # Fetch active students
-            active_students = Student.objects.filter(status="Active")
+            for i in range(0, len(phone_numbers), chunk_size):
+                chunk = phone_numbers[i:i + chunk_size]
+                response = api.send_bulk_sms(message, chunk)
+
+                if response and response.get('status'):
+                    success_count += len(chunk)
+                else:
+                    errors.append(response.get('message', 'Unknown error'))
+
+            return success_count, errors
+
+        except Exception as e:
+            logger.error(f"SMS sending failed: {str(e)}")
+            return 0, [str(e)]
+
+
+def validate_message_template(template, required_keys):
+    """Validate message template contains required placeholders"""
+    missing = [key for key in required_keys if f"{{{key}}}" not in template]
+    if missing:
+        raise ValidationError(f"Missing template keys: {', '.join(missing)}")
+
+
+@never_cache
+@login_required
+def send_results_sms(request):
+    terms = Term.objects.all()
+    exam_types = ExamType.objects.all()
+    required_template_keys = {'parent_name', 'student_name', 'student_class',
+                              'total_marks', 'rank', 'subject_results', 'term', 'exam_type'}
+
+    if request.method == "POST":
+        form_data = request.POST
+        try:
+            term = Term.objects.get(id=form_data.get('term'))
+            exam_type = ExamType.objects.get(id=form_data.get('exam_type'))
+            message_template = form_data.get('message', '')
+
+            # Early validation of template
+            validate_message_template(message_template, required_template_keys)
+
+            # Single query with prefetch related data
+            students = Student.objects.filter(status="Active").prefetch_related(
+                Prefetch('report_cards',
+                         queryset=ReportCard.objects.filter(term=term, exam_type=exam_type),
+                         to_attr='relevant_reports'),
+                Prefetch('studentparent_set',
+                         queryset=StudentParent.objects.select_related('parent').filter(parent__mobile__isnull=False))
+            )
 
             personalized_messages = []
-            for student in active_students:
-                try:
-                    # Fetch the report card for the student
-                    report_card = ReportCard.objects.get(student=student, term=term, exam_type=exam_type)
-                except ReportCard.DoesNotExist:
-                    continue
+            with transaction.atomic():
+                for student in students:
+                    if not student.relevant_reports:
+                        continue
 
-                # Fetch the student's parent
-                student_parent = StudentParent.objects.filter(student=student).first()
-                if not student_parent or not student_parent.parent.mobile:
-                    continue
+                    report_card = student.relevant_reports[0]
+                    parents = [sp.parent for sp in student.studentparent_set.all()]
 
-                try:
-                    message = message_template.format(
-                        parent_name=student_parent.parent.first_name,
-                        student_name=student.first_name,
-                        student_class=student.grade,
-                        total_marks=report_card.total_marks(),
-                        rank=report_card.student_rank(),
-                        subject_results=", ".join(
-                            [f"{subj.subject.name}: {subj.marks}" for subj in report_card.subject_marks.all()]
-                        ),
-                        term=term.name,
-                        exam_type=exam_type.name
-                    )
-                except KeyError as e:
-                    messages.error(request, f"Message template key error: {e}. Check your template.")
-                    return redirect('result_sms')
+                    for parent in parents:
+                        try:
+                            message = message_template.format(
+                                parent_name=parent.first_name,
+                                student_name=student.first_name,
+                                student_class=student.grade,
+                                total_marks=report_card.total_marks(),
+                                rank=report_card.student_rank(),
+                                subject_results=", ".join(
+                                    f"{subj.subject.name}: {subj.marks}"
+                                    for subj in report_card.subject_marks.all()
+                                ),
+                                term=term.name,
+                                exam_type=exam_type.name
+                            )
+                            personalized_messages.append({
+                                "phone": parent.mobile,
+                                "message": message
+                            })
+                        except KeyError as e:
+                            raise ValidationError(f"Invalid template key: {e}")
 
-                personalized_messages.append({
-                    "phone": student_parent.parent.mobile,
-                    "message": message
-                })
-
-            # Use MobileSasaAPI to send the SMS
             if personalized_messages:
-                mobile_api = MobileSasaAPI()
-                api_responses = mobile_api.send_bulk_personalized_sms(personalized_messages)
+                phone_numbers = [msg['phone'] for msg in personalized_messages]
+                success_count, errors = SMSHandler.send_bulk_sms(message_template, phone_numbers)
 
-                # Check the first response in the list
-                if api_responses and isinstance(api_responses, list) and api_responses[0]['status']:
-                    messages.success(
-                        request,
-                        f"SMS sent successfully to {len(personalized_messages)} recipients."
-                    )
-                else:
-                    error_message = api_responses[0]['message'] if api_responses else "Unknown error"
-                    messages.error(request, f"Failed to send SMS: {error_message}")
+                if errors:
+                    messages.error(request, f"Partial failure: {len(errors)} errors. First error: {errors[0]}")
+                if success_count:
+                    messages.success(request,
+                                     f"Successfully sent to {success_count}/{len(personalized_messages)} recipients")
             else:
-                messages.warning(request, "No valid parents with mobile numbers found to send SMS.")
-
-            return redirect('result_sms')
+                messages.warning(request, "No valid recipients found")
 
         except (Term.DoesNotExist, ExamType.DoesNotExist) as e:
-            messages.error(request, f"Error: {str(e)}. Please ensure the Term and Exam Type exist.")
+            messages.error(request, "Invalid term or exam type selected")
+            logger.warning(f"Invalid selection: {str(e)}")
+        except ValidationError as e:
+            messages.error(request, str(e))
         except Exception as e:
-            messages.error(request, f"An unexpected error occurred: {str(e)}.")
+            logger.error(f"Unexpected error: {str(e)}")
+            messages.error(request, "An unexpected error occurred")
+            if settings.DEBUG:
+                raise e
 
         return redirect('result_sms')
 
-    # Render the form for GET request
-    terms = Term.objects.all()
-    exam_types = ExamType.objects.all()
-    return render(request, 'Manage/send_result_sms.html', {'terms': terms, 'exam_types': exam_types})
+    return render(request, 'Manage/send_result_sms.html', {
+        'terms': terms,
+        'exam_types': exam_types,
+        'template_example': ("{parent_name}, {student_name} ({student_class}) scored {total_marks} "
+                             "in {term} {exam_type}. Subjects: {subject_results}")
+    })
 
 
 @login_required
 def send_bulk_sms_view(request):
-    parents = Parent.objects.filter(mobile__isnull=False)
-    phone_numbers = [str(parent.mobile) for parent in parents]
+    form = SendSMSForm(request.POST or None)
 
-    if request.method == "POST":
-        form = SendSMSForm(request.POST)
-        if form.is_valid():
-            message = form.cleaned_data["message"]
+    if request.method == "POST" and form.is_valid():
+        message = form.cleaned_data["message"]
 
-            # Use MobileSasaAPI to send the SMS
-            api = MobileSasaAPI()
-            response = api.send_bulk_sms(message, phone_numbers)
+        # Stream parents instead of loading all in memory
+        parents = Parent.objects.filter(mobile__isnull=False).iterator()
+        phone_numbers = [str(parent.mobile) for parent in parents]
 
-            # Check response and set messages
-            if response and all(res.get("status") for res in response):
-                messages.success(request, "SMS sent successfully to all parents!")
-            else:
-                messages.error(request, "Failed to send SMS to some or all parents.")
+        success_count, errors = SMSHandler.send_bulk_sms(message, phone_numbers)
 
-            return redirect("send_bulk_sms")  # Redirect to avoid re-submission
-    else:
-        # If it's a GET request, display the form
-        form = SendSMSForm()
+        if success_count:
+            messages.success(request, f"Sent to {success_count} parents")
+        if errors:
+            messages.error(request, f"Failed to send {len(errors)} messages")
+
+        return redirect("send_bulk_sms")
 
     return render(request, "manage/send_sms.html", {"form": form})
 
 
+@login_required
 def send_sms_to_class(request):
-    success = None  # Variable to track the success status
-    message = None  # Variable to track the success message
-    error = None  # Variable to track the error message
+    form = SendClassForm(request.POST or None)
+    context = {"form": form}
 
-    if request.method == 'POST':
-        form = SendClassForm(request.POST)
-        if form.is_valid():
-            message = form.cleaned_data['message']
-            class_choice = form.cleaned_data['class_choice']
+    if request.method == 'POST' and form.is_valid():
+        message = form.cleaned_data['message']
+        class_choices = form.cleaned_data['class_choice']
 
-            # Filter StudentParent objects based on the selected class
-            student_parents = StudentParent.objects.filter(student__grade=class_choice)
+        # Single query with distinct parents
+        parents = Parent.objects.filter(
+            studentparent__student__grade__grade__in=class_choices,
+            mobile__isnull=False
+        ).distinct()
 
-            # Extract the phone numbers of the parents
-            phone_numbers = [str(student_parent.parent.mobile) for student_parent in student_parents if
-                             student_parent.parent.mobile]
-
-            # Check if there are phone numbers to send SMS to
-            if not phone_numbers:
-                error = "No phone numbers found for the selected class."
-            else:
-                # Send SMS using MobileSasaAPI
-                api = MobileSasaAPI()
-                response = api.send_bulk_sms(message, phone_numbers)  # Assuming this is how the API works
-
-                # Check if the SMS was sent successfully
-                if response and response[0].get("status") == "success":
-                    success = True
-                    message = f"SMS successfully sent to {len(phone_numbers)} parents in {class_choice.name}."
-                else:
-                    error = "Failed to send SMS. Please try again later."
+        if not parents.exists():
+            messages.warning(request, "No parents found for selected classes")
         else:
-            error = "Invalid form data. Please ensure all fields are filled correctly."
+            phone_numbers = [str(parent.mobile) for parent in parents]
+            success_count, errors = SMSHandler.send_bulk_sms(message, phone_numbers)
 
-    else:
-        form = SendClassForm()
+            if success_count:
+                messages.success(request, f"Sent to {success_count}/{len(phone_numbers)} parents")
+            if errors:
+                messages.error(request, f"Failed to send {len(errors)} messages")
 
-    return render(request, "Manage/filter_and_send_sms.html", {
-        "form": form,
-        "success": success,
-        "message": message,
-        "error": error
-    })
+    return render(request, "Manage/filter_and_send_sms.html", context)
+# def send_results_sms(request):
+#     if request.method == "POST":
+#         term_id = request.POST.get('term')
+#         exam_type_id = request.POST.get('exam_type')
+#         message_template = request.POST.get('message')
+#
+#         try:
+#             # Validate selected Term and ExamType
+#             term = Term.objects.get(id=term_id)
+#             exam_type = ExamType.objects.get(id=exam_type_id)
+#
+#             # Fetch active students
+#             active_students = Student.objects.filter(status="Active")
+#
+#             personalized_messages = []
+#             for student in active_students:
+#                 try:
+#                     # Fetch the report card for the student
+#                     report_card = ReportCard.objects.get(student=student, term=term, exam_type=exam_type)
+#                 except ReportCard.DoesNotExist:
+#                     continue
+#
+#                 # Fetch the student's parent
+#                 student_parent = StudentParent.objects.filter(student=student).first()
+#                 if not student_parent or not student_parent.parent.mobile:
+#                     continue
+#
+#                 try:
+#                     message = message_template.format(
+#                         parent_name=student_parent.parent.first_name,
+#                         student_name=student.first_name,
+#                         student_class=student.grade,
+#                         total_marks=report_card.total_marks(),
+#                         rank=report_card.student_rank(),
+#                         subject_results=", ".join(
+#                             [f"{subj.subject.name}: {subj.marks}" for subj in report_card.subject_marks.all()]
+#                         ),
+#                         term=term.name,
+#                         exam_type=exam_type.name
+#                     )
+#                 except KeyError as e:
+#                     messages.error(request, f"Message template key error: {e}. Check your template.")
+#                     return redirect('result_sms')
+#
+#                 personalized_messages.append({
+#                     "phone": student_parent.parent.mobile,
+#                     "message": message
+#                 })
+#
+#             # Use MobileSasaAPI to send the SMS
+#             if personalized_messages:
+#                 mobile_api = MobileSasaAPI()
+#                 api_responses = mobile_api.send_bulk_personalized_sms(personalized_messages)
+#
+#                 # Check the first response in the list
+#                 if api_responses and isinstance(api_responses, list) and api_responses[0]['status']:
+#                     messages.success(
+#                         request,
+#                         f"SMS sent successfully to {len(personalized_messages)} recipients."
+#                     )
+#                 else:
+#                     error_message = api_responses[0]['message'] if api_responses else "Unknown error"
+#                     messages.error(request, f"Failed to send SMS: {error_message}")
+#             else:
+#                 messages.warning(request, "No valid parents with mobile numbers found to send SMS.")
+#
+#             return redirect('result_sms')
+#
+#         except (Term.DoesNotExist, ExamType.DoesNotExist) as e:
+#             messages.error(request, f"Error: {str(e)}. Please ensure the Term and Exam Type exist.")
+#         except Exception as e:
+#             messages.error(request, f"An unexpected error occurred: {str(e)}.")
+#
+#         return redirect('result_sms')
+#
+#     # Render the form for GET request
+#     terms = Term.objects.all()
+#     exam_types = ExamType.objects.all()
+#     return render(request, 'Manage/send_result_sms.html', {'terms': terms, 'exam_types': exam_types})
+#
+#
+# @login_required
+# def send_bulk_sms_view(request):
+#     parents = Parent.objects.filter(mobile__isnull=False)
+#     phone_numbers = [str(parent.mobile) for parent in parents]
+#
+#     if request.method == "POST":
+#         form = SendSMSForm(request.POST)
+#         if form.is_valid():
+#             message = form.cleaned_data["message"]
+#
+#             # Use MobileSasaAPI to send the SMS
+#             api = MobileSasaAPI()
+#             response = api.send_bulk_sms(message, phone_numbers)
+#
+#             # Check response and set messages
+#             if response and all(res.get("status") for res in response):
+#                 messages.success(request, "SMS sent successfully to all parents!")
+#             else:
+#                 messages.error(request, "Failed to send SMS to some or all parents.")
+#
+#             return redirect("send_bulk_sms")  # Redirect to avoid re-submission
+#     else:
+#         # If it's a GET request, display the form
+#         form = SendSMSForm()
+#
+#     return render(request, "manage/send_sms.html", {"form": form})
+#
+#
+# def send_sms_to_class(request):
+#     success = None  # Variable to track the success status
+#     message = None  # Variable to track the success message
+#     error = None  # Variable to track the error message
+#
+#     if request.method == 'POST':
+#         form = SendClassForm(request.POST)
+#         if form.is_valid():
+#             message = form.cleaned_data['message']
+#             class_choice = form.cleaned_data['class_choice']
+#
+#             # Ensure class_choice is a list or queryset
+#             if not isinstance(class_choice, (list, tuple, QuerySet)):
+#                 class_choice = [class_choice]  # Convert single object to list
+#
+#             # Filter StudentParent objects based on the selected class
+#             student_parents = StudentParent.objects.filter(student__grade__grade__in=class_choice)
+#
+#             # Extract the phone numbers of the parents
+#             phone_numbers = [
+#                 str(student_parent.parent.mobile) for student_parent in student_parents
+#                 if student_parent.parent.mobile
+#             ]
+#
+#             # Check if there are phone numbers to send SMS to
+#             if not phone_numbers:
+#                 error = "No phone numbers found for the selected class."
+#             else:
+#                 # Send SMS using MobileSasaAPI
+#                 api = MobileSasaAPI()
+#                 response = api.send_bulk_sms(message, phone_numbers)  # Assuming this is how the API works
+#                 print("SMS API Response:", response)
+#
+#                 # Check if the response is successful
+#                 if response and isinstance(response, list):
+#                     api_response = response[0]
+#                     if api_response.get("status") == True and api_response.get("message") == "Accepted":
+#                         success = True
+#                         message = f"SMS successfully sent to {len(phone_numbers)} parents. Bulk ID: {api_response.get('bulkId')}"
+#                     else:
+#                         error = f"Failed to send SMS. API message: {api_response.get('message')}"
+#                 else:
+#                     error = "Failed to send SMS. Please try again later."
+#         else:
+#             error = "Invalid form data. Please ensure all fields are filled correctly."
+#
+#     else:
+#         form = SendClassForm()
+#
+#     return render(request, "Manage/filter_and_send_sms.html", {
+#         "form": form,
+#         "success": success,
+#         "message": message,
+#         "error": error
+#     })
+
+
 
 
 #

@@ -154,8 +154,8 @@ class SendSMSForms(forms.Form):
 
 
 class SendSMSForm(forms.Form):
-    term = forms.ModelChoiceField(queryset=Term.objects.all(), label="Select Term", required=True)
-    exam_type = forms.ModelChoiceField(queryset=ExamType.objects.all(), label="Select Exam Type", required=True)
+    # term = forms.ModelChoiceField(queryset=Term.objects.all(), label="Select Term", required=True)
+    # exam_type = forms.ModelChoiceField(queryset=ExamType.objects.all(), label="Select Exam Type", required=True)
     message = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 4, 'placeholder': 'Enter your message template here.'}),
         label="Message Template", required=True)
