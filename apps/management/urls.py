@@ -24,6 +24,8 @@ urlpatterns = [
     path('send-sms-to-class/', views.send_sms_to_class, name='send_sms_to_class'),
 
     path('send-results-sms/', views.send_results_sms, name='result_sms'),
+    # urls.py
+    path('api/recipient-count/', views.recipient_count, name='recipient_count'),
 
     path('books', views.books_in_store, name='books_in_store'),
     path('borrowed/books', views.borrowed_books, name='borrowed_books'),

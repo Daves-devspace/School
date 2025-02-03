@@ -236,8 +236,6 @@ def toggle_user_status(request, user_id):
     return redirect('manage_users')
 
 
-
-
 class SMSHandler:
     @staticmethod
     def send_bulk_sms(message, phone_numbers):
@@ -357,6 +355,8 @@ def send_results_sms(request):
 
     return render(request, 'Manage/send_result_sms.html', {
         'terms': terms,
+        'parent_count': Parent.objects.count(),
+        'sms_type': 'results',
         'exam_types': exam_types,
         'template_example': ("{parent_name}, {student_name} ({student_class}) scored {total_marks} "
                              "in {term} {exam_type}. Subjects: {subject_results}")
@@ -383,7 +383,11 @@ def send_bulk_sms_view(request):
 
         return redirect("send_bulk_sms")
 
-    return render(request, "manage/send_sms.html", {"form": form})
+    return render(request, "manage/send_sms.html", {
+        "form": form,
+        'sms_type': 'all',
+        'parent_count': Parent.objects.count(),
+    })
 
 
 @login_required
@@ -412,7 +416,39 @@ def send_sms_to_class(request):
             if errors:
                 messages.error(request, f"Failed to send {len(errors)} messages")
 
-    return render(request, "Manage/filter_and_send_sms.html", context)
+    return render(request, "Manage/filter_and_send_sms.html", context, {
+        'class_recipient_count': parents.count(),
+        'sms_type': 'class',
+        'send_class_form': SendClassForm(),
+    })
+
+
+# views.py
+
+
+def recipient_count(request):
+    sms_type = request.GET.get('type')
+
+    if sms_type == 'class':
+        classes = request.GET.getlist('classes')
+        count = Parent.objects.filter(
+            studentparent__student__grade__grade__in=classes
+        ).distinct().count()
+
+    elif sms_type == 'results':
+        term = request.GET.get('term')
+        exam_type = request.GET.get('exam_type')
+        count = StudentParent.objects.filter(
+            student__report_cards__term_id=term,
+            student__report_cards__exam_type_id=exam_type
+        ).distinct().count()
+
+    else:
+        count = Parent.objects.count()
+
+    return JsonResponse({'count': count})
+
+
 # def send_results_sms(request):
 #     if request.method == "POST":
 #         term_id = request.POST.get('term')
@@ -577,8 +613,6 @@ def send_sms_to_class(request):
 #         "message": message,
 #         "error": error
 #     })
-
-
 
 
 #
@@ -757,9 +791,6 @@ def send_sms_view(request, student_parent_id):
         form = SendSMSForm(initial={"phone": str(parent.mobile)})
 
     return render(request, "manage/send_sms.html", {"form": form, "student_parent": student_parent})
-
-
-
 
 
 def add_book(request):
@@ -1354,7 +1385,6 @@ def view_results_table(request, grade_id, term_id, exam_type_id, grade_section_i
     }
 
     return render(request, 'performance/view_results_table.html', context)
-
 
 
 def view_results_table_section(request, grade_section_id, term_id, exam_type_id):
