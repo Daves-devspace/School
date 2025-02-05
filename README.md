@@ -29,3 +29,120 @@ Secure Authentication: All users must log in with secure authentication, ensurin
 7. Dashboard
 Real-Time Data: View quick statistics and summaries of key metrics like total students, teachers, revenue, and attendance.
 Interactive Charts: Visualize data with interactive charts for easy interpretation.
+
+TIMETABLE GENERATION
+
+Documentation
+Core Logic
+The timetable generator creates schedules that prioritize:
+
+Subject Preferences (core subjects, required sessions/week, special rooms)
+
+Teacher Availability (no double-booking)
+
+Room Constraints (special vs. default rooms)
+
+Time Slot Optimization (morning/afternoon preferences)
+
+Key Preference Adherence
+Core Subjects First
+
+Assigned to optimal time slots (mornings by default)
+
+Limited to 2 core subjects/day to prevent overload
+
+Special Room Allocation
+
+Lab/experimental subjects get priority for special rooms
+
+Ensures no overlapping bookings in special rooms
+
+Session Frequency
+
+Subjects with higher sessions_per_week get priority in scheduling
+
+Distributed evenly across days
+
+Teacher Constraints
+
+No overlapping assignments for the same teacher
+
+Balanced workload across days
+
+Generation Process
+Preparation
+
+Delete existing timetable slots for the grade section
+
+Prefetch:
+
+Teacher assignments
+
+Subject preferences
+
+Rooms (default + special)
+
+Time slots (ordered chronologically)
+
+Priority Queue Setup
+
+Subjects are ranked by:
+
+python
+Copy
+Priority = (Core? 100 : 0) + (Special Room? 50 : 0) + (Sessions/Week * 10)  
+Higher priority subjects scheduled first.
+
+Core Subject Scheduling
+
+For each core subject:
+
+Assign to non-consecutive days
+
+Use morning time slots first
+
+Check teacher/room availability
+
+Elective Subject Handling
+
+Fill remaining slots randomly
+
+Ensure no conflicts with existing assignments
+
+Conflict Checks
+
+Teacher Conflicts: Track teacher-day-time assignments
+
+Room Conflicts: Track room-day-time usage
+
+Back-to-Back Prevention: Avoid consecutive core subjects
+
+Output
+
+Bulk-create valid timetable slots
+
+Return generation stats (created/deleted slots)
+
+Example Schedule
+Day	Time	Subject	Teacher	Room
+Monday	09:00-10:00	Math	Mr. Smith	G10A
+Monday	10:00-11:00	Physics	Dr. Johnson	Lab 201
+Tuesday	08:00-09:00	English	Ms. Davis	G10A
+Features
+Automated Room Creation: Generates default rooms if missing (e.g., G10A).
+
+Real-Time Updates: Reflects changes to preferences immediately.
+
+Error Handling:
+
+Rollback on failure
+
+Logs conflicts/missing data
+
+Constraints:
+
+No duplicate slots
+
+All fields (room, teacher, time) required
+
+This system ensures efficient, conflict-free timetables while respecting pedagogical priorities and resource constraints.
