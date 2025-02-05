@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -58,23 +59,43 @@ class Room(models.Model):
         blank=True
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['grade_section', 'is_special'],
+                condition=models.Q(is_special=False),
+                name='unique_default_room_per_grade_section'
+            )
+        ]
+
     def __str__(self):
         return self.room_name
 
 
-
 class TimeSlot(models.Model):
-    start_time = models.TimeField()  # Start time of the lesson
-    end_time = models.TimeField()    # End time of the lesson
-    time_range = models.CharField(max_length=20)  # e.g. "09:00-10:00", "11:20-12:00"
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    time_range = models.CharField(max_length=20)
+
+    class Meta:
+        ordering = ['start_time']  # Critical for time-based operations
+
+    @property
+    def is_morning(self):
+        """Determine if slot is in the morning (before 12:00)"""
+        return self.start_time.hour < 12
+
+    @property
+    def is_afternoon(self):
+        """Determine if slot is in the afternoon (12:00 or later)"""
+        return self.start_time.hour >= 12
 
     def save(self, *args, **kwargs):
-        # Auto-generate the time_range based on start_time and end_time
         self.time_range = f"{self.start_time.strftime('%H:%M')}-{self.end_time.strftime('%H:%M')}"
-        super(TimeSlot, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.start_time} to {self.end_time}"
+        return self.time_range
 
 
 
@@ -92,12 +113,59 @@ class TimetableSlot(models.Model):
         ('Sunday', 'Sunday'),
     ]
 
+    is_rescheduled = models.BooleanField(default=False)
+    original_slot = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
     teacher_assignment = models.ForeignKey(TeacherAssignment, on_delete=models.CASCADE,related_name='timetable_slots')  # Links to TeacherAssignment
     room = models.ForeignKey(Room, on_delete=models.CASCADE,related_name='timetable_slots')  # Room where the class is happening
     day_of_week = models.CharField(max_length=10, choices=DAYS_OF_WEEK)  # Restrict to valid days
     time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)  # Specific time slot
 
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(room__isnull=False),
+                name='room_required'
+            )
+        ]
+
     def __str__(self):
         return f"{self.teacher_assignment.subject.name} with {self.teacher_assignment.teacher.first_name} on {self.day_of_week} at {self.time_slot}"
 
 
+# models.py
+class RescheduleRequest(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ]
+
+    original_slot = models.ForeignKey(TimetableSlot, on_delete=models.CASCADE)
+    new_slot = models.ForeignKey(TimetableSlot, on_delete=models.CASCADE,
+                                 related_name='reschedule_requests')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    reason = models.TextField()
+
+# models.py
+class Notification(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    message = models.TextField()
+    read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    link = models.URLField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.message[:50]}"

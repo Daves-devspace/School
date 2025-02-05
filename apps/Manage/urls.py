@@ -5,7 +5,7 @@ from . import views
 from django.contrib.auth import views as auth_views
 
 from .views import CustomPasswordResetView, CustomPasswordResetDoneView, CustomPasswordResetConfirmView, \
-    CustomPasswordResetCompleteView, SettingsView
+    CustomPasswordResetCompleteView, SettingsView, teacher_dashboard
 
 urlpatterns = [
 
@@ -13,7 +13,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Refresh token
     path('dashboard/', views.home, name='home'),
     path('', views.website_page, name='merry-land'),
-    path('teacher-dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
+    path('teacher-dashboard/', teacher_dashboard.as_view(), name='teacher_dashboard'),
     path('director-dashboard/', views.director_dashboard, name='director_dashboard'),
     path('inbox/', views.inbox_view, name='inbox_page'),
     path('get-appointment/<int:appointment_id>/', views.get_appointment_details, name='get_appointment_details'),
@@ -21,12 +21,13 @@ urlpatterns = [
 
     path('settings/', SettingsView.as_view(), name='settings_page'),
 
-
     path('signup/', views.signup, name='signup'),
     path('login', views.login_user, name='login'),
     path('sign-in', views.login_form, name='login_form'),
     path('logout/', views.logout_user, name='logout'),
     # path('login_form', views.login_form, name='login_form'),
+
+    path('add_user/', views.add_user, name='add_user'),
     path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
 
     path('password-reset/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),

@@ -3,7 +3,8 @@ from django.db.models import F, Count
 from django.utils.timezone import now  # Correct import for timezone
 
 from apps.management.admin import ReportCardInline, SubjectMarkInline
-from apps.students.models import Student, Book, Transaction, Payment, Parent, Grade, Section, StudentParent,GradeSection
+from apps.students.models import Student, Book, Transaction, Payment, Parent, Grade, Section, StudentParent, \
+    GradeSection, StudentDocument
 
 # Customize admin site headers
 admin.site.site_header = 'Merryland Management System'
@@ -104,6 +105,15 @@ class PaymentAdmin(admin.ModelAdmin):
     list_display = ['transaction', 'code', 'status', 'amount', 'created_at']
     search_fields = ['transaction__book__title', 'code', 'status']
     list_per_page = 25
+
+
+@admin.register(StudentDocument)
+class StudentDocumentAdmin(admin.ModelAdmin):
+    list_display = ('student', 'doc_name', 'document', 'uploaded_at')  # Columns in admin list view
+    search_fields = ('student__first_name', 'student__last_name', 'doc_name')  # Searchable fields
+    list_filter = ('uploaded_at',)  # Filters by upload date
+    ordering = ('-uploaded_at',)  # Newest documents appear first
+
 
 
 # Register Models

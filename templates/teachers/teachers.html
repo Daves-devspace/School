@@ -37,7 +37,7 @@
                     </div>
                     <div class="col-lg-2">
                         <div class="search-student-btn">
-                            <button type="btn" class="btn btn custom-bg text-white">Search</button>
+                            <button type="btn" class="btn btn-success ">Search</button>
                         </div>
                     </div>
                 </div>
@@ -54,15 +54,15 @@
                                     </div>
                                     <div class="col-auto text-end float-end ms-auto download-grp">
                                         <a href="{% url 'teachers' %}"
-                                           class="btn btn-outline custom-bg text-white me-2 active"><i
+                                           class="btn btn-success me-2 active"><i
                                                 class="fas fa-list"></i></a>
                                         <a href="{% url 'teachers' %}"
-                                           class="btn btn-outline-lg custom-bg text-white me-2"><i
+                                           class="btn btn-success me-2"><i
                                                 class="fas fa-th-large"></i></a>
-                                        <a href="#" class="btn btn-outline custom-bg text-white me-2"><i
+                                        <a href="#" class="btn btn-success me-2"><i
                                                 class="fas fa-download"></i>
                                             Download</a>
-                                        <a href="{% url 'add_teacher' %}" class="btn btn custom-bg text-white"><i
+                                        <a href="{% url 'add_teacher' %}" class="btn btn-success"><i
                                                 class="fas fa-plus"></i></a>
                                     </div>
                                 </div>
@@ -78,7 +78,8 @@
                                             </div>
                                         </th>
                                         <th>STF-No</th>
-                                        <th>Name</th>
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
                                         <th>Class</th>
                                         <th>Gender</th>
                                         <th>Mobile Number</th>
@@ -98,9 +99,10 @@
                                             <td>{{ teacher.staff_number }}</td>
                                             <td>
                                                 <h2 class="table-avatar">
-                                                    <a href="{% url 'teacher_detail' teacher.id %}">{{ teacher.full_name }}</a>
+                                                    <a href="{% url 'teacher_detail' teacher.id %}">{{ teacher.first_name}}</a>
                                                 </h2>
                                             </td>
+                                            <td>{{ teacher.last_name }}</td>
                                             <td>{{ teacher.assigned_class }}</td>
                                             <td>{{ teacher.gender }}</td>
 {#                                            <td>#}
@@ -110,8 +112,8 @@
 {#                                                    No subjects assigned#}
 {#                                                {% endfor %}#}
 {#                                            </td>#}
-                                            <td>{{ teacher.user.profile.phone_number }}</td>
-                                            <td>{{ teacher.user.profile.address }}</td>
+                                            <td>{{ teacher.phone }}</td>
+                                            <td>{{ teacher.address }}</td>
                                             <td class="text-end">
                                                 <div class="actions">
                                                     <a href="{% url 'teacher_detail' teacher.id %}"

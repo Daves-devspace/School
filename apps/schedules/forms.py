@@ -4,9 +4,12 @@ from django.forms.widgets import TimeInput
 from. models import *
 from django import forms
 
-from ..management.models import Term
-from ..students.models import Grade, GradeSection
 
+from ..teachers.models import Department
+from django.apps import apps
+
+Grade = apps.get_model('students', 'Grade')
+GradeSection = apps.get_model('students', 'GradeSection')
 
 class SubjectForm(forms.ModelForm):
     class Meta:
@@ -28,8 +31,8 @@ class SubjectForm(forms.ModelForm):
     # )
 
     # Text input for department
-    department = forms.CharField(
-        max_length=100,
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all(),
         required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Enter department (optional)'})
     )

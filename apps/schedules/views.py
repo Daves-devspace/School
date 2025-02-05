@@ -10,17 +10,19 @@ from django.db import IntegrityError, transaction
 from django.db.models import Prefetch
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .forms import SubjectForm, RoomForm, SubjectPreferenceForm
-from .models import TeacherAssignment, TimetableSlot, TimeSlot, Room, Subject, SubjectPreference
+from .models import TeacherAssignment, TimetableSlot, TimeSlot, Room, Subject, SubjectPreference, Notification
 import random
 import logging
 
 from .serializers import TeacherAssignmentSerializer
+from .utils import generate_room_name_from_grade_section
 from ..students.models import GradeSection
 
 logger = logging.getLogger(__name__)
@@ -194,19 +196,13 @@ def genetic_algorithm(pop_size=10, generations=50):
 
 
 # Function to generate room name based on grade and section
-def generate_room_name_from_grade_section(grade, section):
-    grade_name = grade.name.strip()
-    section_name = section.name.strip()
-    return f"{grade_name[0].upper()}{grade.level}{section_name[0].upper()}"
-
-
 
 
 class TimetableScheduler:
     def __init__(self, grade_section, days, time_slots, subject_preferences):
         self.grade_section = grade_section
         self.days = days
-        self.time_slots = time_slots
+        self.time_slots = sorted(time_slots, key=lambda ts: ts.start_time)
         self.subject_preferences = subject_preferences
         self.scheduled_slots = defaultdict(set)
         self.teacher_schedule = defaultdict(set)
@@ -245,10 +241,14 @@ class TimetableScheduler:
 
     def _prepare_special_rooms(self):
         """Cache special room availability"""
-        self.special_rooms = Room.objects.filter(is_special=True).prefetch_related('timetable_slots')
+        self.special_rooms = Room.objects.filter(
+            subject_special_rooms__isnull=False  # Use your existing related_name
+        ).distinct().prefetch_related('timetable_slots')
+
         for room in self.special_rooms:
             self.special_room_registry[room] = {
-                (slot.day_of_week, slot.time_slot_id) for slot in room.timetable_slots.all()
+                (slot.day_of_week, slot.time_slot_id)
+                for slot in room.timetable_slots.all()
             }
 
     def generate_schedule(self):
@@ -304,17 +304,43 @@ class TimetableScheduler:
 
     def _get_optimal_time_slots(self, subject, day):
         """Get time slots ordered by suitability for the subject"""
-        if subject.is_lab:
-            return sorted(self.time_slots, key=lambda ts: ts.is_afternoon, reverse=True)
-        return sorted(self.time_slots, key=lambda ts: ts.is_morning, reverse=True)
+        if subject.requires_special_room:
+            # Afternoon slots first for lab subjects
+            return sorted(self.time_slots,
+                          key=lambda ts: (not ts.is_afternoon, ts.start_time))
+        # Morning slots first for non-lab subjects
+        return sorted(self.time_slots,
+                      key=lambda ts: (not ts.is_morning, ts.start_time))
 
     def _select_room(self, subject, day, time_slot):
-        """Select appropriate room for the subject"""
-        if subject.requires_special_room:
-            return self._find_available_special_room(day, time_slot)
+        """Ensure room assignment with multiple fallbacks"""
+        try:
+            if subject.requires_special_room:
+                special_room = self._find_available_special_room(day, time_slot)
+                if special_room:
+                    return special_room
+                logger.warning(f"No special room available for {subject}, using default")
 
-        # Use the correct related_name "rooms" instead of "room_set"
-        return self.grade_section.rooms.filter(is_special=False).first()
+            # Fallback to grade section's default room
+            room = self.grade_section.rooms.filter(is_special=False).first()
+            if not room:
+                room = self._create_emergency_room()
+            return room
+        except Exception as e:
+            logger.error(f"Room selection failed: {str(e)}")
+            raise
+
+    def _create_emergency_room(self):
+        """Create emergency room if all else fails"""
+        room_name = generate_room_name_from_grade_section(
+            self.grade_section.grade,
+            self.grade_section.section
+        )
+        return Room.objects.create(
+            room_name=room_name,
+            is_special=False,
+            grade_section=self.grade_section
+        )
 
     def _find_available_special_room(self, day, time_slot):
         """Find available special room using registry"""
@@ -336,9 +362,14 @@ class TimetableScheduler:
         )
 
     def _has_conflicting_core_subjects(self, day, time_slot):
-        """Prevent back-to-back core subjects"""
-        prev_slot = time_slot.get_previous_by_time()
-        next_slot = time_slot.get_next_by_time()
+        """Prevent back-to-back core subjects using ordered slots"""
+        try:
+            index = self.time_slots.index(time_slot)
+            prev_slot = self.time_slots[index - 1] if index > 0 else None
+            next_slot = self.time_slots[index + 1] if index < len(self.time_slots) - 1 else None
+        except ValueError:
+            return False
+
         return any(
             self._is_core_subject(day, ts)
             for ts in [prev_slot, next_slot]
@@ -391,16 +422,21 @@ class TimetableScheduler:
 def auto_create_timetable_slots_for_all():
     try:
         with transaction.atomic():
-            # Corrected prefetch with proper nesting
+            # Consolidated prefetch query
             grade_sections = GradeSection.objects.prefetch_related(
                 Prefetch('teacher_assignments',
-                         queryset=TeacherAssignment.objects.select_related('teacher', 'subject').prefetch_related(
+                         queryset=TeacherAssignment.objects
+                         .select_related('teacher', 'subject')
+                         .prefetch_related(
                              Prefetch('timetable_slots',
                                       queryset=TimetableSlot.objects.select_related('time_slot', 'room')
                                       )
                          )
                          ),
-                Prefetch('rooms', queryset=Room.objects.filter(is_special=False))
+                Prefetch('rooms',
+                         queryset=Room.objects.filter(is_special=False)
+                         .select_related('grade_section')
+                         )
             ).all()
 
             days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
@@ -411,6 +447,9 @@ def auto_create_timetable_slots_for_all():
             total_deleted = 0
 
             for grade_section in grade_sections:
+                # Validate room existence before scheduling
+                if not grade_section.rooms.exists():
+                    raise ValueError(f"No rooms found for {grade_section}")
                 # Delete existing slots using the relationship
                 deleted_count, _ = TimetableSlot.objects.filter(
                     teacher_assignment__grade_section=grade_section
@@ -434,6 +473,10 @@ def auto_create_timetable_slots_for_all():
                         room=slot['room']
                     ) for slot in scheduler.generate_schedule()
                 ]
+                # Validate slots before creation
+                for slot in new_slots:
+                    if not slot.room:
+                        raise ValueError(f"Missing room for slot: {slot}")
 
                 TimetableSlot.objects.bulk_create(new_slots)
                 total_created += len(new_slots)
@@ -450,8 +493,6 @@ def auto_create_timetable_slots_for_all():
             'status': 'error',
             'message': f"Generation failed: {str(e)}"
         }
-
-
 
 
 @require_http_methods(["POST"])
@@ -490,6 +531,7 @@ def generate_timetable_view(request):
             'message': str(e)
         }, status=500)
 
+
 @require_http_methods(["GET", "POST"])
 def timetable_page_view(request):
     """Handle page rendering and form submissions"""
@@ -515,9 +557,11 @@ def timetable_page_view(request):
             'teacher_assignment__teacher',
             'room',
             'time_slot'
-        ).filter(teacher_assignment__isnull=False)
+        ).filter(teacher_assignment__isnull=False),
+        'form':form,
     }
     return render(request, 'Manage/generate_timetable_all.html', context)
+
 
 def serialize_slot(slot):
     return {
@@ -563,8 +607,6 @@ def handle_ajax_generation(request):
             'status': 'error',
             'message': str(e)
         }, status=500)
-
-
 
 
 def get_filtered_timetable(request):
@@ -656,7 +698,7 @@ def get_filtered_timetable(request):
 #
 #     return render(request, 'Manage/class_timetable.html', {'grade_sections': grade_sections})
 
-
+#shows timetable by gradesection by days
 def fetch_timetable_by_grade_section(request, grade_section_id):
     grade_section = get_object_or_404(GradeSection, id=grade_section_id)
 
@@ -673,6 +715,83 @@ def fetch_timetable_by_grade_section(request, grade_section_id):
         'grade_section': grade_section,
         'timetable_slots': timetable_slots
     })
+
+
+
+
+#Rechedule
+
+
+class RescheduleSlot(View):
+    def get(self, request, slot_id):
+        slot = get_object_or_404(TimetableSlot, pk=slot_id,
+                                 teacher_assignment__teacher=request.user.teacher)
+        available_slots = TimeSlot.objects.exclude(
+            timetable_slots__day_of_week=slot.day_of_week
+        ).order_by('start_time')
+
+        return render(request, 'teachers/reschedule_form.html', {
+            'slot': slot,
+            'available_slots': available_slots,
+            'rooms': Room.objects.all()
+        })
+
+    def post(self, request, slot_id):
+        slot = get_object_or_404(TimetableSlot, pk=slot_id,
+                                 teacher_assignment__teacher=request.user.teacher)
+
+        new_time = request.POST.get('new_time')
+        new_room = request.POST.get('new_room')
+        new_day = request.POST.get('new_day')
+
+        # Check availability
+        conflict = TimetableSlot.objects.filter(
+            day_of_week=new_day,
+            time_slot=new_time,
+            room=new_room
+        ).exists()
+
+        if not conflict:
+            # Create rescheduled slot
+            TimetableSlot.objects.create(
+                teacher_assignment=slot.teacher_assignment,
+                day_of_week=new_day,
+                time_slot_id=new_time,
+                room_id=new_room,
+                is_rescheduled=True,
+                original_slot=slot
+            )
+
+            # Mark original as rescheduled
+            slot.is_rescheduled = True
+            slot.save()
+
+            messages.success(request, "Reschedule request submitted successfully!")
+        else:
+            messages.error(request, "Selected slot is already booked")
+
+        return redirect('teacher_dashboard')
+
+
+
+
+class MarkAsReadView(View):
+    def post(self, request, pk):
+        notification = get_object_or_404(
+            Notification,
+            id=pk,
+            user=request.user
+        )
+        if not notification.read:
+            notification.read = True
+            notification.save()
+        return JsonResponse({'status': 'success'})
+
+class MarkAllReadView(View):
+    def post(self, request):
+        request.user.notifications.filter(read=False).update(read=True)
+        return JsonResponse({'status': 'success'})
+
 
 # def generate_timetable_for_all(request):
 #     if request.method == "GET":

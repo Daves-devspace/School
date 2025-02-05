@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
@@ -19,75 +20,37 @@ def teachers(request):
 
     return render(request, "teachers/teachers.html", {"teachers": teachers})
 
+
+
 @login_required
 def add_teacher(request):
     if request.method == 'POST':
         form = TeacherForm(request.POST)
         if form.is_valid():
-            teacher = form.save(commit=False)  # Prepare Teacher instance without saving yet
+            with transaction.atomic():  # Ensures all changes apply together
+                teacher = form.save(commit=False)
 
-            # Generate staff number if not already provided
-            if not teacher.staff_number:
-                teacher.staff_number = Teacher.generate_staff_number()  # Ensure this method exists
+                # Generate staff number if not provided
+                if not teacher.staff_number:
+                    teacher.staff_number = Teacher.generate_staff_number()
 
-            # Create a User object for the teacher
-            user = User.objects.create_user(
-                username=teacher.staff_number,  # Use staff number as username
-                email=form.cleaned_data['email'],  # Use email for password reset
-                password=form.cleaned_data['password'],  # Password from form
-            )
-            user.first_name = form.cleaned_data.get('first_name', '')  # Optionally set first name
-            user.last_name = form.cleaned_data.get('last_name', '')    # Optionally set last name
-            user.save()
+                teacher.save()  # Saves teacher, triggering the signal that creates a user
 
-            # Ensure phone number is properly formatted
-            phone_number = form.cleaned_data.get('phone', '')  # Corrected from 'phone_no' to 'phone'
-            if phone_number:
-                # Convert the phone number to string if it's a PhoneNumber object
-                if isinstance(phone_number, str):
-                    raw_phone_number = phone_number
-                else:
-                    raw_phone_number = str(phone_number)  # Get string representation of PhoneNumber object
+                # Assign user to the "Teacher" group
+                if teacher.user:  # Ensure user was created by the signal
+                    group, _ = Group.objects.get_or_create(name='Teacher')
+                    teacher.user.groups.add(group)
 
-                if raw_phone_number.startswith('07'):
-                    phone_number = '+254' + raw_phone_number[1:]  # Format Kenyan number to international format
+                messages.success(request, "Teacher added successfully.")
+                return redirect('teachers')
 
-                # Check if the phone number is valid using phonenumbers library
-                try:
-                    parsed_number = parse(phone_number, 'KE')
-                    if not is_valid_number(parsed_number):
-                        raise ValueError("Invalid phone number format.")
-                except Exception as e:
-                    messages.error(request, f"Phone number validation failed: {str(e)}")
-                    return render(request, 'teachers/add-teacher.html', {'form': form})
-
-            # Create the Profile model for the teacher
-            profile = Profile.objects.create(
-                user=user,  # Link the profile to the user
-                role='Teacher',  # Role is set to 'Teacher' by default
-                phone_number=phone_number,  # Formatted phone number
-                address=form.cleaned_data.get('address', ''),  # Address from form
-                created_at=now(),  # Set profile creation time
-            )
-
-            # Link the Teacher model to the user and save it
-            teacher.user = user
-            teacher.save()
-
-            # Assign the user to the "Teacher" group
-            group, _ = Group.objects.get_or_create(name='Teacher')
-            user.groups.add(group)
-
-            # Success message and redirect
-            messages.success(request, "Teacher added successfully.")
-            return redirect('teachers')  # Adjust 'teachers' to your desired redirect URL
         else:
-            # Form is not valid
             messages.error(request, "Please correct the errors below.")
     else:
         form = TeacherForm()
 
     return render(request, 'teachers/add-teacher.html', {'form': form})
+
 
 @login_required
 def edit_teacher(request, id):

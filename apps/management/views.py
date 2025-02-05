@@ -24,6 +24,7 @@ from django.utils.timezone import make_aware, now
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView, TemplateView
 from django_daraja.mpesa.core import MpesaClient
 from rest_framework import generics, serializers, status
@@ -270,157 +271,157 @@ def validate_message_template(template, required_keys):
         raise ValidationError(f"Missing template keys: {', '.join(missing)}")
 
 
-@never_cache
-@login_required
-def send_results_sms(request):
-    terms = Term.objects.all()
-    exam_types = ExamType.objects.all()
-    required_template_keys = {'parent_name', 'student_name', 'student_class',
-                              'total_marks', 'rank', 'subject_results', 'term', 'exam_type'}
-
-    if request.method == "POST":
-        form_data = request.POST
-        try:
-            term = Term.objects.get(id=form_data.get('term'))
-            exam_type = ExamType.objects.get(id=form_data.get('exam_type'))
-            message_template = form_data.get('message', '')
-
-            # Early validation of template
-            validate_message_template(message_template, required_template_keys)
-
-            # Single query with prefetch related data
-            students = Student.objects.filter(status="Active").prefetch_related(
-                Prefetch('report_cards',
-                         queryset=ReportCard.objects.filter(term=term, exam_type=exam_type),
-                         to_attr='relevant_reports'),
-                Prefetch('studentparent_set',
-                         queryset=StudentParent.objects.select_related('parent').filter(parent__mobile__isnull=False))
-            )
-
-            personalized_messages = []
-            with transaction.atomic():
-                for student in students:
-                    if not student.relevant_reports:
-                        continue
-
-                    report_card = student.relevant_reports[0]
-                    parents = [sp.parent for sp in student.studentparent_set.all()]
-
-                    for parent in parents:
-                        try:
-                            message = message_template.format(
-                                parent_name=parent.first_name,
-                                student_name=student.first_name,
-                                student_class=student.grade,
-                                total_marks=report_card.total_marks(),
-                                rank=report_card.student_rank(),
-                                subject_results=", ".join(
-                                    f"{subj.subject.name}: {subj.marks}"
-                                    for subj in report_card.subject_marks.all()
-                                ),
-                                term=term.name,
-                                exam_type=exam_type.name
-                            )
-                            personalized_messages.append({
-                                "phone": parent.mobile,
-                                "message": message
-                            })
-                        except KeyError as e:
-                            raise ValidationError(f"Invalid template key: {e}")
-
-            if personalized_messages:
-                phone_numbers = [msg['phone'] for msg in personalized_messages]
-                success_count, errors = SMSHandler.send_bulk_sms(message_template, phone_numbers)
-
-                if errors:
-                    messages.error(request, f"Partial failure: {len(errors)} errors. First error: {errors[0]}")
-                if success_count:
-                    messages.success(request,
-                                     f"Successfully sent to {success_count}/{len(personalized_messages)} recipients")
-            else:
-                messages.warning(request, "No valid recipients found")
-
-        except (Term.DoesNotExist, ExamType.DoesNotExist) as e:
-            messages.error(request, "Invalid term or exam type selected")
-            logger.warning(f"Invalid selection: {str(e)}")
-        except ValidationError as e:
-            messages.error(request, str(e))
-        except Exception as e:
-            logger.error(f"Unexpected error: {str(e)}")
-            messages.error(request, "An unexpected error occurred")
-            if settings.DEBUG:
-                raise e
-
-        return redirect('result_sms')
-
-    return render(request, 'Manage/send_result_sms.html', {
-        'terms': terms,
-        'parent_count': Parent.objects.count(),
-        'sms_type': 'results',
-        'exam_types': exam_types,
-        'template_example': ("{parent_name}, {student_name} ({student_class}) scored {total_marks} "
-                             "in {term} {exam_type}. Subjects: {subject_results}")
-    })
-
-
-@login_required
-def send_bulk_sms_view(request):
-    form = SendSMSForm(request.POST or None)
-
-    if request.method == "POST" and form.is_valid():
-        message = form.cleaned_data["message"]
-
-        # Stream parents instead of loading all in memory
-        parents = Parent.objects.filter(mobile__isnull=False).iterator()
-        phone_numbers = [str(parent.mobile) for parent in parents]
-
-        success_count, errors = SMSHandler.send_bulk_sms(message, phone_numbers)
-
-        if success_count:
-            messages.success(request, f"Sent to {success_count} parents")
-        if errors:
-            messages.error(request, f"Failed to send {len(errors)} messages")
-
-        return redirect("send_bulk_sms")
-
-    return render(request, "manage/send_sms.html", {
-        "form": form,
-        'sms_type': 'all',
-        'parent_count': Parent.objects.count(),
-    })
-
-
-@login_required
-def send_sms_to_class(request):
-    form = SendClassForm(request.POST or None)
-    context = {"form": form}
-
-    if request.method == 'POST' and form.is_valid():
-        message = form.cleaned_data['message']
-        class_choices = form.cleaned_data['class_choice']
-
-        # Single query with distinct parents
-        parents = Parent.objects.filter(
-            studentparent__student__grade__grade__in=class_choices,
-            mobile__isnull=False
-        ).distinct()
-
-        if not parents.exists():
-            messages.warning(request, "No parents found for selected classes")
-        else:
-            phone_numbers = [str(parent.mobile) for parent in parents]
-            success_count, errors = SMSHandler.send_bulk_sms(message, phone_numbers)
-
-            if success_count:
-                messages.success(request, f"Sent to {success_count}/{len(phone_numbers)} parents")
-            if errors:
-                messages.error(request, f"Failed to send {len(errors)} messages")
-
-    return render(request, "Manage/filter_and_send_sms.html", context, {
-        'class_recipient_count': parents.count(),
-        'sms_type': 'class',
-        'send_class_form': SendClassForm(),
-    })
+# @never_cache
+# @login_required
+# def send_results_sms(request):
+#     terms = Term.objects.all()
+#     exam_types = ExamType.objects.all()
+#     required_template_keys = {'parent_name', 'student_name', 'student_class',
+#                               'total_marks', 'rank', 'subject_results', 'term', 'exam_type'}
+#
+#     if request.method == "POST":
+#         form_data = request.POST
+#         try:
+#             term = Term.objects.get(id=form_data.get('term'))
+#             exam_type = ExamType.objects.get(id=form_data.get('exam_type'))
+#             message_template = form_data.get('message', '')
+#
+#             # Early validation of template
+#             validate_message_template(message_template, required_template_keys)
+#
+#             # Single query with prefetch related data
+#             students = Student.objects.filter(status="Active").prefetch_related(
+#                 Prefetch('report_cards',
+#                          queryset=ReportCard.objects.filter(term=term, exam_type=exam_type),
+#                          to_attr='relevant_reports'),
+#                 Prefetch('studentparent_set',
+#                          queryset=StudentParent.objects.select_related('parent').filter(parent__mobile__isnull=False))
+#             )
+#
+#             personalized_messages = []
+#             with transaction.atomic():
+#                 for student in students:
+#                     if not student.relevant_reports:
+#                         continue
+#
+#                     report_card = student.relevant_reports[0]
+#                     parents = [sp.parent for sp in student.studentparent_set.all()]
+#
+#                     for parent in parents:
+#                         try:
+#                             message = message_template.format(
+#                                 parent_name=parent.first_name,
+#                                 student_name=student.first_name,
+#                                 student_class=student.grade,
+#                                 total_marks=report_card.total_marks(),
+#                                 rank=report_card.student_rank(),
+#                                 subject_results=", ".join(
+#                                     f"{subj.subject.name}: {subj.marks}"
+#                                     for subj in report_card.subject_marks.all()
+#                                 ),
+#                                 term=term.name,
+#                                 exam_type=exam_type.name
+#                             )
+#                             personalized_messages.append({
+#                                 "phone": parent.mobile,
+#                                 "message": message
+#                             })
+#                         except KeyError as e:
+#                             raise ValidationError(f"Invalid template key: {e}")
+#
+#             if personalized_messages:
+#                 phone_numbers = [msg['phone'] for msg in personalized_messages]
+#                 success_count, errors = SMSHandler.send_bulk_sms(message_template, phone_numbers)
+#
+#                 if errors:
+#                     messages.error(request, f"Partial failure: {len(errors)} errors. First error: {errors[0]}")
+#                 if success_count:
+#                     messages.success(request,
+#                                      f"Successfully sent to {success_count}/{len(personalized_messages)} recipients")
+#             else:
+#                 messages.warning(request, "No valid recipients found")
+#
+#         except (Term.DoesNotExist, ExamType.DoesNotExist) as e:
+#             messages.error(request, "Invalid term or exam type selected")
+#             logger.warning(f"Invalid selection: {str(e)}")
+#         except ValidationError as e:
+#             messages.error(request, str(e))
+#         except Exception as e:
+#             logger.error(f"Unexpected error: {str(e)}")
+#             messages.error(request, "An unexpected error occurred")
+#             if settings.DEBUG:
+#                 raise e
+#
+#         return redirect('result_sms')
+#
+#     return render(request, 'Manage/send_result_sms.html', {
+#         'terms': terms,
+#         'parent_count': Parent.objects.count(),
+#         'sms_type': 'results',
+#         'exam_types': exam_types,
+#         'template_example': ("{parent_name}, {student_name} ({student_class}) scored {total_marks} "
+#                              "in {term} {exam_type}. Subjects: {subject_results}")
+#     })
+#
+#
+# @login_required
+# def send_bulk_sms_view(request):
+#     form = SendSMSForm(request.POST or None)
+#
+#     if request.method == "POST" and form.is_valid():
+#         message = form.cleaned_data["message"]
+#
+#         # Stream parents instead of loading all in memory
+#         parents = Parent.objects.filter(mobile__isnull=False).iterator()
+#         phone_numbers = [str(parent.mobile) for parent in parents]
+#
+#         success_count, errors = SMSHandler.send_bulk_sms(message, phone_numbers)
+#
+#         if success_count:
+#             messages.success(request, f"Sent to {success_count} parents")
+#         if errors:
+#             messages.error(request, f"Failed to send {len(errors)} messages")
+#
+#         return redirect("send_bulk_sms")
+#
+#     return render(request, "manage/send_sms.html", {
+#         "form": form,
+#         'sms_type': 'all',
+#         'parent_count': Parent.objects.count(),
+#     })
+#
+#
+# @login_required
+# def send_sms_to_class(request):
+#     form = SendClassForm(request.POST or None)
+#     context = {"form": form}
+#
+#     if request.method == 'POST' and form.is_valid():
+#         message = form.cleaned_data['message']
+#         class_choices = form.cleaned_data['class_choice']
+#
+#         # Single query with distinct parents
+#         parents = Parent.objects.filter(
+#             studentparent__student__grade__grade__in=class_choices,
+#             mobile__isnull=False
+#         ).distinct()
+#
+#         if not parents.exists():
+#             messages.warning(request, "No parents found for selected classes")
+#         else:
+#             phone_numbers = [str(parent.mobile) for parent in parents]
+#             success_count, errors = SMSHandler.send_bulk_sms(message, phone_numbers)
+#
+#             if success_count:
+#                 messages.success(request, f"Sent to {success_count}/{len(phone_numbers)} parents")
+#             if errors:
+#                 messages.error(request, f"Failed to send {len(errors)} messages")
+#
+#     return render(request, "Manage/filter_and_send_sms.html", context, {
+#         'class_recipient_count': parents.count(),
+#         'sms_type': 'class',
+#         'send_class_form': SendClassForm(),
+#     })
 
 
 # views.py
@@ -430,14 +431,22 @@ def recipient_count(request):
     sms_type = request.GET.get('type')
 
     if sms_type == 'class':
-        classes = request.GET.getlist('classes')
+        if request.user.groups.filter(name="Teacher").exists():  # Example security check
+            grade_section_ids = GradeSection.objects.filter(
+                class_teacher=request.user
+            ).values_list('id', flat=True)  # Get only IDs as a list
+        else:
+            return JsonResponse({'error': 'Unauthorized'}, status=403)
+
         count = Parent.objects.filter(
-            studentparent__student__grade__grade__in=classes
+            studentparent__student__grade__id__in=grade_section_ids,
+            mobile__isnull=False
         ).distinct().count()
 
     elif sms_type == 'results':
         term = request.GET.get('term')
         exam_type = request.GET.get('exam_type')
+
         count = StudentParent.objects.filter(
             student__report_cards__term_id=term,
             student__report_cards__exam_type_id=exam_type
@@ -447,6 +456,190 @@ def recipient_count(request):
         count = Parent.objects.count()
 
     return JsonResponse({'count': count})
+
+
+
+@never_cache
+@login_required
+@require_http_methods(["GET", "POST"])
+def unified_sms_view(request):
+    context = {
+        'terms': Term.objects.all(),
+        'exam_types': ExamType.objects.all(),
+        'grade_sections': GradeSection.objects.select_related('grade', 'section').order_by('grade__level', 'section__name'),
+        'template_keys': {
+            'results': {'parent_name', 'student_name', 'student_class',
+                        'total_marks', 'rank', 'subject_results', 'term', 'exam_type'},
+            'class': {'class_name', 'teacher_name', 'student_name'},  # Added student_name
+            'bulk': set()
+        }
+    }
+    if request.method == "POST":
+        sms_type = request.POST.get('sms_type', 'bulk')
+
+        try:
+            if sms_type == 'results':
+                return handle_results_sms(request, context)
+            elif sms_type == 'class':
+                return handle_class_sms(request, context)
+            elif sms_type == 'bulk':
+                return handle_bulk_sms(request, context)
+            else:
+                messages.error(request, "Invalid SMS type selected")
+                return redirect('unified_sms')
+
+        except Exception as e:
+            logger.error(f"SMS Error: {str(e)}", exc_info=True)
+            messages.error(request, f"Operation failed: {str(e)}")
+            return redirect('unified_sms')
+
+    # GET request - initialize counts
+    context.update({
+        'bulk_count': Parent.objects.count(),
+        'grade_section_count': context['grade_sections'].count(),
+        'term_count': context['terms'].count(),
+        'sms_type': request.GET.get('type', 'bulk'),
+        'exam_type_count': context['exam_types'].count()
+    })
+
+    return render(request, 'manage/send_sms.html', context)
+
+
+def handle_results_sms(request, context):
+    form_data = request.POST
+    required_keys = context['template_keys']['results']
+
+    try:
+        term = Term.objects.get(id=form_data.get('term'))
+        exam_type = ExamType.objects.get(id=form_data.get('exam_type'))
+        message_template = form_data.get('message', '')
+
+        validate_message_template(message_template, required_keys)
+
+        # Prefetch related data efficiently
+        students = Student.objects.filter(status="Active").prefetch_related(
+            Prefetch('report_cards',
+                     queryset=ReportCard.objects.filter(term=term, exam_type=exam_type),
+                     to_attr='relevant_reports'),
+            Prefetch('studentparent_set',
+                     queryset=StudentParent.objects.select_related('parent')
+                     .filter(parent__mobile__isnull=False))
+        )
+
+        personalized_messages = []
+        with transaction.atomic():
+            for student in students:
+                if not student.relevant_reports:
+                    continue
+
+                report_card = student.relevant_reports[0]
+                parents = [sp.parent for sp in student.studentparent_set.all()]
+
+                for parent in parents:
+                    message = message_template.format(
+                        parent_name=parent.first_name,
+                        student_name=student.first_name,
+                        student_class=f"{student.grade.grade.name} {student.grade.section.name}",  # Updated
+                        total_marks=report_card.total_marks(),
+                        rank=report_card.student_rank(),
+                        subject_results=", ".join(
+                            f"{subj.subject.name}: {subj.marks}"
+                            for subj in report_card.subject_marks.all()
+                        ),
+                        term=f"{term.name} {term.year}",  # Include year
+                        exam_type=exam_type.name
+                    )
+                    personalized_messages.append({
+                        "phone": parent.mobile,
+                        "message": message
+                    })
+
+        if personalized_messages:
+            phone_numbers = [msg['phone'] for msg in personalized_messages]
+            success_count, errors = SMSHandler.send_bulk_sms(message_template, phone_numbers)
+
+            if success_count:
+                messages.success(request,
+                                 f"Sent results to {success_count}/{len(personalized_messages)} parents")
+            if errors:
+                messages.error(request,
+                               f"{len(errors)} failures. First error: {errors[0]}")
+        else:
+            messages.warning(request, "No valid recipients found")
+
+    except (Term.DoesNotExist, ExamType.DoesNotExist) as e:
+        messages.error(request, "Invalid term or exam type selected")
+        logger.warning(f"Invalid selection: {str(e)}")
+    except ValidationError as e:
+        messages.error(request, str(e))
+
+    return redirect('unified_sms')
+
+
+def handle_class_sms(request, context):
+    grade_section_ids = request.POST.getlist('grade_sections')
+    message = request.POST.get('message')
+
+    try:
+        if not grade_section_ids:
+            raise ValidationError("Please select at least one class section")
+
+        parents = Parent.objects.filter(
+            studentparent__student__grade__id__in=grade_section_ids,
+            mobile__isnull=False
+        ).distinct()
+
+        if not parents.exists():
+            messages.warning(request, "No parents found for selected classes")
+            return redirect('unified_sms')
+
+        phone_numbers = [str(parent.mobile) for parent in parents if parent.mobile]
+        if not phone_numbers:
+            messages.warning(request, "Selected parents have no valid phone numbers")
+            return redirect('unified_sms')
+        success_count, errors = SMSHandler.send_bulk_sms(message, phone_numbers)
+
+        if success_count:
+            messages.success(request,
+                             f"Sent to {success_count}/{len(phone_numbers)} parents")
+        if errors:
+            messages.error(request, f"Failed to send {len(errors)} messages")
+
+    except ValidationError as e:
+        messages.error(request, str(e))
+
+    return redirect('unified_sms')
+
+
+def handle_bulk_sms(request, context):
+    message = request.POST.get('message')
+
+    try:
+        if len(message) > 160:
+            raise ValidationError("Message exceeds 160 character limit")
+
+        # Stream parents to avoid memory issues
+        parents = Parent.objects.filter(mobile__isnull=False).iterator()
+        phone_numbers = [str(parent.mobile) for parent in parents]
+
+        if not phone_numbers:
+            messages.warning(request, "No parents with valid numbers found")
+            return redirect('unified_sms')
+
+        success_count, errors = SMSHandler.send_bulk_sms(message, phone_numbers)
+
+        if success_count:
+            messages.success(request, f"Sent to {success_count} parents")
+        if errors:
+            messages.error(request, f"Failed to send {len(errors)} messages")
+
+    except ValidationError as e:
+        messages.error(request, str(e))
+
+    return redirect('unified_sms')
+
+
+# Keep the SMSHandler and validate_message_template as-is
 
 
 # def send_results_sms(request):

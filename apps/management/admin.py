@@ -1,19 +1,21 @@
 from datetime import timezone
 
 from django.contrib import admin
-from django.db.models import Sum
+
 from django.utils.html import format_html
+from django_ckeditor_5.fields import CKEditor5Field
+from django_ckeditor_5.widgets import CKEditor5Widget
 
 from apps.management import models
 from apps.management.models import Term, ReportCard, SubjectMark, ExamType, Timetable, \
     LessonExchangeRequest, Institution, Profile, HolidayPresentation, Attendance
-from ckeditor.widgets import CKEditorWidget
+
+
 
 class ProfileAdmin(admin.ModelAdmin):
     formfield_overrides = {
-        models.RichTextField: {'widget': CKEditorWidget()},
+        CKEditor5Field: {'widget': CKEditor5Widget()},
     }
-
 
 
 class InstitutionAdmin(admin.ModelAdmin):
@@ -187,29 +189,19 @@ class HolidayPresentationAdmin(admin.ModelAdmin):
 
 
 class AttendanceAdmin(admin.ModelAdmin):
-    # Fields to display in the admin list view
     list_display = ('student', 'section', 'teacher', 'date', 'term', 'is_present', 'absence_reason')
-
-    # Fields to make searchable
     search_fields = ('student__name', 'teacher__username', 'section__grade_name', 'term__name')
-
-    # Filters for narrowing down records
     list_filter = ('term', 'section', 'is_present', 'date')
-
-    # Fields to edit in the detail view
     fields = ('student', 'section', 'teacher', 'date', 'term', 'is_present', 'absence_reason')
-
-    # Display related dropdowns for ForeignKey fields
-    autocomplete_fields = ('student', 'section', 'teacher', 'term')
-
-    # Ordering of records
+    autocomplete_fields = ('student', 'section', 'teacher', 'term')  # Ensure teacher is correctly linked
     ordering = ('-date',)
 
-    # Customizing the admin panel labels
     def get_queryset(self, request):
-        # Optimize database queries by using select_related
         queryset = super().get_queryset(request)
         return queryset.select_related('student', 'section', 'teacher', 'term')
+
+
+
 
 
 # Register the model with the custom admin configuration

@@ -30,30 +30,6 @@
 
             </div>
 
-            <div class="student-group-form">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Search by ID ...">
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Search by Name ...">
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Search by Phone ...">
-                        </div>
-                    </div>
-                    <div class="col-lg-2">
-                        <div class="search-student-btn">
-                            <button type="btn" class="btn btn custom-bg text-white">Search</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <div class="row">
                 <div class="col-sm-12">
@@ -64,43 +40,67 @@
                                 <div class="row align-items-center">
                                     <div class="col">
 
-                                        <div class="col">
+                                        <div class="form-group">
                                             <form method="POST" action="{% url 'promote_students' %}">
                                                 {% csrf_token %}
-                                                <div class="form-group">
-                                                    <label for="confirm">Confirm Promotion</label>
-                                                    <input type="checkbox" name="confirm" id="confirm" required>
-                                                </div>
-                                                <button type="submit" class="btn btn-dark ">Promote Students</button>
+
+                                                <label for="confirm">Confirm Promotion</label>
+                                                <input type="checkbox" name="confirm" id="confirm" required>
+
+                                                <button type="submit" class="btn btn-outline-success ">Promote
+                                                    Students
+                                                </button>
                                             </form>
 
                                         </div>
                                     </div>
                                     <div class="col-auto text-end float-end ms-auto download-grp">
-                                        <a href="{% url 'students' %}"
-                                           class="btn btn-outline custom-bg text-white me-2 active"><i
-                                                class="fas fa-list"></i></a>
+
+                                        <a href="{% url 'students' %}" class="btn btn-success me-2 active">
+                                            <i class="fas fa-user-check"></i> Active
+                                        </a>
+
+                                        <!-- Inactive/Graduated Students Link -->
+                                        <a href="{% url 'reverse_student_status' %}" class="btn btn-success me-2">
+                                            <i class="fas fa-user-graduate"></i> Graduated
+                                        </a>
 
                                         <a href="{% url 'students_grid' %}"
-                                           class="btn btn-outline custom-bg text-white me-2"><i
+                                           class="btn btn-success me-2"><i
                                                 class="fas fa-th-large"></i></a>
-                                        <a href="#" class="btn btn custom-bg text-white me-2"><i
+                                        <a href="{% url 'student_query' %}" class="btn btn-success me-2"><i
                                                 class="fas fa-download"></i>
                                             Download</a>
 
-                                        <a href="{% url 'add_student' %}" class="btn btn custom-bg text-white"><i
+                                        <a href="{% url 'add_student' %}" class="btn btn-success"><i
                                                 class="fas fa-plus"></i></a>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="table-responsive">
+                                <div class="container">
+                                    <div class="row justify-content-end">
+                                        <div class="col-md-6">
+                                            <form class="d-flex">
+                                                <div class="input-group">
+                                                    <input class="form-control form-control-lg" type="search"
+                                                           placeholder="Search" aria-label="Search">
+                                                    <button class="btn btn-success px-4" type="submit">
+                                                        <i class="fas fa-search"></i>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                                 <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+
                                     <thead class="student-thread">
                                     <tr>
                                         <th>
                                             <div class="form-check check-tables">
-                                                <input class="form-check-input" type="checkbox" value="something">
+                                                <input class="form-check-input" type="checkbox" id="select-all">
                                             </div>
                                         </th>
                                         <th>ADM</th>
@@ -109,7 +109,7 @@
                                         <th>DOB</th>
                                         <th>Parent Name</th>
                                         <th>Mobile Number</th>
-                                        
+
                                         <th class="text-end">View</th>
                                         <th class="text-end">Edit</th>
                                     </tr>
@@ -130,7 +130,7 @@
                                         <td>{{ student.admission_number }}</td>
                                         <td>
                                             <h2 class="table-avatar">
-                                                <a href="#">{{ student.first_name }}
+                                                <a href="{% url 'student_details' student.id %}">{{ student.first_name }}
                                                     {{ student.last_name }}</a>
                                             </h2>
                                         </td>
@@ -177,7 +177,13 @@
 
     </div>
 
-    </div>
+    <script>
+        document.getElementById("select-all").addEventListener("click", function () {
+            let checkboxes = document.querySelectorAll("input[name='selected_students']");
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+    </script>
+
 
 
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>

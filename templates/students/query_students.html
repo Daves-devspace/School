@@ -70,31 +70,6 @@
 
             </div>
 
-            {#            <div class="student-group-form">#}
-            {#                <div class="row">#}
-            {#                    <div class="col-lg-3 col-md-6">#}
-            {#                        <div class="form-group">#}
-            {#                            <input type="text" class="form-control" placeholder="Search by ID ...">#}
-            {#                        </div>#}
-            {#                    </div>#}
-            {#                    <div class="col-lg-3 col-md-6">#}
-            {#                        <div class="form-group">#}
-            {#                            <input type="text" class="form-control" placeholder="Search by Name ...">#}
-            {#                        </div>#}
-            {#                    </div>#}
-            {#                    <div class="col-lg-4 col-md-6">#}
-            {#                        <div class="form-group">#}
-            {#                            <input type="text" class="form-control" placeholder="Search by Phone ...">#}
-            {#                        </div>#}
-            {#                    </div>#}
-            {#                    <div class="col-lg-2">#}
-            {#                        <div class="search-student-btn">#}
-            {#                            <button type="btn" class="btn btn custom-bg text-white">Search</button>#}
-            {#                        </div>#}
-            {#                    </div>#}
-            {#                </div>#}
-            {#            </div>#}
-
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card card-table comman-shadow">
@@ -127,11 +102,25 @@
                                 {#                                <button  class="btn btn-success">Download as PDF</button>#}
 
                                 <div id="pdf-content">
-                                    <div style="display: flex; justify-content: center;">
-                                        <img src="{% static 'assets/img/new-logo.png' %}" class="mb-2"
-                                             alt="School Logo" style="width: 25%;">
+                                    <!-- Space before header -->
+                                    <div class="mb-2"></div>
+                                    <div class=" text-center">
+                                        <div class="row align-items-center justify-content-center">
+                                            <div class="col-auto">
+                                                <img src="{% static 'assets/img/new-logo.png' %}" class="img-fluid"
+                                                     style="max-width: 100px;" alt="School Logo">
+                                            </div>
+                                            <div class="col text-start">
+                                                <h4 class="mb-0 fw-bold">MERRYLAND FRIENDS SCHOOL</h4>
+                                                <h6 class="mb-0">P.O BOX 595, NYAHURURU | TEL: 0722 780 529</h6>
+                                                <p class="mb-0">Email: Info@Merrylandfriends.com</p>
+                                            </div>
+                                        </div>
+                                  
                                     </div>
-                                    <h4>
+
+
+                                    <h4 class="text-center mt-4">
                                         {% if grade and not section %}
                                             Grade {{ grade.name }} Students
                                         {% elif grade and section %}
@@ -149,7 +138,7 @@
                                             <th>ADM</th>
                                             <th>Name</th>
                                             <th>Class</th>
-                                            <th>DOB</th>
+                                            <th>Joining Date</th>
                                             <th>Parent Name</th>
                                             <th>Mobile Number</th>
                                         </tr>
@@ -161,7 +150,7 @@
                                                 <td>{{ student.admission_number }}</td>
                                                 <td>{{ student.first_name }} {{ student.last_name }}</td>
                                                 <td>{{ student.grade }}</td>
-                                                <td>{{ student.date_of_birth }}</td>
+                                                <td>{{ student.joining_date }}</td>
                                                 <td>{{ student.parent.first.first_name }} {{ student.parent.first.last_name }}</td>
                                                 <td>{{ student.parent.first.mobile }}</td>
                                             </tr>

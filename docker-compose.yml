@@ -7,6 +7,7 @@ services:
     volumes:
       - .:/app
       - static_data:/app/static_files  # Static files volume
+      - media_data:/app/media          # Media files volume
     environment:
       DATABASE_URL: ${DATABASE_URL}
       DB_NAME: ${DB_NAME}
@@ -56,6 +57,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - static_data:/app/static_files
+      - media_data:/app/media          # Media files volume
     ports:
       - "80:80"
     networks:
@@ -68,3 +70,4 @@ networks:
 volumes:
   postgres_data:
   static_data:
+  media_data:  # Added media volume

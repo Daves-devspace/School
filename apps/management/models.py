@@ -2,9 +2,9 @@ import logging
 import os
 from datetime import timedelta, datetime
 
-from ckeditor.fields import RichTextField
-
+from django.conf import settings
 from django.contrib.auth.models import User
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -17,26 +17,26 @@ from django.utils.timezone import now
 from phonenumber_field.modelfields import PhoneNumberField
 
 from School import settings
+from django_ckeditor_5.fields import CKEditor5Field
+
+
+
+
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(
         max_length=20,
-        choices=[
-            ('Admin', 'Admin'),
-            ('Teacher', 'Teacher'),
-            ('Headteacher', 'Headteacher'),
-            ('Student', 'Student'),
-        ],
+        choices=[('Admin', 'Admin'), ('Teacher', 'Teacher'), ('Headteacher', 'Headteacher'), ('Student', 'Student')],
         default='Student',
     )
     profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
     address = models.CharField(max_length=255, default="Unknown Address")
-    cv = RichTextField(blank=True, null=True)  # Enables rich text editing
-    skills = RichTextField(blank=True, null=True)
-    certifications = RichTextField(blank=True, null=True)
-    created_at = models.DateTimeField(default=now)
+    cv = CKEditor5Field(config_name='default', blank=True, null=True)
+    skills = CKEditor5Field(config_name='default', blank=True, null=True)
+    certifications = CKEditor5Field(config_name='default', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.role}"

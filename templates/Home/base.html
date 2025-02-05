@@ -171,7 +171,8 @@
                         </div>
                     </div>
                     <a class="dropdown-item" href="{% url 'user_profile' %}">My Profile</a>
-                    <a class="dropdown-item" href="{% url 'inbox_page' %}">Inbox<span id="appointmentCounter">0</span></a>
+                    <a class="dropdown-item" href="{% url 'inbox_page' %}">Inbox<span
+                            id="appointmentCounter">0</span></a>
                     <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
                 </div>
             </li>
@@ -207,19 +208,12 @@
                             <li><a href="student-dashboard.html">Student Dashboard</a></li>
                         </ul>
                     </li>
-                    <li class="submenu">
+                    <li class="bg-success-dark">
                         <a href="{% url 'students' %}"><i class="fas fa-graduation-cap custom-color"></i> <span
                                 class="custom-color"> Students</span>
                             <span
                                     class="menu-arrow"></span></a>
-                        <ul>
-                            <li><a href="{% url 'students' %}">Student List</a></li>
-                            <li><a href="{% url 'update_student_status' %}">Active Student</a></li>
-                            <li><a href="{% url 'reverse_student_status' %}">Inactive Student</a></li>
-                            <li><a href="{% url 'student_query' %}">Student</a></li>
-                            <li><a href="{% url 'add_student' %}">Student Add</a></li>
 
-                        </ul>
                     </li>
                     <li class="submenu">
                         <a href="#"><i class="fas fa-chalkboard-teacher custom-color"></i> <span class="custom-color"> Teachers</span>
@@ -249,7 +243,7 @@
                         <ul>
                             <li><a href="{% url 'subjects_list' %}">Subject List</a></li>
                             <li><a href="{% url 'add_subject' %}">Subject Add</a></li>
-                           
+
                         </ul>
                     </li>
                     {% if perms.students.view_invoice %}
@@ -335,14 +329,14 @@
                         </li>
                     {% endif %}
                     <li>
-                        <a href="#"><i class="fas fa-inbox custom-color"></i> <span
+                        <a href="{% url 'unified_sms' %}"><i class="fas fa-inbox custom-color"></i> <span
                                 class="custom-color"> Communication</span>
                             <span class="menu-arrow"></span>
                         </a>
                         <ul>
-                            <li><a href="{% url 'send_sms_to_class' %}">Class</a></li>
-                            <li><a href="{% url 'send_bulk_sms' %}">Parents</a></li>
-                            <li><a href="{% url 'result_sms' %}">Results</a></li>
+                           
+                            <li><a href="{% url 'unified_sms' %}">ALL</a></li>
+{#                            <li><a href="{% url 'result_sms' %}">Results</a></li>#}
                         </ul>
                     </li>
                     <li>
@@ -361,15 +355,13 @@
                         </a>
                         <ul>
                             <li><a href="{% url 'timetable-create' %}">Create</a></li>
-                             <li><a href="{% url 'add_edit_room_and_list' %}">Rooms</a></li>
+                            <li><a href="{% url 'add_edit_room_and_list' %}">Rooms</a></li>
                             <li><a href="{% url 'class-timetable' %}">Timetable</a></li>
                             {#                            <li><a href="{% url 'generate' %}">Generate</a></li>#}
                             <li><a href="{% url 'timetable_page' %}">Generate Timetable</a></li>
                             <!-- Other sidebar links -->
                             <li><a href="{% url 'get_filtered_timetable' %}">Class</a></li>
-                            <li><a href="{% url 'fetch_timetable_by_grade_section' grade_section_id=2 %}">View Timetable
-                                for Grade 2</a></li>
-
+                           
                             <li><a href="{% url 'exchange-lessons' %}">Request Swap</a></li>
 
                             <a href="{% url 'lesson-exchange-list' %}">View Lesson Exchange Requests</a>
@@ -404,8 +396,8 @@
                         <ul>
                             <li><a href="{% url 'login' %}">Login</a></li>
                             <li><a href="{% url 'logout' %}">Log Out</a></li>
-                            <li><a href="register.html">Register</a></li>
-                            <li><a href="forgot-password.html">Forgot Password</a></li>
+                            <li><a href="{% url 'add_user' %}">Register</a></li>
+                            <li><a href="{% url 'password_reset' %}">Forgot Password</a></li>
                             <li><a href="error-404.html">Error Page</a></li>
                         </ul>
                     </li>
@@ -553,7 +545,6 @@
         }
     });
 </script>
-
 
 
 <script>

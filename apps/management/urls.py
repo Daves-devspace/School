@@ -18,14 +18,20 @@ urlpatterns = [
     path('presentations/<int:id>/', views.presentation_detail, name='presentation_detail'),
     path('toggle-user-status/<int:user_id>/', views.toggle_user_status, name='toggle_user_status'),
 
-    path('send-bulk-sms/', views.send_bulk_sms_view, name='send_bulk_sms'),
+    # path('send-bulk-sms/', views.send_bulk_sms_view, name='send_bulk_sms'),
     # path('send-sms/', views.messages_view, name='send_sms'),
     path("messages/", views.messages_view, name="messages"),
-    path('send-sms-to-class/', views.send_sms_to_class, name='send_sms_to_class'),
-
-    path('send-results-sms/', views.send_results_sms, name='result_sms'),
+    # path('send-sms-to-class/', views.send_sms_to_class, name='send_sms_to_class'),
+    #
+    # path('send-results-sms/', views.send_results_sms, name='result_sms'),
     # urls.py
+
+    # path('send-results/', views.send_results_sms, name='result_sms'),
+    # path('send-class/', views.send_sms_to_class, name='send_sms_to_class'),
+    # path('send-bulk/', views.send_bulk_sms_view, name='send_bulk_sms'),
     path('api/recipient-count/', views.recipient_count, name='recipient_count'),
+    path('recipient-count/', views.recipient_count, name='recipient_count'),
+    path('communications/', views.unified_sms_view, name='unified_sms'),
 
     path('books', views.books_in_store, name='books_in_store'),
     path('borrowed/books', views.borrowed_books, name='borrowed_books'),
@@ -64,6 +70,7 @@ urlpatterns = [
     path('results/', views.filter_results, name='filter_results'),
     path('add_results/', views.add_results_table, name='add_results_table'),
     path('view_results/', views.view_subject_results, name='view_subject_results'),
+
     path('management/performance-filter/', views.performance_filter_view, name='performance_filter'),
 
     path('view_results/<int:grade_id>/<int:term_id>/<int:exam_type_id>/', views.view_results_table,

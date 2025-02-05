@@ -1,4 +1,5 @@
-from django.contrib.auth.models import User
+from django.conf import settings
+
 from django.db import models
 
 # Create your models here.
@@ -25,6 +26,6 @@ class Appointment(models.Model):
 
 class AppointmentReply(models.Model):
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name="replies")
-    teacher = models.ForeignKey(User, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     message = models.TextField()
     date = models.DateTimeField(auto_now_add=True)

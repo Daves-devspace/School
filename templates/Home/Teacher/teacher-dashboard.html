@@ -121,10 +121,10 @@
                                 <div class="card-header">
                                     <div class="row align-items-center">
                                         <div class="col-6">
-                                            <h5 class="card-title">Upcoming Lesson</h5>
+                                            <h5 class="card-title">Today's Schedule ({{ current_day }})</h5>
                                         </div>
                                         <div class="col-6">
-                                            <span class="float-end view-link"><a href="#">View All Courses</a></span>
+                                            <span class="float-end view-link"><a href="#">View All Lessons</a></span>
                                         </div>
                                     </div>
                                 </div>
@@ -132,51 +132,83 @@
                                     <div class="table-responsive lesson">
                                         <table class="table table-center">
                                             <tbody>
-                                            <tr>
-                                                <td>
-                                                    <div class="date">
-                                                        <b>Lessons 30</b>
-                                                        <p>3.1 Ipsuum dolor</p>
-                                                        <ul class="teacher-date-list">
-                                                            <li><i class="fas fa-calendar-alt me-2"></i>Sep 5, 2022</li>
-                                                            <li>|</li>
-                                                            <li><i class="fas fa-clock me-2"></i>09:00 - 10:00 am</li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="lesson-confirm">
-                                                        <a href="#">Confirmed</a>
-                                                    </div>
-                                                    <button type="submit" class="btn btn custom-bg text-white">
-                                                        Reschedule
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <div class="date">
-                                                        <b>Lessons 30</b>
-                                                        <p>3.1 Ipsuum dolor</p>
-                                                        <ul class="teacher-date-list">
-                                                            <li><i class="fas fa-calendar-alt me-2"></i>Sep 5, 2022</li>
-                                                            <li>|</li>
-                                                            <li><i class="fas fa-clock me-2"></i>09:00 - 10:00 am</li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="lesson-confirm">
-                                                        <a href="#">Confirmed</a>
-                                                    </div>
-                                                    <button type="submit" class="btn btn custom-bg text-white">
-                                                        Reschedule
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            {% for slot in upcoming_slots %}
+                                                <tr>
+                                                    <td>
+                                                        <div class="date">
+                                                            <b>{{ slot.teacher_assignment.subject.name }}</b>
+                                                            <p>{{ slot.room.room_name }}</p>
+                                                            <ul class="teacher-date-list">
+                                                                <li><i class="fas fa-calendar-alt me-2"></i>Sep 5, 2022
+                                                                </li>
+                                                                <li>|</li>
+                                                                <li>
+                                                                    <i class="fas fa-clock me-2"></i>{{ slot.time_slot.time_range }}
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="lesson-confirm">
+                                                            <a href="#">Confirmed</a>
+                                                        </div>
+                                                        {% if not slot.is_rescheduled %}
+                                                            <a href="{% url 'reschedule_slot' slot.id %}"
+                                                               class="reschedule-btn"
+                                                               data-toggle="modal"
+                                                               data-target="#rescheduleModal{{ slot.id }}">
+                                                                Reschedule
+                                                            </a>
+                                                        {% endif %}
+
+                                                    </td>
+                                                </tr>
+                                            {% empty %}
+                                                <p>No classes scheduled for today</p>
+                                            {% endfor %}
                                             </tbody>
                                         </table>
                                     </div>
+
+                                    <!-- templates/teachers/base.html -->
+                                    <div class="notification-container">
+                                        <div class="notification-icon" onclick="toggleNotifications()">
+                                            <i class="fas fa-bell"></i>
+                                            {% if unread_count > 0 %}
+                                                <span class="notification-badge">{{ unread_count }}</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="notification-dropdown" id="notificationDropdown">
+                                            <div class="notification-header">
+                                                <h4>Notifications</h4>
+                                                <button class="mark-all-read" onclick="markAllRead()">
+                                                    Mark all as read
+                                                </button>
+                                            </div>
+
+                                            <div class="notification-list">
+                                                {% for notification in notifications %}
+                                                    <div class="notification-item {% if not notification.read %}unread{% endif %}"
+                                                         data-id="{{ notification.id }}"
+                                                         onclick="markAsRead(this, '{{ notification.link|default:'#' }}')">
+                                                        <div class="notification-message">
+                                                            {{ notification.message }}
+                                                        </div>
+                                                        <div class="notification-time">
+                                                            {{ notification.created_at|timesince }} ago
+                                                        </div>
+                                                    </div>
+                                                {% empty %}
+                                                    <div class="no-notifications">
+                                                        No new notifications
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+
                                 </div>
                             </div>
                         </div>
@@ -467,6 +499,66 @@
 
     </div>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+
+    <script>
+        // static/js/notifications.js
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function markAsRead(element, link) {
+            const notificationId = element.dataset.id;
+            fetch(`/notifications/mark-read/${notificationId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        element.classList.remove('unread');
+                        updateBadgeCount(-1);
+                        if (link && link !== '#') window.location.href = link;
+                    }
+                });
+        }
+
+        function markAllRead() {
+            fetch('/notifications/mark-all-read/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        document.querySelectorAll('.unread').forEach(item => {
+                            item.classList.remove('unread');
+                        });
+                        updateBadgeCount('clear');
+                    }
+                });
+        }
+
+        function updateBadgeCount(change) {
+            const badge = document.querySelector('.notification-badge');
+            if (!badge) return;
+
+            let count = parseInt(badge.textContent);
+            if (change === 'clear') {
+                badge.remove();
+            } else {
+                count += change;
+                badge.textContent = count > 0 ? count : '';
+                if (count <= 0) badge.remove();
+            }
+        }
+    </script>
+
     <script>
         // Get today's date in 'YYYY-MM-DD' format
         const today = new Date().toISOString().split('T')[0];

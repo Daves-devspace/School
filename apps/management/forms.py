@@ -1,6 +1,7 @@
-from ckeditor.widgets import CKEditorWidget
+
 from django import forms
 from django.forms import TimeInput
+from django_ckeditor_5.widgets import CKEditor5Widget
 
 from .models import Term, SubjectMark, Timetable, LessonExchangeRequest, Profile, HolidayPresentation, Feedback, \
     ExamType
@@ -9,9 +10,9 @@ from ..students.models import Student, Book, GradeSection, Grade
 from ..teachers.models import Teacher
 
 class ProfileForm(forms.ModelForm):
-    cv = forms.CharField(widget=CKEditorWidget(), required=False)
-    skills = forms.CharField(widget=CKEditorWidget(), required=False)
-    certifications = forms.CharField(widget=CKEditorWidget(), required=False)
+    cv = forms.CharField(widget=CKEditor5Widget(config_name='default'))
+    skills = forms.CharField(widget=CKEditor5Widget(config_name='default'))
+    certifications = forms.CharField(widget=CKEditor5Widget(config_name='default'))
 
     class Meta:
         model = Profile

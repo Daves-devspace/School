@@ -1,19 +1,19 @@
 import json
-from datetime import date, datetime
+from datetime import date, timedelta, timezone
 
 import logging
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, \
     PasswordResetCompleteView
 
 from django.db.models import Sum
 from django.db.models.functions.datetime import TruncMonth
-from django.http import JsonResponse
+from django.http import JsonResponse, request
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
@@ -22,7 +22,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
 from School import settings
-from apps.Manage.forms import CustomSignupForm
+from apps.Manage.forms import CustomSignupForm, UserCreateForm
 from apps.accounts.models import FeePayment
 from apps.management.models import Term, SubjectMark, Attendance
 from apps.students.models import Student, GradeSection
@@ -35,62 +35,77 @@ from apps.website.models import Appointment, AppointmentReply
 from .forms import SmsProviderTokenForm
 from .models import SmsProviderToken
 
-
 # Create your views here.
 
 
-@login_required
-def home(request):
-    # Get the user's groups
-    user_groups = request.user.groups.values_list('name', flat=True)
+from django.contrib.auth.models import Group
 
-    # Redirect to the appropriate dashboard based on user role
-    if 'Director' in user_groups:
-        return redirect('director_dashboard')  # URL name for the Admin dashboard
-    elif 'Teacher' in user_groups:
-        return redirect('teacher_dashboard')  # URL name for the Teacher dashboard
-    elif 'Head Teacher' in user_groups:
-        return redirect('student_dashboard')  # URL name for the Student dashboard
-    else:
-        return redirect('director_dashboard')  # URL name for a fallback or guest dashboard
+from ..schedules.models import TimetableSlot
+
+
+def get_user_role_redirect(user):
+    user_groups = user.groups.values_list('name', flat=True)  # Get the list of group names
+    role_redirect_map = {
+        'Director': 'director_dashboard',
+        'Teacher': 'teacher_dashboard',
+        'Head Teacher': 'head_teacher_dashboard',
+    }
+
+    for role, url_name in role_redirect_map.items():
+        if role in user_groups:
+            return url_name  # Return the URL name if the user is in this group
+
+    return None  # Return None if no matching group is found
+
+
+def home(request):
+    if request.user.is_superuser:
+        return redirect('director_dashboard')
+
+    redirect_url = get_user_role_redirect(request.user)
+    if redirect_url:
+        return redirect(redirect_url)  # Ensure it gets a valid URL pattern name
+
+    messages.warning(request, "You don't have a valid role assigned.")
+    return redirect('logout')
+
 
 
 def login_user(request):
-    if request.method == 'GET':
-        return redirect('login_form')
-
-    elif request.method == 'POST':
-        username = request.POST.get('username', '')
+    if request.method == 'POST':
+        username_or_staff_number = request.POST.get('username', '')
         password = request.POST.get('password', '')
 
-        # Authenticate user
-        user = authenticate(request, username=username, password=password)
-        if user:
-            login(request, user)  # Log in the user
+        user = authenticate(request, username=username_or_staff_number, password=password)
 
-            # JWT token generation
+        if user:
+            login(request, user)
+
             try:
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
                 refresh_token = str(refresh)
+                secure_cookie = not settings.DEBUG
 
-                # Store tokens in cookies
-                secure_cookie = not settings.DEBUG  # Secure cookies in production
+                # Set expiration for access token (1 hour here)
+                refresh.access_token.set_exp(lifetime=timedelta(hours=1))
+
                 response = redirect('home')
-                response.set_cookie('access_token', access_token, httponly=True, secure=secure_cookie,
-                                    samesite='Strict')
-                response.set_cookie('refresh_token', refresh_token, httponly=True, secure=secure_cookie,
-                                    samesite='Strict')
+                response.set_cookie('access_token', access_token, httponly=True, secure=secure_cookie, samesite='Strict')
+                response.set_cookie('refresh_token', refresh_token, httponly=True, secure=secure_cookie, samesite='Strict')
+
+                messages.success(request, 'You are logged in!')
+                return response
             except Exception as e:
-                messages.error(request, f"Token generation error: {e}")
+                messages.error(request, f"Error during token generation: {e}")
                 return redirect('login')
 
-            messages.success(request, 'You are logged in!')
-            return response
+        else:
+            messages.warning(request, 'Invalid username or password')
+            return redirect('login')
 
-        # Authentication failed
-        messages.warning(request, 'Invalid username or password')
-        return redirect('login')
+    # **Fix: Add a return statement for GET requests**
+    return redirect( 'login_form')
 
 
 @api_view(['POST'])
@@ -171,39 +186,85 @@ def director_dashboard(request):
         return render(request, 'Manage/errors/500.html', {"error_message": str(e)})
 
 
-@login_required
-def teacher_dashboard(request):
-    # Check if the user belongs to the "Teacher" group
-    if not request.user.groups.filter(name="Teacher").exists():
-        return redirect("logout")
+# @login_required
+# def teacher_dashboard(request):
+#     # Check if the user belongs to the "Teacher" group
+#     if not request.user.groups.filter(name="Teacher").exists():
+#         return redirect("logout")
+#
+#     # Retrieve the corresponding Teacher instance for the logged-in user
+#     teacher = get_object_or_404(Teacher, user=request.user)
+#     # Fetch the grade sections assigned to this teacher
+#     grade_sections = GradeSection.objects.filter(class_teacher=teacher)
+#
+#     current_term = get_current_term()
+#
+#     # Render the teacher dashboard template with attendance data
+#     return render(request, 'Home/Teacher/teacher-dashboard.html', {
+#         'grade_sections': grade_sections,
+#         'current_term': current_term,
+#
+#     })
 
-    # Retrieve the corresponding Teacher instance for the logged-in user
-    teacher = get_object_or_404(Teacher, user=request.user)
-    # Fetch the grade sections assigned to this teacher
-    grade_sections = GradeSection.objects.filter(class_teacher=teacher)
 
-    current_term = get_current_term()
 
-    # Render the teacher dashboard template with attendance data
-    return render(request, 'Home/Teacher/teacher-dashboard.html', {
-        'grade_sections': grade_sections,
-        'current_term': current_term,
 
-    })
+
+@method_decorator(login_required, name='dispatch')
+class teacher_dashboard(View):
+    def get(self, request):
+        # Ensure the user belongs to the 'Teacher' group
+        if not request.user.groups.filter(name="Teacher").exists():
+            messages.error(request, "Access denied: You must be a teacher to view this page.")
+            return redirect("home")  # Redirect unauthorized users to home
+
+        # Attempt to get the teacher profile
+        teacher = Teacher.objects.filter(user=request.user).first()
+        if not teacher:
+            messages.error(request, "No teacher profile found for your account.")
+            return redirect("home")  # Redirect users without a teacher profile
+
+        current_weekday = timezone.now().strftime('%A')
+
+        # Fetch teaching schedule
+        upcoming_slots = TimetableSlot.objects.filter(
+            teacher_assignment__teacher=teacher,
+            day_of_week=current_weekday
+        ).select_related(
+            'time_slot',
+            'room',
+            'teacher_assignment__grade_section'
+        ).order_by('time_slot__start_time')
+
+        # Get class management data
+        grade_sections = GradeSection.objects.filter(class_teacher=teacher)
+        current_term = get_current_term()
+
+        # Notification system
+        notifications = request.user.notifications.all()[:10]
+        unread_count = request.user.notifications.filter(read=False).count()
+
+        context = {
+            'upcoming_slots': upcoming_slots,
+            'current_day': current_weekday,
+            'grade_sections': grade_sections,
+            'current_term': current_term,
+            'notifications': notifications,
+            'unread_count': unread_count,
+            'teacher': teacher
+        }
+
+        return render(request, 'Home/Teacher/teacher-dashboard.html', context)
 
 
 def logout_user(request):
-    # Log out the user
-    logout(request)
+    # Invalidate the JWT token (log out on front-end as well)
+    response = redirect('login')
+    response.delete_cookie('access_token')
+    response.delete_cookie('refresh_token')
 
-    # Clear any authentication tokens stored in cookies
-    response = redirect('login_form')  # Redirect to the login page
-    response.delete_cookie('access_token')  # Clear the access token
-    response.delete_cookie('refresh_token')  # Clear the refresh token
-
-    # Add a success message
-    messages.success(request, 'You have been logged out successfully!')
-
+    logout(request)  # Django logout to clear session
+    messages.success(request, "You have been logged out.")
     return response
 
 
@@ -253,6 +314,24 @@ class CustomPasswordResetCompleteView(PasswordResetCompleteView):
 
 
 # def login_form(request):
+
+
+def is_superuser(user):
+    return user.is_superuser  # Restrict access to superusers
+
+
+@user_passes_test(is_superuser)
+def add_user(request):
+    if request.method == "POST":
+        form = UserCreateForm(request.POST)
+        if form.is_valid():
+            form.save()  # Saves user, assigns role, and sends email
+            messages.success(request, "User created successfully! Login credentials have been emailed.")
+            return redirect('add_user')
+    else:
+        form = UserCreateForm()
+
+    return render(request, 'registration/add_user.html', {'form': form})
 
 
 def website_page(request):
@@ -347,8 +426,6 @@ def reply_appointment(request, appointment_id):
             return JsonResponse({"status": "error", "message": f"An error occurred: {str(e)}"})
 
 
-
-
 class SettingsView(View):
     template_name = 'Manage/settings.html'  # Your settings page template
 
@@ -383,4 +460,3 @@ class SettingsView(View):
                 'form': form,  # Keep the form with errors
             }
             return render(request, self.template_name, context)
-

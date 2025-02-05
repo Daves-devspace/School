@@ -123,13 +123,28 @@ class StudentForm(forms.ModelForm):
 class DocumentUploadForm(forms.ModelForm):
     class Meta:
         model = StudentDocument
-        fields = ['document']
+        fields = ['doc_name','document']
         widgets ={
             'documents': forms.ClearableFileInput(attrs={
                 'class': 'form-control-file',  # Bootstrap class for file inputs
                 'accept': '.pdf,.doc,.docx,.jpg,.png',  # Restrict file types
             }),
         }
+
+        def clean_document(self):
+            uploaded_file = self.cleaned_data['document']
+
+            # Limit file size to 10 MB
+            if uploaded_file.size > 10 * 1024 * 1024:
+                raise forms.ValidationError("File size must be less than 10 MB.")
+
+            # Only allow PDFs, Word, Excel, etc.
+            allowed_extensions = ['.pdf', '.docx', '.xlsx']
+            ext = uploaded_file.name.split('.')[-1]
+            if f".{ext}" not in allowed_extensions:
+                raise forms.ValidationError("Unsupported file type.")
+
+            return uploaded_file
 
 
 

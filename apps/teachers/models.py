@@ -1,3 +1,4 @@
+import re
 from datetime import date
 
 from django.contrib.auth.backends import BaseBackend
@@ -49,8 +50,9 @@ class StaffNumberBackend(BaseBackend):
 
 
 
+
 class Teacher(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Links to User model
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)  # Links to User model
     id_No = models.CharField(max_length=20, unique=True)  # Represents the ID number
     staff_number = models.CharField(max_length=20, unique=True, default='TCH/000/00')  # This will be used as username
     first_name = models.CharField(max_length=50)
@@ -59,8 +61,8 @@ class Teacher(models.Model):
         max_length=10,
         choices=[('Male', 'Male'), ('Female', 'Female'), ('Others', 'Others')]
     )
-    email = models.EmailField(unique=True)
-    phone = PhoneNumberField(region="KE", blank=False, null=False, default="0000000000")
+    email = models.EmailField(unique=True, blank=False, null=False)
+    phone = models.CharField(max_length=15)  # Simplified phone field
     qualification = models.CharField(max_length=100)
     experience = models.PositiveIntegerField(help_text="Years of experience")
     country = models.CharField(max_length=50)
@@ -71,12 +73,34 @@ class Teacher(models.Model):
     )  # Link to Subject model
     is_headteacher = models.BooleanField(default=False)
 
+    def clean(self):
+        """
+        Custom validation for staff_number format.
+        Ensures it follows the format TCH/001/25 (e.g., "TCH/{number}/{last_two_digits_of_year}")
+        """
+        if self.staff_number and not re.match(r'^TCH/\d{3}/\d{2}$', self.staff_number):
+            raise ValidationError('Invalid staff_number format. Expected format is TCH/001/25.')
+
     def save(self, *args, **kwargs):
+        # Ensure user creation if not present
+        if not self.user:
+            user = User.objects.create(
+                username=self.staff_number,
+                first_name=self.first_name,
+                last_name=self.last_name,
+                email=self.email,
+            )
+            self.user = user
+
         if not self.staff_number:  # Generate staff number only if it doesn't exist
             self.staff_number = self.generate_staff_number()
-        if self.user:
-            self.user.username = self.staff_number  # Assign the staff_number as the username for the User
-            self.user.save()
+
+        # Assign the staff_number as the username for the User
+        self.user.username = self.staff_number
+        self.user.save()
+
+        # Validate and save the teacher instance
+        self.clean()  # Ensure the staff_number format is valid
         super().save(*args, **kwargs)
 
     @staticmethod
@@ -114,7 +138,10 @@ class Teacher(models.Model):
     def __str__(self):
         return f"{self.staff_number} - {self.first_name}-{self.last_name}"
 
-
+    class Meta:
+        indexes = [
+            models.Index(fields=['staff_number']),
+        ]
 
 
 # # Teacher model remains the same

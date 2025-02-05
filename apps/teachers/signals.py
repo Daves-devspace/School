@@ -1,36 +1,65 @@
+from django.conf import settings
 from django.contrib.auth.models import Group
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.dispatch import receiver
+from django.urls import reverse
+
 from .models import Teacher, Role, Department, TeacherRole
+from django.db import transaction
 
 
 
 
 @receiver(post_save, sender=Teacher)
 def create_or_update_user(sender, instance, created, **kwargs):
-    """
-    Ensure that the User model is created or updated with the teacher's staff_number as the username.
-    """
-    if created:
-        # Create the associated User
-        user = User.objects.create(
-            username=instance.staff_number,  # Set staff_number as the login username
-            first_name=instance.username,   # Use teacher's display name for User's first_name
-            email=instance.email,
-        )
-        user.set_unusable_password()  # Optionally disable login until explicitly enabled
-        user.save()
-        instance.user = user
-        instance.save()
-    else:
-        # Update the associated User if the teacher is updated
-        if instance.user:
-            instance.user.username = instance.staff_number
-            instance.user.first_name = instance.username
-            instance.user.email = instance.email
-            instance.user.save()
+    with transaction.atomic():
+        if created:
+            # Create the user without a password initially
+            user = User.objects.create(
+                username=instance.staff_number,
+                first_name=instance.first_name,
+                last_name=instance.last_name,
+                email=instance.email,
+            )
+            user.set_unusable_password()  # User can't log in yet, no password set
+            user.save()
 
+            # Send password reset email
+            token = default_token_generator.make_token(user)
+            reset_link = f"{settings.SITE_URL}{reverse('password_reset_confirm', kwargs={'uidb64': user.pk, 'token': token})}"
+            send_mail(
+                'Password Reset Request',
+                f'Click here to reset your password: {reset_link}',
+                settings.DEFAULT_FROM_EMAIL,
+                [instance.email],
+            )
+
+            # Link the user to the teacher instance
+            instance.user = user
+            instance.save()
+
+        else:
+            if not instance.user:
+                user = User.objects.create(
+                    username=instance.staff_number,
+                    first_name=instance.first_name,
+                    last_name=instance.last_name,
+                    email=instance.email,
+                )
+                user.set_unusable_password()  # Or a default password, if needed
+                user.save()
+                instance.user = user
+            else:
+                instance.user.username = instance.staff_number
+                instance.user.first_name = instance.first_name
+                instance.user.last_name = instance.last_name
+                instance.user.email = instance.email
+                instance.user.save()
+
+        instance.save()  # Save teacher instance if any changes occurred
 
 
 

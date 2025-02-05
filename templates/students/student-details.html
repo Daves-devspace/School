@@ -69,6 +69,16 @@
 
                                     <div class="col-lg-4 col-md-4 d-flex align-items-center">
                                         <div class="follow-btn-group">
+                                            <form method="POST">
+                                                {% csrf_token %}
+                                                <button type="submit" name="toggle_status" class="btn btn-primary">
+                                                    {% if student.status == "Graduated" %}
+                                                        Reactivate Student
+                                                    {% else %}
+                                                        Deactivate (Graduate) Student
+                                                    {% endif %}
+                                                </button>
+                                            </form>
 
 
                                         </div>
@@ -343,19 +353,81 @@
                                                     </form>
 
                                                     <!-- Existing Documents -->
-                                                    <h4>Uploaded Documents</h4>
-                                                    <ul>
-                                                        {% for doc in documents %}
-                                                            <li>
-                                                                <a href="{{ doc.document.url }}"
-                                                                   target="_blank">{{ doc.document.name }}</a>
-                                                                <a href="{% url 'delete_document' document.id %}">Delete</a>
-                                                                <!-- Delete link -->
-                                                            </li>
-                                                        {% empty %}
-                                                            <li>No documents uploaded yet.</li>
-                                                        {% endfor %}
-                                                    </ul>
+                                                    <div class="card p-4 shadow-lg rounded-lg bg-white">
+                                                        <h3 class="text-xl font-semibold mb-3">Uploaded Documents</h3>
+
+                                                        <div class="overflow-x-auto">
+                                                            <table class="w-full border-collapse border border-gray-300">
+                                                                <thead class="bg-gray-100">
+                                                                <tr>
+                                                                    <th class="border border-gray-300 px-4 py-2 text-left">
+                                                                        Document Name
+                                                                    </th>
+                                                                    <th class="border border-gray-300 px-4 py-2 text-left">
+                                                                        Uploaded On
+                                                                    </th>
+                                                                    <th class="border border-gray-300 px-4 py-2 text-left">
+                                                                        Actions
+                                                                    </th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                {% for doc in documents %}
+                                                                    <tr class="hover:bg-gray-50">
+                                                                        <td class="border border-gray-300 px-4 py-2">{{ doc.doc_name }}</td>
+                                                                        <td class="border border-gray-300 px-4 py-2">{{ doc.uploaded_at }}</td>
+                                                                        <td class="border border-gray-300 px-4 py-2 flex space-x-2">
+                                                                            {% if doc.file %}
+                                                                                <!-- View Document -->
+                                                                                <a href="{{ doc.file.url }}"
+                                                                                   target="_blank"
+                                                                                   class="text-blue-600 hover:underline">
+                                                                                    View
+                                                                                </a>
+
+                                                                                <!-- Download PDF -->
+                                                                                <a href="{{ doc.file.url }}" download
+                                                                                   class="text-green-600 hover:underline">
+                                                                                    Download
+                                                                                </a>
+
+                                                                                <!-- Copy Link -->
+                                                                                <button onclick="copyToClipboard('{{ doc.file.url }}')"
+                                                                                        class="text-gray-600 hover:text-black">
+                                                                                    Copy Link
+                                                                                </button>
+
+                                                                                <!-- Share via WhatsApp -->
+                                                                                <a href="https://wa.me/?text=Check out this document: {{ doc.file.url }}"
+                                                                                   target="_blank"
+                                                                                   class="text-green-500 hover:text-green-700">
+                                                                                    WhatsApp
+                                                                                </a>
+
+                                                                                <!-- Share via Email -->
+                                                                                <a href="mailto:?subject=Document&body=Here is the document link: {{ doc.file.url }}"
+                                                                                   class="text-red-500 hover:text-red-700">
+                                                                                    Email
+                                                                                </a>
+                                                                            {% else %}
+                                                                                <span class="text-red-500">No file available</span>
+                                                                            {% endif %}
+                                                                        </td>
+                                                                    </tr>
+                                                                {% empty %}
+                                                                    <tr>
+                                                                        <td colspan="3"
+                                                                            class="text-center text-gray-500 py-3">No
+                                                                            documents uploaded yet.
+                                                                        </td>
+                                                                    </tr>
+                                                                {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+
+
                                                 </div>
 
 
@@ -381,7 +453,20 @@
     <footer>
         <p>Copyright © 2024 Davedev</p>
     </footer>
-
+    <!-- JavaScript for Copy Link -->
+    <script>
+        function copyToClipboard(fileUrl) {
+            if (!fileUrl) {
+                alert("No document link available!");
+                return;
+            }
+            navigator.clipboard.writeText(fileUrl).then(() => {
+                alert("Document link copied to clipboard!");
+            }).catch(err => {
+                console.error("Failed to copy link:", err);
+            });
+        }
+    </script>
 
     <!-- JavaScript to Handle AJAX -->
 

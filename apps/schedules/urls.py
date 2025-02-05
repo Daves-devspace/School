@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import MarkAsReadView, MarkAllReadView
 
 # from .views import generate_timetable_for_all
 
@@ -20,6 +21,9 @@ urlpatterns = [
 
     path('fetch_timetable/<int:grade_section_id>/', views.fetch_timetable_by_grade_section,
          name='fetch_timetable_by_grade_section'),
+
+    path('notifications/mark-read/<int:pk>/', MarkAsReadView.as_view(), name='mark-read'),
+    path('notifications/mark-all-read/', MarkAllReadView.as_view(), name='mark-all-read'),
 ]
 
 # from django.urls import path

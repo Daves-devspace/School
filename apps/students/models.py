@@ -1,6 +1,7 @@
 import os
 import uuid
 from datetime import date
+import logging
 
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
@@ -12,6 +13,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 from apps.schedules.models import Room
 from apps.teachers.models import Teacher
 
+from apps.schedules.utils import generate_room_name_from_grade_section
+
+logger = logging.getLogger(__name__)
 
 # Create your models here.
 
@@ -73,25 +77,48 @@ class GradeSection(models.Model):
     def __str__(self):
         return f"{self.grade.name} {self.section.name}"
 
-    def get_default_room(self):
-        """Get the generated default room"""
-        return self.rooms.filter(is_special=False).first()  # Use 'rooms' instead of 'room_set'
+    # def get_default_room(self):
+    #     """Get the generated default room"""
+    #     return self.rooms.filter(is_special=False).first()  # Use 'rooms' instead of 'room_set'
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
             super().save(*args, **kwargs)
+            self._ensure_default_room()
 
-            grade_name = self.grade.name.strip() if self.grade.name else "Grade"
-            section_name = self.section.name.strip() if self.section.name else "Section"
-            room_name = f"{grade_name[0].upper()}{self.grade.level}{section_name[0].upper()}".strip().upper()
+    def _ensure_default_room(self):
+        """Guarantee a default room exists for this grade section"""
+        try:
+            room = self.rooms.filter(is_special=False).first()
+            if not room:
+                room_name = generate_room_name_from_grade_section(self.grade, self.section)
+                Room.objects.create(
+                    room_name=room_name,
+                    is_special=False,
+                    grade_section=self
+                )
+            elif not room.room_name.startswith(self.grade.name[0].upper()):
+                room.room_name = generate_room_name_from_grade_section(self.grade, self.section)
+                room.save()
+        except Exception as e:
+            logger.error(f"Failed to ensure room for {self}: {str(e)}")
+            raise
 
-            # Get or create room using the reverse relationship
-            self.rooms.update_or_create(  # Use 'rooms' here
-                defaults={
-                    'room_name': room_name,
-                    'is_special': False
-                }
-            )
+    def get_default_room(self):
+        """Get the generated default room with fallback"""
+        return self.rooms.filter(is_special=False).first() or self._create_default_room()
+
+    def _create_default_room(self):
+        """Emergency room creation if missing"""
+        grade_name = self.grade.name.strip() if self.grade.name else "Grade"
+        section_name = self.section.name.strip() if self.section.name else "Section"
+        room_name = f"{grade_name[0].upper()}{self.grade.level}{section_name[0].upper()}".strip().upper()
+
+        return Room.objects.create(
+            room_name=room_name,
+            is_special=False,
+            grade_section=self
+        )
 
 
 class Parent(models.Model):
@@ -247,12 +274,13 @@ class StudentParent(models.Model):
 
 class StudentDocument(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='documents')
+    doc_name= models.CharField(max_length=15)
     document = models.FileField(upload_to='student_documents/', blank=True, null=True,
                                  help_text="Upload student-related documents")
-    upload_date = models.DateTimeField(auto_now_add=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Document for {self.student.first_name} uploaded on {self.upload_date}"
+        return f"Document for {self.student.first_name} uploaded on {self.uploaded_at}"
 
 
 

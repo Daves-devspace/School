@@ -30,7 +30,7 @@
 
                             <!-- Success and Failures Section -->
                             <div class="container mt-4">
-                                <h5>SMS Responses</h5>
+                                <h5>Responses</h5>
 
                                 {% if successful_replies %}
                                     <div class="alert alert-success">
@@ -65,7 +65,7 @@
                                                 <a href="#"
                                                    class="list-group-item list-group-item-action appointment-item"
                                                    data-id="{{ appointment.id }}">
-                                                    <strong>{{ appointment.guardian_name }}</strong>
+                                                    <strong>From:{{ appointment.guardian_name }}</strong>
                                                     ({{ appointment.child_name }})
                                                     <br>
                                                     <small class="text-muted">{{ appointment.date }}
@@ -136,7 +136,7 @@
                             <strong>Phone:</strong> ${data.phone} <br>
                             <strong>Email:</strong> ${data.email} <br>
                             <hr>
-                            <p>${data.message || 'No message provided'}</p>
+                                <p><strong>Message:</strong> ${data.message || 'No message provided'}</p>
                         `;
                             replyBtn.setAttribute("data-id", appointmentId);
                         });

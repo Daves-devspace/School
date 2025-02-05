@@ -4,12 +4,58 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="render-db">
-      <change afterPath="$PROJECT_DIR$/apps/management/templatetags/sms_filters.py" afterDir="false" />
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="render-migrations">
+      <change afterPath="$PROJECT_DIR$/apps/Manage/backend.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/Manage/validators.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/management/signals.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/schedules/signals.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/schedules/utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/registration/add_user.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/render-build.sh" beforeDir="false" afterPath="$PROJECT_DIR$/render-build.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/School/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/migrations/0007_alter_profile_address_alter_profile_certifications_and_more.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/migrations/0007_alter_profile_address_alter_profile_certifications_and_more.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/backend.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/backend.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/signals.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/website/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/website/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/Teacher/teacher-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/Teacher/teacher-dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/login_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/login_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/inbox.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/inbox.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/Manage/send_sms.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/send_sms.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/registration/password-reset-confirm.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registration/password-reset-confirm.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/registration/password-reset-done.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registration/password-reset-done.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/query_students.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/query_students.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/student-details.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/student-details.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/students.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/students.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/students_graduated.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/students_graduated.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/teacher_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teacher_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/teachers.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teachers.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -269,7 +315,7 @@
       <workItem from="1738319542641" duration="28507000" />
       <workItem from="1738350286273" duration="56120000" />
       <workItem from="1738476669758" duration="45275000" />
-      <workItem from="1738559973603" duration="43983000" />
+      <workItem from="1738559973603" duration="116740000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -607,7 +653,15 @@
       <option name="project" value="LOCAL" />
       <updated>1738606452781</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="render-migrations">
+      <option name="closed" value="true" />
+      <created>1738608648159</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1738608648159</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -625,7 +679,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="render6" />
     <MESSAGE value="render7" />
     <MESSAGE value="render8" />
     <MESSAGE value="render9" />
@@ -650,7 +703,8 @@
     <MESSAGE value="dave" />
     <MESSAGE value="db" />
     <MESSAGE value="render-db" />
-    <option name="LAST_COMMIT_MESSAGE" value="render-db" />
+    <MESSAGE value="render-migrations" />
+    <option name="LAST_COMMIT_MESSAGE" value="render-migrations" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -673,7 +727,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/students/models.py</url>
-          <line>32</line>
+          <line>36</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -688,12 +742,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>928</line>
+          <line>1047</line>
           <option name="timeStamp" value="28" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>766</line>
+          <line>885</line>
           <option name="timeStamp" value="29" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -703,7 +757,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>2017</line>
+          <line>2209</line>
           <option name="timeStamp" value="38" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -757,7 +811,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/forms.py</url>
-          <line>126</line>
+          <line>127</line>
           <option name="timeStamp" value="65" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -767,33 +821,67 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/forms.py</url>
-          <line>51</line>
+          <line>52</line>
           <option name="timeStamp" value="75" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>1091</line>
+          <line>1284</line>
           <option name="timeStamp" value="77" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>1243</line>
+          <line>1436</line>
           <option name="timeStamp" value="81" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>954</line>
+          <line>1147</line>
           <option name="timeStamp" value="82" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>235</line>
+          <line>231</line>
           <option name="timeStamp" value="90" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/students/utils.py</url>
           <line>213</line>
           <option name="timeStamp" value="91" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/students/forms.py</url>
+          <line>122</line>
+          <option name="timeStamp" value="92" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/management/models.py</url>
+          <line>1</line>
+          <option name="timeStamp" value="93" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/teachers/backend.py</url>
+          <line>2</line>
+          <option name="timeStamp" value="94" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/teachers/models.py</url>
+          <line>1</line>
+          <option name="timeStamp" value="95" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/Manage/apps.py</url>
+          <option name="timeStamp" value="96" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/management/views.py</url>
+          <line>507</line>
+          <option name="timeStamp" value="98" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
+          <line>701</line>
+          <option name="timeStamp" value="101" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="django-line">
           <url>file://$PROJECT_DIR$/templates/performance/class_results_view.html</url>

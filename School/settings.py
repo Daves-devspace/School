@@ -35,7 +35,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # change to false in production
 #
-ALLOWED_HOSTS = ['school-kbah.onrender.com','www.stitchngalore.com','localhost']  # Replace '*' with your domain or IP for production
+ALLOWED_HOSTS = ['school-kbah.onrender.com', 'www.stitchngalore.com',
+                 'localhost']  # Replace '*' with your domain or IP for production
 
 # Application definition
 
@@ -47,9 +48,10 @@ INSTALLED_APPS = [
 
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apps.Manage.apps.ManageConfig',
+
     'django.contrib.postgres',
     'phonenumber_field',
+    'apps.Manage',
     'apps.students',
     'apps.teachers',
     'apps.management',
@@ -63,7 +65,7 @@ INSTALLED_APPS = [
     'apps.schedules',
     'rest_framework',
     'rest_framework.authtoken',
-    'ckeditor',
+    'django_ckeditor_5',
 ]
 
 MIDDLEWARE = [
@@ -82,8 +84,11 @@ MIDDLEWARE = [
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # Default authentication backend
-    'apps.teachers.backend.StaffNumberBackend',  # Your custom backend
+    'apps.Manage.backend.StaffNumberAuthBackend',  # Your custom backend
 )
+
+# # settings.py
+# AUTH_USER_MODEL = 'Manage.CustomUser'
 
 
 ROOT_URLCONF = 'School.urls'
@@ -108,10 +113,6 @@ TEMPLATES = [
 # ASGI application path
 ASGI_APPLICATION = 'School.asgi.application'
 
-
-
-
-
 REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/1')
 
 # Caching settings
@@ -133,8 +134,8 @@ try:
 except redis.exceptions.ConnectionError as e:
     print(f"Redis connection error: {e}")
 
-
-# Initialize environment variables
+#
+# # Initialize environment variables
 env = environ.Env()
 environ.Env.read_env()  # Read from .env (for local dev)
 
@@ -147,8 +148,7 @@ else:
     DATABASES = {}
 
 
-
-# #Database Configuration
+# Database Configuration
 # DATABASES = {
 #     "default": {
 #         "ENGINE": "django.db.backends.postgresql",
@@ -160,14 +160,9 @@ else:
 #     }
 # }
 
-
-
-
-
 # If using Celery
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
-
 
 # Redis setup for Django Channels (if using WebSockets)
 CHANNEL_LAYERS = {
@@ -182,15 +177,37 @@ CSRF_COOKIE_NAME = "csrftoken"
 CSRF_COOKIE_SECURE = False  # Ensures CSRF cookie is sent only over HTTPS
 CSRF_COOKIE_SAMESITE = 'Strict'  # Helps to prevent cross-site request forgery attacks
 
-
-CKEDITOR_5_CONFIGS  = {
+CKEDITOR_5_CONFIGS = {
     'default': {
-        'toolbar': 'full',  # Enables all toolbar options for the editor
-        'height': 300,  # Sets the height of the editor to 300px
-        'width': 'auto',  # Makes the width of the editor responsive
-        'extraPlugins': ','.join(['codesnippet', 'justify']),  # Adds custom plugins: code snippet and justify
-    },
+        "upload_url": "/ckeditor5/upload/",
+        'toolbar': [
+            'heading', '|', 'bold', 'italic', 'underline', '|',
+            'link', 'bulletedList', 'numberedList', 'blockQuote',
+            'imageUpload', 'insertTable', '|', 'undo', 'redo'
+        ],
+        'image': {
+            'toolbar': [
+                'imageTextAlternative', 'imageStyle:full', 'imageStyle:side'
+            ]
+        },
+        'table': {
+            'contentToolbar': [
+                'tableColumn', 'tableRow', 'mergeTableCells'
+            ]
+        },
+        'mediaEmbed': {'previewsInData': True},
+    }
 }
+
+# pip install django-storages
+# django-storages documentation
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
+
+AWS_ACCESS_KEY_ID = 'your-access-key-id'
+AWS_SECRET_ACCESS_KEY = 'your-secret-access-key'
+AWS_STORAGE_BUCKET_NAME = 'your-bucket-name'
 
 
 
@@ -202,9 +219,6 @@ r = redis.StrictRedis(connection_pool=pool, decode_responses=True)
 WSGI_APPLICATION = 'School.wsgi.application'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
-
-
-
 # Email settings for mail.valuetech.co.ke
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.valuetech.co.ke'  # Outgoing mail server
@@ -213,9 +227,6 @@ EMAIL_USE_SSL = True  # Use SSL for secure email transmission
 EMAIL_HOST_USER = 'admin@valuetech.co.ke'  # Your email address
 EMAIL_HOST_PASSWORD = 'davedevspace'  # Replace with your email account's password
 DEFAULT_FROM_EMAIL = 'ValueTech Admin <admin@valuetech.co.ke>'
-
-
-
 
 LOGGING = {
     'version': 1,
@@ -236,12 +247,7 @@ LOGGING = {
     },
 }
 
-
-
-
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-
 
 # General Settings
 DEBUG = config("DEBUG", default=True, cast=bool)
@@ -273,6 +279,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# This ensures that media files are served correctly in development
 
 
 
@@ -294,10 +301,6 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,  # Issue a new refresh token when used
     'BLACKLIST_AFTER_ROTATION': True,  # Blacklist old refresh tokens
 }
-
-
-
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -324,8 +327,6 @@ TIME_ZONE = 'Africa/Nairobi'
 USE_I18N = True
 
 USE_TZ = True
-
-
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

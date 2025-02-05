@@ -1,302 +1,438 @@
+
+
 {% extends 'Home/base.html' %}
-{% load sms_filters %}
 {% load crispy_forms_filters %}
 {% load static %}
 {% block body %}
 
-<div class="page-wrapper">
-    <div class="content container-fluid">
-        <div class="page-header">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h3 class="page-title">Send message</h3>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
-                        <li class="breadcrumb-item active">Send Sms</li>
-                    </ul>
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Send message</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
+                            <li class="breadcrumb-item active">Send Sms</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Messages -->
-        {% if messages %}
-            <div class="mb-4">
+            {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-dismissible {{ message.tags }}">
+                    <div class="alert {{ message.tags }}">
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 {% endfor %}
-            </div>
-        {% endif %}
+            {% endif %}
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
 
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="container py-5">
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h2 class="fw-bold text-primary">School Communication Portal</h2>
-                                <p class="text-muted">Send targeted messages to parents and students</p>
-                            </div>
-                        </div>
 
-                        <div class="row g-4">
-                            <!-- SMS Type Selection -->
-                            <div class="col-lg-4">
-                                <div class="card shadow-sm">
-                                    <div class="card-header bg-white">
-                                        <h5 class="mb-0">Select Message Type</h5>
+                        <div class="container py-5">
+                            <!-- Messages Display -->
+                            {% if messages %}
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        {% for message in messages %}
+                                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                                {{ message }}
+                                                <button type="button" class="btn-close"
+                                                        data-bs-dismiss="alert"></button>
+                                            </div>
+                                        {% endfor %}
                                     </div>
-                                    <div class="card-body">
-                                        <div class="row g-3">
-                                            <!-- All Parents -->
-                                            <div class="col-12">
-                                                <div class="card sms-type-card {% if sms_type == 'all' %}active{% endif %}"
-                                                     data-type="all" data-url="{% url 'send_bulk_sms' %}">
-                                                    <div class="card-body">
-                                                        <h5 class="card-title">📢 All Parents</h5>
-                                                        <p class="card-text text-muted small">
-                                                            Send message to all parents ({{ parent_count }} recipients)
-                                                        </p>
+                                </div>
+                            {% endif %}
+
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h2 class="fw-bold text-primary">School Communication Portal</h2>
+                                    <p class="text-muted">Send targeted messages to parents and students</p>
+                                </div>
+                            </div>
+
+                            <div class="row g-4">
+                                <!-- SMS Type Selection -->
+                                <div class="col-lg-4">
+                                    <div class="card shadow-sm">
+                                        <div class="card-header bg-white">
+                                            <h5 class="mb-0">Select Message Type</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <div class="card sms-type-card{% if sms_type == 'bulk' %} active{% endif %}"
+                                                         data-type="bulk">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title">📢 All Parents</h5>
+                                                            <p class="card-text text-muted small">
+                                                                Send to all {{ bulk_count }} parents
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-
-                                            <!-- Class Specific -->
-                                            <div class="col-12">
-                                                <div class="card sms-type-card {% if sms_type == 'class' %}active{% endif %}"
-                                                     data-type="class" data-url="{% url 'send_sms_to_class' %}">
-                                                    <div class="card-body">
-                                                        <h5 class="card-title">🏫 Class Specific</h5>
-                                                        <p class="card-text text-muted small">
-                                                            Send to specific class/year group
-                                                        </p>
+                                                <div class="col-12">
+                                                    <div class="card sms-type-card{% if sms_type == 'class' %} active{% endif %}"
+                                                         data-type="class">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title">🏫 Class Specific</h5>
+                                                            <p class="card-text text-muted small">
+                                                                {{ grade_section_count }} class sections available
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-
-                                            <!-- Exam Results -->
-                                            <div class="col-12">
-                                                <div class="card sms-type-card {% if sms_type == 'results' %}active{% endif %}"
-                                                     data-type="results" data-url="{% url 'result_sms' %}">
-                                                    <div class="card-body">
-                                                        <h5 class="card-title">📊 Exam Results</h5>
-                                                        <p class="card-text text-muted small">
-                                                            Send exam results notifications
-                                                        </p>
+                                                <div class="col-12">
+                                                    <div class="card sms-type-card{% if sms_type == 'results' %} active{% endif %}"
+                                                         data-type="results">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title">📊 Exam Results</h5>
+                                                            <p class="card-text text-muted small">
+                                                                {{ terms.count }} terms, {{ exam_types.count }} exam
+                                                                types
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Message Composition -->
-                            <div class="col-lg-8">
-                                <form method="post" id="smsForm">
-                                    {% csrf_token %}
+                                <!-- Message Composition -->
+                                <div class="col-lg-8">
                                     <div class="card shadow-sm">
-                                        <div class="card-header bg-white d-flex justify-content-between">
+                                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
                                             <h5 class="mb-0">Compose Message</h5>
-                                            {% if request.session.failed_sms_numbers %}
-                                            <a href="{% url 'export_failed_numbers' %}" class="btn btn-sm btn-danger">
-                                                Download Failed Numbers ({{ request.session.failed_sms_numbers|length }})
-                                            </a>
-                                            {% endif %}
+                                            <div class="badge bg-primary">
+                                                {% if sms_type == 'results' %}Results SMS
+                                                {% elif sms_type == 'class' %}Class SMS
+                                                {% else %}Bulk SMS{% endif %}
+                                            </div>
                                         </div>
-
                                         <div class="card-body">
-                                            <!-- Dynamic Fields -->
-                                            <div class="dynamic-fields mb-3">
-                                                <!-- Class Selection -->
-                                                <div class="class-selection {% if sms_type != 'class' %}d-none{% endif %} dynamic-field">
-                                                    {{ send_class_form.class_choice|as_crispy_field }}
-                                                </div>
+                                            <form method="POST" id="smsForm">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="sms_type" id="smsTypeInput"
+                                                       value="{{ sms_type|default:'bulk' }}">
 
-                                                <!-- Exam Results Selection -->
-                                                <div class="result-selection {% if sms_type != 'results' %}d-none{% endif %} dynamic-field">
-                                                    <div class="row g-3">
-                                                        <div class="col-md-6">
-                                                            <label class="form-label">Term</label>
-                                                            <select name="term" class="form-select">
-                                                                {% for term in terms %}
-                                                                <option value="{{ term.id }}">{{ term.name }}</option>
-                                                                {% endfor %}
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label">Exam Type</label>
-                                                            <select name="exam_type" class="form-select">
-                                                                {% for exam_type in exam_types %}
-                                                                <option value="{{ exam_type.id }}">{{ exam_type.name }}</option>
-                                                                {% endfor %}
-                                                            </select>
+                                                <!-- Dynamic Parameters -->
+                                                <div class="dynamic-fields mb-3">
+                                                    <!-- Results Parameters -->
+                                                    <div class="params-results"
+                                                         style="display: {% if sms_type == 'results' %}block{% else %}none{% endif %};">
+                                                        <div class="row g-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Select Term</label>
+                                                                <select name="term" class="form-select" required>
+                                                                    <option value="">Choose Term</option>
+                                                                    {% for term in terms %}
+                                                                        <option value="{{ term.id }}">
+                                                                            {{ term.name }} {{ term.year }}
+                                                                        </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Select Exam Type</label>
+                                                                <select name="exam_type" class="form-select"
+                                                                        required>
+                                                                    <option value="">Choose Exam Type</option>
+                                                                    {% for exam_type in exam_types %}
+                                                                        <option value="{{ exam_type.id }}">{{ exam_type.name }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
 
-                                            <!-- Message Content -->
-                                            <div class="mb-3">
-                                                <label class="form-label">Message Content</label>
-                                                <textarea name="message" class="form-control" id="messageContent"
-                                                          rows="5" required>{{ form_data.message }}</textarea>
-                                                <div class="form-text">
-                                                    <span id="charCount">0</span>/160 characters
-                                                    (<span id="smsCount">0</span> SMS)
+                                                    <!-- Class Parameters -->
+                                                    <!-- Unified template section for class selection -->
+                                                    <div class="params-class"
+                                                         style="display: {% if sms_type == 'class' %}block{% else %}none{% endif %};">
+                                                        <label class="form-label">Select Class Sections</label>
+                                                        <select name="grade_sections" class="form-select" multiple
+                                                                size="5">
+                                                            {% for gs in grade_sections %}
+                                                                <option value="{{ gs.id }}">
+                                                                    {{ gs.grade.name }} {{ gs.section.name }}
+                                                                    {% if gs.class_teacher %}
+                                                                        ({{ gs.class_teacher.user.get_full_name }})
+                                                                    {% endif %}
+                                                                </option>
+                                                            {% empty %}
+                                                                <option disabled>No class sections found</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            <!-- Preview Section -->
-                                            {% if preview %}
-                                            <div class="preview-card mb-4">
-                                                <div class="alert alert-info">
-                                                    Sample preview using: {{ preview.data.student_name }} ({{ preview.data.student_class }})
+                                                <!-- Message Content -->
+                                                <div class="mb-3">
+                                                    <label class="form-label">Message Content</label>
+                                                    <textarea name="message" class="form-control"
+                                                              rows="6" required
+                                                              data-maxlength="160"
+                                                            {% if sms_type == 'results' %}
+                                                              placeholder="Example: {parent_name}, {student_name} scored {total_marks} in {term}"
+                                                            {% else %}
+                                                              placeholder="Write your message here..."
+                                                            {% endif %}></textarea>
+                                                    <div class="form-text">
+                                                        <span id="charCount">0</span>/160 characters
+                                                        {% if sms_type == 'results' %}
+                                                            <span class="text-muted ms-2">
+    Available variables: {{ template_keys.results|join:", "|default:"None" }}
+</span>
+                                                        {% elif sms_type == 'class' %}
+                                                            <span class="text-muted ms-2">
+                                    Available variables: {{ template_keys.class|join:", " }}
+                                </span>
+                                                        {% endif %}
+                                                    </div>
                                                 </div>
-                                                <div class="bg-light p-3 rounded">
-                                                    {{ preview.message|linebreaksbr }}
-                                                </div>
-                                                <div class="text-muted small mt-2">
-                                                    Length: {{ preview.message|length }} characters
-                                                    ({{ preview.message|length|divide:160|ceil }} SMS)
-                                                </div>
-                                            </div>
-                                            {% endif %}
 
-                                            <!-- Recipient Preview -->
-                                            <div class="recipient-preview mb-4 bg-light p-3 rounded small">
-                                                <span class="text-muted">Estimated Recipients:</span>
-                                                <span id="recipientCount">
-                                                    {% if sms_type == 'all' %}{{ parent_count }}
-                                                    {% elif sms_type == 'class' %}{{ class_recipient_count }}
-                                                    {% else %}Calculating...{% endif %}
-                                                </span>
-                                            </div>
+                                                <!-- Recipient Preview -->
+                                                <div class="recipient-preview mb-4 bg-light p-3 rounded small">
+                                                    <span class="text-muted">Estimated recipients:</span>
+                                                    <span id="recipientCount">
+                                                        {% if sms_type == 'bulk' %}
+                                                            All Parents ({{ bulk_count }})
+                                                        {% elif sms_type == 'class' %}
+                                                            Select class sections to see count
+                                                        {% else %}
+                                                            Select term and exam type to see count
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
 
-                                            <!-- Action Buttons -->
-                                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                                <button type="submit" name="preview" class="btn btn-outline-secondary">
-                                                    Preview Message
-                                                </button>
-                                                <button type="submit" class="btn btn-primary">
+                                                <button type="submit" class="btn btn-primary w-100">
                                                     <i class="bi bi-send"></i> Send Message
                                                 </button>
-                                            </div>
+                                            </form>
                                         </div>
                                     </div>
-                                </form>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Confirmation Modal -->
+                        <div class="modal fade" id="confirmationModal">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Confirm Message</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to send this message to <span
+                                            id="modalRecipientCount">0</span> recipients?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            Cancel
+                                        </button>
+                                        <button type="button" class="btn btn-primary" id="confirmSend">Send Now
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
-</div>
 
-<!-- Confirmation Modal -->
-<div class="modal fade" id="confirmationModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirm Message</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to send this message to <span id="modalRecipientCount">0</span> recipients?
-                <div class="text-muted small mt-2">
-                    This action cannot be undone. SMS costs may apply.
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="confirmSend">Confirm Send</button>
-            </div>
-        </div>
-    </div>
-</div>
+    <script>
 
-{% endblock %}
+        document.addEventListener('DOMContentLoaded', function () {
+            const typeCards = document.querySelectorAll('.sms-type-card');
+            const smsTypeInput = document.getElementById('smsTypeInput');
+            const paramsSections = {
+                results: document.querySelector('.params-results'),
+                class: document.querySelector('.params-class'),
+                bulk: null
+            };
 
-{% block scripts %}
-<script>
-$(document).ready(function() {
-    // SMS Type Selection
-    $('.sms-type-card').click(function() {
-        const type = $(this).data('type');
-        const formUrl = $(this).data('url');
+            // Initialize based on current type
+            let currentType = smsTypeInput.value;
+            updateRecipientCount(currentType);
 
-        $('.sms-type-card').removeClass('active');
-        $(this).addClass('active');
-        $('#smsForm').attr('action', formUrl);
+            // Type selection handler
+            typeCards.forEach(card => {
+                card.addEventListener('click', function () {
+                    typeCards.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    currentType = this.dataset.type;
+                    smsTypeInput.value = currentType;
 
-        // Toggle dynamic fields
-        $('.dynamic-field').addClass('d-none');
-        if(type === 'class') {
-            $('.class-selection').removeClass('d-none');
-        } else if(type === 'results') {
-            $('.result-selection').removeClass('d-none');
-        }
+                    // Show/hide parameters
+                    Object.values(paramsSections).forEach(section => {
+                        if (section) section.style.display = 'none';
+                    });
+                    if (paramsSections[currentType]) {
+                        paramsSections[currentType].style.display = 'block';
+                    }
 
-        updateRecipientCount();
-    });
+                    updateTemplateVars(currentType);
+                    updateRecipientCount(currentType);
+                });
+            });
 
-    // Character Counter
-    $('#messageContent').on('input', function() {
-        const length = $(this).val().length;
-        $('#charCount').text(length);
-        $('#smsCount').text(Math.ceil(length/160));
-    });
+            // Update recipient count when parameters change
+            // Update recipient count when grade sections change
+            document.querySelector('select[name="grade_sections"]').addEventListener('change', () => {
+                if (currentType === 'class') updateRecipientCount(currentType);
+            });
 
-    // Form Submission Handler
-    $('#smsForm').submit(function(e) {
-        if ($(this).attr('submitting')) return false;
+            // Add these under existing event listeners
+            document.querySelector('select[name="term"]').addEventListener('change', () => {
+                if (currentType === 'results') updateRecipientCount(currentType);
+            });
 
-        const isPreview = $('button[name="preview"]').is(':focus');
-        if (!isPreview) {
-            e.preventDefault();
-            $('#modalRecipientCount').text($('#recipientCount').text());
-            new bootstrap.Modal('#confirmationModal').show();
-        }
-    });
+            document.querySelector('select[name="exam_type"]').addEventListener('change', () => {
+                if (currentType === 'results') updateRecipientCount(currentType);
+            });
 
-    // Confirm Send
-    $('#confirmSend').click(function() {
-        $('#confirmationModal').modal('hide');
-        $('#smsForm').off('submit').submit();
-    });
+            async function updateRecipientCount(type) {
+                const recipientCount = document.getElementById('recipientCount');
+                recipientCount.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Calculating...`;
+                let url = `/recipient_count/?type=${type}`;
 
-    // Initial setup
-    updateRecipientCount();
-    $('#messageContent').trigger('input');
+                if (type === 'results') {
+                    const term = document.querySelector('select[name="term"]').value;
+                    const exam_type = document.querySelector('select[name="exam_type"]').value;
+                    url += `&term=${term}&exam_type=${exam_type}`;
+                } else if (type === 'class') {
+                    const grade_sections = Array.from(document.querySelector('select[name="grade_sections"]').selectedOptions)
+                        .map(opt => opt.value);
+                    url += `&grade_sections=${grade_sections.join(',')}`;  // Changed parameter name
+                }
 
-    async function updateRecipientCount() {
-        const type = $('.sms-type-card.active').data('type');
-        let count = 0;
-
-        try {
-            if(type === 'class') {
-                const classes = $('.class-selection select').val();
-                const response = await fetch(`/api/recipient-count/?type=class&classes=${classes}`);
-                count = await response.json().count;
-            }
-            else if(type === 'results') {
-                const term = $('[name="term"]').val();
-                const examType = $('[name="exam_type"]').val();
-                const response = await fetch(`/api/recipient-count/?type=results&term=${term}&exam_type=${examType}`);
-                count = await response.json().count;
-            }
-            else {
-                count = {{ parent_count|default:0 }};
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    recipientCount.textContent = `${data.count} recipients`;
+                    document.getElementById('modalRecipientCount').textContent = data.count;
+                } catch (error) {
+                    console.error('Error fetching recipient count:', error);
+                    recipientCount.textContent = "Error loading count";
+                }
             }
 
-            $('#recipientCount').text(count);
-        } catch(error) {
-            console.error('Error fetching recipient count:', error);
+            function updateTemplateVars(type) {
+                const vars = {
+                    results: "Available variables: {{ template_keys.results|join:', ' }}",
+                    class: "Available variables: {{ template_keys.class|join:', ' }}",
+                    bulk: ""
+                };
+                document.querySelector('#templateVars').textContent = vars[type] || '';
+            }
+
+            // Character counter
+            const textarea = document.querySelector('textarea[name="message"]');
+            const charCount = document.getElementById('charCount');
+
+            textarea.addEventListener('input', function () {
+                charCount.textContent = this.value.length;
+                if (this.value.length > 160) {
+                    charCount.classList.add('text-danger');
+                } else {
+                    charCount.classList.remove('text-danger');
+                }
+            });
+
+            // Form submission handling
+            const form = document.getElementById('smsForm');
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                
+                if (currentType === 'results') {
+                    const term = document.querySelector('select[name="term"]').value;
+                    const exam_type = document.querySelector('select[name="exam_type"]').value;
+                    if (!term || !exam_type) {
+                        alert('Please select both term and exam type');
+                        return;
+                    }
+                }
+
+                if (currentType === 'class') {
+                    const sections = document.querySelector('select[name="grade_sections"]').selectedOptions;
+                    if (sections.length === 0) {
+                        alert('Please select at least one class section');
+                        return;
+                    }
+                }
+
+                if (textarea.value.length > 160) {
+                    alert('Message exceeds 160 character limit!');
+                    return;
+                }
+
+                // Update modal count and show
+                new bootstrap.Modal('#confirmationModal').show();
+            });
+
+            // Confirm send handler
+            document.getElementById('confirmSend').addEventListener('click', function () {
+                form.submit();
+            });
+
+        });
+    </script>
+
+    <style>
+        .sms-type-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
         }
-    }
-});
-</script>
+
+        .sms-type-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sms-type-card.active {
+            border-color: #0d6efd;
+            background-color: #f8f9fa;
+        }
+
+        .params-class select[multiple] {
+            min-height: 150px;
+        }
+
+        .form-text {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+        }
+
+        .recipient-preview {
+            background-color: #f8f9fa !important;
+        }
+    </style>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+
 {% endblock %}

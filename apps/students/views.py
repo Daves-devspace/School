@@ -21,7 +21,7 @@ from apps.management.models import Term, SubjectMark, ReportCard, ExamType, Atte
 from apps.students.forms import StudentForm, PromoteStudentsForm, SendSMSForm, DocumentUploadForm,  \
     StudentSearchForm
 # from apps.students.forms import StudentForm
-from apps.students.models import Student, Parent, StudentParent, Grade, GradeSection
+from apps.students.models import Student, Parent, StudentParent, Grade, GradeSection, StudentDocument
 
 logger = logging.getLogger(__name__)
 
@@ -56,10 +56,6 @@ def student_query(request):
 
 
 
-def active_students(request):
-    # students_active = Student.objects.filter(status="active")
-    students_active = Student.objects.filter(status="Active")
-    return render(request, "students/All-students.html", {"students_active": students_active})
 
 
 def update_student_status(request):
@@ -86,28 +82,32 @@ def update_student_status(request):
         return render(request, "students/All-students.html", {"students_active": students_active})
 
 
+
+
 def reverse_student_status(request):
     if request.method == "POST":
-        # Get the list of selected student IDs
         selected_students = request.POST.getlist("selected_students")
 
         if not selected_students:
             messages.error(request, "No students selected")
-            return redirect("active_students")
+            return redirect("reverse_student_status")
+
         try:
-            # revert the status of selected students to active
             with transaction.atomic():
-                students = Student.objects.filter(id__in=selected_students, status="graduated")
+                students = Student.objects.filter(id__in=selected_students, status="Graduated")
+                count = students.count()
                 students.update(status="Active")
-            messages.success(request, f"Successfully reverted {students.count()} students to 'Active")
-            return redirect("active_students")
+
+            messages.success(request, f"Successfully reverted {count} students to 'Active'")
+            return redirect("reverse_student_status")
+
         except Exception as e:
-            messages.error(request, f"An error occurred: {e}")
-            return redirect("active_students")
-    else:
-        # if get method show graduated students
-        students_graduated = Student.objects.filter(status="graduated")
-        return render(request, 'students/students_graduated.html', {"students_graduated": students_graduated})
+            logger.error(f"Error reverting student status: {e}")
+            messages.error(request, "An unexpected error occurred. Please try again.")
+            return redirect("reverse_student_status")
+
+    students_graduated = Student.objects.filter(status="Graduated")
+    return render(request, 'students/students_graduated.html', {"students_graduated": students_graduated})
 
 
 # promote students to next class and the completed students marked as graduated
@@ -171,7 +171,7 @@ def promote_students_view(request):
                         elif result == "Graduated":
                             graduated_count += 1
                         elif result.startswith("Error"):
-                            errors.append(f"{student}: {result}")
+                            errors.append(f"{student}:  Already promoted this year.")
                     except Exception as e:
                         errors.append(f"{student}: {str(e)}")
 
@@ -378,25 +378,37 @@ def get_student_chart_data(request, student_id, term, year):
 
 
 
-
-
-
-
-
-
 def student_details(request, id):
     # Fetch student details
     student = get_object_or_404(Student, pk=id)
+
+    # Handle status change request (Activate/Deactivate student)
+    if request.method == 'POST' and 'toggle_status' in request.POST:
+        try:
+            with transaction.atomic():
+                if student.status == "Graduated":
+                    student.status = "Active"
+                    messages.success(request, f"{student.first_name} has been reactivated.")
+                else:
+                    student.status = "Graduated"
+                    messages.success(request, f"{student.first_name} has been deactivated (Graduated).")
+                student.save()
+        except Exception as e:
+            messages.error(request, f"An error occurred: {e}")
+        return redirect('student_details', id=student.id)
 
     # Handle document uploads
     if request.method == 'POST' and 'upload_document' in request.POST:
         document_form = DocumentUploadForm(request.POST, request.FILES)
         if document_form.is_valid():
-            document_form.save(student=student)
+            document = document_form.save(commit=False)  # Don't save yet
+            document.student = student  # Associate with student
+            document.save()  # Now save
             messages.success(request, "Document uploaded successfully!")
             return redirect('student_details', id=student.id)
         else:
             messages.error(request, "Failed to upload document. Please try again.")
+
     else:
         document_form = DocumentUploadForm()
 
@@ -450,6 +462,14 @@ def student_details(request, id):
         'documents': student.documents.all(),  # Display all uploaded documents
     }
     return render(request, 'students/student-details.html', context)
+
+
+
+
+
+
+
+
 
 
 def delete_document(request, document_id):
