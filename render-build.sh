@@ -4,10 +4,11 @@
 pip install -r requirements.txt
 
 # Make migrations (to generate migration files)
-python manage.py makemigrations
+python manage.py makemigrations --noinput
+
 
 # Apply database migrations
-python manage.py migrate
+python manage.py migrate --noinput
 
 # Collect static files
 python manage.py collectstatic --noinput
