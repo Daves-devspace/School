@@ -2,32 +2,40 @@
 {% load static %}
 {% block body %}
 
-
     <div class="page-wrapper">
         <div class="content container-fluid">
 
+            <!-- Page Header -->
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
                         <h3 class="page-title">Events</h3>
                         <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
                             <li class="breadcrumb-item active">Events</li>
                         </ul>
                     </div>
-                </div>
-            </div>
-            <div class="page-header">
-                <div class="row align-items-center">
-                    <div class="col"></div>
-                    <div class="col-auto text-end float-end ms-auto">
-                        <a href="add-events.html" class="btn btn-primary"><i class="fas fa-plus"></i></a>
+                    <div class="col-auto text-end">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                            Add Event
+                        </button>
                     </div>
                 </div>
             </div>
 
+            <!-- Event Type Filter -->
+            <div class="mb-3">
+                <label for="eventFilter">Filter Events:</label>
+                <select id="event-type-filter" class="form-control w-25">
+                    <option value="all">All Events</option>
+                    <option value="general">General Events</option>
+                    <option value="club">Club Events</option>
+                </select>
+            </div>
+
+            <!-- Calendar Display -->
             <div class="row">
-                <div class="col-lg-12 col-md-12">
+                <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
                             <div id="calendar"></div>
@@ -36,33 +44,170 @@
                 </div>
             </div>
 
-            <div class="modal fade none-border" id="my_event">
-                <div class="modal-dialog modal-dialog-centered">
+            <!-- Event Table -->
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Event List</h4>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody id="eventTableBody">
+                                <!-- Events dynamically loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal for Creating an Event -->
+            <div id="createEventModal" class="modal fade" tabindex="-1">
+                <div class="modal-dialog">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title">Add Event</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        </div>
-                        <div class="modal-body"></div>
-                        <div class="modal-footer justify-content-center">
-                            <button type="button" class="btn btn-success save-event submit-btn">Create event</button>
-                            <button type="button" class="btn btn-danger delete-event submit-btn" data-dismiss="modal">
-                                Delete
-                            </button>
-                        </div>
+                        <form id="createEventForm">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Create Event</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                {% csrf_token %}
+                                <label>Event Type:</label>
+                                <select name="event_type" class="form-control" required>
+                                    <option value="general">General Event</option>
+                                    <option value="club">Club Event</option>
+                                </select>
+
+                                <label>Title:</label>
+                                <input type="text" name="name" class="form-control" required>
+
+                                <label>Date:</label>
+                                <input type="date" name="date" class="form-control" required>
+
+                                <label>Time:</label>
+                                <input type="time" name="time" class="form-control">
+
+                                <label>Description:</label>
+                                <textarea name="description" class="form-control"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success">Save Event</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal for Editing an Event -->
+            <div id="editEventModal" class="modal fade" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form id="editEventForm">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Edit Event</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="event_id" id="editEventId">
+
+                                <label>Title:</label>
+                                <input type="text" name="name" id="editEventName" class="form-control" required>
+
+                                <label>Date:</label>
+                                <input type="date" name="date" id="editEventDate" class="form-control" required>
+
+                                <label>Time:</label>
+                                <input type="time" name="time" id="editEventTime" class="form-control">
+
+                                <label>Description:</label>
+                                <textarea name="description" id="editEventDescription" class="form-control"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Update Event</button>
+                                <button type="button" class="btn btn-danger" id="deleteEventBtn">Delete Event</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
 
         </div>
 
-        <footer>
+        <footer class="text-center mt-4">
             <p>Copyright © 2024 Davedev.</p>
         </footer>
-
     </div>
 
-    </div>
+    <script>
+       document.addEventListener("DOMContentLoaded", function () {
+    let calendarEl = document.getElementById("calendar");
+
+    let calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        events: function (fetchInfo, successCallback, failureCallback) {
+            fetch(`/management/events/?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest",  // Helps Django recognize AJAX requests
+                },
+                credentials: "include"  // Ensures cookies (session) are sent with the request
+            })
+                .then(response => {
+                    if (response.status === 403) {
+                        alert("Session expired! Please log in again.");
+                        window.location.href = "/login"; // Redirect to login page
+                        return;
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    successCallback(data);
+                })
+                .catch(error => {
+                    console.error("Failed to fetch events:", error);
+                    alert("Failed to load events. Please check your login session.");
+                    failureCallback(error);
+                });
+        },
+        dateClick: function (info) {
+            document.querySelector("#createEventModal input[name='date']").value = info.dateStr;
+            new bootstrap.Modal(document.getElementById("createEventModal")).show();
+        },
+        eventClick: function (info) {
+            let event = info.event;
+            document.getElementById("editEventId").value = event.id;
+            document.getElementById("editEventName").value = event.title;
+            document.getElementById("editEventDate").value = event.startStr;
+            document.getElementById("editEventTime").value = event.extendedProps.time;
+            document.getElementById("editEventDescription").value = event.extendedProps.description;
+            new bootstrap.Modal(document.getElementById("editEventModal")).show();
+        }
+    });
+
+    calendar.render();
+});
+
+
+
+    </script>
+
+
+
 
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
 
@@ -74,7 +219,10 @@
 
     <script src="{% static 'assets/js/moment.min.js' %}"></script>
     <script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
+    <script src="{% static 'assets/js/calender.js' %}"></script>
     <script src="{% static 'assets/js/jquery-ui.min.js' %}"></script>
     <script src="{% static 'assets/plugins/fullcalendar/fullcalendar.min.js' %}"></script>
     <script src="{% static 'assets/plugins/fullcalendar/jquery.fullcalendar.js' %}"></script>

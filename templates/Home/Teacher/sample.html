@@ -1,0 +1,1130 @@
+{% extends 'Home/Teacher/base2.html' %}
+{% load static %}
+
+
+{% block body %}
+
+
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+            <div class="page-header">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="page-sub-header">
+                            <h3 class="page-title">Welcome {{ user }}</h3>
+                            <ul class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                                <li class="breadcrumb-item active">{{ user }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-xl-3 col-sm-3 col-12 d-flex">
+                    <div class="card bg-comman w-100">
+                        <div class="card-body">
+                            <div class="db-widgets d-flex justify-content-between align-items-center">
+                                <div class="db-info ">
+                                    <h6>Students</h6>
+                                    <h3>{{ total_students }}</h3>
+                                </div>
+                                <div class="db-icon">
+                                    <img src="{% static 'assets/img/icons/dash-icon-01.svg' %}" alt="Dashboard Icon">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-3 col-12 d-flex">
+                    <div class="card bg-comman w-100">
+                        <div class="card-body">
+                            <div class="db-widgets d-flex justify-content-between align-items-center">
+                                <div class="db-info">
+                                    <h6>Teachers</h6>
+                                    <h3>{{ total_teachers }}</h3>
+                                </div>
+                                <div class="db-icon">
+                                    <img src="{% static 'assets/img/icons/dash-icon-02.svg' %}" alt="Dashboard Icon">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-3 col-12 d-flex">
+                    <div class="card bg-comman w-100">
+                        <div class="card-body">
+                            <div class="db-widgets d-flex justify-content-between align-items-center">
+                                <div class="db-info">
+                                    <h6>Department</h6>
+                                    <h3>{{ total_departments }}</h3>
+                                </div>
+                                <div class="db-icon">
+                                    <img src="{% static 'assets/img/icons/dash-icon-03.svg' %}" alt="Dashboard Icon">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-3 col-12 d-flex">
+                    <div class="card bg-comman w-100">
+                        <div class="card-body">
+                            <div class="db-widgets d-flex justify-content-between align-items-center">
+                                <div class="db-info">
+                                    <h6>Revenue</h6>
+                                    <h3>{{ total_revenue }}</h3>
+                                    <h6>{{ current_year }}</h6>
+                                </div>
+                                <div class="db-icon">
+                                    <img src="{% static 'assets/img/icons/dash-icon-04.svg' %}" alt="Dashboard Icon">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 col-lg-6">
+
+                    <div class="card card-chart">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-6">
+                                    <h5 class="card-title">Finance Overview</h5>
+                                </div>
+                                <div class="col-6">
+                                    <ul class="chart-list-out">
+                                        <li><span class="circle-blue"></span>Fee Collection</li>
+                                        <li class="star-menus"><a href="javascript:;"><i
+                                                class="fas fa-ellipsis-v"></i></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="apexcharts-area"></div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-12 col-lg-6">
+
+                    <div class="card card-chart">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-6">
+                                    <h5 class="card-title">Active Students</h5>
+                                </div>
+                                <div class="col-6">
+                                    <ul class="chart-list-out">
+                                        <li><span class="circle-green"></span>Girls</li>
+                                        <li><span class="custom-bg"></span>Boys</li>
+                                        <li class="star-menus"><a href="javascript:;"><i
+                                                class="fas fa-ellipsis-v"></i></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="pie"></div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-6 d-flex">
+
+                    <div class="card flex-fill student-space comman-shadow">
+                        <div class="card-header d-flex align-items-center">
+                            <h5 class="card-title">Star Students</h5>
+                            <ul class="chart-list-out student-ellips">
+                                <li class="star-menus"><a href="javascript:;"><i class="fas fa-ellipsis-v"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table star-student table-hover table-center table-borderless table-striped">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th class="text-center">Marks</th>
+                                        <th class="text-center">Class</th>
+                                        <th class="text-end">Term</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for student in top_students_data %}
+                                        <tr>
+                                            <td class="text-nowrap">
+                                                <div>{{ student.admission_number }}</div>
+                                            </td>
+                                            <td class="text-nowrap">
+                                                <a href="profile.html">
+                                                    <img class="rounded-circle"
+                                                         src="{% static 'assets/img/profiles/avatar-02.jpg' %}"
+                                                         width="25" alt="Star Students">
+                                                    {{ student.student_name }}
+                                                </a>
+                                            </td>
+                                            <td class="text-center">{{ student.total_marks }}</td>
+                                            <td class="text-center">{{ student.class }}</td>
+                                            <td class="text-end">
+                                                <div>{{ student.term }}</div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="row">
+                    <div class="col-12 grid-margin stretch-card">
+                        <div class="card corona-gradient-card">
+                            <div class="card-body py-0 px-0 px-sm-3">
+                                <div class="row align-items-center">
+                                    <div class="col-4 col-sm-3 col-xl-2">
+                                        <img src="{% static 'assets/template/assets/images/dashboard/Group126@2x.png' %}"
+                                             class="gradient-corona-img img-fluid" alt="">
+                                    </div>
+                                    <div class="col-5 col-sm-7 col-xl-8 p-0">
+                                        <h4 class="mb-1 mb-sm-0">School Vision</h4>
+                                        <p class="mb-0 font-weight-normal d-none d-sm-block">
+                                            To raise a Godly and self-reliant generation based on high academic
+                                            excellence and social integrity.
+                                        </p>
+                                    </div>
+                                    <div class="col-3 col-sm-2 col-xl-2 pl-0 text-center">
+                        <span>
+                          <a href="#" target="_blank"
+                             class="btn btn-outline-light btn-rounded get-started-btn">Add Notification</a>
+                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-9">
+                                        <div class="d-flex align-items-center align-self-start">
+                                            <h3 class="mb-0">$12.34</h3>
+                                            <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="icon icon-box-success ">
+                                            <span class="mdi mdi-arrow-top-right icon-item"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h6 class="text-muted font-weight-normal">Total Students</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-9">
+                                        <div class="d-flex align-items-center align-self-start">
+                                            <h3 class="mb-0">12334</h3>
+                                            <p class="text-success ml-2 mb-0 font-weight-medium">+11%</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="icon icon-box-success">
+                                            <span class="mdi mdi-arrow-top-right icon-item"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h6 class="text-muted font-weight-normal">Revenue current</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-9">
+                                        <div class="d-flex align-items-center align-self-start">
+                                            <h3 class="mb-0">Ksh:12.34</h3>
+                                            <p class="text-danger ml-2 mb-0 font-weight-medium">-2.4%</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="icon icon-box-danger">
+                                            <span class="mdi mdi-arrow-bottom-left icon-item"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h6 class="text-muted font-weight-normal">Daily Income</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-9">
+                                        <div class="d-flex align-items-center align-self-start">
+                                            <h3 class="mb-0">$31.53</h3>
+                                            <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="icon icon-box-success ">
+                                            <span class="mdi mdi-arrow-top-right icon-item"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h6 class="text-muted font-weight-normal">Expense current</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-4 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Transaction History</h4>
+                                <canvas id="transaction-history" class="transaction-chart"></canvas>
+                                <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
+                                    <div class="text-md-center text-xl-left">
+                                        <h6 class="mb-1">Transfer to Paypal</h6>
+                                        <p class="text-muted mb-0">07 Jan 2019, 09:12AM</p>
+                                    </div>
+                                    <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
+                                        <h6 class="font-weight-bold mb-0">$236</h6>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-dark d-flex d-md-block d-xl-flex flex-row py-3 px-4 px-md-3 px-xl-4 rounded mt-3">
+                                    <div class="text-md-center text-xl-left">
+                                        <h6 class="mb-1">Tranfer to Stripe</h6>
+                                        <p class="text-muted mb-0">07 Jan 2019, 09:12AM</p>
+                                    </div>
+                                    <div class="align-self-center flex-grow text-right text-md-center text-xl-right py-md-2 py-xl-0">
+                                        <h6 class="font-weight-bold mb-0">$593</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex flex-row justify-content-between">
+                                    <h4 class="card-title mb-1">Open Projects</h4>
+                                    <p class="text-muted mb-1">Your data status</p>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="preview-list">
+                                            <div class="preview-item border-bottom">
+                                                <div class="preview-thumbnail">
+                                                    <div class="preview-icon bg-primary">
+                                                        <i class="mdi mdi-file-document"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="preview-item-content d-sm-flex flex-grow">
+                                                    <div class="flex-grow">
+                                                        <h6 class="preview-subject">Admin dashboard design</h6>
+                                                        <p class="text-muted mb-0">Broadcast web app mockup</p>
+                                                    </div>
+                                                    <div class="mr-auto text-sm-right pt-2 pt-sm-0">
+                                                        <p class="text-muted">15 minutes ago</p>
+                                                        <p class="text-muted mb-0">30 tasks, 5 issues </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="preview-item border-bottom">
+                                                <div class="preview-thumbnail">
+                                                    <div class="preview-icon bg-success">
+                                                        <i class="mdi mdi-cloud-download"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="preview-item-content d-sm-flex flex-grow">
+                                                    <div class="flex-grow">
+                                                        <h6 class="preview-subject">Wordpress Development</h6>
+                                                        <p class="text-muted mb-0">Upload new design</p>
+                                                    </div>
+                                                    <div class="mr-auto text-sm-right pt-2 pt-sm-0">
+                                                        <p class="text-muted">1 hour ago</p>
+                                                        <p class="text-muted mb-0">23 tasks, 5 issues </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="preview-item border-bottom">
+                                                <div class="preview-thumbnail">
+                                                    <div class="preview-icon bg-info">
+                                                        <i class="mdi mdi-clock"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="preview-item-content d-sm-flex flex-grow">
+                                                    <div class="flex-grow">
+                                                        <h6 class="preview-subject">Project meeting</h6>
+                                                        <p class="text-muted mb-0">New project discussion</p>
+                                                    </div>
+                                                    <div class="mr-auto text-sm-right pt-2 pt-sm-0">
+                                                        <p class="text-muted">35 minutes ago</p>
+                                                        <p class="text-muted mb-0">15 tasks, 2 issues</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="preview-item border-bottom">
+                                                <div class="preview-thumbnail">
+                                                    <div class="preview-icon bg-danger">
+                                                        <i class="mdi mdi-email-open"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="preview-item-content d-sm-flex flex-grow">
+                                                    <div class="flex-grow">
+                                                        <h6 class="preview-subject">Broadcast Mail</h6>
+                                                        <p class="text-muted mb-0">Sent release details to team</p>
+                                                    </div>
+                                                    <div class="mr-auto text-sm-right pt-2 pt-sm-0">
+                                                        <p class="text-muted">55 minutes ago</p>
+                                                        <p class="text-muted mb-0">35 tasks, 7 issues </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="preview-item">
+                                                <div class="preview-thumbnail">
+                                                    <div class="preview-icon bg-warning">
+                                                        <i class="mdi mdi-chart-pie"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="preview-item-content d-sm-flex flex-grow">
+                                                    <div class="flex-grow">
+                                                        <h6 class="preview-subject">UI Design</h6>
+                                                        <p class="text-muted mb-0">New application planning</p>
+                                                    </div>
+                                                    <div class="mr-auto text-sm-right pt-2 pt-sm-0">
+                                                        <p class="text-muted">50 minutes ago</p>
+                                                        <p class="text-muted mb-0">27 tasks, 4 issues </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row ">
+                    <div class="col-12 grid-margin">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Order Status</h4>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>
+                                                <div class="form-check form-check-muted m-0">
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox" class="form-check-input">
+                                                    </label>
+                                                </div>
+                                            </th>
+                                            <th> Client Name</th>
+                                            <th> Order No</th>
+                                            <th> Product Cost</th>
+                                            <th> Project</th>
+                                            <th> Payment Mode</th>
+                                            <th> Start Date</th>
+                                            <th> Payment Status</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="form-check form-check-muted m-0">
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox" class="form-check-input">
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <img src="assets/images/faces/face1.jpg" alt="image"/>
+                                                <span class="pl-2">Henry Klein</span>
+                                            </td>
+                                            <td> 02312</td>
+                                            <td> $14,500</td>
+                                            <td> Dashboard</td>
+                                            <td> Credit card</td>
+                                            <td> 04 Dec 2019</td>
+                                            <td>
+                                                <div class="badge badge-outline-success">Approved</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="form-check form-check-muted m-0">
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox" class="form-check-input">
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <img src="assets/images/faces/face2.jpg" alt="image"/>
+                                                <span class="pl-2">Estella Bryan</span>
+                                            </td>
+                                            <td> 02312</td>
+                                            <td> $14,500</td>
+                                            <td> Website</td>
+                                            <td> Cash on delivered</td>
+                                            <td> 04 Dec 2019</td>
+                                            <td>
+                                                <div class="badge badge-outline-warning">Pending</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="form-check form-check-muted m-0">
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox" class="form-check-input">
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <img src="assets/images/faces/face5.jpg" alt="image"/>
+                                                <span class="pl-2">Lucy Abbott</span>
+                                            </td>
+                                            <td> 02312</td>
+                                            <td> $14,500</td>
+                                            <td> App design</td>
+                                            <td> Credit card</td>
+                                            <td> 04 Dec 2019</td>
+                                            <td>
+                                                <div class="badge badge-outline-danger">Rejected</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="form-check form-check-muted m-0">
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox" class="form-check-input">
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <img src="assets/images/faces/face3.jpg" alt="image"/>
+                                                <span class="pl-2">Peter Gill</span>
+                                            </td>
+                                            <td> 02312</td>
+                                            <td> $14,500</td>
+                                            <td> Development</td>
+                                            <td> Online Payment</td>
+                                            <td> 04 Dec 2019</td>
+                                            <td>
+                                                <div class="badge badge-outline-success">Approved</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="form-check form-check-muted m-0">
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox" class="form-check-input">
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <img src="assets/images/faces/face4.jpg" alt="image"/>
+                                                <span class="pl-2">Sallie Reyes</span>
+                                            </td>
+                                            <td> 02312</td>
+                                            <td> $14,500</td>
+                                            <td> Website</td>
+                                            <td> Credit card</td>
+                                            <td> 04 Dec 2019</td>
+                                            <td>
+                                                <div class="badge badge-outline-success">Approved</div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-xl-4 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex flex-row justify-content-between">
+                                    <h4 class="card-title">Messages</h4>
+                                    <p class="text-muted mb-1 small">View all</p>
+                                </div>
+                                <div class="preview-list">
+                                    <div class="preview-item border-bottom">
+                                        <div class="preview-thumbnail">
+                                            <img src="assets/images/faces/face6.jpg" alt="image"
+                                                 class="rounded-circle"/>
+                                        </div>
+                                        <div class="preview-item-content d-flex flex-grow">
+                                            <div class="flex-grow">
+                                                <div class="d-flex d-md-block d-xl-flex justify-content-between">
+                                                    <h6 class="preview-subject">Leonard</h6>
+                                                    <p class="text-muted text-small">5 minutes ago</p>
+                                                </div>
+                                                <p class="text-muted">Well, it seems to be working now.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="preview-item border-bottom">
+                                        <div class="preview-thumbnail">
+                                            <img src="assets/images/faces/face8.jpg" alt="image"
+                                                 class="rounded-circle"/>
+                                        </div>
+                                        <div class="preview-item-content d-flex flex-grow">
+                                            <div class="flex-grow">
+                                                <div class="d-flex d-md-block d-xl-flex justify-content-between">
+                                                    <h6 class="preview-subject">Luella Mills</h6>
+                                                    <p class="text-muted text-small">10 Minutes Ago</p>
+                                                </div>
+                                                <p class="text-muted">Well, it seems to be working now.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="preview-item border-bottom">
+                                        <div class="preview-thumbnail">
+                                            <img src="assets/images/faces/face9.jpg" alt="image"
+                                                 class="rounded-circle"/>
+                                        </div>
+                                        <div class="preview-item-content d-flex flex-grow">
+                                            <div class="flex-grow">
+                                                <div class="d-flex d-md-block d-xl-flex justify-content-between">
+                                                    <h6 class="preview-subject">Ethel Kelly</h6>
+                                                    <p class="text-muted text-small">2 Hours Ago</p>
+                                                </div>
+                                                <p class="text-muted">Please review the tickets</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="preview-item border-bottom">
+                                        <div class="preview-thumbnail">
+                                            <img src="assets/images/faces/face11.jpg" alt="image"
+                                                 class="rounded-circle"/>
+                                        </div>
+                                        <div class="preview-item-content d-flex flex-grow">
+                                            <div class="flex-grow">
+                                                <div class="d-flex d-md-block d-xl-flex justify-content-between">
+                                                    <h6 class="preview-subject">Herman May</h6>
+                                                    <p class="text-muted text-small">4 Hours Ago</p>
+                                                </div>
+                                                <p class="text-muted">Thanks a lot. It was easy to fix it .</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-4 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Portfolio Slide</h4>
+                                <div class="owl-carousel owl-theme full-width owl-carousel-dash portfolio-carousel"
+                                     id="owl-carousel-basic">
+                                    <div class="item">
+                                        <img src="assets/images/dashboard/Rectangle.jpg" alt="">
+                                    </div>
+                                    <div class="item">
+                                        <img src="assets/images/dashboard/Img_5.jpg" alt="">
+                                    </div>
+                                    <div class="item">
+                                        <img src="assets/images/dashboard/img_6.jpg" alt="">
+                                    </div>
+                                </div>
+                                <div class="d-flex py-4">
+                                    <div class="preview-list w-100">
+                                        <div class="preview-item p-0">
+                                            <div class="preview-thumbnail">
+                                                <img src="assets/images/faces/face12.jpg" class="rounded-circle" alt="">
+                                            </div>
+                                            <div class="preview-item-content d-flex flex-grow">
+                                                <div class="flex-grow">
+                                                    <div class="d-flex d-md-block d-xl-flex justify-content-between">
+                                                        <h6 class="preview-subject">CeeCee Bass</h6>
+                                                        <p class="text-muted text-small">4 Hours Ago</p>
+                                                    </div>
+                                                    <p class="text-muted">Well, it seems to be working now.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-muted">Well, it seems to be working now. </p>
+                                <div class="progress progress-md portfolio-progress">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 50%"
+                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-xl-4 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">To do list</h4>
+                                <div class="add-items d-flex">
+                                    <input type="text" class="form-control todo-list-input" placeholder="enter task..">
+                                    <button class="add btn btn-primary todo-list-add-btn">Add</button>
+                                </div>
+                                <div class="list-wrapper">
+                                    <ul class="d-flex flex-column-reverse text-white todo-list todo-list-custom">
+                                        <li>
+                                            <div class="form-check form-check-primary">
+                                                <label class="form-check-label">
+                                                    <input class="checkbox" type="checkbox"> Create invoice </label>
+                                            </div>
+                                            <i class="remove mdi mdi-close-box"></i>
+                                        </li>
+                                        <li>
+                                            <div class="form-check form-check-primary">
+                                                <label class="form-check-label">
+                                                    <input class="checkbox" type="checkbox"> Meeting with Alita </label>
+                                            </div>
+                                            <i class="remove mdi mdi-close-box"></i>
+                                        </li>
+                                        <li class="completed">
+                                            <div class="form-check form-check-primary">
+                                                <label class="form-check-label">
+                                                    <input class="checkbox" type="checkbox" checked> Prepare for
+                                                    presentation </label>
+                                            </div>
+                                            <i class="remove mdi mdi-close-box"></i>
+                                        </li>
+                                        <li>
+                                            <div class="form-check form-check-primary">
+                                                <label class="form-check-label">
+                                                    <input class="checkbox" type="checkbox"> Plan weekend outing
+                                                </label>
+                                            </div>
+                                            <i class="remove mdi mdi-close-box"></i>
+                                        </li>
+                                        <li>
+                                            <div class="form-check form-check-primary">
+                                                <label class="form-check-label">
+                                                    <input class="checkbox" type="checkbox"> Pick up kids from school
+                                                </label>
+                                            </div>
+                                            <i class="remove mdi mdi-close-box"></i>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Visitors by Countries</h4>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <i class="flag-icon flag-icon-us"></i>
+                                                    </td>
+                                                    <td>USA</td>
+                                                    <td class="text-right"> 1500</td>
+                                                    <td class="text-right font-weight-medium"> 56.35%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <i class="flag-icon flag-icon-de"></i>
+                                                    </td>
+                                                    <td>Germany</td>
+                                                    <td class="text-right"> 800</td>
+                                                    <td class="text-right font-weight-medium"> 33.25%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <i class="flag-icon flag-icon-au"></i>
+                                                    </td>
+                                                    <td>Australia</td>
+                                                    <td class="text-right"> 760</td>
+                                                    <td class="text-right font-weight-medium"> 15.45%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <i class="flag-icon flag-icon-gb"></i>
+                                                    </td>
+                                                    <td>United Kingdom</td>
+                                                    <td class="text-right"> 450</td>
+                                                    <td class="text-right font-weight-medium"> 25.00%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <i class="flag-icon flag-icon-ro"></i>
+                                                    </td>
+                                                    <td>Romania</td>
+                                                    <td class="text-right"> 620</td>
+                                                    <td class="text-right font-weight-medium"> 10.25%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <i class="flag-icon flag-icon-br"></i>
+                                                    </td>
+                                                    <td>Brasil</td>
+                                                    <td class="text-right"> 230</td>
+                                                    <td class="text-right font-weight-medium"> 75.00%</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div id="audience-map" class="vector-map"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:partials/_footer.html -->
+            <footer class="footer">
+                <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                    <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Copyright © bootstrapdash.com 2020</span>
+                    <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center"> Free <a
+                            href="https://www.bootstrapdash.com/bootstrap-admin-template/" target="_blank">Bootstrap admin templates</a> from Bootstrapdash.com</span>
+                </div>
+            </footer>
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+        <div class="row">
+                <div class="col-xl-3 col-sm-6 col-12">
+                    <div class="card flex-fill fb sm-box">
+                        <div class="social-likes">
+                            <p>Like us on facebook</p>
+                            <h6>50,095</h6>
+                        </div>
+                        <div class="social-boxs">
+                            <img src="{% static 'assets/img/icons/social-icon-01.svg' %}" alt="Social Icon">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-6 col-12">
+                    <div class="card flex-fill twitter sm-box">
+                        <div class="social-likes">
+                            <p>Follow us on twitter</p>
+                            <h6>48,596</h6>
+                        </div>
+                        <div class="social-boxs">
+                            <img src="{% static 'assets/img/icons/social-icon-02.svg' %}" alt="Social Icon">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-6 col-12">
+                    <div class="card flex-fill insta sm-box">
+                        <div class="social-likes">
+                            <p>Follow us on instagram</p>
+                            <h6>52,085</h6>
+                        </div>
+                        <div class="social-boxs">
+                            <img src="{% static 'assets/img/icons/social-icon-03.svg' %}" alt="Social Icon">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-6 col-12">
+                    <div class="card flex-fill linkedin sm-box">
+                        <div class="social-likes">
+                            <p>Follow us on linkedin</p>
+                            <h6>69,050</h6>
+                        </div>
+                        <div class="social-boxs">
+                            <img src="{% static 'assets/img/icons/social-icon-04.svg' %}" alt="Social Icon">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <footer>
+            <p>Copyright © 2024</p>
+        </footer>
+    </div>
+    </div>
+    <script>
+        const chartDataUrl = "{% url 'trends_bar_chart_data' %}";
+
+        $.ajax({
+            url: chartDataUrl,
+            method: "GET",
+            success: function (response) {
+                console.log("Chart data fetched:", response);
+            },
+            error: function (error) {
+                console.error("Error fetching data:", error);
+            },
+        });
+    </script>
+
+
+    <!-- Script to Render the Chart -->
+    <script>
+        $(document).ready(function () {
+            // Check if the chart container exists
+            if ($('#apexcharts-area').length > 0) {
+                // Fetch data from the Django view
+                $.ajax({
+                    url: "{% url 'line_chart' %}",
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response && response.data) {
+                            // Chart configuration
+                            var options = {
+                                chart: {
+                                    height: 350,
+                                    type: "area",
+                                    toolbar: {
+                                        show: false
+                                    },
+                                },
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                stroke: {
+                                    curve: "smooth"
+                                },
+                                series: [{
+                                    name: "Revenue",
+                                    data: response.data.datasets[0].data
+                                }],
+                                xaxis: {
+                                    categories: response.data.labels,
+                                }
+                            };
+
+                            // Render the chart
+                            var chart = new ApexCharts(
+                                document.querySelector("#apexcharts-area"),
+                                options
+                            );
+                            chart.render();
+                        } else {
+                            console.error("Invalid response format:", response);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching chart data:", error);
+                    }
+                });
+            }
+        });
+    </script>
+
+
+    {#    <script>#}
+    {#        $(document).ready(function () {#}
+    {#            console.log("Document is ready."); // Debug#}
+    {#            if ($('#pie').length > 0) {#}
+    {#                console.log("#pie container exists."); // Debug#}
+    {#                $.ajax({#}
+    {#                    url: '{% url 'gender_pie_chart' %}',#}
+    {#                    method: 'GET',#}
+    {#                    success: function (data) {#}
+    {#                        console.log('API Response:', data); // Debugging#}
+    {#                        if (data.labels && data.datasets && data.datasets[0] && data.datasets[0].data) {#}
+    {#                            console.log("Valid API data received."); // Debug#}
+    {#                            var optionsPie = {#}
+    {#                                chart: {#}
+    {#                                    type: 'pie',#}
+    {#                                    height: 350,#}
+    {#                                },#}
+    {#                                labels: ['Boys', 'Girls'], // Hardcoded labels#}
+    {#                                series: [50, 50], // Hardcoded series#}
+    {#                                colors: ['#4e73df', '#ff6384'], // Hardcoded colors#}
+    {#                                legend: {#}
+    {#                                    position: 'bottom',#}
+    {#                                },#}
+    {#                                title: {#}
+    {#                                    text: 'Gender Ratio',#}
+    {#                                    align: 'center',#}
+    {#                                    style: {#}
+    {#                                        fontSize: '16px',#}
+    {#                                    },#}
+    {#                                },#}
+    {#                            };#}
+    {##}
+    {#                            var chartPie = new ApexCharts(document.querySelector('#pie'), optionsPie);#}
+    {#                            chartPie.render();#}
+    {#                            console.log("Pie chart rendered successfully."); // Debug#}
+    {#                        } else {#}
+    {#                            console.error('Invalid API response structure:', data);#}
+    {#                        }#}
+    {#                    },#}
+    {#                    error: function (xhr, status, error) {#}
+    {#                        console.error('Error fetching gender data:', status, error);#}
+    {#                    },#}
+    {#                });#}
+    {#            } else {#}
+    {#                console.error("#pie container does not exist.");#}
+    {#            }#}
+    {#        });#}
+    {##}
+    {#    </script>#}
+
+    <script>
+        $(document).ready(function () {
+            if ($('#pie').length > 0) { // Ensure the div exists
+                $.ajax({
+                    url: '{% url 'gender_pie_chart' %}', // URL of the updated view
+                    method: 'GET',
+                    success: function (data) {
+                        var optionsPie = {
+                            chart: {
+                                type: 'pie',
+                                height: 350,
+                            },
+                            labels: data.labels, // Gender categories
+                            series: data.datasets[0].data, // Gender data
+                            colors: data.datasets[0].backgroundColor, // Colors for each section
+                            legend: {
+                                position: 'bottom',
+                            },
+                            title: {
+                                text: data.title, // Use the title from the API
+                                align: 'center',
+                                style: {
+                                    fontSize: '16px',
+                                },
+                            },
+                        };
+
+                        // Render the chart
+                        var chartPie = new ApexCharts(document.querySelector('#pie'), optionsPie);
+                        chartPie.render();
+                    },
+                    error: function (error) {
+                        console.log('Error fetching gender data:', error);
+                    },
+                });
+
+            }
+        });
+    </script>
+
+    <script>
+        if ($('#bar').length > 0) {
+            $.ajax({
+                url: "/trends-bar-chart-data/", // Update to match your Django URL route
+                method: "GET",
+                success: function (response) {
+                    // Create the bar chart dynamically using the response data
+                    var optionsBar = {
+                        chart: {
+                            type: 'bar',
+                            height: 350,
+                            width: '100%',
+                            stacked: false,
+                            toolbar: {show: false},
+                        },
+                        dataLabels: {enabled: false},
+                        plotOptions: {
+                            bar: {columnWidth: '55%', endingShape: 'rounded'},
+                        },
+                        stroke: {
+                            show: true,
+                            width: 2,
+                            colors: ['transparent'],
+                        },
+                        series: [
+                            {
+                                name: response.datasets[0].label,
+                                color: response.datasets[0].backgroundColor,
+                                data: response.datasets[0].data,
+                            },
+                            {
+                                name: response.datasets[1].label,
+                                color: response.datasets[1].backgroundColor,
+                                data: response.datasets[1].data,
+                            },
+                        ],
+                        labels: response.labels, // Month labels from the view
+                        xaxis: {
+                            labels: {show: true},
+                            axisBorder: {show: false},
+                            axisTicks: {show: false},
+                        },
+                        yaxis: {
+                            axisBorder: {show: false},
+                            axisTicks: {show: false},
+                            labels: {style: {colors: '#777'}},
+                        },
+                        title: {
+                            text: response.title,
+                            align: 'left',
+                            style: {fontSize: '18px'},
+                        },
+                    };
+
+                    // Render the chart
+                    var chartBar = new ApexCharts(document.querySelector('#bar'), optionsBar);
+                    chartBar.render();
+                },
+                error: function (error) {
+                    console.error("Error fetching bar chart data:", error);
+                },
+            });
+        }
+
+    </script>
+
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
+
+
+
+    </html>
+{% endblock %}

@@ -4,57 +4,247 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="render-migrations">
-      <change afterPath="$PROJECT_DIR$/apps/Manage/backend.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/Manage/validators.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/management/signals.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/schedules/signals.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/schedules/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/registration/add_user.html" afterDir="false" />
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="communication portal">
+      <change afterPath="$PROJECT_DIR$/apps/Manage/tests/test_teacher_login.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/js/messages.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/js/school-club.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/js/term_progress.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/_layouts.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/_navbar.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/_sidebar.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/_variables.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_background.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_badges.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_buttons.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_cards.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_checkbox-radio.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_demo.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_dropdown.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_fonts.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_footer.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_forms.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_functions.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_icons.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_misc.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_preview.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_reset.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_tables.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_tabs.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_todo-list.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_typography.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_utilities.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/_widget-grid.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/landing-screens/_auth.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_bar-loader.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_circle-loader.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_colored-balls.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_dot-opacity-loader.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_flip-square-loader.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_glowing-ball.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_jumping-dots-loader.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_loaders.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_moving-square-loader.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_pixel-loader.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_square-box.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_square-path-loader.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/loaders/_variables.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/mixins/_animation.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/mixins/_background.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/mixins/_badges.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/mixins/_blockqoute.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/mixins/_breadcrumbs.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/mixins/_buttons.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/mixins/_cards.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/mixins/_misc.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/mixins/_no-ui-slider.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/mixins/_pagination.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/mixins/_popovers.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/mixins/_tooltips.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_ace.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_avgrund.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_c3.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_chartist.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_codemirror.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_colcade.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_colorpicker.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_context-menu.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_data-tables.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_datepicker.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_dropify.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_dropzone.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_flot-chart.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_full-calendar.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_google-charts.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_icheck.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_jquery-file-upload.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_js-grid.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_justguage.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_jvectormap.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_light-gallery.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_listify.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_morris.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_no-ui-slider.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_owl-carousel.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_progressbar-js.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_pws-tabs.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_quill.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_rating.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_select2.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_summernote.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_sweet-alert.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_switchery.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_tags.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_tinymce.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_toast.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_typeahead.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_wizard.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_wysieditor.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/components/plugin-overrides/_x-editable.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/style.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/scss/vertical/_vertical-wrapper.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/Teacher/base2.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/Teacher/sample.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/schedules/attendance_mark.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/schedules/club_detail.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/schedules/club_list.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/schedules/event_create.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/teachers/reschedule_form.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/DjangoProject4.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/DjangoProject4.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/School/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/School/wsgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/wsgi.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/Manage/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/apps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/validators.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/validators.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/Manage/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/management/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/apps.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/management/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/management/migrations/0007_alter_profile_address_alter_profile_certifications_and_more.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/migrations/0007_alter_profile_address_alter_profile_certifications_and_more.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/management/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/management/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/management/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/schedules/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/schedules/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/forms.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/students/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/teachers/backend.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/backend.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/teachers/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/apps.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/teachers/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/teachers/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/signals.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/teachers/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/website/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/website/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/css/custom.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/assets/css/custom.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/js/calender.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/assets/js/calender.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/js/jquery-3.6.0.min.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/assets/js/jquery-3.6.0.min.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/plugins/fullcalendar/fullcalendar.min.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/assets/plugins/fullcalendar/fullcalendar.min.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/plugins/fullcalendar/fullcalendar.min.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/assets/plugins/fullcalendar/fullcalendar.min.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/plugins/fullcalendar/jquery.fullcalendar.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/assets/plugins/fullcalendar/jquery.fullcalendar.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_accordion.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_alert.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_badge.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_breadcrumb.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_button-group.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_buttons.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_card.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_carousel.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_close.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_containers.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_dropdown.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_forms.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_functions.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_grid.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_helpers.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_images.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_list-group.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_mixins.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_modal.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_nav.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_navbar.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_offcanvas.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_pagination.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_popover.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_progress.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_reboot.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_root.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_spinners.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_tables.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_toasts.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_tooltip.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_transitions.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_type.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_utilities.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/_variables.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/bootstrap-grid.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/bootstrap-reboot.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/bootstrap-utilities.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/bootstrap.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/forms/_floating-labels.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/forms/_form-check.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/forms/_form-control.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/forms/_form-range.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/forms/_form-select.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/forms/_form-text.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/forms/_input-group.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/forms/_labels.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/forms/_validation.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/helpers/_clearfix.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/helpers/_colored-links.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/helpers/_position.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/helpers/_ratio.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/helpers/_stretched-link.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/helpers/_text-truncation.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/helpers/_visually-hidden.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_alert.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_border-radius.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_box-shadow.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_breakpoints.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_buttons.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_caret.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_clearfix.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_color-scheme.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_container.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_deprecate.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_forms.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_gradients.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_grid.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_image.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_list-group.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_lists.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_pagination.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_reset-text.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_resize.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_table-variants.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_text-truncate.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_transition.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_utilities.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/mixins/_visually-hidden.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/utilities/_api.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/website/scss/bootstrap/scss/vendor/_rfs.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/Admin/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/Admin/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/Teacher/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/Teacher/base.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/Home/Teacher/teacher-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/Teacher/teacher-dashboard.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/Home/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Home/login_form.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/login_form.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Manage/inbox.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/inbox.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/signup.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/signup.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/attendance_summary.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/attendance_summary.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/event.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/event.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/generate_timetable_all.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/generate_timetable_all.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/Manage/send_sms.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/send_sms.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/library/books_in_store.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/library/books_in_store.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/performance/subjects.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/subjects.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/performance/time_table.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/time_table.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/registration/password-reset-complete.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registration/password-reset-complete.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/registration/password-reset-confirm.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registration/password-reset-confirm.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/registration/password-reset-done.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registration/password-reset-done.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/students/query_students.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/query_students.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/students/student-details.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/student-details.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/students/students.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/students.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/students/students_graduated.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/students_graduated.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/teachers/teacher_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teacher_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/registration/password_reset.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registration/password_reset.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/schedules/upcoming_events.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/schedules/upcoming_events.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/add_teacher_assignments.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/add_teacher_assignments.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/assign_class_teachers.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/assign_class_teachers.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/class_teachers.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/class_teachers.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/subjects.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/subjects.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/teacher_assignments.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teacher_assignments.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/teachers/teachers.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teachers.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -68,10 +258,10 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="JavaScript File" />
-        <option value="HTML File" />
-        <option value="CSS File" />
         <option value="Python Script" />
+        <option value="HTML File" />
+        <option value="JavaScript File" />
+        <option value="CSS File" />
       </list>
     </option>
   </component>
@@ -112,45 +302,45 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Django Server.DjangoProject4.executor&quot;: &quot;Run&quot;,
-    &quot;Docker.School.executor&quot;: &quot;Run&quot;,
-    &quot;Docker.Unnamed.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP Request.generated-requests | #1.executor&quot;: &quot;Run&quot;,
-    &quot;Python.views.executor&quot;: &quot;Profiler&quot;,
-    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.pycharm.django.structure.promotion.once.per.project&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/HP/PycharmProjects/DjangoProject4/static/assets/img&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.grazie&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Django Server.DjangoProject4.executor": "Run",
+    "Docker.School.executor": "Run",
+    "Docker.Unnamed.executor": "Run",
+    "HTTP Request.generated-requests | #1.executor": "Run",
+    "Python.views.executor": "Profiler",
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/HP/PycharmProjects/DjangoProject4/static/assets",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.grazie",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\static\assets" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\static\assets\img" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\schedules" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home\Teacher" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home\Admin" />
-      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home\website" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home" />
@@ -315,7 +505,10 @@
       <workItem from="1738319542641" duration="28507000" />
       <workItem from="1738350286273" duration="56120000" />
       <workItem from="1738476669758" duration="45275000" />
-      <workItem from="1738559973603" duration="116740000" />
+      <workItem from="1738559973603" duration="118525000" />
+      <workItem from="1738851318314" duration="22955000" />
+      <workItem from="1738905181249" duration="47688000" />
+      <workItem from="1739005317348" duration="60449000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -661,7 +854,15 @@
       <option name="project" value="LOCAL" />
       <updated>1738608648159</updated>
     </task>
-    <option name="localTasksCounter" value="44" />
+    <task id="LOCAL-00044" summary="communication portal">
+      <option name="closed" value="true" />
+      <created>1738715550506</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1738715550506</updated>
+    </task>
+    <option name="localTasksCounter" value="45" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -679,7 +880,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="render7" />
     <MESSAGE value="render8" />
     <MESSAGE value="render9" />
     <MESSAGE value="render10" />
@@ -704,7 +904,8 @@
     <MESSAGE value="db" />
     <MESSAGE value="render-db" />
     <MESSAGE value="render-migrations" />
-    <option name="LAST_COMMIT_MESSAGE" value="render-migrations" />
+    <MESSAGE value="communication portal" />
+    <option name="LAST_COMMIT_MESSAGE" value="communication portal" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -737,28 +938,23 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/models.py</url>
-          <line>246</line>
+          <line>255</line>
           <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>1047</line>
+          <line>1082</line>
           <option name="timeStamp" value="28" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>885</line>
+          <line>920</line>
           <option name="timeStamp" value="29" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/teachers/admin.py</url>
           <line>20</line>
           <option name="timeStamp" value="36" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>2209</line>
-          <option name="timeStamp" value="38" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/teachers/signals.py</url>
@@ -791,7 +987,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/models.py</url>
-          <line>167</line>
+          <line>177</line>
           <option name="timeStamp" value="49" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -816,7 +1012,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/models.py</url>
-          <line>564</line>
+          <line>596</line>
           <option name="timeStamp" value="71" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -826,27 +1022,27 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>1284</line>
+          <line>894</line>
           <option name="timeStamp" value="77" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>1436</line>
+          <line>1046</line>
           <option name="timeStamp" value="81" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>1147</line>
+          <line>757</line>
           <option name="timeStamp" value="82" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>231</line>
+          <line>251</line>
           <option name="timeStamp" value="90" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/students/utils.py</url>
-          <line>213</line>
+          <line>137</line>
           <option name="timeStamp" value="91" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -874,19 +1070,70 @@
           <option name="timeStamp" value="96" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
+          <line>721</line>
+          <option name="timeStamp" value="101" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>507</line>
-          <option name="timeStamp" value="98" />
+          <line>2433</line>
+          <option name="timeStamp" value="102" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/management/views.py</url>
+          <line>2482</line>
+          <option name="timeStamp" value="104" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/management/models.py</url>
+          <line>258</line>
+          <option name="timeStamp" value="107" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/management/admin.py</url>
+          <line>72</line>
+          <option name="timeStamp" value="108" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/management/views.py</url>
+          <line>461</line>
+          <option name="timeStamp" value="111" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>701</line>
-          <option name="timeStamp" value="101" />
+          <line>742</line>
+          <option name="timeStamp" value="119" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/Manage/views.py</url>
+          <line>143</line>
+          <option name="timeStamp" value="125" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/Manage/views.py</url>
+          <line>83</line>
+          <option name="timeStamp" value="126" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="django-line">
           <url>file://$PROJECT_DIR$/templates/performance/class_results_view.html</url>
           <line>42</line>
           <option name="timeStamp" value="68" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/static/assets/js/messages.js</url>
+          <line>235</line>
+          <option name="timeStamp" value="116" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/static/assets/js/script.js</url>
+          <line>210</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="118" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/static/assets/js/script.js</url>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="122" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

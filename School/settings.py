@@ -41,17 +41,15 @@ ALLOWED_HOSTS = ['school-kbah.onrender.com', 'www.stitchngalore.com',
 # Application definition
 
 INSTALLED_APPS = [
+    'apps.Manage.apps.ManageConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'django.contrib.postgres',
     'phonenumber_field',
-    'apps.Manage',
     'apps.students',
     'apps.teachers',
     'apps.management',
@@ -173,9 +171,15 @@ CHANNEL_LAYERS = {
         },
     },
 }
-CSRF_COOKIE_NAME = "csrftoken"
-CSRF_COOKIE_SECURE = False  # Ensures CSRF cookie is sent only over HTTPS
-CSRF_COOKIE_SAMESITE = 'Strict'  # Helps to prevent cross-site request forgery attacks
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False  # Must be False for frontend to access CSRF token
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Ensure session cookies are secure and HTTP-only
+SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Default: store in the database
+SESSION_COOKIE_SECURE = True  # Set to True in production (HTTPS required)
+SESSION_COOKIE_HTTPONLY = True  # Prevents JavaScript from accessing it
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 CKEDITOR_5_CONFIGS = {
     'default': {
@@ -204,12 +208,9 @@ CKEDITOR_5_CONFIGS = {
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
-
 AWS_ACCESS_KEY_ID = 'your-access-key-id'
 AWS_SECRET_ACCESS_KEY = 'your-secret-access-key'
 AWS_STORAGE_BUCKET_NAME = 'your-bucket-name'
-
-
 
 pool = BlockingConnectionPool.from_url(
     REDIS_URL, max_connections=50, timeout=10
@@ -217,7 +218,7 @@ pool = BlockingConnectionPool.from_url(
 r = redis.StrictRedis(connection_pool=pool, decode_responses=True)
 
 WSGI_APPLICATION = 'School.wsgi.application'
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # Email settings for mail.valuetech.co.ke
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -282,12 +283,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # This ensures that media files are served correctly in development
 
 
-
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',  # Only JSON responses
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        "rest_framework.authentication.SessionAuthentication",  # Enables session-based auth
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (

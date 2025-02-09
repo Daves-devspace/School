@@ -1,12 +1,16 @@
 from django.urls import path
 from . import views
-from .views import MarkAsReadView, MarkAllReadView
+from .views import MarkAsReadView, MarkAllReadView, RescheduleSlot
 
 # from .views import generate_timetable_for_all
 
 urlpatterns = [
     # subjects
     path('subjects/add/', views.add_subject, name='add_subject'),
+    path('subjects/edit/<int:id>/', views.edit_subject, name='edit_subject'),
+    path('subjects/', views.list_subjects, name='subjects_list'),
+
+    path('reschedule/<int:slot_id>/', RescheduleSlot.as_view(), name='reschedule_slot'),
 
     # rooms
     path('rooms/', views.add_room_and_list, name='add_edit_room_and_list'),  # For adding rooms

@@ -1,6 +1,7 @@
 import logging
 import os
 from datetime import timedelta, datetime
+from datetime import date
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -9,7 +10,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Sum, Avg, Count, Max
+from django.db.models import Sum, Avg, Count, Max, Value, FloatField
+from django.db.models.functions import Coalesce
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -19,6 +21,14 @@ from phonenumber_field.modelfields import PhoneNumberField
 from School import settings
 from django_ckeditor_5.fields import CKEditor5Field
 
+
+
+# Each tuple contains (threshold, grade_letter)
+GRADE_MAPPING = [
+    (80, "EE"),
+    (50, "ME"),
+    (30, "AE"),
+]
 
 
 
@@ -87,7 +97,8 @@ class Institution(models.Model):
         return details
 
 
-# Term Model
+
+
 class Term(models.Model):
     name = models.CharField(max_length=100)  # e.g., "Term 1", "Term 2"
     start_date = models.DateField()
@@ -102,160 +113,70 @@ class Term(models.Model):
         ordering = ['-year']  # Display terms in reverse chronological order (latest first)
 
     def __str__(self):
-        # Display term with its year, e.g., "Term 1 - 2022"
         return f"{self.name}"
 
     def get_previous_term(self):
-        """
-        Retrieves the previous term based on the start_date.
-        """
         return Term.objects.filter(start_date__lt=self.start_date).order_by('-start_date').first()
 
     def get_next_term(self):
-        """
-        Retrieves the next term based on the start_date.
-        """
         return Term.objects.filter(start_date__gt=self.start_date).order_by('start_date').first()
 
     @property
     def holiday_period(self):
-        """
-        Calculates the holiday period between the end of this term and the start of the next term.
-        """
         next_term = self.get_next_term()
         if next_term:
             return {
                 "start": self.end_date + timedelta(days=1),
                 "end": next_term.start_date - timedelta(days=1)
             }
-        return None  # No holiday period if there is no next term
+        return None
 
     @property
     def has_midterm(self):
-        """
-        Checks if this term has a midterm period defined.
-        """
         return self.midterm_start_date is not None and self.midterm_end_date is not None
 
     @property
     def midterm_break(self):
-        """
-        Returns the midterm break period if defined.
-        """
         if self.has_midterm:
             return {"start": self.midterm_start_date, "end": self.midterm_end_date}
-        return None  # No midterm break defined
+        return None
 
     def clean(self):
-        """
-        Override the clean method to add validation to ensure no duplicate or overlapping terms.
-        """
-        # Check if a term with the same name and year already exists
         if Term.objects.exclude(id=self.id).filter(name=self.name, year=self.year).exists():
             raise ValidationError(f"A term with the name '{self.name}' for the year {self.year} already exists.")
 
-        # Check for overlapping terms within the same year
         overlapping_terms = Term.objects.exclude(id=self.id).filter(
             year=self.year,
-            start_date__lt=self.end_date,  # Check if this term starts before the other one ends
-            end_date__gt=self.start_date  # Check if this term ends after the other one starts
+            start_date__lt=self.end_date,
+            end_date__gt=self.start_date
         )
         if overlapping_terms.exists():
             raise ValidationError(f"The term '{self.name}' for the year {self.year} overlaps with an existing term.")
 
-        super().clean()  # Call the parent class's clean method
+        super().clean()
 
-# class Term(models.Model):
-#     name = models.CharField(max_length=100)  # e.g., "Term 1", "Term 2"
-#     start_date = models.DateField()
-#     end_date = models.DateField()
-#     midterm_start_date = models.DateField(null=True, blank=True)
-#     midterm_end_date = models.DateField(null=True, blank=True)
-#     year = models.PositiveIntegerField(default=timezone.now().year)
-#
-#     class Meta:
-#         verbose_name = "Term"
-#         verbose_name_plural = "Terms"
-#         ordering = ['-year']
-#
-#     def __str__(self):
-#         return f"{self.name} ({self.year})"
-#
-#     @property
-#     def holiday_period(self):
-#         """
-#         Calculates the holiday period between the end of this term and the start of the next term.
-#         """
-#         next_term = self.get_next_term()
-#         if self.end_date and next_term and next_term.start_date:
-#             holiday_start = self.end_date + timedelta(days=1)
-#             holiday_end = next_term.start_date - timedelta(days=1)
-#             if holiday_end >= holiday_start:
-#                 return {"start": holiday_start, "end": holiday_end}
-#         return None  # No valid holiday period
-#
-#     def get_next_term(self):
-#         """
-#         Returns the next term based on the start_date and year.
-#         """
-#         return Term.objects.filter(
-#             year=self.year, start_date__gt=self.end_date
-#         ).order_by('start_date').first()
-#
-#     @property
-#     def has_midterm(self):
-#         """
-#         Checks if this term has a valid midterm period defined.
-#         """
-#         return self.midterm_start_date and self.midterm_end_date and self.midterm_end_date >= self.midterm_start_date
-#
-#     @property
-#     def midterm_break(self):
-#         """
-#         Returns the midterm break period if defined and valid.
-#         """
-#         if self.has_midterm:
-#             return {
-#                 "start": self.midterm_start_date,
-#                 "end": self.midterm_end_date,
-#                 "duration": (self.midterm_end_date - self.midterm_start_date).days + 1
-#             }
-#         return None
-#
-#     @property
-#     def term_duration(self):
-#         """
-#         Calculates the total duration of the term in days.
-#         """
-#         if self.start_date and self.end_date and self.end_date >= self.start_date:
-#             return (self.end_date - self.start_date).days + 1
-#         return None
-#
-#     def clean(self):
-#         """
-#         Validates term dates and prevents overlap.
-#         """
-#         if self.start_date and self.end_date and self.end_date < self.start_date:
-#             raise ValidationError(f"The end date {self.end_date} cannot be earlier than the start date {self.start_date}.")
-#         super().clean()
+    @property
+    def progress_percentage(self):
+        """
+        Calculates the progress percentage of the term based on the current date.
+        Returns a value between 0 and 100.
+        """
+        current_date = timezone.now().date()
+
+        if current_date < self.start_date:
+            return 0  # Term hasn't started yet
+        elif current_date > self.end_date:
+            return 100  # Term has ended
+
+        # Calculate the percentage of time passed between the start and end date of the term
+        total_duration = self.end_date - self.start_date
+        elapsed_time = current_date - self.start_date
+        progress = (elapsed_time / total_duration) * 100
+
+        return round(progress, 2)
 
 
 
-
-
-# TeacherSubject Model
-# class Subject(models.Model):
-#     name = models.CharField(max_length=100)
-#     grade = models.ManyToManyField('students.Grade', blank=True, related_name='subjects')
-#     single_grade = models.ForeignKey('students.Grade', null=True, blank=True, on_delete=models.SET_NULL, related_name='single_subjects')
-#
-#     def __str__(self):
-#         if self.single_grade:
-#             return f"{self.name} (Only in {self.single_grade.name})"
-#         grades_list = ", ".join(grade.name for grade in self.grade.all())
-#         return f"{self.name} ({grades_list})" if grades_list else self.name
-#
-#
 
 # ExamType Model
 class ExamType(models.Model):
@@ -264,109 +185,6 @@ class ExamType(models.Model):
     def __str__(self):
         return self.name
 
-
-# Result Model
-# class Result(models.Model):
-#     student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name='results')
-#     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="results", default=1)
-#     term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name="results")
-#     score = models.PositiveIntegerField()
-#     max_score = models.PositiveIntegerField(default=100)  # New field to store the maximum possible score
-#     grade = models.ForeignKey('students.GradeSection', on_delete=models.SET_NULL, null=True, related_name="results")
-#
-#     class Meta:
-#         unique_together = ['student', 'subject', 'term']
-#
-#     def __str__(self):
-#         return f"{self.student.first_name} {self.student.last_name}: {self.subject.name} - {self.score} (Term {self.term.name})"
-#
-#     @property
-#     def year(self):
-#         return self.term.year
-#
-#     @property
-#     def percentage(self):
-#         """
-#         Returns the percentage score normalized to 100.
-#         """
-#         if self.max_score > 0:
-#             return (self.score / self.max_score) * 100
-#         return 0
-
-
-# class ReportCard(models.Model):
-#     student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name="report_cards")
-#     term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name="report_cards")
-#     exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name="report_cards", null=True,
-#                                   blank=True)
-#     year = models.IntegerField(editable=False)  # Auto-set based on Term
-#     created_at = models.DateField(auto_now_add=True)
-#     total_marks = models.FloatField(null=True, blank=True)
-#     average_marks = models.FloatField(null=True, blank=True)
-#     grade = models.CharField(max_length=2, null=True, blank=True)
-#     rank = models.IntegerField(null=True, blank=True)
-#     attendance_percentage = models.FloatField(null=True, blank=True)
-#     teacher_remarks = models.TextField(null=True, blank=True)
-#     conduct_remarks = models.TextField(null=True, blank=True)
-#     extra_curricular_activities = models.TextField(null=True, blank=True)
-#     achievements = models.TextField(null=True, blank=True)
-#     final_comments = models.TextField(null=True, blank=True)
-#     parent_teacher_meeting_date = models.DateField(null=True, blank=True)
-#     parent_feedback = models.TextField(null=True, blank=True)
-#
-#     def calculate_total_marks(self):
-#         """Calculate total marks for subjects under this report card."""
-#         if not self.pk:
-#             return 0.0  # Return 0 if the instance is not saved
-#
-#         return SubjectMark.objects.filter(report_card=self).aggregate(Sum('marks'))['marks__sum'] or 0.0
-#
-#     def calculate_average_marks(self):
-#         """Calculate the average marks per exam type."""
-#         total_marks = self.calculate_total_marks()
-#         total_subjects = SubjectMark.objects.filter(report_card=self).count()
-#         return round(total_marks / total_subjects, 2) if total_subjects else 0.0
-#
-#     def performance_grade(self):
-#         """Determine the grade based on the average marks."""
-#         avg_marks = self.calculate_average_marks()
-#         return (
-#             "EE" if avg_marks >= 80 else
-#             "ME" if avg_marks >= 50 else
-#             "AE" if avg_marks >= 40 else
-#             "BE"
-#         )
-#
-#     def student_rank(self):
-#         """Determine the student's rank based on total marks within the same term, year, and exam type."""
-#         if not self.pk:
-#             return None
-#
-#         # Fetch all report cards for ranking
-#         ranked_students = (
-#             ReportCard.objects.filter(term=self.term, exam_type=self.exam_type, year=self.year)
-#             .order_by('-total_marks')
-#             .values_list('student_id', flat=True)
-#         )
-#         try:
-#             return list(ranked_students).index(self.student.id) + 1  # Get rank position
-#         except ValueError:
-#             return None
-#
-#     def save(self, *args, **kwargs):
-#         """Ensure year is set from the term and update calculated fields before saving."""
-#         if self.term:
-#             self.year = self.term.year  # Auto-set year
-#
-#         self.total_marks = self.calculate_total_marks()
-#         self.average_marks = self.calculate_average_marks()
-#         self.grade = self.performance_grade()
-#         self.rank = self.student_rank()
-#
-#         super().save(*args, **kwargs)  # Save once
-#
-#     def __str__(self):
-#         return f"{self.student} - {self.term} - {self.exam_type} - {self.year}"
 
 class ReportCard(models.Model):
     student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name="report_cards")
@@ -398,11 +216,13 @@ class ReportCard(models.Model):
         if not self.pk:
             return 0.0  # Return 0 if the instance is not saved
 
-        total = SubjectMark.objects.filter(report_card=self).aggregate(Sum('marks'))['marks__sum']
-        return total if total else 0.0
+        result = SubjectMark.objects.filter(report_card=self).aggregate(
+            total_marks=Coalesce(Sum('marks'), Value(0.0, output_field=FloatField()))
+        )
+        return result['total_marks']
 
     def calculate_average_marks(self):
-        """Calculate the average marks per exam type."""
+        """Calculate the average marks per exam type, counting subjects with marks=None as 0."""
         total_marks = self.calculate_total_marks()
         total_subjects = SubjectMark.objects.filter(report_card=self).count()
         return round(total_marks / total_subjects, 2) if total_subjects > 0 else 0.0
@@ -410,14 +230,11 @@ class ReportCard(models.Model):
     def performance_grade(self):
         """Determine the grade based on the average marks."""
         avg_marks = self.calculate_average_marks()
-        if avg_marks >= 80:
-            return "EE"
-        elif avg_marks >= 50:
-            return "ME"
-        elif avg_marks >= 40:
-            return "AE"
-        else:
-            return "BE"
+        for threshold, grade in GRADE_MAPPING:
+            if avg_marks >= threshold:
+                return grade
+        # Fallback if avg_marks is below the lowest threshold (i.e., below 30)
+        return "BE"
 
     def student_rank(self):
         """Determine the student's rank based on total marks within the same term, year, and exam type."""
@@ -465,28 +282,49 @@ def update_report_card_fields(sender, instance, created, **kwargs):
 
 
 
-
-
 class SubjectMark(models.Model):
-    report_card = models.ForeignKey(ReportCard, on_delete=models.CASCADE, related_name='subject_marks')
-    subject = models.ForeignKey('schedules.Subject', on_delete=models.CASCADE, related_name='subject_marks')
+    report_card = models.ForeignKey(
+        'ReportCard',
+        on_delete=models.CASCADE,
+        related_name='subject_marks'
+    )
+    subject = models.ForeignKey(
+        'schedules.Subject',
+        on_delete=models.CASCADE,
+        related_name='subject_marks'
+    )
     marks = models.FloatField(null=True, blank=True)
     max_score = models.FloatField(default=100)
     percentage = models.FloatField(null=True, blank=True)
+
+    # Only one extra field for the subject's letter grade.
+    subject_grade = models.CharField(max_length=2, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.max_score <= 0:
             raise ValueError("Max score must be greater than 0.")
 
+        # Calculate the percentage if marks are provided.
         if self.marks is not None:
-            self.percentage = (self.marks / self.max_score) * 100 if self.max_score > 0 else 0
+            self.percentage = (self.marks / self.max_score) * 100
         else:
             self.percentage = None
 
-        super().save(*args, **kwargs)
+        # Determine the grade using the mapping.
+        if self.percentage is None:
+            self.subject_grade = None
+        else:
+            for threshold, grade in GRADE_MAPPING:
+                if self.percentage >= threshold:
+                    self.subject_grade = grade
+                    break
+            else:
+                # Fallback: if percentage is below 30, assign "BE"
+                self.subject_grade = "BE"
 
-        # After saving the SubjectMark, update the related ReportCard
-        self.report_card.save()  # This triggers the ReportCard save() method, recalculating fields
+        super().save(*args, **kwargs)
+        # Update the related ReportCard if necessary.
+        self.report_card.save()
 
     class Meta:
         unique_together = ('report_card', 'subject')
@@ -494,116 +332,10 @@ class SubjectMark(models.Model):
     def __str__(self):
         marks_str = f"{self.marks}/{self.max_score}" if self.marks is not None else "No marks"
         percentage_str = f"{self.percentage:.2f}%" if self.percentage is not None else "No percentage"
-        return f"{self.report_card.student} - {self.subject} ({marks_str}, {percentage_str})"
+        grade_str = f"Grade {self.subject_grade}" if self.subject_grade else "No grade"
+        return f"{self.report_card.student} - {self.subject} ({marks_str}, {percentage_str}, {grade_str})"
 
 
-# class ReportCard(models.Model):
-#     student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name="report_cards")
-#     term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name="report_cards")
-#     exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name="report_cards", null=True,
-#                                   blank=True)
-#     date = models.DateField(auto_now_add=True)
-#     total_marks = models.FloatField(null=True, blank=True)
-#     average_marks = models.FloatField(null=True, blank=True)
-#     grade = models.CharField(max_length=2, null=True, blank=True)
-#     rank = models.IntegerField(null=True, blank=True)
-#     attendance_percentage = models.FloatField(null=True, blank=True)
-#     teacher_remarks = models.TextField(null=True, blank=True)
-#     conduct_remarks = models.TextField(null=True, blank=True)
-#     extra_curricular_activities = models.TextField(null=True, blank=True)
-#     achievements = models.TextField(null=True, blank=True)
-#     final_comments = models.TextField(null=True, blank=True)
-#     parent_teacher_meeting_date = models.DateField(null=True, blank=True)
-#     parent_feedback = models.TextField(null=True, blank=True)
-#
-#     def calculate_total_marks(self):
-#         subject_marks = SubjectMark.objects.filter(student=self.student, term=self.term, exam_type=self.exam_type)
-#         return subject_marks.aggregate(Sum('percentage'))['percentage__sum'] or 0  # Use percentage instead of marks
-#
-#     def calculate_average_marks(self):
-#         total_marks = self.calculate_total_marks()
-#         total_subjects = SubjectMark.objects.filter(student=self.student, term=self.term,
-#                                                     exam_type=self.exam_type).count()
-#         return total_marks / total_subjects if total_subjects else 0  # Average of percentages
-#
-#     def performance_grade(self):
-#         avg_marks = self.calculate_average_marks()
-#         if avg_marks >= 80:
-#             return "EE"
-#         elif avg_marks >= 50:
-#             return "ME"
-#         elif avg_marks >= 40:
-#             return "AE"
-#         else:
-#             return "BE"
-#
-#     def student_rank(self):
-#         all_students = (
-#             ReportCard.objects.filter(term=self.term, exam_type=self.exam_type)
-#             .annotate(annotated_total_marks=Sum('subject_marks__marks'))  # Renamed annotation
-#             .order_by('-annotated_total_marks')
-#         )
-#         for rank, report in enumerate(all_students, start=1):
-#             if report.student == self.student:
-#                 return rank
-#         return None
-#
-#     def save(self, *args, **kwargs):
-#         self.total_marks = self.calculate_total_marks()
-#         self.average_marks = self.calculate_average_marks()
-#         self.grade = self.performance_grade()
-#         self.rank = self.student_rank()
-#         super().save(*args, **kwargs)
-#
-#     def __str__(self):
-#         return f"{self.student} - {self.term} - {self.exam_type}"
-#
-#
-#
-#
-#
-# class SubjectMark(models.Model):
-#     student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
-#     subject = models.ForeignKey('schedules.Subject', on_delete=models.CASCADE, related_name='subject_marks')
-#     term = models.ForeignKey(Term, on_delete=models.CASCADE)
-#     exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE)  # Reuse ExamType
-#     marks = models.FloatField(null=True, blank=True)  # Marks obtained by the student
-#     max_score = models.FloatField(default=100)  # Default max score is 100, but it's editable
-#     percentage = models.FloatField(null=True, blank=True)  # Calculated percentage
-#     report_card = models.ForeignKey(
-#         'ReportCard', on_delete=models.CASCADE, related_name='subject_marks', null=True, blank=True
-#     )
-#
-#     def save(self, *args, **kwargs):
-#         # Ensure max_score is positive
-#         if self.max_score <= 0:
-#             raise ValueError("Max score must be greater than 0.")
-#
-#         # Convert marks to percentage if marks are provided
-#         if self.marks is not None:
-#             if self.max_score > 0:
-#                 self.percentage = (self.marks / self.max_score) * 100
-#             else:
-#                 self.percentage = 0
-#         else:
-#             self.percentage = None  # Keep percentage None if marks are not provided
-#
-#         # Auto-create ReportCard if not linked
-#         if not self.report_card:
-#             report_card, created = ReportCard.objects.get_or_create(
-#                 student=self.student, term=self.term, exam_type=self.exam_type
-#             )
-#             self.report_card = report_card
-#
-#         super().save(*args, **kwargs)
-#
-#     class Meta:
-#         unique_together = ('student', 'subject', 'term', 'exam_type')
-#
-#     def __str__(self):
-#         marks_str = f"{self.marks}/{self.max_score}" if self.marks is not None else "No marks"
-#         percentage_str = f"{self.percentage:.2f}%" if self.percentage is not None else "No percentage"
-#         return f"{self.student} - {self.subject} - {self.exam_type} ({marks_str}, {percentage_str})"
 
 
 # SchoolPerformance Model
@@ -693,7 +425,7 @@ class EventParticipant(models.Model):
 class Attendance(models.Model):
     student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
     section = models.ForeignKey('students.GradeSection', on_delete=models.CASCADE)
-    teacher = models.ForeignKey(User, on_delete=models.CASCADE)
+    teacher = models.ForeignKey('teachers.Teacher', on_delete=models.CASCADE)
     date = models.DateField()
     term = models.ForeignKey(Term, on_delete=models.CASCADE)
     is_present = models.BooleanField(default=False)
@@ -790,3 +522,93 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification from {self.sender.username} to {self.recipient.username}"
+
+
+
+
+
+
+# # Model for a Teacher (Assumes you have a teacher model or user system in place)
+# class Teacher(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     subject = models.CharField(max_length=100)
+#     phone_number = models.CharField(max_length=15)
+#
+#     def __str__(self):
+#         return self.user.get_full_name()
+#
+# # Model for a Student
+# class Student(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     grade = models.CharField(max_length=10)
+#     date_of_birth = models.DateField()
+#
+#     def __str__(self):
+#         return self.user.get_full_name()
+
+# Model for Club Leadership Roles
+class ClubRole(models.Model):
+    club = models.ForeignKey('Club', on_delete=models.CASCADE,related_name='club_roles')
+    student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
+    role = models.CharField(max_length=50, choices=[('President', 'President'), ('Vice President', 'Vice President'), ('Secretary', 'Secretary'), ('Treasurer', 'Treasurer')])
+    date_assigned = models.DateField(default=date.today)
+
+    def __str__(self):
+        return f"{self.student} - {self.role} in {self.club}"
+
+# Model for Club Attendance
+class ClubAttendance(models.Model):
+    club = models.ForeignKey('Club', on_delete=models.CASCADE)
+    student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
+    date = models.DateField(default=date.today)
+    status = models.CharField(max_length=20, choices=[('Present', 'Present'), ('Absent', 'Absent'), ('Excused', 'Excused')])
+
+    def __str__(self):
+        return f"{self.student} - {self.status} on {self.date}"
+
+# Model for Club Events
+class ClubEvent(models.Model):
+    club = models.ForeignKey('Club', on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    event_date = models.DateField()
+    event_time = models.TimeField()
+    location = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"Event: {self.title} on {self.event_date}"
+
+# Model for Club Reports
+class ClubReport(models.Model):
+    club = models.ForeignKey('Club', on_delete=models.CASCADE)
+    date = models.DateField(default=date.today)
+    report = models.TextField()
+
+    def __str__(self):
+        return f"Report for {self.club.name} on {self.date}"
+
+# Model for Club Feedback (for Students)
+class ClubFeedback(models.Model):
+    club = models.ForeignKey('Club', on_delete=models.CASCADE)
+    student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
+    feedback = models.TextField()
+    date_submitted = models.DateField(default=date.today)
+
+    def __str__(self):
+        return f"Feedback from {self.student} for {self.club.name}"
+
+# Model for a Club
+class Club(models.Model):
+    name = models.CharField(max_length=200)  # Name of the club
+    description = models.TextField()  # A brief description of the club
+    teachers = models.ManyToManyField('teachers.Teacher',related_name='clubs')  # Teacher overseeing the club
+    members = models.ManyToManyField('students.Student', related_name='clubs')  # List of students in the club
+    meeting_time = models.CharField(max_length=50)  # Time the club meets (e.g., "Mondays at 3 PM")
+    created_at = models.DateTimeField(auto_now_add=True)  # When the club was created
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+

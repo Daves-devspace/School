@@ -2,82 +2,106 @@
 {% load static %}
 
 {% block title %}
-<title>Books In Store</title>
+    <title>Books In Store</title>
 {% endblock %}
 
 
 {% block body %}
 
-<div class="page-wrapper">
-    <div class="content container-fluid">
-       <div class="page-header">
-          <div class="row align-items-center">
-             <div class="col">
-                <h3 class="page-title">Library</h3>
-                <ul class="breadcrumb">
-                   <li class="breadcrumb-item"><a href="">Dashboard</a></li>
-                   <li class="breadcrumb-item active">Books</li>
-                </ul>
-             </div>
-             <div class="col-auto text-right float-right ml-auto">
-                <a href="#" class="btn btn custom-bg text-white mr-2"><i class="fas fa-download"></i> Download List</a>
-                <a href="{% url 'add_book' %}" class="btn btn custom-bg text-white"><i class="fas fa-plus mr-2 "></i>Add Book</a>
-             </div>
-          </div>
-       </div>
-       <div class="row">
-          <div class="col-sm-12">
-             <div class="card card-table">
-                <div class="card-body">
-                   <div class="table-responsive">
-                           <table class="table table-hover table-center mb-0 datatable">
-                                <thead>
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Library</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Books</li>
+                        </ul>
+                    </div>
+                    <div class="col-auto text-right float-right ml-auto">
+                        <a href="{% url 'book_fines' %}" class="btn btn-success mr-2"><i class="fas fa-dollar"></i>
+                            Download List</a>
+                        <a href="{% url 'borrowed_books' %}" class="btn btn-success mr-2"><i
+                                class="fas fa-book-dead"></i> Borrowed</a>
+                        <a href="{% url 'add_book' %}" class="btn btn custom-bg text-white"><i
+                                class="fas fa-plus mr-2 "></i>Add Book</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table">
+                        <div class="card-body">
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Teachers</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="{% url 'books_in_store' %}"
+                                           class="btn btn-success me-2 active"><i
+                                                class="fas fa-list"></i></a>
+
+                                        <a href="{% url 'book_fines' %}" class="btn btn-success mr-2"><i
+                                                class="fas fa-dollar"></i> Fines</a>
+                                        <a href="{% url 'borrowed_books' %}" class="btn btn-success mr-2"><i
+                                                class="fas fa-book-dead"></i> Borrowed</a>
+                                        <a href="{% url 'add_book' %}" class="btn btn-success"><i
+                                                class="fas fa-plus mr-2 "></i>Add Book</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover table-center mb-0 datatable">
+                                    <thead>
                                     <tr>
-                                    <th>Title</th>
-                                    <th>Author</th>
-                                    <th>Year</th>
-                                    <th>Subject</th>
-                                    <th>ISBN</th>
-                                    <th>Issue</th>
-                                    
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th>Year</th>
+                                        <th>Subject</th>
+                                        <th>ISBN</th>
+                                        <th>Issue</th>
+
                                     </tr>
-                                </thead>
-                                <tbody>
+                                    </thead>
+                                    <tbody>
 
                                     {% for book in books %}
-                                    <tr>
-                                        <td>{{ book.title }}</td>
-                                        <td> {{ book.author }} </td>
-                                        <td> {{book.year}} </td>
-                                        <td> {{book.subject}} </td>
-                                        <td> {{book.isbn}} </td>
-                                        <td> <a href="{% url 'issue_book' book.id %}" Class="btn btn  btn-sm  custom-bg text-white" >Issue</a> </td>
-                                    </tr>
+                                        <tr>
+                                            <td>{{ book.title }}</td>
+                                            <td> {{ book.author }} </td>
+                                            <td> {{ book.year }} </td>
+                                            <td> {{ book.subject }} </td>
+                                            <td> {{ book.isbn }} </td>
+                                            <td><a href="{% url 'issue_book' book.id %}"
+                                                   Class="btn btn  btn-sm  custom-bg text-white">Issue</a></td>
+                                        </tr>
 
                                     {% endfor %}
-                
-                                </tbody>
-                           </table>
-                   </div>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-             </div>
-          </div>
-       </div>
+            </div>
+        </div>
+        <footer>
+            <p>Copyright © 2024 Davedev</p>
+        </footer>
     </div>
-    <footer>
-       <p>Copyright © 2024 Davedev</p>
-    </footer>
- </div>
- </div>
- <script src="{%static 'assets/js/jquery-3.6.0.min.js' %}"></script>
- <script src="{%static 'assets/js/popper.min.js' %}"></script>
- <script src="{%static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
- <script src="{%static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
- <script src="{%static 'assets/plugins/datatables/datatables.min.js' %}"></script>
- <script src="{%static 'assets/js/script.js' %}"></script>
- </body>
- 
- </html>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
 
 
 {% endblock %}

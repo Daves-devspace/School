@@ -10,8 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700&display=swap"
           rel="stylesheet">
     <link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/plugins/feather/feather.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/plugins/icons/flags/flags.css' %}">
     <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
@@ -19,7 +17,7 @@
     <link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
-
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'assets/plugins/fullcalendar/fullcalendar.min.css' %}">
 
 
@@ -31,54 +29,10 @@
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker.min.css">
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
-
-
+    {% block extra_css %}{% endblock %}
 </head>
 
 
-</head>
-<style>
-    .multipleSelection {
-        position: relative;
-        margin-bottom: 20px
-    }
-
-    .sidebar-menu li.active > a::before {
-        background: #0a3622;
-    }
-
-    .sidebar-menu ul ul a.active {
-        background: #0a3622;
-    }
-
-    .sidebar-menu li a:hover {
-        text-decoration: none;
-        background: #0a3622;
-
-    }
-
-    .sidebar-menu li.active > a {
-        color: #0a3622;
-    }
-
-    .custom-color {
-        color: #0a3622;
-    }
-
-    .custom-bg {
-        background: #0a3622;
-
-
-    }
-
-    #toggle_btn {
-        background: #0a3622;
-
-    }
-
-</style>
 <body>
 
 
@@ -135,6 +89,7 @@
                     </div>
                     <div class="noti-content">
                         <!-- Notification Items -->
+                        <p>some appointments</p>
                     </div>
                     <div class="topnav-dropdown-footer">
                         <a href="#">View all Notifications</a>
@@ -208,43 +163,35 @@
                             <li><a href="student-dashboard.html">Student Dashboard</a></li>
                         </ul>
                     </li>
-                    <li class="bg-success-dark">
+                    <li>
                         <a href="{% url 'students' %}"><i class="fas fa-graduation-cap custom-color"></i> <span
                                 class="custom-color"> Students</span>
                             <span
                                     class="menu-arrow"></span></a>
 
                     </li>
-                    <li class="submenu">
-                        <a href="#"><i class="fas fa-chalkboard-teacher custom-color"></i> <span class="custom-color"> Teachers</span>
+                    <li>
+                        <a href="{% url 'teachers' %}"><i class="fas fa-chalkboard-teacher custom-color"></i> <span
+                                class="custom-color"> Teachers</span>
                             <span
                                     class="menu-arrow"></span></a>
-                        <ul>
-                            <li><a href="{% url 'teachers' %}">Teacher List</a></li>
 
-                            <li><a href="{% url 'teacher_assignments' %}">Subject Assignments</a></li>
-
-                        </ul>
                     </li>
                     <li class="submenu">
-                        <a href="#"><i class="fas fa-building custom-color"></i> <span
+                        <a href="#"><i class="fas fa-building custom-color toggle-menu"></i> <span
                                 class="custom-color"> Departments</span> <span
                                 class="menu-arrow"></span></a>
                         <ul>
                             <li><a href="{% url 'departments' %}">Department List</a></li>
-                            <li><a href="{% url 'add_department' %}">Department Add</a></li>
+                            <li><a href="{% url 'club_list' %}">Clubs</a></li>
                             <li><a href="{% url 'teachers_department' %}">Department Asign</a></li>
                         </ul>
                     </li>
-                    <li class="submenu">
-                        <a href="#"><i class="fas fa-book-reader custom-color"></i> <span
+                    <li>
+                        <a href="{% url 'subjects_list' %}"><i class="fas fa-book-reader custom-color"></i> <span
                                 class="custom-color"> Subjects</span> <span
                                 class="menu-arrow"></span></a>
-                        <ul>
-                            <li><a href="{% url 'subjects_list' %}">Subject List</a></li>
-                            <li><a href="{% url 'add_subject' %}">Subject Add</a></li>
 
-                        </ul>
                     </li>
                     {% if perms.students.view_invoice %}
                         <li class="submenu">
@@ -285,29 +232,13 @@
                             </ul>
                         </li>
                     {% endif %}
-                    <li class="submenu">
-                        <a href="#"><i class="fas fa-book custom-color"></i> <span
+                    <li>
+                        <a href="{% url 'books_in_store' %}"><i class="fas fa-book custom-color"></i> <span
                                 class="custom-color">Library</span><span
                                 class="menu-arrow"></span> </a>
-                        <ul>
-                            <li><a href="{% url 'books_in_store' %}">Available Books</a></li>
-                            <li><a href="{% url 'borrowed_books' %}">Borrowed Books</a></li>
-                            <li><a href="{% url 'book_fines' %}">Book Fines</a></li>
 
-                        </ul>
                     </li>
-                    <li class="submenu">
-                        <a href="#"><i class="fa fa-newspaper custom-color"></i> <span
-                                class="custom-color"> Management</span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <ul>
-                            <li><a href="{% url 'terms' %}">Terms</a></li>
-                            {#                            <li><a href="{% url 'view_results' %}">View results</a></li>#}
-                            {#                            <li><a href="{% url 'filter_results' %}">Add results</a></li>#}
-                            {#                            <li><a href="{% url 'top_students' %}">Start Students</a></li>#}
-                        </ul>
-                    </li>
+
                     <li class="submenu">
                         <a href="#"><i class="fa fa-newspaper custom-color"></i> <span
                                 class="custom-color">Academics</span>
@@ -334,37 +265,39 @@
                             <span class="menu-arrow"></span>
                         </a>
                         <ul>
-                           
+
                             <li><a href="{% url 'unified_sms' %}">ALL</a></li>
-{#                            <li><a href="{% url 'result_sms' %}">Results</a></li>#}
+                            {#                            <li><a href="{% url 'result_sms' %}">Results</a></li>#}
                         </ul>
                     </li>
                     <li>
                         <a href="{% url 'exam_list' %}"><i class="fas fa-clipboard-list custom-color"></i> <span
                                 class="custom-color">Exam list</span></a>
                     </li>
-                    <li>
-                        <a href="{% url 'event' %}"><i class="fas fa-calendar-day custom-color"></i> <span
-                                class="custom-color">Events</span></a>
+                    <li class="submenu">
+                        <a href="{% url 'event' %}"><i class="fas fa-inbox custom-color"></i> <span
+                                class="custom-color"> Events</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+
+                        <ul>
+                            <li><a href="{% url 'event' %}"> Events</a></li>
+
+
+                        </ul>
                     </li>
-                    <li>
-                        {#                       <a href="{% url 'timetable-create-api' %}"><i class="fas fa-table custom-color"></i> <span class="custom-color">Time Table</span></a>#}
+                    <li class="submenu">
                         <a href="#">
                             <i class="fas fa-table custom-color"></i>
                             <span class="custom-color">Schedules</span> <span class="menu-arrow"></span>
                         </a>
                         <ul>
-                            <li><a href="{% url 'timetable-create' %}">Create</a></li>
+                            <li><a href="{% url 'terms' %}">Terms</a></li>
+
                             <li><a href="{% url 'add_edit_room_and_list' %}">Rooms</a></li>
-                            <li><a href="{% url 'class-timetable' %}">Timetable</a></li>
-                            {#                            <li><a href="{% url 'generate' %}">Generate</a></li>#}
                             <li><a href="{% url 'timetable_page' %}">Generate Timetable</a></li>
                             <!-- Other sidebar links -->
                             <li><a href="{% url 'get_filtered_timetable' %}">Class</a></li>
-                           
-                            <li><a href="{% url 'exchange-lessons' %}">Request Swap</a></li>
-
-                            <a href="{% url 'lesson-exchange-list' %}">View Lesson Exchange Requests</a>
 
 
                         </ul>
@@ -374,17 +307,7 @@
                     <li class="menu-title">
                         <span>Staff</span>
                     </li>
-                    <li class="submenu">
-                        <a href="#"><i class="fas fa-book custom-color"></i> <span
-                                class="custom-color">User Management</span><span
-                                class="menu-arrow"></span> </a>
-                        <ul>
-                            <li><a href="{% url 'manage_users' %}">All users</a></li>
-                            <li><a href="{% url 'presentation_list' %}">Presentation</a></li>
 
-
-                        </ul>
-                    </li>
                     <li>
                         <a href="{% url 'transport' %}"><i class="fas fa-bus custom-color"></i> <span
                                 class="custom-color">Transport</span></a>
@@ -397,22 +320,12 @@
                             <li><a href="{% url 'login' %}">Login</a></li>
                             <li><a href="{% url 'logout' %}">Log Out</a></li>
                             <li><a href="{% url 'add_user' %}">Register</a></li>
+                            <li><a href="{% url 'manage_users' %}">All users</a></li>
                             <li><a href="{% url 'password_reset' %}">Forgot Password</a></li>
                             <li><a href="error-404.html">Error Page</a></li>
                         </ul>
                     </li>
-                    {#                    <li>#}
-                    {#                        <a href="holiday.html"><i class="fas fa-calendar custom-color"></i> <span class="custom-color">Holiday</span></a>#}
-                    {#                    </li>#}
-                    {##}
-                    {##}
-                    {#                    <li>#}
-                    {#                        <a href="settings.html"><i class="fas fa-cog custom-color"></i> <span class="custom-color">Settings</span></a>#}
-                    {#                    </li>#}
 
-                    {#                    <li>#}
-                    {#                        <a href="blank-page.html"><i class="fas fa-file custom-color"></i> <span class="custom-color">Blank Page</span></a>#}
-                    {#                    </li>#}
                     <li class="menu-title">
                         <span>Others</span>
                     </li>
@@ -424,44 +337,8 @@
                         <a href="sports.html"><i class="fas fa-baseball-ball custom-color"></i> <span
                                 class="custom-color">Sports</span></a>
                     </li>
-                    <li>
-                        <a href="hostel.html"><i class="fas fa-hotel custom-color"></i> <span class="custom-color">Hostel</span></a>
-                    </li>
 
 
-                    {#                    <li class="submenu">#}
-                    {#                        <a href="#"><i class="fas fa-table"></i> <span> Tables </span> <span#}
-                    {#                                class="menu-arrow"></span></a>#}
-                    {#                        <ul>#}
-                    {#                            <li><a href="tables-basic.html">Basic Tables </a></li>#}
-                    {#                            <li><a href="data-tables.html">Data Table </a></li>#}
-                    {#                        </ul>#}
-                    {#                    </li>#}
-                    {#                    <li class="submenu">#}
-                    {#                        <a href="javascript:void(0);"><i class="fas fa-code"></i> <span>Multi Level</span> <span#}
-                    {#                                class="menu-arrow"></span></a>#}
-                    {#                        <ul>#}
-                    {#                            <li class="submenu">#}
-                    {#                                <a href="javascript:void(0);"> <span>Level 1</span> <span#}
-                    {#                                        class="menu-arrow"></span></a>#}
-                    {#                                <ul>#}
-                    {#                                    <li><a href="javascript:void(0);"><span>Level 2</span></a></li>#}
-                    {#                                    <li class="submenu">#}
-                    {#                                        <a href="javascript:void(0);"> <span> Level 2</span> <span#}
-                    {#                                                class="menu-arrow"></span></a>#}
-                    {#                                        <ul>#}
-                    {#                                            <li><a href="javascript:void(0);">Level 3</a></li>#}
-                    {#                                            <li><a href="javascript:void(0);">Level 3</a></li>#}
-                    {#                                        </ul>#}
-                    {#                                    </li>#}
-                    {#                                    <li><a href="javascript:void(0);"> <span>Level 2</span></a></li>#}
-                    {#                                </ul>#}
-                    {#                            </li>#}
-                    {#                            <li>#}
-                    {#                                <a href="javascript:void(0);"> <span>Level 1</span></a>#}
-                    {#                            </li>#}
-                    {#                        </ul>#}
-                    {#                    </li>#}
                 </ul>
             </div>
         </div>
@@ -479,6 +356,9 @@
 </div>
 </div>
 </body>
+
+{% block extra_js %}
+{% endblock %}
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
@@ -556,16 +436,34 @@
         }, 500);  // Allow fade-out transition
     }, 3000);  // Dismiss after 3 seconds
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelector(".toggle-menu").addEventListener("click", function (e) {
+            e.preventDefault();
+            let submenu = this.parentElement;
+            submenu.classList.toggle("active");
+        });
+    });
+</script>
+
 <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
 <!-- Bootstrap CSS (if not already included) -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
 
 <!-- Optional Bootstrap JS (required for dropdown functionality) -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 
-<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
 <script src="{% static 'assets/js/feather.min.js' %}"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
 <script src="{% static 'assets/js/calender.js' %}"></script>
 <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>

@@ -146,3 +146,11 @@ No duplicate slots
 All fields (room, teacher, time) required
 
 This system ensures efficient, conflict-free timetables while respecting pedagogical priorities and resource constraints.
+
+
+
+
+Username Format Rules:
+- Allows letters, numbers, and @/./+/-/_//
+- Maximum 150 characters
+- Example patterns: TCH/001/24, ADM/045/22

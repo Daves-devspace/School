@@ -1,0 +1,254 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Inbox</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
+                            <li class="breadcrumb-item active">Inbox</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <!-- Success and Failures Section -->
+                            <div class="container mt-4">
+                                <h5>Responses</h5>
+
+                                {% if successful_replies %}
+                                    <div class="alert alert-success">
+                                        <strong>Successful Replies:</strong>
+                                        <ul>
+                                            {% for reply in successful_replies %}
+                                                <li>Phone: {{ reply.phone }} | Message Sent: {{ reply.message }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            
+                            </div>
+
+                            <div class="container mt-4">
+                                <div class="container">
+                                    <div class="card">
+                                        <div class="card-header bg-primary text-white text-center">
+                                            <h4>Reschedule Slot</h4>
+                                        </div>
+                                        <div class="card-body">
+
+                                            <!-- Display Messages -->
+                                            {% if messages %}
+                                                <div class="alert alert-info">
+                                                    {% for message in messages %}
+                                                        {{ message }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+
+                                            <form method="post">
+                                                {% csrf_token %}
+
+                                                <!-- Current Slot Info -->
+                                                <div class="mb-3">
+                                                    <label class="form-label"><strong>Current Slot:</strong></label>
+                                                    <p class="form-control bg-light">{{ slot.day_of_week }}
+                                                        - {{ slot.time_slot.start_time }}
+                                                        to {{ slot.time_slot.end_time }} in
+                                                        Room {{ slot.room.name }}</p>
+                                                </div>
+
+                                                <!-- Select New Day -->
+                                                <div class="mb-3">
+                                                    <label for="new_day" class="form-label">Select New Day</label>
+                                                    <select class="form-select" id="new_day" name="new_day" required>
+                                                        <option value="">Choose a day</option>
+                                                        <option value="Monday">Monday</option>
+                                                        <option value="Tuesday">Tuesday</option>
+                                                        <option value="Wednesday">Wednesday</option>
+                                                        <option value="Thursday">Thursday</option>
+                                                        <option value="Friday">Friday</option>
+                                                    </select>
+                                                </div>
+
+                                                <!-- Select New Time Slot -->
+                                                <div class="mb-3">
+                                                    <label for="new_time" class="form-label">Select New Time
+                                                        Slot</label>
+                                                    <select class="form-select" id="new_time" name="new_time" required>
+                                                        <option value="">Choose a time</option>
+                                                        {% for time_slot in available_slots %}
+                                                            <option value="{{ time_slot.id }}">{{ time_slot.start_time }}
+                                                                - {{ time_slot.end_time }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+
+                                                <!-- Select New Room -->
+                                                <div class="mb-3">
+                                                    <label for="new_room" class="form-label">Select New Room</label>
+                                                    <select class="form-select" id="new_room" name="new_room" required>
+                                                        <option value="">Choose a room</option>
+                                                        {% for room in rooms %}
+                                                            <option value="{{ room.id }}">{{ room.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+
+                                                <!-- Submit Button -->
+                                                <button type="submit" class="btn btn-primary">Submit Reschedule
+                                                    Request
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hide the message after 5 seconds if it exists
+        document.addEventListener("DOMContentLoaded", function () {
+            const failedMessageElement = document.getElementById('failed-reply-message');
+            if (failedMessageElement) {
+                setTimeout(function () {
+                    failedMessageElement.style.display = 'none';
+                }, 5000);
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const appointmentItems = document.querySelectorAll(".appointment-item");
+            const detailsDiv = document.getElementById("appointment-details");
+            const replyBtn = document.getElementById("send-reply");
+            const replyInput = document.getElementById("reply-message");
+
+            appointmentItems.forEach(item => {
+                item.addEventListener("click", function () {
+                    const appointmentId = this.getAttribute("data-id");
+
+                    fetch(`/get-appointment/${appointmentId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            detailsDiv.innerHTML = `
+                            <strong>Guardian:</strong> ${data.guardian} <br>
+                            <strong>Child:</strong> ${data.child} <br>
+                            <strong>Date:</strong> ${data.date} at ${data.time} <br>
+                            <strong>Phone:</strong> ${data.phone} <br>
+                            <strong>Email:</strong> ${data.email} <br>
+                            <hr>
+                                <p><strong>Message:</strong> ${data.message || 'No message provided'}</p>
+                        `;
+                            replyBtn.setAttribute("data-id", appointmentId);
+                        });
+                });
+            });
+
+            replyBtn.addEventListener("click", function () {
+                const appointmentId = this.getAttribute("data-id");
+                const replyMessage = replyInput.value;
+
+                if (replyMessage.trim() === "") {
+                    alert("Reply cannot be empty!");
+                    return;
+                }
+
+                fetch(`/reply-appointment/${appointmentId}/`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({message: replyMessage})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            alert("Reply sent!");
+                            replyInput.value = ""; // Clear the input after successful reply
+                        } else {
+                            alert(data.message || "Failed to send reply.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("An error occurred.");
+                    });
+            });
+        });
+    </script>
+
+    <script>
+        let socket = new WebSocket("ws://127.0.0.1:8000/ws/appointments/");
+
+        socket.onmessage = function (event) {
+            let data = JSON.parse(event.data);
+            if (data.count !== undefined) {
+                document.getElementById("appointment-count").innerText = data.count;
+            }
+            if (data.message) {
+                alert(data.message);
+            }
+        };
+    </script>
+    <script>
+        const appointmentCounter = document.getElementById("appointmentCounter");
+
+        const socket = new WebSocket("ws://" + window.location.host + "/ws/appointments/");
+
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            appointmentCounter.innerText = data.count;
+        };
+
+        socket.onclose = function () {
+            console.log("WebSocket disconnected. Trying to reconnect...");
+            setTimeout(function () {
+                location.reload();
+            }, 5000);
+        };
+    </script>
+    <script>
+        const inboxSocket = new WebSocket("ws://" + window.location.host + "/ws/inbox/");
+
+        inboxSocket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            alert(data.message);
+        };
+
+        inboxSocket.onclose = function () {
+            console.log("WebSocket disconnected. Trying to reconnect...");
+        };
+    </script>
+
+
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+
+{% endblock %}

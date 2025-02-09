@@ -15,6 +15,7 @@ class TeacherConfig(AppConfig):
 
 
 
+
 class TeachersConfig(AppConfig):
     name = 'apps.teachers'
 
@@ -33,12 +34,4 @@ class TeachersConfig(AppConfig):
         except Exception as e:
             # Log or handle exceptions gracefully
             print(f"Error during post_migrate signal: {e}")
-
-
-class YourAppConfig(AppConfig):  # Replace 'YourApp' with your app's name
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.teachers'  # Replace with your app's name
-
-    def ready(self):
-        import apps.teachers.signals  # Import the signals module
 

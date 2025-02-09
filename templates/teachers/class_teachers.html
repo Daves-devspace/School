@@ -13,25 +13,44 @@
                             <li class="breadcrumb-item active">Class</li>
                         </ul>
                     </div>
-                    <div class="col-auto text-right float-right ml-auto">
-                        <a href="#" class="btn btn accent-background text-white mr-2"><i class="fas fa-download"></i> Download</a>
-                        <a href="{% url 'add_teacher' %}" class="btn btn accent-background text-white"><i class="fas fa-plus"></i></a>
-                    </div>
+                    
                 </div>
             </div>
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="card card-table">
-                        <div class="card-body">
+                
+                        <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Teachers</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="{% url 'teachers' %}"
+                                           class="btn btn-success me-2 active"><i
+                                                class="fas fa-list"></i></a>
+                                        <a href="{% url 'teachers' %}"
+                                           class="btn btn-success me-2"><i
+                                                class="fas fa-th-large"></i></a>
+                                        <a href="#" class="btn btn-success me-2"><i
+                                                class="fas fa-download"></i>
+                                            Download</a>
+                                        <a href="{% url 'class_teachers' %}" class="btn btn-success me-2"><i
+                                                class="fas fa-chalkboard-teacher"></i>
+                                            Class Teachers</a>
+                                        
+                                    </div>
+                                </div>
+                            </div>
                             <div class="table-responsive">
                                 <table class="table table-hover table-center mb-0 datatable">
                                     <thead>
                                     <tr>
-                                        <th>ID</th>
+                                        <th>STF.NO</th>
                                         <th>Name</th>
 
-                                        <th>Class </th>
-                                        <th>Section</th>
+                                        <th>Assign Grade</th>
+                                        <th>No.Student</th>
+
                                         <th>Mobile Number</th>
 
 
@@ -39,44 +58,44 @@
                                     </tr>
                                     </thead>
                                     <tbody>
+
                                     {% for teacher in teachers %}
+                                        <tr>
 
-                                        <td>{{ teacher.id }}</td>
-                                        <td>{{ teacher.user_name }}</td>
-                                        <td>
-                                            {% if teacher.assigned_class %}
-                                                {{ teacher.assigned_class.name }}
-                                            {% else %}
-                                                No class assigned
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if teacher.assigned_class and teacher.assigned_class.section %}
-                                                {{ teacher.assigned_class.section }}
-                                            {% else %}
-                                                No section assigned
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ teacher.phone_no|default:"No phone number" }}</td>
-            
+                                            <td>{{ teacher.staff_number }}</td>
+                                            <td>{{ teacher.get_title }}</td>
+                                            <td>
+                                                {% if teacher.assigned_class %}
+                                                    {{ teacher.assigned_class }}
+                                                {% else %}
+                                                    No class assigned
+                                                {% endif %}
+                                            </td>
+                                        <td>{{ teacher.student_count|default:0 }}</td>
 
-                                        <td class="text-right">
-                                            <div class="actions">
-                                                {#                                    <a href="#"#}
-                                                {#                                       class="btn btn-sm bg-success-light mr-2">#}
-                                                {#                                       <i class="fas fa-eye"></i>#}
-                                                {#                                    </a>#}
-                                                <a href="{% url 'assign_class' teacher.id %}"
-                                                   class="btn btn-sm accent-background text-white mr-2">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
+                                            <td>{{ teacher.phone|default:"No phone number" }}</td>
 
-                                            </div>
-                                        </td>
+
+                                            <td class="text-right">
+                                                <div class="actions">
+                                                    <button class="btn btn-success assign-btn"
+                                                            data-teacher-id="{{ teacher.id }}"
+                                                            data-teacher-name="{{ teacher.user.get_full_name }}"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#assignModal">
+                                                        Assign Class
+                                                    </button>
+                                                </div>
+                                            </td>
                                         </tr>
+
                                     {% endfor %}
                                     </tbody>
                                 </table>
+
+                                <!-- Assignment Modal -->
+                           
+
                             </div>
                         </div>
                     </div>
@@ -87,7 +106,9 @@
             <p>Copyright © 2024 Davedev</p>
         </footer>
     </div>
-    </div>
+
+  
+
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/popper.min.js' %}"></script>
     <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>

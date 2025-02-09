@@ -18,6 +18,7 @@
                 </div>
             </div>
 
+
             <div class="student-group-form">
                 <div class="row">
                     <div class="col-lg-3 col-md-6">
@@ -42,6 +43,17 @@
                     </div>
                 </div>
             </div>
+            {% if messages %}
+                <div class="container-fluid">
+                    <div class="alert-container">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card card-table">
@@ -58,10 +70,16 @@
                                                 class="fas fa-list"></i></a>
                                         <a href="{% url 'teachers' %}"
                                            class="btn btn-success me-2"><i
-                                                class="fas fa-th-large"></i></a>
+                                                class="fas fa-th-large"></i>Grid</a>
                                         <a href="#" class="btn btn-success me-2"><i
                                                 class="fas fa-download"></i>
                                             Download</a>
+                                        <a href="{% url 'class_teachers' %}" class="btn btn-success me-2"><i
+                                                class="fas fa-chalkboard-teacher"></i>
+                                            Class Teachers</a>
+                                        <a href="{% url 'teacher_assignments' %}" class="btn btn-success me-2"><i
+                                                class="fas fa-pen-fancy"></i>
+                                            Assign Subject</a>
                                         <a href="{% url 'add_teacher' %}" class="btn btn-success"><i
                                                 class="fas fa-plus"></i></a>
                                     </div>
@@ -80,10 +98,9 @@
                                         <th>STF-No</th>
                                         <th>First Name</th>
                                         <th>Last Name</th>
-                                        <th>Class</th>
-                                        <th>Gender</th>
+                                        <th>Assigned Class</th>
                                         <th>Mobile Number</th>
-                                        <th>Address</th>
+                                        <th>Assign</th>
                                         <th class="text-end">View</th>
                                         <th class="text-end">Edit</th>
                                     </tr>
@@ -99,25 +116,34 @@
                                             <td>{{ teacher.staff_number }}</td>
                                             <td>
                                                 <h2 class="table-avatar">
-                                                    <a href="{% url 'teacher_detail' teacher.id %}">{{ teacher.first_name}}</a>
+                                                    <a href="{% url 'teacher_detail' teacher.id %}">{{ teacher.first_name }}</a>
                                                 </h2>
                                             </td>
                                             <td>{{ teacher.last_name }}</td>
-                                            <td>{{ teacher.assigned_class }}</td>
-                                            <td>{{ teacher.gender }}</td>
-{#                                            <td>#}
-{#                                                {% for subject in teacher.subjects.all %}#}
-{#                                                    {{ subject.name }}{% if not forloop.last %}, {% endif %}#}
-{#                                                {% empty %}#}
-{#                                                    No subjects assigned#}
-{#                                                {% endfor %}#}
-{#                                            </td>#}
+                                            <td>
+                                                {% if teacher.assigned_class %}
+                                                    {{ teacher.assigned_class }}
+                                                {% else %}
+                                                    Not ClassTeacher
+                                                {% endif %}
+                                            </td>
+
                                             <td>{{ teacher.phone }}</td>
-                                            <td>{{ teacher.address }}</td>
+
+                                            <td>
+                                                <button class="btn btn-success assign-btn"
+                                                        data-teacher-id="{{ teacher.id }}"
+                                                        data-teacher-name="{{ teacher.user.get_full_name }}"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#assignModal">
+                                                    Assign Class
+                                                </button>
+                                            </td>
                                             <td class="text-end">
                                                 <div class="actions">
                                                     <a href="{% url 'teacher_detail' teacher.id %}"
-                                                       class="btn btn-sm custom-bg text-white me-2">
+                                                       class="btn btn-success text-white me-2" data-bs-toggle="modal"
+                                                       data-bs-target="#assignClassModal">
                                                         <i class="fas fa-eye-slash"></i>
                                                     </a>
                                                 </div>
@@ -125,7 +151,7 @@
                                             <td>
                                                 <div class="actions">
                                                     <a href="{% url 'edit_teacher' teacher.id %}"
-                                                       class="btn btn-sm custom-bg text-white">
+                                                       class="btn btn-success text-white">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
                                                 </div>
@@ -144,13 +170,80 @@
         </div>
 
 
+        <!-- Assign Grade Modal -->
+        <div class="modal fade" id="assignModal" tabindex="-1"
+             aria-labelledby="assignModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="assignModalLabel">Assign Class to <span
+                                id="modalTeacherName"></span></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="{% url 'assign_grade' %}" id="assignGradeForm">
+                            {% csrf_token %}
+                            <!-- Hidden input for teacher ID -->
+                            <input type="hidden" name="teacher_id" id="teacherIdInput" value="{{ teacher.id }}">
+                            <div class="mb-3">
+                                <label for="assigned_class" class="form-label">Select Class Section</label>
+                                <select name="assigned_class" id="assigned_class" class="form-select" required>
+                                    <option value="">Choose Class Section</option>
+                                    {% for grade in grades %}
+                                        <option value="{{ grade.id }}">
+                                            {{ grade.grade.name }} {{ grade.section.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% if confirm_removal_required %}
+                                <div class="alert alert-warning">
+                                    Teacher is currently assigned to {{ previous_class }}.
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" name="confirm_removal"
+                                               value="true" id="confirmRemoval">
+                                        <label class="form-check-label" for="confirmRemoval">
+                                            I confirm to remove the current assignment.
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary">Assign Class</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <footer>
             <p>Copyright © 2024 Davedev.</p>
         </footer>
 
     </div>
 
-    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // When any "Assign Class" button is clicked, populate the modal with teacher data.
+            const assignButtons = document.querySelectorAll('.assign-btn');
+            assignButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const teacherId = this.getAttribute('data-teacher-id');
+                    const teacherName = this.getAttribute('data-teacher-name');
+                    // Set the hidden input value
+                    document.getElementById('teacherIdInput').value = teacherId;
+                    // Set the modal title with the teacher's name
+                    document.getElementById('modalTeacherName').textContent = teacherName;
+                });
+            });
+        });
+    </script>
+
+
+
 
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/popper.min.js' %}"></script>

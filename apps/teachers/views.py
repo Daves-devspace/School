@@ -2,13 +2,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Count, Subquery
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
 from phonenumbers import is_valid_number, parse
 
 from apps.management.models import  Profile
-from apps.students.models import  Grade
+from apps.students.models import Grade, GradeSection
 from .forms import TeacherForm, TeacherAssignmentForm
 # from .forms import TeacherForm
 from .models import Teacher, Department, TeacherRole, Role, TeacherAssignment
@@ -16,9 +17,10 @@ from .models import Teacher, Department, TeacherRole, Role, TeacherAssignment
 
 @login_required
 def teachers(request):
-    teachers = Teacher.objects.select_related('user','user__profile').all()
+    teachers = Teacher.objects.select_related('user','user__profile',"assigned_class").all()
+    grades = GradeSection.objects.all()
 
-    return render(request, "teachers/teachers.html", {"teachers": teachers})
+    return render(request, "teachers/teachers.html", {"teachers": teachers,'grades': grades})
 
 
 
@@ -86,36 +88,38 @@ def teacher_detail(request, id):
 
 
 
-def add_teacher_assignments(request):
-    if request.method == 'POST':
-        form = TeacherAssignmentForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('teacher_assignments')
+
+
+def teacher_assignments(request, assignment_id=None):
+    # If assignment_id is passed, we are editing an existing assignment
+    if assignment_id:
+        assignment = get_object_or_404(TeacherAssignment, id=assignment_id)
     else:
-        form = TeacherAssignmentForm()
-    return render(request,'teachers/add_teacher_assignments.html',{'form':form})
+        assignment = None
 
-
-
-def teacher_assignments_list(request):
-    assignments = TeacherAssignment.objects.all().order_by('grade_section__grade','subject__name')
-    return render(request,'teachers/teacher_assignments.html',{'assignments':assignments})
-
-
-def edit_teacher_assignment(request,pk):
-    assignment = get_object_or_404(TeacherAssignment,pk=pk)
     if request.method == 'POST':
-        form = TeacherAssignmentForm(request.POST,instance=assignment)
+        form = TeacherAssignmentForm(request.POST, instance=assignment)
         if form.is_valid():
             form.save()
-            messages.success(request,'Teacher Assignment updated successfully!')
-            return redirect('teacher_assignments')
+            return redirect('teacher_assignments')  # Redirect to the list of assignments
         else:
-            messages.error(request,'Please correct the error below')
+            # Print the form errors to debug
+            print(form.errors)
     else:
         form = TeacherAssignmentForm(instance=assignment)
-    return render(request,'teachers/edit_teacher_assignmet.html',{'form':form})
+
+    # Fetch existing assignments for the list
+    assignments = TeacherAssignment.objects.all().order_by('grade_section__grade', 'subject__name')
+
+    return render(request, 'teachers/teacher_assignments.html', {
+        'form': form,
+        'assignments': assignments
+    })
+
+def delete_teacher_assignment(request, assignment_id):
+    assignment = get_object_or_404(TeacherAssignment, id=assignment_id)
+    assignment.delete()
+    return redirect('teacher_assignments')
 
 
 # def record_marks_view(request, subject_id, term_id):
@@ -163,7 +167,7 @@ def assign_hod_and_teachers(request, id):
                 hod = get_object_or_404(Teacher, pk=hod_id)
                 department.hod = hod
                 department.save()
-                messages.success(request, f"{hod.full_name} has been assigned as the HOD.")
+                messages.success(request, f"{hod.staff_number} has been assigned as the HOD.")
 
             return redirect('teachers_department')  # Redirect to the teachers department list page
 
@@ -197,10 +201,10 @@ def assign_teachers_to_department(request, department_id):
 
         # Check if the teacher is already assigned to this department with this role
         if TeacherRole.objects.filter(teacher=teacher, department=department, role=role).exists():
-            messages.warning(request, f"{teacher.full_name} is already assigned to {department.name} as {role.name}.")
+            messages.warning(request, f"{teacher.staff_number} is already assigned to {department.name} as {role.name}.")
         else:
             TeacherRole.objects.create(teacher=teacher, department=department, role=role)
-            messages.success(request, f"{teacher.full_name} has been successfully added to {department.name} as {role.name}.")
+            messages.success(request, f"{teacher.staff_number} has been successfully added to {department.name} as {role.name}.")
 
         return redirect('assign_teachers_to_department', department_id=department_id)
 
@@ -220,45 +224,80 @@ def remove_teacher_from_department(request, department_id, teacher_id):
     # Remove the teacher from the department
     if teacher in department.teachers.all():  # Assuming a ManyToMany relationship
         department.teachers.remove(teacher)
-        messages.success(request, f"{teacher.full_name} has been removed from the department.")
+        messages.success(request, f"{teacher.staff_number} has been removed from the department.")
     else:
-        messages.warning(request, f"{teacher.full_name} is not part of the department.")
+        messages.warning(request, f"{teacher.staff_number} is not part of the department.")
 
     # Redirect back to the department details page or another relevant page
     return redirect('assign_teachers_to_department', department_id=department.id)
 
 
 
+
+
+
+
 @login_required
-def assign_grade(request, teacher_id):
-    # Fetch the teacher and all available grades
-    teacher = get_object_or_404(Teacher, id=teacher_id)
-    grades = Grade.objects.all()
+def assign_grade(request):
+    # This view is expected to be used in a modal within the class teachers page.
+    teacher = get_object_or_404(Teacher, pk=request.POST.get('teacher_id'))
+    grades = GradeSection.objects.all()
 
     if request.method == 'POST':
-        # Get the selected grade ID from the form
         grade_id = request.POST.get('assigned_class')
+        confirm_removal = request.POST.get('confirm_removal', 'false') == 'true'
 
         if grade_id:
-            # Fetch the selected grade
-            assigned_grade = get_object_or_404(Grade, id=grade_id)
+            assigned_grade = get_object_or_404(GradeSection, pk=grade_id)
+            previous_class = GradeSection.objects.filter(class_teacher=teacher).first()
 
-            # Assign the grade to the teacher
-            teacher.assigned_class = assigned_grade
-            teacher.save()
+            if previous_class:
+                if previous_class.id == assigned_grade.id:
+                    messages.warning(request, "This teacher is already assigned to the selected class.")
+                    return redirect('class_teachers')
 
-            # Display a success message
-            messages.success(
-                request,
-                f"{teacher.full_name} has been assigned to {assigned_grade.name} (Section: {assigned_grade.section})."
-            )
-            return redirect('class_teachers')  # Replace with your redirect URL
+                # If teacher is already assigned to a different class
+                if not confirm_removal:
+                    # Render the assignment form again with a confirmation request.
+                    messages.warning(request, f"Teacher {teacher.staff_number} is already assigned to {previous_class}. Please confirm removal of the current assignment.")
+                    return render(request, 'teachers/assign_class_teachers.html', {
+                        'teacher': teacher,
+                        'grades': grades,
+                        'confirm_removal_required': True,
+                        'previous_class': previous_class
+                    })
 
-    # Render the template with the teacher and grades context
-    return render(request, 'teachers/assign_class_teachers.html', {
-        'teacher': teacher,
-        'grades': grades
-    })
+                # If confirmed, remove teacher from the previous assigned class.
+                previous_class.class_teacher = None
+                previous_class.save()
+                messages.info(request, f"Teacher {teacher.staff_number} has been removed from the previous class.")
+
+            # Assign teacher to the new class.
+            assigned_grade.class_teacher = teacher
+            assigned_grade.save()
+            messages.success(request, f"Teacher {teacher.staff_number} has been successfully assigned to {assigned_grade}.")
+            return redirect('class_teachers')
+
+        messages.error(request, "Invalid Grade Selection")
+        return redirect('class_teachers')
+
+    # For GET, simply redirect back (this view is mainly for POST).
+    return redirect('class_teachers')
+
+
+
+
+@login_required
+def class_teachers(request):
+    # Subquery to fetch the student count for the GradeSection where the teacher is assigned.
+    assigned_class_qs = (
+        GradeSection.objects
+        .filter(class_teacher=OuterRef('pk'))
+        .annotate(num_students=Count('students'))
+        .values('num_students')[:1]
+    )
+    teachers = Teacher.objects.annotate(student_count=Subquery(assigned_class_qs))
+    return render(request, "teachers/class_teachers.html", {"teachers": teachers})
 
 
 # def assign_grade(request, teacher_id):
@@ -358,10 +397,7 @@ def assign_grade(request, teacher_id):
 #
 #     return render(request, 'teachers/assign_class_teachers.html', {'teacher': teacher, 'grades': grades})
 
-@login_required
-def class_teachers(request):
-    teachers = Teacher.objects.all()
-    return render(request, "teachers/class_teachers.html", {"teachers": teachers})
+
 
 
 @login_required

@@ -15,73 +15,121 @@
                         </ul>
                     </div>
                 </div>
-                <div class="col-auto text-end float-end ms-auto download-grp">
-                    <a href="#"
-                       class="btn btn-outline custom-bg text-white me-2 active"><i
-                            class="fas fa-list"></i></a>
-                    <a href="#"
-                       class="btn btn-outline custom-bg text-white me-2"><i
-                            class="fas fa-th-large"></i></a>
-                    <a href="#" class="btn btn custom-bg text-white me-2"><i
-                            class="fas fa-download"></i>
-                        Download</a>
-                    <a href="{% url 'add_teacher_assignment' %}" class="btn btn custom-bg text-white"><i
-                            class="fas fa-plus"></i></a>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="card">
-                        <div class="card-body">
 
-                            <table class="table table-striped">
-                                <thead>
-                                <tr>
-                                    <th>Teacher</th>
-                                    <th>Subject</th>
-                                    <th>Grade</th>
-                                    <th>Section</th>
-                                    <th>Assigned Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for assignment in assignments %}
-                                    <tr>
-                                        <td>{{ assignment.teacher.get_display_name }}</td>
-                                        <td>{{ assignment.subject.name }}</td>
-                                        <td>{{ assignment.grade_section.grade.name }}</td>
-                                        <td>{{ assignment.grade_section.section }}</td>
-                                        <td>{{ assignment.assigned_date }}</td>
-                                        <td>
-                                            <div class="actions ">
-                                                <a href="{% url 'edit_teacher_assignment' assignment.id %}"
-                                                   class="btn btn-sm custom-bg text-white me-2" title="Edit Assignment">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card card-table">
+                            <div class="card-body">
 
+                                <div class="page-header">
+                                    <div class="row align-items-center">
+                                        <div class="col">
+                                            <h3 class="page-title">Teachers</h3>
+                                        </div>
+                                        <div class="col-auto text-end float-end ms-auto download-grp">
+                                            <a href="{% url 'teachers' %}"
+                                               class="btn btn-success me-2 active"><i
+                                                    class="fas fa-list"></i></a>
+                                            <a href="{% url 'teachers' %}"
+                                               class="btn btn-success me-2"><i
+                                                    class="fas fa-chalkboard-teacher"></i></a>
+                                            <a href="#" class="btn btn-success me-2"><i
+                                                    class="fas fa-download"></i>
+                                                Download</a>
+                                            <a href="{% url 'class_teachers' %}" class="btn btn-success me-2"><i
+                                                    class="fas fa-pen-fancy"></i>
+                                                Assign Class</a>
+                                            <a href="{% url 'teacher_assignments' %}" class="btn btn-success me-2"><i
+                                                    class="fas fa-pen-fancy"></i>
+                                                Assign Subject</a>
+                                            <a href="{% url 'add_teacher' %}" class="btn btn-success"><i
+                                                    class="fas fa-plus"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="container-fluid mt-4">
+                                    <div class="row card-table comman-shadow">
+                                        <!-- Left Side: Form -->
+                                        <div class="col-lg-6 col-md-12">
+                                            <div class="card shadow-sm h-100">
+                                                <div class="card-body p-4">
+                                                    <h4 class="mb-3">{% if form.instance.id %}Edit{% else %}
+                                                        Add{% endif %} Teacher
+                                                        Assignment</h4>
+                                                    <form method="POST">
+                                                        {% csrf_token %}
+                                                        <div class="mb-3">{{ form.as_p }}</div>
+                                                        <button type="submit" class="btn btn-primary">
+                                                            {% if form.instance.id %}Save Changes{% else %}Add
+                                                                Assignment{% endif %}
+                                                        </button>
+                                                        <a href="{% url 'teacher_assignments' %}"
+                                                           class="btn btn-secondary">Cancel</a>
+                                                    </form>
+                                                </div>
                                             </div>
-                                        </td>
-                                    </tr>
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted">No assignments found.</td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                                        </div>
 
+                                        <!-- Right Side: Assignment List -->
+                                        <div class="col-lg-6 col-md-12 table-responsive">
+                                            <div class="card  card-table  shadow-sm h-100">
+                                                <div class="card-body p-4">
+                                                    <h4 class="mb-3">Teacher Assignments</h4>
+                                                    <div class="table-responsive">
+                                                        <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped w-100">
+                                                            <thead class="table-dark student-thread">
+                                                            <tr>
+                                                                <th>Teacher</th>
+                                                                <th>Subject</th>
+                                                                <th>Grade</th>
+                                                                <th>Actions</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            {% for assignment in assignments %}
+                                                                <tr>
+                                                                    <td>{{ assignment.teacher.get_title }}</td>
+                                                                    <td>{{ assignment.subject.name }}</td>
+                                                                    <td>{{ assignment.grade_section }}</td>
 
+                                                                    <td>
+                                                                        <a href="{% url 'teacher_assignments_edit' assignment.id %}"
+                                                                           class="btn btn-warning btn-sm">Edit</a>
+                                                                        <a href="{% url 'delete_teacher_assignment' assignment.id %}"
+                                                                           class="btn btn-danger btn-sm">Delete</a>
+                                                                    </td>
+                                                                </tr>
+                                                            {% empty %}
+                                                                <tr>
+                                                                    <td colspan="5" class="text-center text-muted">No
+                                                                        assignments
+                                                                        found.
+                                                                    </td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+                    </div> <!-- End row -->
+                </div> <!-- End container-fluid -->
+            </div> <!-- End content container-fluid -->
+        </div> <!-- End page-wrapper -->
     </div>
+
     </div>
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/popper.min.js' %}"></script>
     <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
     <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
     <script src="{% static 'assets/js/script.js' %}"></script>
     </body>

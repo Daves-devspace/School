@@ -1,0 +1,177 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Clubs</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Clubs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h2>{{ club.name }}</h2>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="{% url 'teachers' %}"
+                                           class="btn btn-success me-2 active"><i
+                                                class="fas fa-list"></i></a>
+                                        <a href="{% url 'teachers' %}"
+                                           class="btn btn-success me-2"><i
+                                                class="fas fa-th-large"></i></a>
+                                        <a href="#" class="btn btn-success me-2"><i
+                                                class="fas fa-download"></i>
+                                            Download</a>
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#addMemberModal">
+                                            Add Member
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                <thead>
+                                <tr>
+                                    <th>ADM</th>
+                                    <th>Name</th>
+                                    <th>Grade</th>
+                                    <th>Role</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody id="clubMembersTableBody">
+                                {% for member in club.members.all %}
+                                    <tr id="memberRow-{{ member.id }}">
+                                        <td>{{ member.admission_number }}</td>
+                                        <td>{{ member.first_name }} {{ member.last_name }}</td>
+                                        <td>{{ member.grade }}</td>
+                                        <td>{{ member.role }}</td>
+                                        <td>
+                                            <a href="#" class="btn btn-danger"
+                                               onclick="removeMember({{ member.id }}, {{ club.id }})">
+                                                Remove
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+
+
+                            <!-- Add Member Modal -->
+                            <!-- Main Add Member Modal -->
+                            <div class="modal fade" id="addMemberModal" tabindex="-1"
+                                 aria-labelledby="addMemberModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addMemberModalLabel">Confirm Member
+                                                Selection</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="addMemberForm">
+                                                <!-- Student Search -->
+                                                <div class="form-group">
+                                                    <label for="studentSearch">Search Student:</label>
+                                                    <input type="text" id="studentSearch" class="form-control"
+                                                           placeholder="Enter admission number or name">
+                                                </div>
+
+                                                <!-- Student Search Results List -->
+                                                <ul id="studentList" class="list-group"></ul> <!-- Add the list here -->
+
+                                                <!-- Selected Student Preview -->
+                                                <div id="selectedStudentPreview" class="alert alert-info d-none">
+                                                    <p><strong>Selected Student:</strong></p>
+                                                    <p id="studentName">-</p>
+                                                    <p id="studentAdmission">-</p>
+                                                    <p id="studentGrade">-</p>
+                                                </div>
+
+                                                <input type="hidden" name="student_id" id="selectedStudentId">
+
+                                                <!-- Confirm Selection -->
+                                                <button type="submit" class="btn btn-primary btn-block"
+                                                        id="confirmAddButton" disabled>
+                                                    Confirm & Add Member
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+  <!-- Student Confirmation Modal -->
+<div class="modal fade" id="studentConfirmationModal" tabindex="-1"
+    aria-labelledby="studentConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="studentConfirmationModalLabel">Confirm Student Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Name:</strong> <span id="confirmationName"></span></p>
+                <p><strong>Admission Number:</strong> <span id="confirmationAdmissionNo"></span></p>
+                <p><strong>Grade:</strong> <span id="confirmationGrade"></span></p> <!-- Fixed label -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmAddMemberBtn">Add to Club</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+    <script src="{% static 'assets/js/school-club.js' %}"></script>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+{% endblock %}

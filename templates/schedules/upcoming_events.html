@@ -10,10 +10,10 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">Assign Teacher Grade</h3>
+                        <h3 class="page-title">Upcoming Event</h3>
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Assign Grade</li>
+                            <li class="breadcrumb-item active">Events</li>
                         </ul>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             const eventList = document.getElementById("eventList");
 
-            axios.get("/api/events/upcoming-events").then((response) => {
+            axios.get("/management/api/events/upcoming-events").then((response) => {
                 response.data.forEach((event) => {
                     const listItem = document.createElement("li");
                     listItem.className = "list-group-item";

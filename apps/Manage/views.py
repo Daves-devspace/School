@@ -1,5 +1,6 @@
 import json
-from datetime import date, timedelta, timezone
+from datetime import date
+from django.utils import timezone
 
 import logging
 from django.contrib import messages
@@ -13,13 +14,17 @@ from django.db.models import Sum
 from django.db.models.functions.datetime import TruncMonth
 from django.http import JsonResponse, request
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.views.decorators.http import require_http_methods
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from School import settings
 from apps.Manage.forms import CustomSignupForm, UserCreateForm
@@ -42,9 +47,11 @@ from django.contrib.auth.models import Group
 
 from ..schedules.models import TimetableSlot
 
+logger = logging.getLogger(__name__)
+
 
 def get_user_role_redirect(user):
-    user_groups = user.groups.values_list('name', flat=True)  # Get the list of group names
+    user_groups = set(user.groups.values_list('name', flat=True))
     role_redirect_map = {
         'Director': 'director_dashboard',
         'Teacher': 'teacher_dashboard',
@@ -53,80 +60,114 @@ def get_user_role_redirect(user):
 
     for role, url_name in role_redirect_map.items():
         if role in user_groups:
-            return url_name  # Return the URL name if the user is in this group
+            return url_name
+    return None
 
-    return None  # Return None if no matching group is found
 
-
+@require_http_methods(["GET"])
+@login_required
 def home(request):
+    logger.debug(f"Home view accessed by {request.user}")
+
     if request.user.is_superuser:
+        logger.debug("Redirecting superuser to director dashboard")
         return redirect('director_dashboard')
 
-    redirect_url = get_user_role_redirect(request.user)
-    if redirect_url:
-        return redirect(redirect_url)  # Ensure it gets a valid URL pattern name
+    if redirect_url := get_user_role_redirect(request.user):
+        logger.debug(f"Redirecting {request.user} to {redirect_url}")
+        return redirect(redirect_url)
 
-    messages.warning(request, "You don't have a valid role assigned.")
+    messages.warning(request, "Your account has no assigned role")
     return redirect('logout')
-
 
 
 def login_user(request):
     if request.method == 'POST':
-        username_or_staff_number = request.POST.get('username', '')
+        username = request.POST.get('username', '')
         password = request.POST.get('password', '')
-
-        user = authenticate(request, username=username_or_staff_number, password=password)
+        user = authenticate(request, username=username, password=password)
 
         if user:
             login(request, user)
+            logger.debug(f"User {user} logged in successfully")
+            messages.success(request, 'Welcome back!')
+            return redirect('home')
 
-            try:
-                refresh = RefreshToken.for_user(user)
-                access_token = str(refresh.access_token)
-                refresh_token = str(refresh)
-                secure_cookie = not settings.DEBUG
+        messages.error(request, 'Invalid credentials')
+        return redirect('login')
 
-                # Set expiration for access token (1 hour here)
-                refresh.access_token.set_exp(lifetime=timedelta(hours=1))
+    # Show login form for GET requests
+    return render(request, 'Home/login_form.html')
 
-                response = redirect('home')
-                response.set_cookie('access_token', access_token, httponly=True, secure=secure_cookie, samesite='Strict')
-                response.set_cookie('refresh_token', refresh_token, httponly=True, secure=secure_cookie, samesite='Strict')
 
-                messages.success(request, 'You are logged in!')
-                return response
-            except Exception as e:
-                messages.error(request, f"Error during token generation: {e}")
-                return redirect('login')
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
 
-        else:
-            messages.warning(request, 'Invalid username or password')
-            return redirect('login')
+        if response.status_code == 200:
+            data = response.data
+            response.set_cookie(
+                key="access_token",
+                value=data["access"],
+                httponly=True,  # Prevents JavaScript from accessing it
+                secure=True,  # Set to True in production (HTTPS required)
+                samesite="Lax",  # Helps with CSRF protection
+            )
+            response.set_cookie(
+                key="refresh_token",
+                value=data["refresh"],
+                httponly=True,
+                secure=True,
+                samesite="Lax",
+            )
 
-    # **Fix: Add a return statement for GET requests**
-    return redirect( 'login_form')
+        return response
+
+@api_view(["POST"])
+
+def refresh_token_view(request):
+    refresh_token = request.COOKIES.get("refresh_token")
+    if not refresh_token:
+        return Response({"error": "No refresh token provided."}, status=401)
+
+    try:
+        new_access_token = str(RefreshToken(refresh_token).access_token)
+        response = Response({"message": "Token refreshed successfully."})
+        response.set_cookie("access_token", new_access_token, httponly=True, secure=True, samesite="Lax")
+        return response
+    except Exception as e:
+        return Response({"error": str(e)}, status=401)
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Requires session authentication
 def protected_view(request):
-    access_token = request.COOKIES.get('access_token')
-    if not access_token:
+    access_token_str = request.COOKIES.get('access_token')
+
+    if not access_token_str:
         return Response({'error': 'No access token provided.'}, status=401)
 
     try:
-        token = AccessToken(access_token)
-        return Response({'message': 'Access granted!'}, status=200)
+        # Convert string into an AccessToken object (if valid)
+        access_token = AccessToken(access_token_str)
+
+        # Extract user info from the token
+        user_id = access_token.get('user_id', None)
+
+        return Response({'message': 'Access granted!', 'user_id': user_id}, status=200)
+
     except TokenError as e:
         return Response({'error': str(e)}, status=401)
 
+@api_view(["GET"])
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    """Returns CSRF token for frontend"""
+    return JsonResponse({"message": "CSRF token set"}, status=200)
 
 def login_form(request):
     # Check if there are any messages to display (e.g., after logout)
     return render(request, 'Home/login_form.html', {'messages': messages.get_messages(request)})
-
-
-logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -186,55 +227,36 @@ def director_dashboard(request):
         return render(request, 'Manage/errors/500.html', {"error_message": str(e)})
 
 
-# @login_required
-# def teacher_dashboard(request):
-#     # Check if the user belongs to the "Teacher" group
-#     if not request.user.groups.filter(name="Teacher").exists():
-#         return redirect("logout")
-#
-#     # Retrieve the corresponding Teacher instance for the logged-in user
-#     teacher = get_object_or_404(Teacher, user=request.user)
-#     # Fetch the grade sections assigned to this teacher
-#     grade_sections = GradeSection.objects.filter(class_teacher=teacher)
-#
-#     current_term = get_current_term()
-#
-#     # Render the teacher dashboard template with attendance data
-#     return render(request, 'Home/Teacher/teacher-dashboard.html', {
-#         'grade_sections': grade_sections,
-#         'current_term': current_term,
-#
-#     })
-
-
-
 
 
 @method_decorator(login_required, name='dispatch')
 class teacher_dashboard(View):
     def get(self, request):
-        # Ensure the user belongs to the 'Teacher' group
-        if not request.user.groups.filter(name="Teacher").exists():
-            messages.error(request, "Access denied: You must be a teacher to view this page.")
-            return redirect("home")  # Redirect unauthorized users to home
+        logger.debug(f"User groups: {list(request.user.groups.values_list('name', flat=True))}")
+        logger.debug(f"Teacher profile exists: {hasattr(request.user, 'teacher_profile')}")
 
-        # Attempt to get the teacher profile
-        teacher = Teacher.objects.filter(user=request.user).first()
-        if not teacher:
-            messages.error(request, "No teacher profile found for your account.")
-            return redirect("home")  # Redirect users without a teacher profile
+        try:
+            teacher = getattr(request.user, 'teacher_profile', None)
+            if teacher is None:
+                raise Teacher.DoesNotExist  # Trigger error handling
+        except Teacher.DoesNotExist:
+            logger.error(f"Teacher profile missing for user {request.user}")
+            messages.error(request, "No teacher profile found. Contact admin.")
+            return redirect('home')
 
-        current_weekday = timezone.now().strftime('%A')
+        current_datetime = timezone.now()
+        current_day = current_datetime.strftime('%A')
 
-        # Fetch teaching schedule
+        # Fetch lessons for today
         upcoming_slots = TimetableSlot.objects.filter(
             teacher_assignment__teacher=teacher,
-            day_of_week=current_weekday
-        ).select_related(
-            'time_slot',
-            'room',
-            'teacher_assignment__grade_section'
-        ).order_by('time_slot__start_time')
+            day_of_week=current_day
+        ).select_related('time_slot', 'room', 'teacher_assignment__grade_section').order_by('time_slot__start_time')
+
+        # Fetch full weekly schedule
+        weekly_schedule = TimetableSlot.objects.filter(
+            teacher_assignment__teacher=teacher
+        ).select_related('time_slot', 'room', 'teacher_assignment__grade_section').order_by('day_of_week', 'time_slot__start_time')
 
         # Get class management data
         grade_sections = GradeSection.objects.filter(class_teacher=teacher)
@@ -246,7 +268,8 @@ class teacher_dashboard(View):
 
         context = {
             'upcoming_slots': upcoming_slots,
-            'current_day': current_weekday,
+            'weekly_schedule': weekly_schedule,  # Add full weekly schedule to context
+            'current_day': current_day,
             'grade_sections': grade_sections,
             'current_term': current_term,
             'notifications': notifications,
@@ -255,7 +278,6 @@ class teacher_dashboard(View):
         }
 
         return render(request, 'Home/Teacher/teacher-dashboard.html', context)
-
 
 def logout_user(request):
     # Invalidate the JWT token (log out on front-end as well)
@@ -299,6 +321,15 @@ def signup(request):
 
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'registration/password_reset.html'
+    success_url = reverse_lazy('password_reset_done')
+
+    def form_valid(self, form):
+        messages.success(self.request, "Password reset email has been sent successfully. Please check your email.")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Failed to send password reset email. Please try again.")
+        return super().form_invalid(form)
 
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
@@ -307,6 +338,15 @@ class CustomPasswordResetDoneView(PasswordResetDoneView):
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'registration/password-reset-confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
+
+    def form_valid(self, form):
+        messages.success(self.request, "Password has been successfully reset.You can login")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "The password reset link is invalid or expired. Please request a new one.")
+        return super().form_invalid(form)
 
 
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):

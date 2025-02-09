@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="file://$PROJECT_DIR$" libraries="{apexcharts, axios, bootstrap-icons, font-awesome, fullcalendar, html2pdf.js, jquery-3.4.1}" />
+    <file url="file://$PROJECT_DIR$" libraries="{@popperjs/core, apexcharts, axios, bootstrap-icons, font-awesome, fullcalendar, html2pdf.js, jquery-3.4.1}" />
   </component>
 </project>

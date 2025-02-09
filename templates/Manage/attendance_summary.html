@@ -2,6 +2,9 @@
 {% load crispy_forms_filters %}
 {% load static %}
 {% block body %}
+    {% block extra_css %}
+        <link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
+    {% endblock %}
 
     <div class="page-wrapper">
         <div class="content container-fluid">
@@ -34,6 +37,7 @@
                                 <thead>
                                 <tr>
                                     <th>#</th>
+                                    <th>ADM</th>
                                     <th>Student Name</th>
                                     <th>Total Days Present</th>
                                     <th>Total Days Absent</th>
@@ -44,10 +48,16 @@
                                 {% for record in attendance_records %}
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
-                                        <td>{{ record.student__name }}</td>
+                                        <td>{{ record.student__admission_no }}</td>
+                                        <td>{{ record.student__first_name }} {{ record.student__last_name }}</td>
                                         <td>{{ record.total_present }}</td>
                                         <td>{{ record.total_absent }}</td>
-                                        <td>{{ record.attendance_percentage }}%</td>
+                                        <td style="text-align: center;">
+                                            <div class="circle-bar" data-percent="{{ record.attendance_percentage }}">
+                                                <div class="circle-graph"></div>
+                                            </div>
+                                            <span>{{ record.attendance_percentage|floatformat:1 }}%</span>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
@@ -60,13 +70,39 @@
             </div>
         </div>
     </div>
-    </div>
-    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'assets/js/popper.min.js' %}"></script>
-    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
-    <script src="{% static 'assets/js/script.js' %}"></script>
-    </body>
+    <script>
+        $(document).ready(function () {
+            function animateCircles() {
+                $('.circle-bar').each(function () {
+                    var elementPos = $(this).offset().top;
+                    var topOfWindow = $(window).scrollTop();
+                    var percent = $(this).data('percent');
+                    var animate = $(this).data('animate');
 
-    </html>
+                    if (elementPos < topOfWindow + $(window).height() - 30 && !animate) {
+                        $(this).data('animate', true);
+                        $(this).find('.circle-graph').circleProgress({
+                            value: percent / 100,
+                            size: 50, /* Ensure it fits in the table */
+                            thickness: 6,
+                            fill: {color: '#6e6bfa'}
+                        });
+                    }
+                });
+            }
+
+            $(window).on('scroll', animateCircles);
+            animateCircles(); // Run once on page load
+        });
+    </script>
+
+    {% block extra_js %}
+        <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+        <script src="{% static 'assets/js/popper.min.js' %}"></script>
+        <script src="{% static 'assets/js/term_progress.js' %}"></script>
+        <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+        <script src="{% static 'assets/js/script.js' %}"></script>
+    {% endblock %}
+
 {% endblock %}

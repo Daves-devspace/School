@@ -1,3 +1,33 @@
+
+  <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="page-header">
+              <h3 class="page-title"> Buttons </h3>
+              <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="#">UI Elements</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Buttons</li>
+                </ol>
+              </nav>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,10 +64,10 @@
                         <p class="account-subtitle">Enter details to create your account</p>
 
                         <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Sign Up</button>
-</form>
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit">Sign Up</button>
+                        </form>
 
                         <div class="login-or">
                             <span class="or-line"></span>

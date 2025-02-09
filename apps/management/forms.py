@@ -4,7 +4,7 @@ from django.forms import TimeInput
 from django_ckeditor_5.widgets import CKEditor5Widget
 
 from .models import Term, SubjectMark, Timetable, LessonExchangeRequest, Profile, HolidayPresentation, Feedback, \
-    ExamType
+    ExamType, Club
 from ..schedules.models import Subject
 from ..students.models import Student, Book, GradeSection, Grade
 from ..teachers.models import Teacher
@@ -220,3 +220,20 @@ class FeedbackForm(forms.ModelForm):
 
     comment = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Leave feedback...'}))
     rating = forms.IntegerField(min_value=1, max_value=5, widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+
+
+
+class ClubForm(forms.ModelForm):
+    teachers = forms.ModelMultipleChoiceField(
+        queryset=Teacher.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = Club
+        fields = ['name', 'description', 'teachers']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter club name'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Enter club description'}),
+        }

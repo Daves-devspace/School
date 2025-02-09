@@ -3,8 +3,7 @@
 
 
 <link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}">
-<link rel="stylesheet" href="{% static 'assets/plugins/feather/feather.css' %}">
-<link rel="stylesheet" href="{% static 'assets/plugins/icons/flags/flags.css' %}">
+
 <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
 <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
 <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
@@ -23,359 +22,460 @@
 <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker.min.css">
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
-
 
 
 {% block body %}
 
+    <div class="main-wrapper">
+        <div class="page-wrapper">
+            <div class="content container-fluid">
 
-    <div class="page-wrapper">
-        <div class="content container-fluid">
-
-            <div class="page-header">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="page-sub-header">
-                            <h3 class="page-title">Welcome {{ user.group }}!</h3>
-                            <ul class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="../Admin/index.html">Home</a></li>
-                                <li class="breadcrumb-item active">Teacher</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="col-xl-3 col-sm-6 col-12 d-flex">
-                    <div class="card bg-comman w-100">
-                        <div class="card-body">
-                            <div class="db-widgets d-flex justify-content-between align-items-center">
-                                <div class="db-info">
-                                    <h6>Total Classes</h6>
-                                    <h3>04/06</h3>
-                                </div>
-                                <div class="db-icon">
-                                    <img src="{% static 'assets/img/icons/teacher-icon-01.svg' %}" alt="Dashboard Icon">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-sm-6 col-12 d-flex">
-                    <div class="card bg-comman w-100">
-                        <div class="card-body">
-                            <div class="db-widgets d-flex justify-content-between align-items-center">
-                                <div class="db-info">
-                                    <h6>Total Students</h6>
-                                    <h3>40/60</h3>
-                                </div>
-                                <div class="db-icon">
-                                    <img src="{% static 'assets/img/icons/dash-icon-01.svg' %}" alt="Dashboard Icon">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-sm-6 col-12 d-flex">
-                    <div class="card bg-comman w-100">
-                        <div class="card-body">
-                            <div class="db-widgets d-flex justify-content-between align-items-center">
-                                <div class="db-info">
-                                    <h6>Total Lessons</h6>
-                                    <h3>30/50</h3>
-                                </div>
-                                <div class="db-icon">
-                                    <img src="{% static 'assets/img/icons/teacher-icon-02.svg' %}" alt="Dashboard Icon">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-sm-6 col-12 d-flex">
-                    <div class="card bg-comman w-100">
-                        <div class="card-body">
-                            <div class="db-widgets d-flex justify-content-between align-items-center">
-                                <div class="db-info">
-                                    <h6>Total Hours</h6>
-                                    <h3>15/20</h3>
-                                </div>
-                                <div class="db-icon">
-                                    <img src="{% static 'assets/img/icons/teacher-icon-03.svg' %}" alt="Dashboard Icon">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="col-12 col-lg-12 col-xl-8">
+                <div class="page-header">
                     <div class="row">
-                        <div class="col-12 col-lg-8 col-xl-8 d-flex">
-                            <div class="card flex-fill comman-shadow">
-                                <div class="card-header">
-                                    <div class="row align-items-center">
-                                        <div class="col-6">
-                                            <h5 class="card-title">Today's Schedule ({{ current_day }})</h5>
-                                        </div>
-                                        <div class="col-6">
-                                            <span class="float-end view-link"><a href="#">View All Lessons</a></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="pt-3 pb-3">
-                                    <div class="table-responsive lesson">
-                                        <table class="table table-center">
-                                            <tbody>
-                                            {% for slot in upcoming_slots %}
-                                                <tr>
-                                                    <td>
-                                                        <div class="date">
-                                                            <b>{{ slot.teacher_assignment.subject.name }}</b>
-                                                            <p>{{ slot.room.room_name }}</p>
-                                                            <ul class="teacher-date-list">
-                                                                <li><i class="fas fa-calendar-alt me-2"></i>Sep 5, 2022
-                                                                </li>
-                                                                <li>|</li>
-                                                                <li>
-                                                                    <i class="fas fa-clock me-2"></i>{{ slot.time_slot.time_range }}
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="lesson-confirm">
-                                                            <a href="#">Confirmed</a>
-                                                        </div>
-                                                        {% if not slot.is_rescheduled %}
-                                                            <a href="{% url 'reschedule_slot' slot.id %}"
-                                                               class="reschedule-btn"
-                                                               data-toggle="modal"
-                                                               data-target="#rescheduleModal{{ slot.id }}">
-                                                                Reschedule
-                                                            </a>
-                                                        {% endif %}
-
-                                                    </td>
-                                                </tr>
-                                            {% empty %}
-                                                <p>No classes scheduled for today</p>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <!-- templates/teachers/base.html -->
-                                    <div class="notification-container">
-                                        <div class="notification-icon" onclick="toggleNotifications()">
-                                            <i class="fas fa-bell"></i>
-                                            {% if unread_count > 0 %}
-                                                <span class="notification-badge">{{ unread_count }}</span>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="notification-dropdown" id="notificationDropdown">
-                                            <div class="notification-header">
-                                                <h4>Notifications</h4>
-                                                <button class="mark-all-read" onclick="markAllRead()">
-                                                    Mark all as read
-                                                </button>
-                                            </div>
-
-                                            <div class="notification-list">
-                                                {% for notification in notifications %}
-                                                    <div class="notification-item {% if not notification.read %}unread{% endif %}"
-                                                         data-id="{{ notification.id }}"
-                                                         onclick="markAsRead(this, '{{ notification.link|default:'#' }}')">
-                                                        <div class="notification-message">
-                                                            {{ notification.message }}
-                                                        </div>
-                                                        <div class="notification-time">
-                                                            {{ notification.created_at|timesince }} ago
-                                                        </div>
-                                                    </div>
-                                                {% empty %}
-                                                    <div class="no-notifications">
-                                                        No new notifications
-                                                    </div>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-lg-4 col-xl-4 d-flex">
-                            <div class="card flex-fill comman-shadow">
-                                <div class="card-header">
-                                    <div class="row align-items-center">
-                                        <div class="col-12">
-                                            <h5 class="card-title">Semester Progress</h5>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="dash-widget">
-                                    <div class="circle-bar circle-bar1">
-                                        <div class="circle-graph1" data-percent="50">
-                                            <div class="progress-less">
-                                                <b>55/60</b>
-                                                <p>Lesson Progressed</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card">
-                                    <ul>
-                                        {% for section in assigned_grade_sections %}
-                                            <li>{{ section.name }}</li>
-                                        {% endfor %}
-                                    </ul>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12 col-lg-12 col-xl-12 d-flex">
-                            {#                            <div class="card flex-fill comman-shadow">#}
-                            {#                                <div class="card-header">#}
-                            {#                                    <div class="row align-items-center">#}
-                            {#                                        <div class="col-6">#}
-                            {#                                            <h5 class="card-title">Teaching Activity</h5>#}
-                            {#                                        </div>#}
-                            {#                                        <div class="col-6">#}
-                            {#                                            <ul class="chart-list-out">#}
-                            {#                                                <li><span class="circle-blue"></span>Teacher</li>#}
-                            {#                                                <li><span class="circle-green"></span>Students</li>#}
-                            {#                                                <li class="star-menus"><a href="javascript:;"><i#}
-                            {#                                                        class="fas fa-ellipsis-v"></i></a></li>#}
-                            {#                                            </ul>#}
-                            {#                                        </div>#}
-                            {#                                    </div>#}
-                            {#                                </div>#}
-                            {#                                <div class="card-body">#}
-                            {#                                    <div id="school-area"></div>#}
-                            {#                                </div>#}
-                            {#                            </div>#}
-                        </div>
-                        <div class="col-12 col-lg-12 col-xl-12 d-flex">
-                            <div class="card flex-fill comman-shadow">
-                                <div class="card-header d-flex align-items-center">
-                                    <h5 class="card-title">Teaching History</h5>
-                                    <ul class="chart-list-out student-ellips">
-                                        <li class="star-menus"><a href="javascript:;"><i class="fas fa-ellipsis-v"></i></a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="card-body">
-                                    <div class="teaching-card">
-                                        <ul class="steps-history">
-                                            <li>Sep22</li>
-                                            <li>Sep23</li>
-                                            <li>Sep24</li>
-                                        </ul>
-                                        <ul class="activity-feed">
-                                            <li class="feed-item d-flex align-items-center">
-                                                <div class="dolor-activity">
-                                                    <span class="feed-text1"><a>Mathematics</a></span>
-                                                    <ul class="teacher-date-list">
-                                                        <li><i class="fas fa-calendar-alt me-2"></i>September 5, 2022
-                                                        </li>
-                                                        <li>|</li>
-                                                        <li><i class="fas fa-clock me-2"></i>09:00 am - 10:00 am (60
-                                                            Minutes)
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                                <div class="activity-btns ms-auto">
-                                                    <button type="submit" class="btn btn custom-bg text-white">In
-                                                        Progress
-                                                    </button>
-                                                </div>
-                                            </li>
-                                            <li class="feed-item d-flex align-items-center">
-                                                <div class="dolor-activity">
-                                                    <span class="feed-text1"><a>Geography	</a></span>
-                                                    <ul class="teacher-date-list">
-                                                        <li><i class="fas fa-calendar-alt me-2"></i>September 5, 2022
-                                                        </li>
-                                                        <li>|</li>
-                                                        <li><i class="fas fa-clock me-2"></i>09:00 am - 10:00 am (60
-                                                            Minutes)
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                                <div class="activity-btns ms-auto">
-                                                    <button type="submit" class="btn btn custom-bg text-white">
-                                                        Completed
-                                                    </button>
-                                                </div>
-                                            </li>
-                                            <li class="feed-item d-flex align-items-center">
-                                                <div class="dolor-activity">
-                                                    <span class="feed-text1"><a>Botony</a></span>
-                                                    <ul class="teacher-date-list">
-                                                        <li><i class="fas fa-calendar-alt me-2"></i>September 5, 2022
-                                                        </li>
-                                                        <li>|</li>
-                                                        <li><i class="fas fa-clock me-2"></i>09:00 am - 10:00 am (60
-                                                            Minutes)
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                                <div class="activity-btns ms-auto">
-                                                    <button type="submit" class="btn btn custom-bg text-white">In
-                                                        Progress
-                                                    </button>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            {% if grade_sections %}
-                                <ul>
-                                    {% for grade_section in grade_sections %}
-                                        <li>
-                                            {{ grade_section.name }}
-                                            <a href="{% url 'mark_attendance' grade_section.id current_term.id %}"
-                                               class="btn btn-primary">
-                                                Mark Attendance
-                                            </a>
-                                        </li>
-                                    {% endfor %}
+                        <div class="col-sm-12">
+                            <div class="page-sub-header">
+                                <h3 class="page-title">Welcome {{ teacher.get_title }}!</h3>
+                                <ul class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="../Admin/index.html">Home</a></li>
+                                    <li class="breadcrumb-item active">Teacher</li>
                                 </ul>
-                            {% else %}
-                                <p>You are not assigned to any grade sections.</p>
-                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                        <div class="card bg-comman w-100">
+                            <div class="card-body">
+                                <div class="db-widgets d-flex justify-content-between align-items-center">
+                                    <div class="db-info">
+                                        <h6>Total Classes</h6>
+                                        <h3>04/06</h3>
+                                    </div>
+                                    <div class="db-icon">
+                                        <img src="{% static 'assets/img/icons/teacher-icon-01.svg' %}"
+                                             alt="Dashboard Icon">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                        <div class="card bg-comman w-100">
+                            <div class="card-body">
+                                <div class="db-widgets d-flex justify-content-between align-items-center">
+                                    <div class="db-info">
+                                        <h6>Total Students</h6>
+                                        <h3>40/60</h3>
+                                    </div>
+                                    <div class="db-icon">
+                                        <img src="{% static 'assets/img/icons/dash-icon-01.svg' %}"
+                                             alt="Dashboard Icon">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                        <div class="card bg-comman w-100">
+                            <div class="card-body">
+                                <div class="db-widgets d-flex justify-content-between align-items-center">
+                                    <div class="db-info">
+                                        <h6>Total Lessons</h6>
+                                        <h3>30/50</h3>
+                                    </div>
+                                    <div class="db-icon">
+                                        <img src="{% static 'assets/img/icons/teacher-icon-02.svg' %}"
+                                             alt="Dashboard Icon">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                        <div class="card bg-comman w-100">
+                            <div class="card-body">
+                                <div class="db-widgets d-flex justify-content-between align-items-center">
+                                    <div class="db-info">
+                                        <h6>Total Hours</h6>
+                                        <h3>15/20</h3>
+                                    </div>
+                                    <div class="db-icon">
+                                        <img src="{% static 'assets/img/icons/teacher-icon-03.svg' %}"
+                                             alt="Dashboard Icon">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-12 col-lg-12 col-xl-8">
+                        <div class="row">
+                            <div class="col-12 col-lg-8 col-xl-8 d-flex">
+                                <div class="card flex-fill shadow comman-shadow">
+                                    <div class="card-header">
+                                        <div class="row align-items-center">
+                                            <div class="col-6">
+                                                <h5 class="card-title">Upcoming Lesson</h5>
+                                            </div>
+                                            <div class="col-6">
+                                                <span class="float-end view-link"><a
+                                                        class="btn btn-outline-success mt-3"
+                                                        data-toggle="collapse" data-target="#weeklyTimetable">View All Lessons</a></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="weeklyTimetable" class="collapse mt-3">
+                                        <h6 class="text-success">Full Weekly Schedule</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <th>Day</th>
+                                                    <th>Time</th>
+                                                    <th>Class</th>
+                                                    <th>Subject</th>
+                                                    <th>Room</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for slot in weekly_schedule %}
+                                                    <tr>
+                                                        <td>{{ slot.day_of_week }}</td>
+                                                        <td>{{ slot.time_slot.start_time }}
+                                                            - {{ slot.time_slot.end_time }}</td>
+                                                        <td>{{ slot.teacher_assignment.grade_section }}</td>
+                                                        <td>{{ slot.teacher_assignment.subject.name }}</td>
+                                                        <td>{{ slot.room.room_name }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-3 pb-3">
+                                        <div class="table-responsive lesson">
+                                            <table class="table table-center">
+                                                <tbody>
+                                                {% for slot in upcoming_slots %}
+                                                    <tr>
+                                                        <td>
+                                                            <div class="date">
+                                                                <b>{{ slot.teacher_assignment.subject.name }}</b>
+                                                                <p>{{ slot.room.room_name }}</p>
+                                                                <ul class="teacher-date-list">
+                                                                    <li>
+                                                                        <i class="fas fa-calendar-alt me-2"></i>{{ current_day }}
+                                                                    </li>
+                                                                    <li>|</li>
+                                                                    <li>
+                                                                        <i class="fas fa-clock me-2"></i>{{ slot.time_slot.time_range }}
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="lesson-confirm">
+                                                                <a href="#">Confirmed</a>
+                                                            </div>
+                                                            {% if not slot.is_rescheduled %}
+                                                                <a href="{% url 'reschedule_slot' slot.id %}"
+                                                                   class="reschedule-btn"
+                                                                   data-toggle="modal"
+                                                                   data-target="#rescheduleModal{{ slot.id }}">
+                                                                    Reschedule
+                                                                </a>
+                                                            {% endif %}
+
+                                                        </td>
+                                                    </tr>
+                                                {% empty %}
+                                                    <tr>
+                                                        <td>
+                                                            <div class="date">
+                                                                <b>No classes scheduled for today</b>
+                                                                <p>Room</p>
+                                                                <ul class="teacher-date-list">
+                                                                    <li>
+                                                                        <i class="fas fa-calendar-alt me-2"></i>{{ current_day }}
+                                                                    </li>
+                                                                    <li>|</li>
+                                                                    <li>
+                                                                        <i class="fas fa-clock me-2"></i>{{ current_time }}
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="lesson-confirm">
+                                                                <a href="#">Confirmed</a>
+                                                            </div>
+                                                            {% for slot in slots %}
+                                                                {% if not slot.is_rescheduled %}
+                                                                    <a href="#" class="reschedule-btn btn btn-warning"
+                                                                       data-toggle="modal"
+                                                                       data-target="#rescheduleModal{{ slot.id }}">
+                                                                        Reschedule
+                                                                    </a>
+
+                                                                    <!-- Bootstrap Modal -->
+                                                                    <div class="modal fade"
+                                                                         id="rescheduleModal{{ slot.id }}" tabindex="-1"
+                                                                         role="dialog"
+                                                                         aria-labelledby="rescheduleModalLabel{{ slot.id }}"
+                                                                         aria-hidden="true">
+                                                                        <div class="modal-dialog" role="document">
+                                                                            <div class="modal-content">
+                                                                                <div class="modal-header">
+                                                                                    <h5 class="modal-title"
+                                                                                        id="rescheduleModalLabel{{ slot.id }}">
+                                                                                        Reschedule Slot</h5>
+                                                                                    <button type="button" class="close"
+                                                                                            data-dismiss="modal"
+                                                                                            aria-label="Close">
+                                                                                        <span aria-hidden="true">&times;</span>
+                                                                                    </button>
+                                                                                </div>
+                                                                                <form method="POST"
+                                                                                      action="{% url 'reschedule_slot' slot.id %}">
+                                                                                    {% csrf_token %}
+                                                                                    <div class="modal-body">
+                                                                                        <div class="form-group">
+                                                                                            <label for="new_day">Select
+                                                                                                Day:</label>
+                                                                                            <select class="form-control" name="new_day">
+                                                                                                <option value="Monday">
+                                                                                                    Monday
+                                                                                                </option>
+                                                                                                <option value="Tuesday">
+                                                                                                    Tuesday
+                                                                                                </option>
+                                                                                                <option value="Wednesday">
+                                                                                                    Wednesday
+                                                                                                </option>
+                                                                                                <option value="Thursday">
+                                                                                                    Thursday
+                                                                                                </option>
+                                                                                                <option value="Friday">
+                                                                                                    Friday
+                                                                                                </option>
+                                                                                            </select>
+                                                                                        </div>
+                                                                                        <div class="form-group">
+                                                                                            <label for="new_time">Select
+                                                                                                Time:</label>
+                                                                                            <select class="form-control"
+                                                                                                    name="new_time">
+                                                                                                {% for timeslot in available_slots %}
+                                                                                                    <option value="{{ timeslot.id }}">{{ timeslot.start_time }}
+                                                                                                        - {{ timeslot.end_time }}</option>
+                                                                                                {% endfor %}
+                                                                                            </select>
+                                                                                        </div>
+                                                                                        <div class="form-group">
+                                                                                            <label for="new_room">Select
+                                                                                                Room:</label>
+                                                                                            <select class="form-control"
+                                                                                                    name="new_room">
+                                                                                                {% for room in rooms %}
+                                                                                                    <option value="{{ room.id }}">{{ room.name }}</option>
+                                                                                                {% endfor %}
+                                                                                            </select>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="modal-footer">
+                                                                                        <button type="button"
+                                                                                                class="btn btn-secondary"
+                                                                                                data-dismiss="modal">
+                                                                                            Cancel
+                                                                                        </button>
+                                                                                        <button type="submit"
+                                                                                                class="btn btn-primary">
+                                                                                            Confirm Reschedule
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </form>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                {% endif %}
+                                                            {% endfor %}
+
+                                                        </td>
+                                                    </tr>
+
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <!--term bar-->
+                            <div class="col-12 col-lg-4 col-xl-4 d-flex">
+                                <div class="card flex-fill shadow">
+                                    <div class="card-header">
+                                        <div class="row align-items-center">
+                                            <div class="col-12">
+                                                <h5 class="card-title">Term Progress</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="dash-widget">
+                                        <div class="circle-bar circle-bar1">
+                                            <div class="circle-graph1" data-percent="{{ term.progress_percentage }}">
+                                                <div class="progress-less">
+                                                    <b>55/60</b>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-12 col-lg-12 col-xl-12 d-flex">
+                                <div class="card flex-fill shadow comman-shadow">
+                                    <div class="card-header">
+                                        <div class="row align-items-center">
+                                            <div class="col-6">
+                                                <h5 class="card-title">Mark Attendance</h5>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if grade_sections %}
+                                            <ul>
+                                                {% for grade_section in grade_sections %}
+                                                    <li>
+                                                        {{ grade_section.name }}
+                                                        {% if current_term %}
+                                                            <a href="{% url 'mark_attendance' grade_section.id current_term.id %}"
+                                                               class="btn btn-primary">
+                                                                Mark Attendance
+                                                            </a>
+                                                        {% else %}
+                                                            <span class="text-danger">No active term available</span>
+                                                        {% endif %}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p>You are not assigned to any grade sections.</p>
+                                        {% endif %}
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                            <div class="col-12 col-lg-12 col-xl-12 d-flex">
+                                <div class="card flex-fill shadow comman-shadow">
+                                    <div class="card-header d-flex align-items-center">
+                                        <h5 class="card-title">Teaching History</h5>
+                                        <ul class="chart-list-out student-ellips">
+                                            <li class="star-menus"><a href="javascript:;"><i
+                                                    class="fas fa-ellipsis-v"></i></a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="teaching-card">
+                                            <ul class="steps-history">
+                                                <li>Sep22</li>
+                                                <li>Sep23</li>
+                                                <li>Sep24</li>
+                                            </ul>
+                                            <ul class="activity-feed">
+                                                <li class="feed-item d-flex align-items-center">
+                                                    <div class="dolor-activity">
+                                                        <span class="feed-text1"><a>Mathematics</a></span>
+                                                        <ul class="teacher-date-list">
+                                                            <li><i class="fas fa-calendar-alt me-2"></i>September 5,
+                                                                2022
+                                                            </li>
+                                                            <li>|</li>
+                                                            <li><i class="fas fa-clock me-2"></i>09:00 am - 10:00 am (60
+                                                                Minutes)
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="activity-btns ms-auto">
+                                                        <button type="submit" class="btn btn-success">In
+                                                            Progress
+                                                        </button>
+                                                    </div>
+                                                </li>
+                                                <li class="feed-item d-flex align-items-center">
+                                                    <div class="dolor-activity">
+                                                        <span class="feed-text1"><a>Geography	</a></span>
+                                                        <ul class="teacher-date-list">
+                                                            <li><i class="fas fa-calendar-alt me-2"></i>September 5,
+                                                                2022
+                                                            </li>
+                                                            <li>|</li>
+                                                            <li><i class="fas fa-clock me-2"></i>09:00 am - 10:00 am (60
+                                                                Minutes)
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="activity-btns ms-auto">
+                                                        <button type="submit" class="btn btn-success">
+                                                            Completed
+                                                        </button>
+                                                    </div>
+                                                </li>
+                                                <li class="feed-item d-flex align-items-center">
+                                                    <div class="dolor-activity">
+                                                        <span class="feed-text1"><a>Botony</a></span>
+                                                        <ul class="teacher-date-list">
+                                                            <li><i class="fas fa-calendar-alt me-2"></i>September 5,
+                                                                2022
+                                                            </li>
+                                                            <li>|</li>
+                                                            <li><i class="fas fa-clock me-2"></i>09:00 am - 10:00 am (60
+                                                                Minutes)
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="activity-btns ms-auto">
+                                                        <button type="submit" class="btn btn-success">In
+                                                            Progress
+                                                        </button>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
 
                         </div>
-
-
                     </div>
+
+
                     <div class="col-12 col-lg-12 col-xl-4 d-flex">
-                        <div class="card flex-fill comman-shadow">
+                        <div class="card flex-fill shadow">
                             <div class="card-body">
                                 <div id="calendar-doctor" class="calendar-container"></div>
-                                {#                            <div id="calendar" class="calendar-container">#}
-                                {#                            </div>#}
                                 <div class="calendar-info calendar-info1">
                                     <div class="up-come-header">
                                         <h2>Upcoming Events</h2>
                                         <span><a href="javascript:;"><i class="feather-plus"></i></a></span>
                                     </div>
-                                    <div class="upcome-event-date">
+                                    <div class="up-come-event-date">
                                         <h3>10 Jan</h3>
                                         <span><i class="fas fa-ellipsis-h"></i></span>
                                     </div>
@@ -410,28 +510,9 @@
                                         </div>
                                     </div>
                                     <div class="upcome-event-date">
-
-
-                                        <h2>Lessons for <span id="today"></span></h2>
-                                        <table id="lessons-table">
-                                            <thead>
-                                            <tr>
-                                                <th>Time</th>
-                                                <th>Subject</th>
-                                                <th>Grade Section</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <!-- Lessons will be dynamically added here -->
-                                            </tbody>
-                                        </table>
-
-
                                         <h3>10 Jan</h3>
                                         <span><i class="fas fa-ellipsis-h"></i></span>
                                     </div>
-
-
                                     <div class="calendar-details">
                                         <p>08:00 am</p>
                                         <div class="calendar-box normal-bg">
@@ -489,15 +570,63 @@
                 </div>
 
             </div>
+            <!-- templates/teachers/base.html -->
+            <div class="notification-container shadow">
+                <div class="notification-icon" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    {% if unread_count > 0 %}
+                        <span class="notification-badge">{{ unread_count }}</span>
+                    {% endif %}
+                </div>
 
-            <footer>
-                <p>Copyright © 2022 Dreamguys.</p>
-            </footer>
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <h4>Notifications</h4>
+                        <button class="mark-all-read" onclick="markAllRead()">
+                            Mark all as read
+                        </button>
+                    </div>
 
-
+                    <div class="notification-list">
+                        {% for notification in notifications %}
+                            <div class="notification-item {% if not notification.read %}unread{% endif %}"
+                                 data-id="{{ notification.id }}"
+                                 onclick="markAsRead(this, '{{ notification.link|default:'#' }}')">
+                                <div class="notification-message">
+                                    {{ notification.message }}
+                                </div>
+                                <div class="notification-time">
+                                    {{ notification.created_at|timesince }} ago
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="no-notifications">
+                                No new notifications
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
 
+
+        <footer>
+            <p>Copyright © 2022 Dreamguys.</p>
+        </footer>
+
+
     </div>
+  
+    <script>
+        $(document).ready(function () {
+            $(".reschedule-btn").click(function () {
+                var slotId = $(this).data('slot-id');
+                $("#rescheduleModal" + slotId).modal('show');
+            });
+        });
+    </script>
+
+
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 
 
@@ -605,27 +734,29 @@
 
     </script>
 
-    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
 
-    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/term_progress.js' %}"></script>
+
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
 
     <script src="{% static 'assets/js/feather.min.js' %}"></script>
 
     <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
-
 
 
     <script src="{% static 'assets/plugins/simple-calendar/jquery.simple-calendar.js' %}"></script>
     <script src="{% static 'assets/js/calender.js' %}"></script>
+    <script src="{% static 'assets/js/calander.js' %}"></script>
 
     <script src="{% static 'assets/js/circle-progress.min.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
 
-    <script src="{% static 'assets/js/script.js' %}"></script>
 
-    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'assets/js/feather.min.js' %}"></script>
-    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+
+
     <script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
     <script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
     <script src="{% static 'assets/js/script.js' %}"></script>

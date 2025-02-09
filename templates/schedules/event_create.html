@@ -1,0 +1,79 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Clubs</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">School</a></li>
+                            <li class="breadcrumb-item active">Clubs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Teachers</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="{% url 'teachers' %}"
+                                           class="btn btn-success me-2 active"><i
+                                                class="fas fa-list"></i></a>
+                                        <a href="{% url 'teachers' %}"
+                                           class="btn btn-success me-2"><i
+                                                class="fas fa-th-large"></i></a>
+                                        <a href="#" class="btn btn-success me-2"><i
+                                                class="fas fa-download"></i>
+                                            Download</a>
+                                        <a href="{% url 'class_teachers' %}" class="btn btn-success me-2"><i
+                                                class="fas fa-pen-fancy"></i>
+                                            Assign Class</a>
+                                        <a href="{% url 'club_create' %}" class="btn btn-success"><i
+                                                class="fas fa-plus"></i>Create Club</a>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="text" name="name" placeholder="Event Name" required>
+                                <input type="date" name="date" required>
+                                <textarea name="description" placeholder="Event Details"></textarea>
+                                <button type="submit" class="btn btn-primary">Create Event</button>
+                            </form>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+{% endblock %}

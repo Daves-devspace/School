@@ -8,8 +8,8 @@ from django_ckeditor_5.widgets import CKEditor5Widget
 
 from apps.management import models
 from apps.management.models import Term, ReportCard, SubjectMark, ExamType, Timetable, \
-    LessonExchangeRequest, Institution, Profile, HolidayPresentation, Attendance
-
+    LessonExchangeRequest, Institution, Profile, HolidayPresentation, Attendance, Club, ClubRole, ClubAttendance, \
+    ClubEvent, ClubReport, ClubFeedback
 
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -59,20 +59,29 @@ class ExamTypeAdmin(admin.ModelAdmin):
     search_fields = ['name']
     list_filter = ['name']
 
-
+# Inline admin for SubjectMark
 class SubjectMarkInline(admin.TabularInline):
     model = SubjectMark
     extra = 1
-    fields = ('subject', 'marks', 'max_score', 'percentage')
-    readonly_fields = ('percentage',)
+    # Include subject_grade along with percentage in the fields list.
+    fields = ('subject', 'marks', 'max_score', 'percentage', 'subject_grade')
+    readonly_fields = ('percentage', 'subject_grade')
     can_delete = False
     ordering = ['subject']
 
-
-
-
+# Admin for SubjectMark
 class SubjectMarkAdmin(admin.ModelAdmin):
-    list_display = ('get_student', 'get_exam_type', 'get_term', 'get_year', 'subject__name', 'marks', 'max_score', 'percentage')
+    list_display = (
+        'get_student',
+        'get_exam_type',
+        'get_term',
+        'get_year',
+        'get_subject',
+        'marks',
+        'max_score',
+        'percentage',
+        'subject_grade',
+    )
     list_filter = ('report_card__term', 'report_card__exam_type', 'report_card__year', 'subject')
     search_fields = ('report_card__student__first_name', 'subject__name')
 
@@ -92,60 +101,75 @@ class SubjectMarkAdmin(admin.ModelAdmin):
         return obj.report_card.year
     get_year.short_description = "Year"
 
+    def get_subject(self, obj):
+        return obj.subject.name
+    get_subject.short_description = "Subject"
 
-
+# Inline admin for ReportCard
 class ReportCardInline(admin.TabularInline):
     model = ReportCard
     extra = 1
-    fields = ('term', 'exam_type', 'total_marks', 'average_marks', 'grade', 'rank', 'attendance_percentage',
-              'teacher_remarks', 'conduct_remarks', 'extra_curricular_activities', 'achievements',
-              'final_comments', 'parent_teacher_meeting_date', 'parent_feedback')
-    readonly_fields = ('total_marks', 'average_marks', 'grade', 'rank')  # Make computed fields readonly
+    fields = (
+        'term', 'exam_type', 'total_marks', 'average_marks', 'grade', 'rank', 'attendance_percentage',
+        'teacher_remarks', 'conduct_remarks', 'extra_curricular_activities', 'achievements',
+        'final_comments', 'parent_teacher_meeting_date', 'parent_feedback'
+    )
+    readonly_fields = ('total_marks', 'average_marks', 'grade', 'rank')  # Computed fields are readonly
     can_delete = False
     ordering = ['term', 'exam_type']
-    inlines = [SubjectMarkInline]  # Inline for subject marks
+    inlines = [SubjectMarkInline]  # Nested inline for subject marks
 
-
-
-
+# Admin for ReportCard
 class ReportCardAdmin(admin.ModelAdmin):
-    list_display = ('student_name', 'term', 'exam_type', 'year', 'total_marks', 'average_marks', 'rank', 'grade', 'subject_marks')
-    list_filter = ('term', 'exam_type', 'student__grade', 'year')  # Corrected filter for 'exam_type'
+    list_display = (
+        'student_name',
+        'term',
+        'exam_type',
+        'year',
+        'total_marks',
+        'average_marks',
+        'rank',
+        'grade',
+        'subject_marks_display'
+    )
+    list_filter = ('term', 'exam_type', 'student__grade', 'year')
     search_fields = ('student__first_name', 'student__last_name', 'student__admission_number')
 
-    # Custom method to display the student's name
+    # Custom method to display the student's name.
     def student_name(self, obj):
         return f"{obj.student.first_name} {obj.student.last_name}"
-
     student_name.admin_order_field = 'student__last_name'
 
-    # Custom method for rank, which is calculated
+    # Use the already-calculated student_rank.
     def rank(self, obj):
         return obj.student_rank()
-
     rank.admin_order_field = 'rank'
 
-    # Add links to subject marks for better usability
-    def subject_marks(self, obj):
+    # Custom method to display subject marks along with percentage and subject grade.
+    def subject_marks_display(self, obj):
         subject_marks = SubjectMark.objects.filter(report_card=obj)
-        marks_details = ', '.join([f"{sm.subject.name}: {sm.marks}/{sm.max_score}" for sm in subject_marks])
-        return format_html(f"<b>{marks_details}</b>") if marks_details else "No Marks"
+        marks_details = []
+        for sm in subject_marks:
+            # If percentage is available, format it along with the subject grade.
+            if sm.marks is not None:
+                detail = f"{sm.subject.name}: {sm.marks}/{sm.max_score}"
+                if sm.percentage is not None and sm.subject_grade:
+                    detail += f" ({sm.percentage:.1f}%, {sm.subject_grade})"
+                marks_details.append(detail)
+        return format_html("<b>{}</b>", ", ".join(marks_details)) if marks_details else "No Marks"
+    subject_marks_display.short_description = "Subject Marks"
 
-    subject_marks.short_description = "Subject Marks"
-
-    # Display total marks as a link
+    # Display total marks.
     def total_marks(self, obj):
         return obj.total_marks
-
     total_marks.admin_order_field = 'total_marks'
 
-    # Display average marks as a link
+    # Display average marks.
     def average_marks(self, obj):
         return obj.average_marks
-
     average_marks.admin_order_field = 'average_marks'
 
-    # Filter by year and grade
+    # Override get_queryset if you need to filter by grade or year.
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         grade_filter = request.GET.get('grade')
@@ -155,8 +179,6 @@ class ReportCardAdmin(admin.ModelAdmin):
         if year_filter:
             queryset = queryset.filter(year=year_filter)
         return queryset
-
-
 
 
 
@@ -201,7 +223,39 @@ class AttendanceAdmin(admin.ModelAdmin):
         return queryset.select_related('student', 'section', 'teacher', 'term')
 
 
+class ClubAdmin(admin.ModelAdmin):
+    list_display = ('name', 'get_teachers', 'get_members_count', 'meeting_time', 'created_at')
+    search_fields = ('name', 'teachers__user__first_name', 'teachers__user__last_name')
+    filter_horizontal = ('members', 'teachers')  # Allow multiple selection in Django admin
 
+    def get_teachers(self, obj):
+        return ", ".join([teacher.user.first_name for teacher in obj.teachers.all()])
+    get_teachers.short_description = "Teachers"
+
+    def get_members_count(self, obj):
+        return obj.members.count()
+    get_members_count.short_description = "Members Count"
+
+
+class ClubRoleAdmin(admin.ModelAdmin):
+    list_display = ('club', 'student', 'role', 'date_assigned')
+    search_fields = ('club__name', 'student__user__first_name', 'student__user__last_name')
+
+class ClubAttendanceAdmin(admin.ModelAdmin):
+    list_display = ('club', 'student', 'date', 'status')
+    search_fields = ('club__name', 'student__user__first_name', 'student__user__last_name')
+
+class ClubEventAdmin(admin.ModelAdmin):
+    list_display = ('club', 'title', 'event_date', 'event_time', 'location')
+    search_fields = ('club__name', 'title')
+
+class ClubReportAdmin(admin.ModelAdmin):
+    list_display = ('club', 'date', 'report')
+    search_fields = ('club__name',)
+
+class ClubFeedbackAdmin(admin.ModelAdmin):
+    list_display = ('club', 'student', 'date_submitted')
+    search_fields = ('club__name', 'student__user__first_name', 'student__user__last_name')
 
 
 # Register the model with the custom admin configuration
@@ -214,6 +268,13 @@ admin.site.register(Term, TermAdmin)
 admin.site.register(LessonExchangeRequest,LessonExchangeRequestAdmin)
 admin.site.register(Timetable, TimetableAdmin)
 admin.site.register(ExamType, ExamTypeAdmin)
+
+admin.site.register(Club, ClubAdmin)
+admin.site.register(ClubRole, ClubRoleAdmin)
+admin.site.register(ClubAttendance, ClubAttendanceAdmin)
+admin.site.register(ClubEvent, ClubEventAdmin)
+admin.site.register(ClubReport, ClubReportAdmin)
+admin.site.register(ClubFeedback, ClubFeedbackAdmin)
 
 
 

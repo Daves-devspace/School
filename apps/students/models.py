@@ -3,6 +3,7 @@ import uuid
 from datetime import date
 import logging
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Max
@@ -67,7 +68,7 @@ class GradeSection(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="class_teacher_of",
+        related_name="assigned_class",
     )
 
     class Meta:
@@ -145,6 +146,7 @@ class Student(models.Model):
     ]
     GENDER_CHOICES = [("Male", "Male"), ("Female", "Female")]
     RELIGION_CHOICES = [("Christian", "Christian"), ("Muslim", "Muslim"), ("Other", "Other")]
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='student_profile')
 
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)

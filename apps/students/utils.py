@@ -1,104 +1,53 @@
 import logging
+import re
 import requests
 from django.conf import settings
-
 from apps.Manage.utils import get_sms_provider_token
-from apps.management.models import ReportCard
-from apps.students.models import StudentParent
-
 
 class MobileSasaAPI:
-    BASE_URL_BULK = "https://api.mobilesasa.com/v1/send/bulk"
     BASE_URL_SINGLE = "https://api.mobilesasa.com/v1/send/message"
+    BASE_URL_BULK = "https://api.mobilesasa.com/v1/send/bulk"
     BASE_URL_BULK_PERSONALIZED = "https://api.mobilesasa.com/v1/send/bulk-personalized"
 
     def __init__(self):
-        # Fetch the API token and sender_id using the correct method
+        # Fetch the API token and sender_id using your method.
         token_data = get_sms_provider_token()
-
-        # Ensure token_data is correctly retrieved and contains the necessary keys
         if token_data:
-            self.api_token = token_data.get('api_token')  # Now you're getting the actual token value
-            self.sender_id = token_data.get('sender_id')  # Now you're getting the actual sender ID
+            self.api_token = token_data.get('api_token')
+            self.sender_id = token_data.get('sender_id')
         else:
             raise ValueError("No API token or sender ID found. Please check the token setup.")
 
-        # Log the actual values for debugging
+        # Debug output (you can remove these prints or use logging instead)
         print("Using API Token:", self.api_token)
         print("Using Sender ID:", self.sender_id)
 
-        # Set up the headers for API requests
         self.headers = {
             "Authorization": f"Bearer {self.api_token}",
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
-
         self.logger = logging.getLogger(__name__)
 
     def clean_phone_number(self, phone):
         """Standardize phone number format to match API requirements."""
         if not phone:
             return None
-
-        # Remove any non-digit characters
+        # Remove any non-digit characters.
         phone = ''.join(filter(str.isdigit, str(phone)))
-
-        # Handle Kenyan numbers
-        if phone.startswith('0'):  # Convert 0712345678 to 254712345678
+        # Handle Kenyan numbers (e.g., convert 0712345678 to 254712345678)
+        if phone.startswith('0'):
             phone = '254' + phone[1:]
-        elif phone.startswith('+'):  # Remove + if present
+        elif phone.startswith('+'):
             phone = phone[1:]
-        elif len(phone) == 9:  # Add country code if missing
+        elif len(phone) == 9:
             phone = '254' + phone
-
         return phone
-
-    def send_bulk_sms(self, message, phone_numbers):
-        """Sends bulk SMS to the provided phone numbers in batches of 50."""
-        responses = []
-        batch_size = 50
-
-        # Clean all phone numbers first
-        cleaned_numbers = [self.clean_phone_number(phone) for phone in phone_numbers]
-        cleaned_numbers = [phone for phone in cleaned_numbers if phone]  # Remove None values
-
-        for i in range(0, len(cleaned_numbers), batch_size):
-            batch = cleaned_numbers[i:i + batch_size]
-            phones = ",".join(batch)
-            payload = {
-                "senderID": self.sender_id,
-                "message": message,
-                "phones": phones,
-            }
-
-            self.logger.debug(f"Sending bulk SMS batch {i // batch_size + 1}. Payload: {payload}")
-
-            try:
-                response = requests.post(self.BASE_URL_BULK, headers=self.headers, json=payload)
-                response.raise_for_status()  # Will raise an HTTPError if the HTTP request returned an unsuccessful status code
-                response_data = response.json()
-                self.logger.debug(f"Bulk SMS response: {response_data}")
-                responses.append(response_data)
-            except requests.RequestException as e:
-                error_msg = {"status": False, "message": f"Request error: {str(e)}"}
-                self.logger.error(f"Bulk SMS error: {error_msg}")
-                responses.append(error_msg)
-            except ValueError as e:
-                error_msg = {"status": False, "message": f"Error parsing response: {str(e)}"}
-                self.logger.error(f"Bulk SMS error: {error_msg}")
-                responses.append(error_msg)
-
-        return responses
 
     def send_single_sms(self, message, phone):
         """
         Sends a single SMS to the specified phone number.
-        Args:
-            message (str): The SMS message to send.
-            phone (str): Phone number in E.164 format (e.g., '2547XXXXXXX').
-        Returns:
-            dict: A response from the API with the status of the SMS delivery.
+        Returns a dictionary with the API response.
         """
         cleaned_phone = self.clean_phone_number(phone)
         if not cleaned_phone:
@@ -115,17 +64,9 @@ class MobileSasaAPI:
         try:
             response = requests.post(self.BASE_URL_SINGLE, headers=self.headers, json=payload)
             response.raise_for_status()
-
-            # Log the raw response text for debugging
-            self.logger.debug(f"Response Text: {response.text}")
-
-            # Attempt to parse the JSON response
+            self.logger.debug(f"Single SMS response: {response.text}")
             response_data = response.json()
-
-            # Ensure the response is always a dictionary with expected keys
-            return response_data if isinstance(response_data, dict) else {"status": False,
-                                                                          "message": "Unexpected response format"}
-
+            return response_data if isinstance(response_data, dict) else {"status": False, "message": "Unexpected response format"}
         except requests.RequestException as e:
             error_msg = {"status": False, "message": f"Request error: {str(e)}"}
             self.logger.error(f"Single SMS error: {error_msg}")
@@ -135,127 +76,127 @@ class MobileSasaAPI:
             self.logger.error(f"JSON parse error: {error_msg}")
             return error_msg
 
-    def send_bulk_personalized_sms(self, personalized_messages):
-        """Sends bulk personalized SMS."""
-        # Clean phone numbers and format message body
-        message_body = []
-        for msg in personalized_messages:
-            cleaned_phone = self.clean_phone_number(msg['phone'])
-            if cleaned_phone:
-                message_body.append({
-                    "phone": cleaned_phone,
-                    "message": msg['message']
-                })
-
-        if not message_body:
-            return {
-                'status': False,
-                'message': 'No valid phone numbers provided',
-                'responseCode': '0400'
+    def send_bulk_sms(self, message, phone_numbers):
+        """
+        Sends bulk SMS to the provided phone numbers in batches of 50.
+        According to the API documentation, the payload should be:
+            {
+                "senderID": "MOBILESASA",
+                "message": "Your message here",
+                "phones": "254707XXXXXX,25411XXXXX,25470XXXXXX"
             }
+        """
+        chunk_size = 50
+        success_count = 0
+        errors = []
 
-        # Construct payload as per API documentation
-        payload = {
-            "senderID": self.sender_id,
-            "messageBody": message_body
+        if not self.sender_id or not self.api_token:
+            raise ValueError("Missing API credentials")
+
+        # Clean and filter phone numbers.
+        cleaned_numbers = [self.clean_phone_number(phone) for phone in phone_numbers]
+        cleaned_numbers = [phone for phone in cleaned_numbers if phone]
+
+        for i in range(0, len(cleaned_numbers), chunk_size):
+            chunk = cleaned_numbers[i:i + chunk_size]
+            phones = ",".join(chunk)
+            payload = {
+                "senderID": self.sender_id,
+                "message": message,
+                "phones": phones,
+            }
+            self.logger.debug(f"Sending bulk SMS batch {i // chunk_size + 1}. Payload: {payload}")
+
+            try:
+                response = requests.post(self.BASE_URL_BULK, headers=self.headers, json=payload)
+                response.raise_for_status()
+                try:
+                    response_data = response.json()
+                except Exception as parse_error:
+                    self.logger.error(f"Error parsing JSON for batch {i // chunk_size + 1}: {response.text}")
+                    errors.append({
+                        "message": "Invalid API response format",
+                        "response": response.text,
+                        "phones": chunk
+                    })
+                    continue
+
+                self.logger.debug(f"Bulk SMS response for batch {i // chunk_size + 1}: {response_data}")
+                if response_data.get("status"):
+                    success_count += len(chunk)
+                else:
+                    errors.append({
+                        "code": response_data.get("responseCode"),
+                        "message": response_data.get("message", "Unknown error"),
+                        "phones": chunk
+                    })
+            except requests.RequestException as e:
+                error_msg = {"message": f"Request error: {str(e)}", "phones": chunk}
+                self.logger.error(f"Bulk SMS request error for batch {i // chunk_size + 1}: {error_msg}", exc_info=True)
+                errors.append(error_msg)
+
+        return success_count, errors
+
+    def send_bulk_personalized_sms(self, personalized_messages):
+        """
+        Sends personalized bulk SMS to multiple recipients.
+        Expects a payload like:
+        {
+            "senderID": "MOBILESASA",
+            "messageBody": [
+                {
+                    "phone": "2547078614xx",
+                    "message": "Personalized message"
+                },
+                ...
+            ]
         }
-
-        self.logger.info(f"Sending personalized SMS to {len(message_body)} recipients")
-        self.logger.debug(f"Request payload: {payload}")
-
+        """
         try:
-            response = requests.post(
-                self.BASE_URL_BULK_PERSONALIZED,
-                headers=self.headers,
-                json=payload
-            )
-            response.raise_for_status()
+            chunk_size = 50
+            success_count = 0
+            errors = []
+            if not self.sender_id or not self.api_token:
+                raise ValueError("Missing API credentials")
 
-            # Log the complete response
-            self.logger.debug(f"API Response Status: {response.status_code}")
-            self.logger.debug(f"API Response Body: {response.text}")
+            for i in range(0, len(personalized_messages), chunk_size):
+                chunk = personalized_messages[i:i + chunk_size]
+                payload = {
+                    "senderID": self.sender_id,  # Added senderID as required
+                    "messageBody": [
+                        {
+                            "phone": msg['phone'],
+                            "message": msg['message']
+                        } for msg in chunk
+                    ]
+                }
+                self.logger.debug(f"Sending personalized SMS batch {i // chunk_size + 1}. Payload: {payload}")
+                response = requests.post(self.BASE_URL_BULK_PERSONALIZED, headers=self.headers, json=payload)
+                response.raise_for_status()
 
-            response_data = response.json()
+                try:
+                    response_data = response.json()
+                except Exception as parse_error:
+                    self.logger.error(
+                        f"Error parsing JSON for personalized batch {i // chunk_size + 1}: {response.text}")
+                    errors.append({
+                        "message": "Invalid API response format",
+                        "response": response.text,
+                        "failed_chunk": chunk
+                    })
+                    continue
 
-            if response.status_code == 200 and response_data.get('status'):
-                self.logger.info(f"SMS sent successfully. Bulk ID: {response_data.get('bulkId')}")
-                return [{
-                    'status': True,
-                    'message': 'SMS sent successfully',
-                    'bulkId': response_data.get('bulkId')
-                }]
-            else:
-                error_msg = response_data.get('message', 'Unknown error')
-                self.logger.error(f"API Error: {error_msg}")
-                return [{
-                    'status': False,
-                    'message': error_msg,
-                    'responseCode': response_data.get('responseCode', 'Unknown')
-                }]
+                self.logger.debug(f"Personalized SMS response for batch {i // chunk_size + 1}: {response_data}")
+                if response_data.get('status'):
+                    success_count += len(chunk)
+                else:
+                    errors.append({
+                        "code": response_data.get("responseCode"),
+                        "message": response_data.get("message", "Unknown error"),
+                        "failed_chunk": chunk
+                    })
+            return success_count, errors
 
-        except requests.RequestException as e:
-            error_msg = f"Request failed: {str(e)}"
-            self.logger.error(error_msg)
-            return [{
-                'status': False,
-                'message': error_msg,
-                'responseCode': '0500'
-            }]
-        except ValueError as e:
-            error_msg = f"Failed to parse JSON response: {str(e)}"
-            self.logger.error(error_msg)
-            return [{
-                'status': False,
-                'message': error_msg,
-                'responseCode': '0500'
-            }]
-
-
-def format_and_send_sms(active_students, term, exam_type, message_template):
-    """
-    Formats the message for each student and sends an SMS to their parents.
-    """
-    if not message_template:
-        return {"error": "Message template is not provided."}
-
-    personalized_messages = []
-    for student in active_students:
-        try:
-            report_card = ReportCard.objects.get(student=student, term=term, exam_type=exam_type)
-        except ReportCard.DoesNotExist:
-            logging.warning(f"Report card not found for student {student.first_name}.")
-            continue
-
-        student_parent = StudentParent.objects.filter(student=student).first()
-        if not student_parent or not student_parent.parent.mobile:
-            logging.warning(f"No mobile number found for parent of student {student.first_name}.")
-            continue
-
-        try:
-            message = message_template.format(
-                parent_name=student_parent.parent.first_name,
-                student_name=student.first_name,
-                total_marks=report_card.total_marks(),
-                exam_type=exam_type.name,
-                term=term.name
-            )
-        except KeyError as e:
-            return {"error": f"Message formatting error: {e}. Please check your template."}
-
-        personalized_messages.append({
-            "phone": student_parent.parent.mobile,
-            "message": message
-        })
-
-    if not personalized_messages:
-        return {"warning": "No valid parents with mobile numbers found to send SMS."}
-
-    # Use the MobileSasaAPI class to send the messages
-    api = MobileSasaAPI()
-    response = api.send_bulk_personalized_sms(personalized_messages)
-
-    # Handle the response
-    if response[0].get('status'):
-        return {"success": f"{len(personalized_messages)} SMS sent successfully."}
-    else:
-        return {"error": f"Failed to send SMS: {response[0].get('message')}"}
+        except Exception as e:
+            self.logger.error(f"SMS sending failed: {str(e)}", exc_info=True)
+            return 0, [str(e)]

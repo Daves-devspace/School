@@ -1,0 +1,108 @@
+{% extends 'Home/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Attendance</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'students' %}">School</a></li>
+                            <li class="breadcrumb-item active">Clubs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }}">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Teachers</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="{% url 'teachers' %}"
+                                           class="btn btn-success me-2 active"><i
+                                                class="fas fa-list"></i></a>
+                                        <a href="{% url 'teachers' %}"
+                                           class="btn btn-success me-2"><i
+                                                class="fas fa-th-large"></i></a>
+                                        <a href="#" class="btn btn-success me-2"><i
+                                                class="fas fa-download"></i>
+                                            Download</a>
+                                        <a href="{% url 'class_teachers' %}" class="btn btn-success me-2"><i
+                                                class="fas fa-pen-fancy"></i>
+                                            Assign Class</a>
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#addMemberModal">
+                                            Add Member
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <h2>{{ club.name }}</h2>
+                            <form method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">Mark Attendance</button>
+                                <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>
+                                            <input type="checkbox" name="attendance" value="{{ member.id }}">
+                                        </th>
+                                        <th>ADM</th>
+                                        <th>Name</th>
+                                        <th>Grade</th>
+                                        <th>role</th>
+                                        <th>View</th>
+
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for member in club.members.all %}
+                                        <tr>
+                                            <td>{{ member.admission_no }}</td>
+                                            <td>{{ member.name }}</td>
+                                            <td>{{ member.grade }}</td>
+                                            <td>{{ member.role }}</td>
+                                            <td>
+                                                <a href="{% url '#' member.id %}"
+                                                   class="btn btn-success">Member</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </form>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    </body>
+
+    </html>
+{% endblock %}

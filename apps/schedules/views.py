@@ -75,6 +75,26 @@ def add_subject(request):
     return render(request, 'performance/add_subject.html', {'form': form})
 
 
+
+@login_required
+def list_subjects(request):
+    subjects = Subject.objects.all()  # or use any other filter you need
+    return render(request, 'performance/subjects.html', {'subjects': subjects})
+
+
+
+# Edit Subject
+def edit_subject(request, id):
+    subject = get_object_or_404(Subject, pk=id)
+    if request.method == 'POST':
+        form = SubjectForm(request.POST, instance=subject)
+        if form.is_valid():
+            form.save()
+            return redirect('subjects_list')
+    else:
+        form = SubjectForm(instance=subject)
+    return render(request, 'performance/add_subject.html', {'form': form})
+
 def add_room_and_list(request, room_id=None):
     rooms = Room.objects.prefetch_related("related_subjects").select_related("grade_section").all()
 
@@ -720,12 +740,14 @@ def fetch_timetable_by_grade_section(request, grade_section_id):
 
 
 #Rechedule
-
-
 class RescheduleSlot(View):
     def get(self, request, slot_id):
-        slot = get_object_or_404(TimetableSlot, pk=slot_id,
-                                 teacher_assignment__teacher=request.user.teacher)
+        teacher = getattr(request.user, 'teacher', None)
+        if not teacher:
+            messages.error(request, "You are not authorized to reschedule.")
+            return redirect('teacher_dashboard')
+
+        slot = get_object_or_404(TimetableSlot, pk=slot_id, teacher_assignment__teacher=teacher)
         available_slots = TimeSlot.objects.exclude(
             timetable_slots__day_of_week=slot.day_of_week
         ).order_by('start_time')
@@ -737,38 +759,51 @@ class RescheduleSlot(View):
         })
 
     def post(self, request, slot_id):
-        slot = get_object_or_404(TimetableSlot, pk=slot_id,
-                                 teacher_assignment__teacher=request.user.teacher)
+        teacher = getattr(request.user, 'teacher', None)
+        if not teacher:
+            messages.error(request, "Unauthorized access.")
+            return redirect('teacher_dashboard')
 
-        new_time = request.POST.get('new_time')
-        new_room = request.POST.get('new_room')
+        slot = get_object_or_404(TimetableSlot, pk=slot_id, teacher_assignment__teacher=teacher)
+
+        new_time_id = request.POST.get('new_time')
+        new_room_id = request.POST.get('new_room')
         new_day = request.POST.get('new_day')
 
-        # Check availability
+        # Validate inputs
+        if not new_time_id or not new_room_id or not new_day:
+            messages.error(request, "Please select a valid time, day, and room.")
+            return redirect('teacher_dashboard')
+
+        # Ensure valid objects exist
+        new_time = get_object_or_404(TimeSlot, id=new_time_id)
+        new_room = get_object_or_404(Room, id=new_room_id)
+
+        # Check if the slot is available
         conflict = TimetableSlot.objects.filter(
             day_of_week=new_day,
             time_slot=new_time,
             room=new_room
         ).exists()
 
-        if not conflict:
-            # Create rescheduled slot
+        if conflict:
+            messages.error(request, "Selected slot is already booked.")
+        else:
+            # Create new rescheduled slot
             TimetableSlot.objects.create(
                 teacher_assignment=slot.teacher_assignment,
                 day_of_week=new_day,
-                time_slot_id=new_time,
-                room_id=new_room,
+                time_slot=new_time,
+                room=new_room,
                 is_rescheduled=True,
                 original_slot=slot
             )
 
-            # Mark original as rescheduled
+            # Mark original slot as rescheduled
             slot.is_rescheduled = True
             slot.save()
 
             messages.success(request, "Reschedule request submitted successfully!")
-        else:
-            messages.error(request, "Selected slot is already booked")
 
         return redirect('teacher_dashboard')
 

@@ -21,6 +21,7 @@
                 <div class="col-sm-12">
                     <div class="card card-table comman-shadow">
                         <div class="card-body">
+
                             {% if messages %}
                                 {% for message in messages %}
                                     <div class="alert {{ message.tags }}">
@@ -28,6 +29,24 @@
                                     </div>
                                 {% endfor %}
                             {% endif %}
+                            <div class="page-header">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h3 class="page-title">Time Table</h3>
+                                    </div>
+                                    <div class="col-auto text-end float-end ms-auto download-grp">
+                                        <a href="#" class="btn btn-success me-2"><i
+                                                class="fas fa-download"></i>
+                                            Download</a>
+                                        <a href="{% url 'get_filtered_timetable' %}" class="btn btn-success me-2"><i
+                                                class="fas fa-chalkboard"></i>
+                                            Class</a>
+                                        <a href="{% url 'get_filtered_timetable' %}" class="btn btn-success "><i
+                                                class="fas fa-plus"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
 
                             <div class="container py-5">
                                 <p class="text-center text-muted">
@@ -98,10 +117,10 @@
                                                 <!-- Button to trigger timetable generation -->
 
                                                 <p id="statusMessage"></p>
-{#                                                <div id="statusMessage" class="text-center mt-2">#}
-{#                                                    <p id="statusMessage"></p>#}
-{#                                                    <!-- For displaying success/error messages -->#}
-{#                                                </div>#}
+                                                {#                                                <div id="statusMessage" class="text-center mt-2">#}
+                                                {#                                                    <p id="statusMessage"></p>#}
+                                                {#                                                    <!-- For displaying success/error messages -->#}
+                                                {#                                                </div>#}
                                             </div>
                                         </div>
                                     </div>

@@ -16,25 +16,43 @@
                     </div>
                 </div>
             </div>
+            {% if messages %}
+                <div class="container-fluid">
+                    <div class="alert-container">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-body">
 
                             <h4>Assign Class to {{ teacher.user_name }}</h4>
-                            <form method="post">
+                        
+                            <form method="POST" id="assignGradeForm">
                                 {% csrf_token %}
-                            <div class="mb-3">
-                                <label for="assigned_class">Assign Grade:</label>
-                                <select name="assigned_class" id="assigned_class" class="form-select" required>
-                                    {% for grade in grades %}
-                                        <option value="{{ grade.id }}">{{ grade.name }} (Section: {{ grade.section }})
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                                <button class="btn-info rounded" type="submit">Assign</button>
+                                <div class="mb-3">
+                                    <label for="assigned_class" class="form-label">Select Class</label>
+                                    <select name="assigned_class" id="assigned_class" class="form-select" required>
+                                        <option value="">Choose Class</option>
+                                        {% for grade in grades %}
+                                            <option value="{{ grade.id }}">
+                                                {{ grade.grade.name }} {{ grade.section.name }}
+                                                {% if grade.class_teacher %}
+                                                    (Currently: {{ grade.class_teacher.staff_number }})
+                                                {% endif %}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Assign Class</button>
                             </form>
+
 
                         </div>
                     </div>

@@ -52,7 +52,7 @@ class StaffNumberBackend(BaseBackend):
 
 
 class Teacher(models.Model):
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)  # Links to User model
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True,related_name='teacher_profile')  # Links to User model
     id_No = models.CharField(max_length=20, unique=True)  # Represents the ID number
     staff_number = models.CharField(max_length=20, unique=True, default='TCH/000/00')  # This will be used as username
     first_name = models.CharField(max_length=50)

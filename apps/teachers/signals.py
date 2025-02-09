@@ -10,7 +10,7 @@ from django.urls import reverse
 from .models import Teacher, Role, Department, TeacherRole
 from django.db import transaction
 
-
+from ..management.models import Profile
 
 
 @receiver(post_save, sender=Teacher)
@@ -61,6 +61,14 @@ def create_or_update_user(sender, instance, created, **kwargs):
 
         instance.save()  # Save teacher instance if any changes occurred
 
+@receiver(post_save, sender=Teacher)
+def ensure_teacher_profile(sender, instance, created, **kwargs):
+    """ Ensure the user is linked and has a teacher role in Profile """
+    if instance.user:
+        profile, _ = Profile.objects.get_or_create(user=instance.user)
+        if profile.role != 'Teacher':  # Prevent unnecessary updates
+            profile.role = 'Teacher'
+            profile.save()
 
 
 
