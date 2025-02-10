@@ -18,12 +18,14 @@ from apps.schedules.utils import generate_room_name_from_grade_section
 
 logger = logging.getLogger(__name__)
 
+
 # Create your models here.
 
-def generate_unique_name(instance,filename):
+def generate_unique_name(instance, filename):
     name = uuid.uuid4()
-    full_file_name=f"{name}-{filename}"
-    return os.path.join("student_images",full_file_name)
+    full_file_name = f"{name}-{filename}"
+    return os.path.join("student_images", full_file_name)
+
 
 class StudentManager(models.Manager):
     def active(self):
@@ -137,8 +139,6 @@ class Parent(models.Model):
         verbose_name_plural = "Parents"  # Use proper pluralization in admin
 
 
-
-
 class Student(models.Model):
     STATUS_CHOICES = [
         ("Active", "Active"),
@@ -193,28 +193,31 @@ class Student(models.Model):
         """
         Generate a unique admission number for each student.
         Format: MFS/{sequential_number}/{year_last_two_digits}
+        Ensures uniqueness by checking if the generated admission number already exists.
         """
         current_year = date.today().year  # Get the current year (e.g., 2025)
         year_suffix = str(current_year)[-2:]  # Extract the last two digits of the year (e.g., 25)
 
-        # Fetch the last registered student
-        last_student = Student.objects.order_by('-id').first()
+        # Get the highest existing number for the current year
+        last_student = Student.objects.filter(admission_number__endswith=f"/{year_suffix}").order_by('-id').first()
 
-        # Extract the sequential number
         if last_student and last_student.admission_number:
             try:
-                # Safely split the admission number and get the middle part (the sequential number)
-                last_number = int(last_student.admission_number.split("/")[1])  # Get the middle part (001)
-            except (IndexError, ValueError):
-                last_number = 0  # Default to 0 if the admission_number format is unexpected
+                last_number = int(last_student.admission_number.split("/")[1])  # Extract the middle number
+            except ValueError:
+                last_number = 0  # Default to 0 if parsing fails
         else:
-            last_number = 0  # Default to 0 if no previous student exists
+            last_number = 0  # Default to 0 if no student exists for the year
 
-        # Increment the number and format it as a 3-digit number
-        new_number = f"{last_number + 1:03d}"
+        while True:
+            new_number = f"{last_number + 1:03d}"
+            admission_number = f"MFS/{new_number}/{year_suffix}"
 
-        # Return the formatted admission number
-        return f"MFS/{new_number}/{year_suffix}"
+            # Ensure the admission number does not already exist
+            if not Student.objects.filter(admission_number=admission_number).exists():
+                return admission_number  # Return only if unique
+
+            last_number += 1  # Increment and try again if a duplicate exists
 
     def clean(self):
         # Ensure joining date is not in the future
@@ -274,24 +277,22 @@ class StudentParent(models.Model):
     class Meta:
         unique_together = ('student', 'parent')
 
+
 class StudentDocument(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='documents')
-    doc_name= models.CharField(max_length=15)
+    doc_name = models.CharField(max_length=15)
     document = models.FileField(upload_to='student_documents/', blank=True, null=True,
-                                 help_text="Upload student-related documents")
+                                help_text="Upload student-related documents")
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Document for {self.student.first_name} uploaded on {self.uploaded_at}"
 
 
-
-
-
 class Book(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100)
-    year =  models.DateField()
+    year = models.DateField()
     subject = models.CharField(max_length=100)
     isbn = models.CharField(max_length=100, unique=True)
 
@@ -351,10 +352,3 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"{self.transaction}-{self.code} -{self.amount}"
-
-
-
-
-
-
-

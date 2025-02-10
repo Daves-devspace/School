@@ -150,20 +150,37 @@
     </div>
 
     <script>
-       document.addEventListener("DOMContentLoaded", function () {
-    let calendarEl = document.getElementById("calendar");
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            let cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
-    let calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: "dayGridMonth",
-        events: function (fetchInfo, successCallback, failureCallback) {
-            fetch(`/management/events/?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                    "X-Requested-With": "XMLHttpRequest",  // Helps Django recognize AJAX requests
-                },
-                credentials: "include"  // Ensures cookies (session) are sent with the request
-            })
+    document.addEventListener("DOMContentLoaded", function () {
+        let calendarEl = document.getElementById("calendar");
+
+        let calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: "dayGridMonth",
+            events: function (fetchInfo, successCallback, failureCallback) {
+                fetch(`/management/events/?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                        "X-Requested-With": "XMLHttpRequest",  // Helps Django recognize AJAX requests
+                        "X-CSRFToken": getCookie("csrftoken"), // Include CSRF token
+                    },
+                    credentials: "include"  // Ensures cookies (session) are sent with the request
+                })
                 .then(response => {
                     if (response.status === 403) {
                         alert("Session expired! Please log in again.");
@@ -183,39 +200,37 @@
                     alert("Failed to load events. Please check your login session.");
                     failureCallback(error);
                 });
-        },
-        dateClick: function (info) {
-            document.querySelector("#createEventModal input[name='date']").value = info.dateStr;
-            new bootstrap.Modal(document.getElementById("createEventModal")).show();
-        },
-        eventClick: function (info) {
-            let event = info.event;
-            document.getElementById("editEventId").value = event.id;
-            document.getElementById("editEventName").value = event.title;
-            document.getElementById("editEventDate").value = event.startStr;
-            document.getElementById("editEventTime").value = event.extendedProps.time;
-            document.getElementById("editEventDescription").value = event.extendedProps.description;
-            new bootstrap.Modal(document.getElementById("editEventModal")).show();
-        }
+            },
+            dateClick: function (info) {
+                document.querySelector("#createEventModal input[name='date']").value = info.dateStr;
+                new bootstrap.Modal(document.getElementById("createEventModal")).show();
+            },
+            eventClick: function (info) {
+                let event = info.event;
+                document.getElementById("editEventId").value = event.id;
+                document.getElementById("editEventName").value = event.title;
+                document.getElementById("editEventDate").value = event.startStr;
+                document.getElementById("editEventTime").value = event.extendedProps.time;
+                document.getElementById("editEventDescription").value = event.extendedProps.description;
+                new bootstrap.Modal(document.getElementById("editEventModal")).show();
+            }
+        });
+
+        calendar.render();
     });
-
-    calendar.render();
-});
-
-
-
-    </script>
+</script>
 
 
 
 
-    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
 
-    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  
+    
 
     <script src="{% static 'assets/js/feather.min.js' %}"></script>
-
-    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<!-- Load jQuery Plugins (e.g., jQuery UI, slimScroll) -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
 
     <script src="{% static 'assets/js/moment.min.js' %}"></script>
     <script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}"></script>
@@ -224,8 +239,9 @@
 
     <script src="{% static 'assets/js/calender.js' %}"></script>
     <script src="{% static 'assets/js/jquery-ui.min.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{% static 'assets/plugins/fullcalendar/fullcalendar.min.js' %}"></script>
-    <script src="{% static 'assets/plugins/fullcalendar/jquery.fullcalendar.js' %}"></script>
+{#    <script src="{% static 'assets/plugins/fullcalendar/jquery.fullcalendar.js' %}"></script>#}
 
     <script src="{% static 'assets/js/script.js' %}"></script>
 

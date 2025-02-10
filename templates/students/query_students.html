@@ -46,15 +46,22 @@
         <div class="content container-fluid">
 
             <div class="page-header">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="page-sub-header">
-                            <h3 class="page-title">Students</h3>
-                            <ul class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="students.html">Student</a></li>
-                                <li class="breadcrumb-item active">All Students</li>
-                            </ul>
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h3 class="page-title">Students</h3>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+                            <li class="breadcrumb-item active">filter</li>
+                        </ul>
+                    </div>
+                    <div class="col-auto text-right float-right ml-auto">
+                        <div class="col-auto text-end float-end ms-auto download-grp">
+                            <a onclick="printPDF()" class="btn btn-success  no-print text-white me-2"><i
+                                    class="fas fa-print"></i>
+                                Print</a>
+
                         </div>
+                        <a href="{% url 'add_student' %}" class="btn btn-success"><i class="fas fa-plus"></i></a>
                     </div>
                 </div>
             </div>
@@ -75,20 +82,6 @@
                     <div class="card card-table comman-shadow">
                         <div class="card-body">
 
-                            <div class="page-header">
-                                <div class="row align-items-center">
-                                    <div class="col">
-
-
-                                    </div>
-                                    <div class="col-auto text-end float-end ms-auto download-grp">
-                                        <a onclick="printPDF()" class="btn btn-success  no-print text-white me-2"><i
-                                                class="fas fa-print"></i>
-                                            Print</a>
-
-                                    </div>
-                                </div>
-                            </div>
 
                             <div class="table-responsive">
 
@@ -101,25 +94,28 @@
                                 </form>
                                 {#                                <button  class="btn btn-success">Download as PDF</button>#}
 
-                                <div id="pdf-content">
+                                <div id="pdf-content" class="text-center">
                                     <!-- Space before header -->
                                     <div class="mb-2"></div>
-                                    <div class=" text-center">
-                                        <div class="row align-items-center justify-content-center">
-                                            <div class="col-auto">
+
+                                    <!-- Centered Logo and Text -->
+                                    <div class="d-flex flex-column align-items-center justify-content-center">
+                                        <div class="d-flex align-items-center">
+                                            <!-- Logo -->
+                                            <div class="me-3">
                                                 <img src="{% static 'assets/img/new-logo.png' %}" class="img-fluid"
                                                      style="max-width: 100px;" alt="School Logo">
                                             </div>
-                                            <div class="col text-start">
+                                            <!-- School Info -->
+                                            <div class="text-center">
                                                 <h4 class="mb-0 fw-bold">MERRYLAND FRIENDS SCHOOL</h4>
                                                 <h6 class="mb-0">P.O BOX 595, NYAHURURU | TEL: 0722 780 529</h6>
                                                 <p class="mb-0">Email: Info@Merrylandfriends.com</p>
                                             </div>
                                         </div>
-                                  
                                     </div>
 
-
+                                    <!-- Title Below Header -->
                                     <h4 class="text-center mt-4">
                                         {% if grade and not section %}
                                             Grade {{ grade.name }} Students
@@ -130,7 +126,7 @@
                                         {% endif %}
                                     </h4>
 
-
+                                    <!-- Student Table -->
                                     <table class="table border-0 star-student table-hover table-center mb-0 datatable table-stripe">
                                         <thead class="student-thread">
                                         <tr>

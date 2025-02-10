@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
 from phonenumbers import is_valid_number, parse
 
-from apps.management.models import  Profile
+from apps.management.models import Profile
 from apps.students.models import Grade, GradeSection
 from .forms import TeacherForm, TeacherAssignmentForm
 # from .forms import TeacherForm
@@ -17,37 +17,51 @@ from .models import Teacher, Department, TeacherRole, Role, TeacherAssignment
 
 @login_required
 def teachers(request):
-    teachers = Teacher.objects.select_related('user','user__profile',"assigned_class").all()
+    teachers = Teacher.objects.select_related('user', 'user__profile', "assigned_class").all()
     grades = GradeSection.objects.all()
 
-    return render(request, "teachers/teachers.html", {"teachers": teachers,'grades': grades})
-
+    return render(request, "teachers/teachers.html", {"teachers": teachers, 'grades': grades})
 
 
 @login_required
 def add_teacher(request):
     if request.method == 'POST':
         form = TeacherForm(request.POST)
+
         if form.is_valid():
-            with transaction.atomic():  # Ensures all changes apply together
-                teacher = form.save(commit=False)
+            try:
+                with transaction.atomic():
+                    teacher = form.save(commit=False)
 
-                # Generate staff number if not provided
-                if not teacher.staff_number:
-                    teacher.staff_number = Teacher.generate_staff_number()
+                    if teacher is None:
+                        messages.error(request, "Failed to create teacher instance.")
+                        return render(request, 'teachers/add-teacher.html', {'form': form})
 
-                teacher.save()  # Saves teacher, triggering the signal that creates a user
+                    if not teacher.staff_number:
+                        teacher.staff_number = Teacher.generate_staff_number()
 
-                # Assign user to the "Teacher" group
-                if teacher.user:  # Ensure user was created by the signal
-                    group, _ = Group.objects.get_or_create(name='Teacher')
-                    teacher.user.groups.add(group)
+                    teacher.save()  # Save before assigning ManyToMany fields
 
-                messages.success(request, "Teacher added successfully.")
-                return redirect('teachers')
+                    # Assign ManyToManyField subjects
+                    if 'subjects' in request.POST:
+                        teacher.subjects.set(request.POST.getlist('subjects'))
 
+                    # Handle password securely
+                    if teacher.user and 'password' in request.POST:
+                        teacher.user.set_password(request.POST['password'])
+                        teacher.user.save()
+
+                    # Add user to "Teacher" group
+                    if teacher.user:
+                        group, _ = Group.objects.get_or_create(name='Teacher')
+                        teacher.user.groups.add(group)
+
+                    messages.success(request, "Teacher added successfully.")
+                    return redirect('teachers')
+            except Exception as e:
+                messages.error(request, f"An error occurred: {e}")
         else:
-            messages.error(request, "Please correct the errors below.")
+            messages.error(request, "Form validation failed. Please correct the errors below.")
     else:
         form = TeacherForm()
 
@@ -80,14 +94,12 @@ def edit_teacher(request, id):
 
     return render(request, 'teachers/edit_teacher.html', {'form': form, 'teacher': teacher})
 
+
 @login_required
 def teacher_detail(request, id):
     teacher = get_object_or_404(Teacher, pk=id)
     teachers_subject = teacher.subjects.all()
-    return render(request, 'teachers/teacher_detail.html', {'teacher': teacher ,'subjects':teachers_subject})
-
-
-
+    return render(request, 'teachers/teacher_detail.html', {'teacher': teacher, 'subjects': teachers_subject})
 
 
 def teacher_assignments(request, assignment_id=None):
@@ -115,6 +127,7 @@ def teacher_assignments(request, assignment_id=None):
         'form': form,
         'assignments': assignments
     })
+
 
 def delete_teacher_assignment(request, assignment_id):
     assignment = get_object_or_404(TeacherAssignment, id=assignment_id)
@@ -186,7 +199,6 @@ def assign_hod_and_teachers(request, id):
     })
 
 
-
 def assign_teachers_to_department(request, department_id):
     department = get_object_or_404(Department, id=department_id)
     roles = Role.objects.all()
@@ -201,10 +213,12 @@ def assign_teachers_to_department(request, department_id):
 
         # Check if the teacher is already assigned to this department with this role
         if TeacherRole.objects.filter(teacher=teacher, department=department, role=role).exists():
-            messages.warning(request, f"{teacher.staff_number} is already assigned to {department.name} as {role.name}.")
+            messages.warning(request,
+                             f"{teacher.staff_number} is already assigned to {department.name} as {role.name}.")
         else:
             TeacherRole.objects.create(teacher=teacher, department=department, role=role)
-            messages.success(request, f"{teacher.staff_number} has been successfully added to {department.name} as {role.name}.")
+            messages.success(request,
+                             f"{teacher.staff_number} has been successfully added to {department.name} as {role.name}.")
 
         return redirect('assign_teachers_to_department', department_id=department_id)
 
@@ -232,11 +246,6 @@ def remove_teacher_from_department(request, department_id, teacher_id):
     return redirect('assign_teachers_to_department', department_id=department.id)
 
 
-
-
-
-
-
 @login_required
 def assign_grade(request):
     # This view is expected to be used in a modal within the class teachers page.
@@ -259,7 +268,8 @@ def assign_grade(request):
                 # If teacher is already assigned to a different class
                 if not confirm_removal:
                     # Render the assignment form again with a confirmation request.
-                    messages.warning(request, f"Teacher {teacher.staff_number} is already assigned to {previous_class}. Please confirm removal of the current assignment.")
+                    messages.warning(request,
+                                     f"Teacher {teacher.staff_number} is already assigned to {previous_class}. Please confirm removal of the current assignment.")
                     return render(request, 'teachers/assign_class_teachers.html', {
                         'teacher': teacher,
                         'grades': grades,
@@ -275,7 +285,8 @@ def assign_grade(request):
             # Assign teacher to the new class.
             assigned_grade.class_teacher = teacher
             assigned_grade.save()
-            messages.success(request, f"Teacher {teacher.staff_number} has been successfully assigned to {assigned_grade}.")
+            messages.success(request,
+                             f"Teacher {teacher.staff_number} has been successfully assigned to {assigned_grade}.")
             return redirect('class_teachers')
 
         messages.error(request, "Invalid Grade Selection")
@@ -283,8 +294,6 @@ def assign_grade(request):
 
     # For GET, simply redirect back (this view is mainly for POST).
     return redirect('class_teachers')
-
-
 
 
 @login_required
@@ -373,7 +382,6 @@ def class_teachers(request):
 #     })
 
 
-
 # def assign_grade(request, teacher_id):
 #     teacher = get_object_or_404(Teacher, id=teacher_id)
 #     grades = Grade.objects.all()
@@ -398,8 +406,6 @@ def class_teachers(request):
 #     return render(request, 'teachers/assign_class_teachers.html', {'teacher': teacher, 'grades': grades})
 
 
-
-
 @login_required
 def teachers_department(request):
     # Prefetch TeacherRole objects with related teacher and role
@@ -409,24 +415,26 @@ def teachers_department(request):
     ).select_related('hod')  # Optionally, select HOD to avoid additional queries
     return render(request, "teachers/teacher_department.html", {'departments': departments})
 
+
 @login_required
 def department_list(request):
     # Prefetch TeacherRole objects with related teacher and role
     departments = Department.objects.prefetch_related(
         'teacherrole_set__teacher',  # Prefetch teachers through TeacherRole
-        'teacherrole_set__role'      # Prefetch roles through TeacherRole
+        'teacherrole_set__role'  # Prefetch roles through TeacherRole
     ).select_related('hod')  # Optionally, select HOD to avoid additional queries
 
     return render(request, 'teachers/departments.html', {'departments': departments})
+
+
 @login_required
 def add_department(request):
     departments = Department.objects.all()
 
-
     if request.method == "POST":
         # Handle adding a new department
         department_name = request.POST.get("name")
-        department_hod  = request.POST.get("hod")
+        department_hod = request.POST.get("hod")
         if department_name:
             department, created = Department.objects.get_or_create(name=department_name)
             if created:
@@ -438,15 +446,6 @@ def add_department(request):
         return redirect("departments")
 
     return render(request, "teachers/add_department.html", {"departments": departments})
-
-
-
-
-
-
-
-
-
 
 # # Get all teachers in a specific department
 # department = Department.objects.get(name="Science")

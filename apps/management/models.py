@@ -21,17 +21,12 @@ from phonenumber_field.modelfields import PhoneNumberField
 from School import settings
 from django_ckeditor_5.fields import CKEditor5Field
 
-
-
 # Each tuple contains (threshold, grade_letter)
 GRADE_MAPPING = [
     (80, "EE"),
     (50, "ME"),
     (30, "AE"),
 ]
-
-
-
 
 
 class Profile(models.Model):
@@ -97,8 +92,6 @@ class Institution(models.Model):
         return details
 
 
-
-
 class Term(models.Model):
     name = models.CharField(max_length=100)  # e.g., "Term 1", "Term 2"
     start_date = models.DateField()
@@ -113,7 +106,7 @@ class Term(models.Model):
         ordering = ['-year']  # Display terms in reverse chronological order (latest first)
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name}-{self.year}"
 
     def get_previous_term(self):
         return Term.objects.filter(start_date__lt=self.start_date).order_by('-start_date').first()
@@ -176,8 +169,6 @@ class Term(models.Model):
         return round(progress, 2)
 
 
-
-
 # ExamType Model
 class ExamType(models.Model):
     name = models.CharField(max_length=100)  # e.g., "Midterm", "Final", etc.
@@ -189,7 +180,8 @@ class ExamType(models.Model):
 class ReportCard(models.Model):
     student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name="report_cards")
     term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name="report_cards")
-    exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name="report_cards", null=True, blank=True)
+    exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name="report_cards", null=True,
+                                  blank=True)
     year = models.IntegerField(editable=False)  # Auto-set based on Term
     created_at = models.DateField(auto_now_add=True)
     total_marks = models.FloatField(null=True, blank=True)
@@ -236,18 +228,46 @@ class ReportCard(models.Model):
         # Fallback if avg_marks is below the lowest threshold (i.e., below 30)
         return "BE"
 
-    def student_rank(self):
-        """Determine the student's rank based on total marks within the same term, year, and exam type."""
+    def student_rank(self, filter_by_grade=False):
+        """
+        Determine the student's rank based on:
+        - If filtering by `grade_section`, rank within the same section.
+        - If filtering by `grade`, rank within all sections of the same grade.
+        """
         if not self.pk:
             return None
 
+        # Default: Rank by grade_section
+        student_filter = {'student__grade': self.student.grade}
+
+        # If ranking by grade instead, adjust the filter
+        if filter_by_grade:
+            student_filter = {'student__grade__grade': self.student.grade.grade}  # Use grade from grade_section
+
+        # Fetch all students in the filtered category (grade or grade_section)
         all_students = (
-            ReportCard.objects.filter(term=self.term, exam_type=self.exam_type, year=self.year)
+            ReportCard.objects.filter(
+                term=self.term,
+                exam_type=self.exam_type,
+                year=self.year,
+                **student_filter  # Dynamically filter
+            )
             .order_by('-total_marks')
         )
-        for rank, report in enumerate(all_students, start=1):
+
+        previous_marks = None
+        rank = 0
+        actual_rank = 0
+
+        for report in all_students:
+            actual_rank += 1
+            if report.total_marks != previous_marks:
+                rank = actual_rank  # Update rank only if marks change
+            previous_marks = report.total_marks
+
             if report.student == self.student:
                 return rank
+
         return None
 
     def __str__(self):
@@ -265,10 +285,10 @@ def update_report_card_fields(sender, instance, created, **kwargs):
 
     # ✅ Check if any field actually needs updating before saving
     if (
-        instance.total_marks != new_total_marks or
-        instance.average_marks != new_average_marks or
-        instance.grade != new_grade or
-        instance.rank != new_rank
+            instance.total_marks != new_total_marks or
+            instance.average_marks != new_average_marks or
+            instance.grade != new_grade or
+            instance.rank != new_rank
     ):
         # Update fields **without triggering another save() call**
         ReportCard.objects.filter(pk=instance.pk).update(
@@ -277,9 +297,6 @@ def update_report_card_fields(sender, instance, created, **kwargs):
             grade=new_grade,
             rank=new_rank
         )
-
-
-
 
 
 class SubjectMark(models.Model):
@@ -306,7 +323,7 @@ class SubjectMark(models.Model):
 
         # Calculate the percentage if marks are provided.
         if self.marks is not None:
-            self.percentage = (self.marks / self.max_score) * 100
+            self.percentage = round((self.marks / self.max_score) * 100)
         else:
             self.percentage = None
 
@@ -334,8 +351,6 @@ class SubjectMark(models.Model):
         percentage_str = f"{self.percentage:.2f}%" if self.percentage is not None else "No percentage"
         grade_str = f"Grade {self.subject_grade}" if self.subject_grade else "No grade"
         return f"{self.report_card.student} - {self.subject} ({marks_str}, {percentage_str}, {grade_str})"
-
-
 
 
 # SchoolPerformance Model
@@ -524,10 +539,6 @@ class Notification(models.Model):
         return f"Notification from {self.sender.username} to {self.recipient.username}"
 
 
-
-
-
-
 # # Model for a Teacher (Assumes you have a teacher model or user system in place)
 # class Teacher(models.Model):
 #     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -548,23 +559,27 @@ class Notification(models.Model):
 
 # Model for Club Leadership Roles
 class ClubRole(models.Model):
-    club = models.ForeignKey('Club', on_delete=models.CASCADE,related_name='club_roles')
+    club = models.ForeignKey('Club', on_delete=models.CASCADE, related_name='club_roles')
     student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
-    role = models.CharField(max_length=50, choices=[('President', 'President'), ('Vice President', 'Vice President'), ('Secretary', 'Secretary'), ('Treasurer', 'Treasurer')])
+    role = models.CharField(max_length=50, choices=[('President', 'President'), ('Vice President', 'Vice President'),
+                                                    ('Secretary', 'Secretary'), ('Treasurer', 'Treasurer')])
     date_assigned = models.DateField(default=date.today)
 
     def __str__(self):
         return f"{self.student} - {self.role} in {self.club}"
+
 
 # Model for Club Attendance
 class ClubAttendance(models.Model):
     club = models.ForeignKey('Club', on_delete=models.CASCADE)
     student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
     date = models.DateField(default=date.today)
-    status = models.CharField(max_length=20, choices=[('Present', 'Present'), ('Absent', 'Absent'), ('Excused', 'Excused')])
+    status = models.CharField(max_length=20,
+                              choices=[('Present', 'Present'), ('Absent', 'Absent'), ('Excused', 'Excused')])
 
     def __str__(self):
         return f"{self.student} - {self.status} on {self.date}"
+
 
 # Model for Club Events
 class ClubEvent(models.Model):
@@ -578,6 +593,7 @@ class ClubEvent(models.Model):
     def __str__(self):
         return f"Event: {self.title} on {self.event_date}"
 
+
 # Model for Club Reports
 class ClubReport(models.Model):
     club = models.ForeignKey('Club', on_delete=models.CASCADE)
@@ -586,6 +602,7 @@ class ClubReport(models.Model):
 
     def __str__(self):
         return f"Report for {self.club.name} on {self.date}"
+
 
 # Model for Club Feedback (for Students)
 class ClubFeedback(models.Model):
@@ -597,11 +614,12 @@ class ClubFeedback(models.Model):
     def __str__(self):
         return f"Feedback from {self.student} for {self.club.name}"
 
+
 # Model for a Club
 class Club(models.Model):
     name = models.CharField(max_length=200)  # Name of the club
     description = models.TextField()  # A brief description of the club
-    teachers = models.ManyToManyField('teachers.Teacher',related_name='clubs')  # Teacher overseeing the club
+    teachers = models.ManyToManyField('teachers.Teacher', related_name='clubs')  # Teacher overseeing the club
     members = models.ManyToManyField('students.Student', related_name='clubs')  # List of students in the club
     meeting_time = models.CharField(max_length=50)  # Time the club meets (e.g., "Mondays at 3 PM")
     created_at = models.DateTimeField(auto_now_add=True)  # When the club was created
@@ -611,4 +629,3 @@ class Club(models.Model):
 
     class Meta:
         ordering = ['name']
-

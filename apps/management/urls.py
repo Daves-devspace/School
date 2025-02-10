@@ -47,10 +47,10 @@ urlpatterns = [
     path('return/<int:id>', views.return_book, name='return_book'),
     path('pay/<int:id>', views.pay_overdue, name='pay_overdue'),
     path('handle/paymment/transactions<int:id>', views.callback, name='callback'),
-    path('performance', views.grade_performance_view, name='grade_performance_view'),
-    # path("results/<int:student_id>/<int:term_id>/", views.student_results_table, name="student_results_table"),
-
-    path('performance/<int:grade_id>/<int:term_id>/', views.grade_performance_view, name='grade_performance'),
+    # path('performance', views.grade_performance_view, name='grade_performance_view'),
+    # # path("results/<int:student_id>/<int:term_id>/", views.student_results_table, name="student_results_table"),
+    #
+    # path('performance/<int:grade_id>/<int:term_id>/', views.grade_performance_view, name='grade_performance'),
 
     # URL for adding a subject
     path('timetable/', views.time_table, name='time_table'),
@@ -77,12 +77,17 @@ urlpatterns = [
     path('add_results/', views.add_results_table, name='add_results_table'),
     path('view_results/', views.view_subject_results, name='view_subject_results'),
 
-    path('management/performance-filter/', views.performance_filter_view, name='performance_filter'),
+    # path('management/performance-filter/', views.performance_filter_view, name='performance_filter'),
 
-    path('view_results/<int:grade_id>/<int:term_id>/<int:exam_type_id>/', views.view_results_table,
-         name='view_results_table'),
-    path('view_results/<int:grade_id>/<int:term_id>/<int:exam_type_id>/<int:grade_section_id>/',
+    # URL without grade_section_id
+    # URL for viewing results by Grade only
+    # URL for viewing results by Grade only
+    # View results by Grade only
+    path('view_results/<int:term_id>/<int:exam_type_id>/<int:grade_id>/',
          views.view_results_table, name='view_results_table'),
+
+    path('view_results/<int:term_id>/<int:exam_type_id>/<int:grade_section_id>/',
+         views.view_results_table_with_section, name='view_results_table_with_section'),
     # path('view_results_section/<int:grade_section_id>/<int:term_id>/<int:exam_type_id>/',
     #      views.view_results_table_section, name='view_results_table_section'),
 
@@ -91,8 +96,9 @@ urlpatterns = [
     #      views.view_results_table,
     #      name='view_results_table_section'),
     path('top_students/', views.top_students_view, name='top_students'),
+    path('report-cards/', views.report_card_view, name='report_cards'),
 
-    path('report_card/<int:student_id>/<int:term_id>/', views.report_card_view, name='report_card_view'),
+    # path('report_card/<int:student_id>/<int:term_id>/', views.report_card_view, name='report_card_view'),
 
     path('attendance/mark/<int:grade_section_id>/<int:term_id>/', views.mark_attendance, name='mark_attendance'),
     path('attendance/summary/<int:grade_section_id>/<int:term_id>/', views.attendance_summary,

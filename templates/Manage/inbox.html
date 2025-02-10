@@ -3,101 +3,81 @@
 {% load static %}
 {% block body %}
 
+
+
+
+
+
+
+
+
     <div class="page-wrapper">
         <div class="content container-fluid">
-            <div class="page-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="page-title">Inbox</h3>
-                        <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
-                            <li class="breadcrumb-item active">Inbox</li>
+            <div class="page-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="page-title">Inbox</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'students' %}">Message</a></li>
+                        <li class="breadcrumb-item active">Inbox</li>
+                    </ul>
+                </div>
+                <div>
+                    <button class="btn btn-primary" id="mark-all-read">Mark All Read</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white d-flex justify-content-between">
+                            <h5>Appointments</h5>
+                            <span class="badge bg-danger" id="appointment-count">{{ appointments.count }}</span>
+                        </div>
+                        <div class="list-group">
+                            {% for appointment in appointments %}
+                                <a href="#" class="list-group-item list-group-item-action appointment-item"
+                                   data-id="{{ appointment.id }}">
+                                    <strong>From: {{ appointment.guardian_name }}</strong> ({{ appointment.child_name }})<br>
+                                    <small class="text-muted">{{ appointment.date }} at {{ appointment.time }}</small>
+                                </a>
+                            {% empty %}
+                                <p class="text-muted p-3">No new appointments</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header bg-warning text-dark d-flex justify-content-between">
+                            <h5>Notifications</h5>
+                            <span class="badge bg-danger" id="notification-count">{{ notifications.count }}</span>
+                        </div>
+                        <ul class="list-group">
+                            {% for notification in notifications %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ notification.message }}
+                                    <small class="text-muted">{{ notification.date }}</small>
+                                </li>
+                            {% empty %}
+                                <p class="text-muted p-3">No new notifications</p>
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12">
+
+                <div class="col-md-8">
                     <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5>Message Details</h5>
+                        </div>
                         <div class="card-body">
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <div class="alert {{ message.tags }}">
-                                        {{ message }}
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-
-                            <!-- Success and Failures Section -->
-                            <div class="container mt-4">
-                                <h5>Responses</h5>
-
-                                {% if successful_replies %}
-                                    <div class="alert alert-success">
-                                        <strong>Successful Replies:</strong>
-                                        <ul>
-                                            {% for reply in successful_replies %}
-                                                <li>Phone: {{ reply.phone }} | Message Sent: {{ reply.message }}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                {% endif %}
-
-                                {% if failed_replies %}
-                                    <div class="alert alert-danger" id="failed-reply-message">
-                                        <strong>Failed Replies:</strong>
-                                        <ul>
-                                            {% for reply in failed_replies %}
-                                                <li>Phone: {{ reply.phone }} | Reason: {{ reply.reason }}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                {% endif %}
+                            <div id="appointment-details">
+                                <p class="text-muted">Select an appointment to view details.</p>
                             </div>
-
-                            <div class="container mt-4">
-                                <div class="row">
-                                    <!-- Sidebar: Appointments List -->
-                                    <div class="col-md-4">
-                                        <div class="list-group">
-                                            <h5 class="p-3">Appointments</h5>
-                                            {% for appointment in appointments %}
-                                                <a href="#"
-                                                   class="list-group-item list-group-item-action appointment-item"
-                                                   data-id="{{ appointment.id }}">
-                                                    <strong>From:{{ appointment.guardian_name }}</strong>
-                                                    ({{ appointment.child_name }})
-                                                    <br>
-                                                    <small class="text-muted">{{ appointment.date }}
-                                                        at {{ appointment.time }}</small>
-                                                </a>
-                                            {% empty %}
-                                                <p class="text-muted p-3">No new appointments</p>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-
-                                    <!-- Main Content: Appointment Details & Reply -->
-                                    <div class="col-md-8">
-                                        <div class="card">
-                                            <div class="card-header bg-primary text-white">
-                                                <h5>Message Details</h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <div id="appointment-details">
-                                                    <p class="text-muted">Select an appointment to view details.</p>
-                                                </div>
-                                                <hr>
-                                                <h6>Reply</h6>
-                                                <textarea id="reply-message" class="form-control" rows="3"
-                                                          placeholder="Type your reply..."></textarea>
-                                                <button class="btn btn-success mt-2" id="send-reply">Send Reply</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
+                            <hr>
+                            <h6>Reply</h6>
+                            <textarea id="reply-message" class="form-control" rows="3"
+                                      placeholder="Type your reply..."></textarea>
+                            <button class="btn btn-success mt-2" id="send-reply">Send Reply</button>
                         </div>
                     </div>
                 </div>
@@ -106,26 +86,17 @@
     </div>
 
     <script>
-        // Hide the message after 5 seconds if it exists
-        document.addEventListener("DOMContentLoaded", function () {
-            const failedMessageElement = document.getElementById('failed-reply-message');
-            if (failedMessageElement) {
-                setTimeout(function () {
-                    failedMessageElement.style.display = 'none';
-                }, 5000);
-            }
-        });
-
         document.addEventListener("DOMContentLoaded", function () {
             const appointmentItems = document.querySelectorAll(".appointment-item");
             const detailsDiv = document.getElementById("appointment-details");
             const replyBtn = document.getElementById("send-reply");
             const replyInput = document.getElementById("reply-message");
+            const notificationCount = document.getElementById("notification-count");
+            const markAllReadBtn = document.getElementById("mark-all-read");
 
             appointmentItems.forEach(item => {
                 item.addEventListener("click", function () {
                     const appointmentId = this.getAttribute("data-id");
-
                     fetch(`/get-appointment/${appointmentId}/`)
                         .then(response => response.json())
                         .then(data => {
@@ -136,7 +107,7 @@
                             <strong>Phone:</strong> ${data.phone} <br>
                             <strong>Email:</strong> ${data.email} <br>
                             <hr>
-                                <p><strong>Message:</strong> ${data.message || 'No message provided'}</p>
+                            <p><strong>Message:</strong> ${data.message || 'No message provided'}</p>
                         `;
                             replyBtn.setAttribute("data-id", appointmentId);
                         });
@@ -146,25 +117,23 @@
             replyBtn.addEventListener("click", function () {
                 const appointmentId = this.getAttribute("data-id");
                 const replyMessage = replyInput.value;
-
                 if (replyMessage.trim() === "") {
                     alert("Reply cannot be empty!");
                     return;
                 }
-
                 fetch(`/reply-appointment/${appointmentId}/`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": "{{ csrf_token }}"
                     },
-                    body: JSON.stringify({ message: replyMessage })
+                    body: JSON.stringify({message: replyMessage})
                 })
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === "success") {
                             alert("Reply sent!");
-                            replyInput.value = ""; // Clear the input after successful reply
+                            replyInput.value = "";
                         } else {
                             alert(data.message || "Failed to send reply.");
                         }
@@ -174,52 +143,69 @@
                         alert("An error occurred.");
                     });
             });
+
+            markAllReadBtn.addEventListener("click", function () {
+                fetch("/mark-all-read/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            notificationCount.textContent = "0";
+                            alert("All notifications marked as read");
+                        }
+                    });
+            });
         });
     </script>
-    
-    <script>
-    let socket = new WebSocket("ws://127.0.0.1:8000/ws/appointments/");
 
-    socket.onmessage = function (event) {
-        let data = JSON.parse(event.data);
-        if (data.count !== undefined) {
-            document.getElementById("appointment-count").innerText = data.count;
-        }
-        if (data.message) {
+
+
+
+
+    <script>
+        const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+        const socket = new WebSocket(protocol + window.location.host + "/ws/appointments/");
+        const inboxSocket = new WebSocket(protocol + window.location.host + "/ws/inbox/");
+
+
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+
+            if (data.count !== undefined) {
+                document.getElementById("appointmentCounter").innerText = data.count;
+            }
+
+            if (data.message) {
+                alert(data.message);
+            }
+        };
+
+        socket.onclose = function () {
+            console.log("WebSocket disconnected. Trying to reconnect...");
+            setTimeout(() => {
+                location.reload();
+            }, 5000);
+        };
+
+        const inboxSocket = new WebSocket("wss://" + window.location.host + "/ws/inbox/");
+
+        inboxSocket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
             alert(data.message);
-        }
-    };
-</script> 
-    <script>
-    const appointmentCounter = document.getElementById("appointmentCounter");
+        };
 
-    const socket = new WebSocket("ws://" + window.location.host + "/ws/appointments/");
-
-    socket.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        appointmentCounter.innerText = data.count;
-    };
-
-    socket.onclose = function() {
-        console.log("WebSocket disconnected. Trying to reconnect...");
-        setTimeout(function() {
-            location.reload();
-        }, 5000);
-    };
-</script>
-<script>
-    const inboxSocket = new WebSocket("ws://" + window.location.host + "/ws/inbox/");
-
-    inboxSocket.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        alert(data.message);
-    };
-
-    inboxSocket.onclose = function() {
-        console.log("WebSocket disconnected. Trying to reconnect...");
-    };
-</script>
-
+        inboxSocket.onclose = function () {
+            console.log("WebSocket disconnected. Trying to reconnect...");
+            setTimeout(() => {
+                location.reload();
+            }, 5000);
+        };
+    </script>
 
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/popper.min.js' %}"></script>

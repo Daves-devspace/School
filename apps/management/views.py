@@ -30,17 +30,19 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView, TemplateView
 from django_daraja.mpesa.core import MpesaClient
 from rest_framework import generics, serializers, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.models import FeePayment, Expense
 from apps.management.forms import BookForm, TimetableForm, LessonExchangeForm, ProfileForm, \
-    HolidayPresentationForm, FeedbackForm, TermForm, ExamTypeForm, PerformanceFilterForm, AddResultForm, ClubForm
+    HolidayPresentationForm, FeedbackForm, TermForm, ExamTypeForm, AddResultForm, ClubForm, \
+    ReportCardFilterForm
 from apps.management.models import Term, ReportCard, SubjectMark, ExamType, \
     Attendance, Timetable, LessonExchangeRequest, HolidayPresentation, Club, Event, ClubEvent
-from apps.management.serializers import  EventSerializer, ClubEventSerializer
+from apps.management.serializers import EventSerializer, ClubEventSerializer
 from apps.schedules.forms import SubjectForm
 from apps.schedules.models import Subject
 from apps.students.forms import SendSMSForm, SendClassForm, ResultsSMSForm
@@ -54,7 +56,6 @@ from apps.students.views import get_current_term
 from apps.teachers.models import Department, Teacher  # Revenue
 
 logger = logging.getLogger(__name__)
-
 
 
 def manage_terms(request, id=None):
@@ -242,8 +243,6 @@ def toggle_user_status(request, user_id):
     return redirect('manage_users')
 
 
-
-
 def validate_message_data(report_card):
     """Ensure all required template data exists"""
     validation_errors = []
@@ -260,14 +259,11 @@ def validate_message_data(report_card):
     return validation_errors
 
 
-
-
 def validate_message_template(template, required_keys):
     """Validate message template contains required placeholders"""
     missing = [key for key in required_keys if f"{{{key}}}" not in template]
     if missing:
         raise ValidationError(f"Missing template keys: {', '.join(missing)}")
-
 
 
 def handle_results_sms(request, context):
@@ -395,10 +391,6 @@ def handle_results_sms(request, context):
     return redirect('unified_sms')
 
 
-
-
-
-
 def recipient_count(request):
     sms_type = request.GET.get('type')
 
@@ -444,12 +436,10 @@ def recipient_count(request):
     return JsonResponse({'count': count})
 
 
-
-
-
 def validate_parent_relationships(student):
     """Check if student has valid parent relationships"""
     return StudentParent.objects.filter(student=student).exists()
+
 
 def validate_parent_mobile(student):
     """Check if at least one parent has a mobile number"""
@@ -512,8 +502,6 @@ def unified_sms_view(request):
     return render(request, 'manage/send_sms.html', context)
 
 
-
-
 @login_required
 def handle_class_sms(request, context):
     api = MobileSasaAPI()
@@ -573,7 +561,6 @@ def handle_class_sms(request, context):
     return redirect('unified_sms')
 
 
-
 @login_required
 def handle_bulk_sms(request, context):
     api = MobileSasaAPI()
@@ -608,7 +595,6 @@ def handle_bulk_sms(request, context):
         messages.error(request, str(e))
 
     return redirect('unified_sms')
-
 
 
 def add_book(request):
@@ -729,11 +715,6 @@ def view_results(request):
     results = SubjectMark.objects.select_related('student', 'teacher_subject__teacher', 'teacher_subject__subject',
                                                  'term')
     return render(request, 'performance/results.html', {'results': results})
-
-
-
-
-
 
 
 @login_required
@@ -1102,117 +1083,140 @@ def add_results_table(request):
 #
 #     return render(request, 'performance/view_results_table.html', context)
 
-def performance_filter_view(request):
-    if request.method == 'POST':
-        form = PerformanceFilterForm(request.POST)
-        if form.is_valid():
-            # Get values from the form
-            grade = form.cleaned_data['grade']
-            grade_section = form.cleaned_data['grade_section']
 
-            # Ensure either grade or grade_section is selected, but not both
-            if not grade and not grade_section:
-                form.add_error(None, 'You must select either a grade or a grade section.')
-                return render(request, 'performance/class_results_view.html', {'form': form})
+def report_card_view(request):
+    form = ReportCardFilterForm(request.GET or None)
+    report_card_data = []
+    subjects = []
 
-            if grade and grade_section:
-                form.add_error(None, 'You cannot select both grade and grade section at the same time.')
-                return render(request, 'performance/class_results_view.html', {'form': form})
+    # Initialize values to None to avoid reference errors
+    grade = None
+    grade_section = None
+    term = None
+    exam_type = None
 
-            # Set grade_id and grade_section_id based on user input
-            grade_id = grade.id if grade else None
-            grade_section_id = grade_section.id if grade_section else None
-            term_id = form.cleaned_data['term'].id
-            exam_type_id = form.cleaned_data['exam_type'].id
+    if form.is_valid():
+        exam_type = form.cleaned_data.get('exam_type')
+        term = form.cleaned_data.get('term')
+        grade = form.cleaned_data.get('grade')
+        grade_section = form.cleaned_data.get('grade_section')
 
-            # Redirect with or without grade_section_id depending on user input
-            if grade_section_id:
-                return redirect('view_results_table', grade_id=grade_id, term_id=term_id, exam_type_id=exam_type_id,
-                                grade_section_id=grade_section_id)
-            else:
-                return redirect('view_results_table', grade_id=grade_id, term_id=term_id, exam_type_id=exam_type_id)
+        # Determine students based on grade or grade_section
+        if grade:
+            grade_sections = GradeSection.objects.filter(grade=grade)
+            students = Student.objects.filter(grade__in=grade_sections)
+            filter_by_grade = True  # Rank by entire grade
+        else:
+            students = Student.objects.filter(grade=grade_section)
+            filter_by_grade = False  # Rank by section
 
-    else:
-        form = PerformanceFilterForm()
+        # Fetch report cards with related data
+        report_cards = ReportCard.objects.filter(
+            student__in=students,
+            exam_type=exam_type,
+            term=term
+        ).select_related('student').prefetch_related(
+            Prefetch('subject_marks', queryset=SubjectMark.objects.select_related('subject'))
+        ).order_by('rank')
 
-    return render(request, 'performance/class_results_view.html', {'form': form})
+        # Collect unique subjects from all report cards
+        subjects = Subject.objects.filter(
+            subject_marks__report_card__in=report_cards
+        ).distinct().order_by('name')
+
+        # Prepare data for each report card
+        for rc in report_cards:
+            subject_dict = {sm.subject: (sm.percentage, sm.subject_grade) for sm in rc.subject_marks.all()}
+            subject_list = []
+            for subj in subjects:
+                data = subject_dict.get(subj)
+                subject_list.append({
+                                        'percentage': data[0] if data else None,
+                                        'grade': data[1] if data else '-'
+                                    } if data else None)
+            report_card_data.append({
+                'student': rc.student,
+                'subjects': subject_list,
+                'total': rc.total_marks,
+                'average': rc.average_marks,
+                'grade': rc.grade,
+                'rank': rc.student_rank(filter_by_grade)
+            })
+
+    #Passrequired data to the template
+    return render(request, 'performance/view_results_table.html', {
+        'form': form,
+        'subjects': subjects,
+        'report_card_data': report_card_data,
+        'grade_section': grade_section,
+        'grade': grade,
+        'selected_term': term,
+        'selected_exam_type': exam_type,
+    })
 
 
-def view_results_table(request, grade_id, term_id, exam_type_id, grade_section_id=None):
-    """
-    Fetches student results using ReportCard for a selected grade or grade section.
-    """
-    # Get the Grade, Term, and Exam Type from the IDs passed in the URL
-    selected_class = get_object_or_404(Grade, id=grade_id)
-    selected_term = get_object_or_404(Term, id=term_id)
-    selected_exam_type = get_object_or_404(ExamType, id=exam_type_id)
+# def performance_filter_view(request):
+#     if request.method == 'POST':
+#         form = PerformanceFilterForm(request.POST)
+#         if form.is_valid():
+#             grade = form.cleaned_data.get('grade')
+#             grade_section = form.cleaned_data.get('grade_section')
+#             term_id = form.cleaned_data['term'].id
+#             exam_type_id = form.cleaned_data['exam_type'].id
+#
+#             # Ensure only one of grade or grade_section is selected
+#             if grade and grade_section:
+#                 form.add_error(None, 'You cannot select both Grade and Grade Section at the same time.')
+#                 return render(request, 'performance/class_results_view.html', {'form': form})
+#
+#             if not grade and not grade_section:
+#                 form.add_error(None, 'You must select either a Grade or a Grade Section.')
+#                 return render(request, 'performance/class_results_view.html', {'form': form})
+#
+#             # Redirect based on selection
+#             if grade_section:
+#                 return redirect(reverse('view_results_table_with_section', kwargs={
+#                     'term_id': term_id,
+#                     'exam_type_id': exam_type_id,
+#                     'grade_section_id': grade_section.id
+#                 }))
+#             else:
+#                 return redirect(reverse('view_results_table', kwargs={
+#                     'term_id': term_id,
+#                     'exam_type_id': exam_type_id,
+#                     'grade_id': grade.id
+#                 }))
+#
+#     else:
+#         form = PerformanceFilterForm()
+#
+#     return render(request, '', {'form': form})
 
-    # Get all grade sections under the selected grade
-    if grade_section_id:
-        grade_sections = GradeSection.objects.filter(id=grade_section_id)
-    else:
-        grade_sections = GradeSection.objects.filter(grade=selected_class)
 
-    # Fetch students from the selected sections
-    students = Student.objects.filter(grade__in=grade_sections)
-
-    # Fetch ReportCards for students in the given term and exam type
-    report_cards = ReportCard.objects.filter(
-        student__in=students, term=selected_term, exam_type=selected_exam_type
-    ).select_related('student')
-
-    student_data = []
-    for report_card in report_cards:
-        # Fetch subject marks for this student's report card
-        subject_marks = SubjectMark.objects.filter(report_card=report_card)
-        marks = {sm.subject.name: f"{sm.percentage:.2f}%" if sm.percentage is not None else "-" for sm in subject_marks}
-
-        student_data.append({
-            'admission_number': report_card.student.admission_number,
-            'name': f"{report_card.student.first_name} {report_card.student.last_name}",
-            'marks': marks,
-            'total_marks': report_card.total_marks,
-            'average_marks': report_card.average_marks,
-            'grade': report_card.grade,
-            'rank': report_card.rank,
-        })
-
-    # Sort students by total marks for ranking
-    student_data = sorted(student_data, key=lambda x: x['total_marks'], reverse=True)
+def view_results_table(request, term_id, exam_type_id, grade_id):
+    grade = get_object_or_404(Grade, id=grade_id)
+    students = Student.objects.filter(grade=grade)
 
     context = {
-        'selected_class': selected_class,
-        'selected_term': selected_term,
-        'selected_exam_type': selected_exam_type,
-        'grade_sections': grade_sections,
-        'student_data': student_data,
+        'students': students,
+        'term_id': term_id,
+        'exam_type_id': exam_type_id,
+        'grade': grade
     }
-
     return render(request, 'performance/view_results_table.html', context)
 
 
-def view_results_table_section(request, grade_section_id, term_id, exam_type_id):
-    print(
-        f"📌 Fetching View: view_results_table_section | Grade Section ID: {grade_section_id}, Term ID: {term_id}, Exam Type ID: {exam_type_id}")
-
+def view_results_table_with_section(request, term_id, exam_type_id, grade_section_id):
     grade_section = get_object_or_404(GradeSection, id=grade_section_id)
-    selected_term = get_object_or_404(Term, id=term_id)
-    selected_exam_type = get_object_or_404(ExamType, id=exam_type_id)
+    students = Student.objects.filter(grade=grade_section.grade, grade_section=grade_section)
 
-    # Fetch students for the selected grade section
-    students = Student.objects.filter(grade=grade_section)
-
-    # Fetch report cards for the selected students, term, and exam type
-    report_cards = ReportCard.objects.filter(student__in=students, term=selected_term, exam_type=selected_exam_type)
-
-    student_data = process_student_data(students, report_cards)
-
-    return render(request, 'performance/view_results_table.html', {
-        'grade_section': grade_section,
-        'selected_term': selected_term,
-        'selected_exam_type': selected_exam_type,
-        'student_data': student_data,
-    })
+    context = {
+        'students': students,
+        'term_id': term_id,
+        'exam_type_id': exam_type_id,
+        'grade_section': grade_section
+    }
+    return render(request, 'performance/view_results_table.html', context)
 
 
 def process_student_data(students, report_cards, subjects):
@@ -1308,34 +1312,34 @@ def process_student_data(students, report_cards, subjects):
 #     return render(request, 'performance/view_results_table.html', context)
 
 
-def report_card_view(request, student_id, term_id):
-    student = get_object_or_404(Student, id=student_id)
-    term = get_object_or_404(Term, id=term_id)
-
-    # Fetch or create the report card for the student and term
-    report_card, created = ReportCard.objects.get_or_create(student=student, term=term)
-
-    # Calculate total marks and rank
-    total_marks = report_card.total_marks()  # Assuming `total_marks` method is defined in your ReportCard model
-    rank = report_card.student_rank()  # Assuming `student_rank` method is defined in your ReportCard model
-
-    # Fetch subject marks for the student in the given term
-    subject_marks = SubjectMark.objects.filter(student=student, term=term)
-
-    # Prepare subject-wise marks for display
-    subject_marks_data = []
-    for subject_mark in subject_marks:
-        subject_marks_data.append({
-            'subject': subject_mark.subject.name,
-            'marks': subject_mark.marks,
-        })
-
-    # Return the data as JSON to be used dynamically
-    return JsonResponse({
-        'total_marks': total_marks,
-        'rank': rank,
-        'subject_marks': subject_marks_data,  # Include subject-wise marks
-    })
+# def report_card_view(request, student_id, term_id):
+#     student = get_object_or_404(Student, id=student_id)
+#     term = get_object_or_404(Term, id=term_id)
+#
+#     # Fetch or create the report card for the student and term
+#     report_card, created = ReportCard.objects.get_or_create(student=student, term=term)
+#
+#     # Calculate total marks and rank
+#     total_marks = report_card.total_marks()  # Assuming `total_marks` method is defined in your ReportCard model
+#     rank = report_card.student_rank()  # Assuming `student_rank` method is defined in your ReportCard model
+#
+#     # Fetch subject marks for the student in the given term
+#     subject_marks = SubjectMark.objects.filter(student=student, term=term)
+#
+#     # Prepare subject-wise marks for display
+#     subject_marks_data = []
+#     for subject_mark in subject_marks:
+#         subject_marks_data.append({
+#             'subject': subject_mark.subject.name,
+#             'marks': subject_mark.marks,
+#         })
+#
+#     # Return the data as JSON to be used dynamically
+#     return JsonResponse({
+#         'total_marks': total_marks,
+#         'rank': rank,
+#         'subject_marks': subject_marks_data,  # Include subject-wise marks
+#     })
 
 
 def view_report_card(request, student_id, term_id, exam_type_id):
@@ -1455,31 +1459,31 @@ def top_students_view(request):
 
 
 # calculating performance by grade and term
-@login_required
-def grade_performance_view(request, grade_id, term_id):
-    grade = Class.objects.get(id=grade_id)
-    term = Term.objects.get(id=term_id)
-    performances = Performance.objects.filter(
-        student__grade=grade,
-        term=term
-    ).select_related("student", "subject")
-
-    # Aggregate data
-    student_performance = (
-        performances.values("student__first_name", "student__last_name")
-        .annotate(
-            average_percentage=Avg("marks") / Avg("total_marks") * 100,
-            total_marks=Avg("total_marks"),
-            total_obtained_marks=Avg("marks"),
-        )
-    )
-
-    context = {
-        "grade": grade,
-        "term": term,
-        "student_performance": student_performance,
-    }
-    return render(request, "performance/student_performance.html", context)
+# @login_required
+# def grade_performance_view(request, grade_id, term_id):
+#     grade = G.objects.get(id=grade_id)
+#     term = Term.objects.get(id=term_id)
+#     performances = Performance.objects.filter(
+#         student__grade=grade,
+#         term=term
+#     ).select_related("student", "subject")
+#
+#     # Aggregate data
+#     student_performance = (
+#         performances.values("student__first_name", "student__last_name")
+#         .annotate(
+#             average_percentage=Avg("marks") / Avg("total_marks") * 100,
+#             total_marks=Avg("total_marks"),
+#             total_obtained_marks=Avg("marks"),
+#         )
+#     )
+#
+#     context = {
+#         "grade": grade,
+#         "term": term,
+#         "student_performance": student_performance,
+#     }
+#     return render(request, "performance/student_performance.html", context)
 
 
 @login_required
@@ -1815,8 +1819,6 @@ def revenue_line_chart(request):
     return JsonResponse(chart_data)
 
 
-
-
 @login_required
 def mark_attendance(request, grade_section_id, term_id):
     # Fetch the Teacher instance using the logged-in user
@@ -1864,9 +1866,6 @@ def mark_attendance(request, grade_section_id, term_id):
         'students': students,
         'term': term,
     })
-
-
-
 
 
 def attendance_summary(request, grade_section_id, term_id):
@@ -1962,6 +1961,7 @@ class TimetableCreateView(View):
             return redirect('class-timetable')  # Redirect to a success page or wherever you prefer
         return render(request, 'performance/add_time_table.html', {'form': form})
 
+
 #
 # # class TimetableCreateAPIView(generics.CreateAPIView):
 # #     queryset = Timetable.objects.all()
@@ -1984,7 +1984,6 @@ class TimetableCreateView(View):
 # # render page for:TimetableAPIView --data
 # def class_timetable_view(request):
 #     return render(request, 'performance/time_table.html')
-
 
 
 class LessonExchangeView(View):
@@ -2202,25 +2201,26 @@ def events_view(request):
 
 
 @api_view(['GET', 'POST'])
+@authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def event_list(request):
     logger.info(f"Request received: {request.build_absolute_uri()} from {request.META.get('HTTP_REFERER')}")
 
-    if not request.user.is_authenticated:
-        return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
-
     event_type = request.GET.get('event_type', 'all')
+
+    # Retrieve events based on event type filter
     events = Event.objects.all() if event_type in ['general', 'all'] else Event.objects.none()
     club_events = ClubEvent.objects.all() if event_type in ['club', 'all'] else ClubEvent.objects.none()
 
     event_serializer = EventSerializer(events, many=True)
     club_event_serializer = ClubEventSerializer(club_events, many=True)
 
+    # Format events properly for FullCalendar
     all_events = [
         {
             'id': event['id'],
             'title': event['name'],
-            'start': event['date'] + ('T' + event.get('time', '') if event.get('time') else ''),
+            'start': f"{event['date']}T{event.get('time', '00:00')}",
             'description': event.get('description', ''),
             'event_type': event['event_type'],
             'className': 'bg-info'
@@ -2231,8 +2231,8 @@ def event_list(request):
     all_events.extend([
         {
             'id': club_event['id'],
-            'title': club_event['title'] + f" ({club_event['club_name']})",
-            'start': club_event['event_date'] + ('T' + club_event.get('event_time', '') if club_event.get('event_time') else ''),
+            'title': f"{club_event['title']} ({club_event['club_name']})",
+            'start': f"{club_event['event_date']}T{club_event.get('event_time', '00:00')}",
             'description': club_event.get('description', ''),
             'event_type': 'Club Event',
             'className': 'bg-success'
@@ -2241,6 +2241,7 @@ def event_list(request):
     ])
 
     return Response(all_events, status=status.HTTP_200_OK)
+
 
 # @api_view(['GET', 'POST'])
 # @permission_classes([IsAuthenticated])
@@ -2282,7 +2283,6 @@ def event_list(request):
 #     ])
 #
 #     return Response(all_events, status=status.HTTP_200_OK)
-
 
 
 @api_view(['PUT', 'DELETE'])
@@ -2370,7 +2370,6 @@ def delete_club(request, club_id):
     return JsonResponse({"success": False, "error": "Invalid request"})
 
 
-
 def club_detail(request, club_id):
     club = get_object_or_404(Club, id=club_id)
     return render(request, 'schedules/club_detail.html', {'club': club})
@@ -2389,8 +2388,6 @@ def assign_teachers(request, club_id):
         return JsonResponse({"success": True, "message": "Teachers assigned successfully"})
 
     return JsonResponse({"success": False, "error": "Invalid request"})
-
-
 
 
 @csrf_exempt  # Only for testing, use CSRF token in production
@@ -2420,7 +2417,8 @@ def add_member(request, club_id):
 
             # ✅ Debugging: Check if the student is actually added
             if student in club.members.all():
-                return JsonResponse({'status': 'success', 'message': f'Student {student.name} added to {club.name} successfully'})
+                return JsonResponse(
+                    {'status': 'success', 'message': f'Student {student.name} added to {club.name} successfully'})
             else:
                 return JsonResponse({'status': 'error', 'message': 'Failed to add student to club'})
 
@@ -2428,7 +2426,6 @@ def add_member(request, club_id):
             return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
-
 
 
 def search_student(request):
@@ -2479,6 +2476,7 @@ def get_club_members(request, club_id):
 
     return JsonResponse({"members": members_data})
 
+
 @csrf_exempt  # Remove this in production, use proper CSRF protection
 def remove_member(request, club_id, student_id):
     if request.method == 'POST':
@@ -2499,7 +2497,6 @@ def mark_club_attendance(request, club_id):
             student.is_present = str(student.id) in present_students
             student.save()
     return render(request, 'schedules/attendance_mark.html', {'club': club})
-
 
 # def create_event(request, club_id):
 #     club = get_object_or_404(Club, id=club_id)

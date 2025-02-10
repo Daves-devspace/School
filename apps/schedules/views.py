@@ -4,6 +4,7 @@ from heapq import heappop, heappush
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import IntegrityError, transaction
@@ -13,6 +14,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.views.generic import ListView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -809,20 +811,27 @@ class RescheduleSlot(View):
 
 
 
+class NotificationListView(LoginRequiredMixin, ListView):
+    model = Notification
+    template_name = "notifications/notification_list.html"
+    context_object_name = "notifications"
+    paginate_by = 10  # Paginate results (10 per page)
 
-class MarkAsReadView(View):
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return self.request.user.notifications.all()
+        return Notification.objects.none()  # Return an empty queryset for anonymous users
+
+
+class MarkAsReadView(LoginRequiredMixin, ListView):
     def post(self, request, pk):
-        notification = get_object_or_404(
-            Notification,
-            id=pk,
-            user=request.user
-        )
+        notification = get_object_or_404(Notification, id=pk, user=request.user)
         if not notification.read:
             notification.read = True
             notification.save()
         return JsonResponse({'status': 'success'})
 
-class MarkAllReadView(View):
+class MarkAllReadView(LoginRequiredMixin, ListView):
     def post(self, request):
         request.user.notifications.filter(read=False).update(read=True)
         return JsonResponse({'status': 'success'})

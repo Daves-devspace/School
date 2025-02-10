@@ -70,7 +70,7 @@
 
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="card card-table comman-shadow">
+                    <div class="card card-table shadow">
                         <div class="card-body">
 
                             <div class="table-responsive">
@@ -120,7 +120,7 @@
                                             <td>{{ record.balance }}</td>
                                             <td>
                                                 <a href="{% url 'fee_statements' record.student.id %}"
-                                                   class="btn btn-outline-sm text-white mr-2 custom-bg "><i
+                                                   class="btn btn-success text-white mr-2  "><i
                                                         class="fas fa-eye  "></i></a>
                                             </td>
 
@@ -128,20 +128,20 @@
                                             {% if perms.students.view_student %}
                                                 <td>
                                                     <a href="{% url 'collect_fees' record.id %}"
-                                                       class="btn btn-outline-sm  text-white custom-bg mr-2">
+                                                       class="btn btn-success text-white mr-2">
                                                         {#                                    <i class="fas fa-eye"></i>#}
                                                         Collect Fee
                                                     </a>
                                                 </td>
                                             {% endif %}
                                             <td>
-                                            <a href="{% url 'update_student_fee' record.student.id %}" class="btn btn-sm custom-bg text-white">Add Fee</a>
+                                            <a href="{% url 'update_student_fee' record.student.id %}" class="btn btn-success">Add Fee</a>
 
 
                                             </td>
                                             <td>
                                                 <a href="{% url 'generate_receipt' fee_record_id=record.id %}"
-                                                   class="btn btn-sm custom-bg text-white"><i
+                                                   class="btn btn-success text-white"><i
                                                         class="fas fa-receipt"></i></a>
 
                                             </td>

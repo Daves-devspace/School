@@ -13,26 +13,47 @@ from django.db import transaction
 from ..management.models import Profile
 
 
+def generate_random_password():
+    """Generate a secure random password."""
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+
+
 @receiver(post_save, sender=Teacher)
 def create_or_update_user(sender, instance, created, **kwargs):
+    """
+    When a Teacher is created, ensure a linked User is created with a random password.
+    """
     with transaction.atomic():
         if created:
-            # Create the user without a password initially
+            random_password = generate_random_password()
+
             user = User.objects.create(
                 username=instance.staff_number,
                 first_name=instance.first_name,
                 last_name=instance.last_name,
                 email=instance.email,
             )
-            user.set_unusable_password()  # User can't log in yet, no password set
+            user.set_password(random_password)  # Set random password
             user.save()
 
-            # Send password reset email
+            # Generate password reset link
             token = default_token_generator.make_token(user)
             reset_link = f"{settings.SITE_URL}{reverse('password_reset_confirm', kwargs={'uidb64': user.pk, 'token': token})}"
+
+            # Send email with password & reset link
+            email_subject = "Your Account Credentials"
+            email_body = (
+                f"Hello {instance.first_name},\n\n"
+                f"Your account has been created.\n"
+                f"Username: {user.username}\n"
+                f"Temporary Password: {random_password}\n\n"
+                f"You can reset your password using this link: {reset_link}\n\n"
+                f"Please change your password after logging in.\n\n"
+                f"Best regards,\nMerryland"
+            )
             send_mail(
-                'Password Reset Request',
-                f'Click here to reset your password: {reset_link}',
+                email_subject,
+                email_body,
                 settings.DEFAULT_FROM_EMAIL,
                 [instance.email],
             )
@@ -43,15 +64,18 @@ def create_or_update_user(sender, instance, created, **kwargs):
 
         else:
             if not instance.user:
+                random_password = generate_random_password()
+
                 user = User.objects.create(
                     username=instance.staff_number,
                     first_name=instance.first_name,
                     last_name=instance.last_name,
                     email=instance.email,
                 )
-                user.set_unusable_password()  # Or a default password, if needed
+                user.set_password(random_password)
                 user.save()
                 instance.user = user
+
             else:
                 instance.user.username = instance.staff_number
                 instance.user.first_name = instance.first_name
@@ -59,16 +83,20 @@ def create_or_update_user(sender, instance, created, **kwargs):
                 instance.user.email = instance.email
                 instance.user.save()
 
-        instance.save()  # Save teacher instance if any changes occurred
+        instance.save()  # Save teacher instance after user updates
+
 
 @receiver(post_save, sender=Teacher)
 def ensure_teacher_profile(sender, instance, created, **kwargs):
-    """ Ensure the user is linked and has a teacher role in Profile """
+    """
+    Ensure the user linked to a Teacher has the correct role in Profile.
+    """
     if instance.user:
-        profile, _ = Profile.objects.get_or_create(user=instance.user)
-        if profile.role != 'Teacher':  # Prevent unnecessary updates
-            profile.role = 'Teacher'
-            profile.save()
+        Profile.objects.update_or_create(
+            user=instance.user,
+            defaults={'role': 'Teacher'}  # Ensure the role is always 'Teacher'
+        )
+
 
 
 

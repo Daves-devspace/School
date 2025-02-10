@@ -15,7 +15,7 @@ urlpatterns = [
     path('', views.website_page, name='merry-land'),
     path('teacher-dashboard/', teacher_dashboard.as_view(), name='teacher_dashboard'),
     path('director-dashboard/', views.director_dashboard, name='director_dashboard'),
-    path('inbox/', views.inbox_view, name='inbox_page'),
+    path('inbox/', views.notifications_inbox_view, name='inbox_page'),
     path('get-appointment/<int:appointment_id>/', views.get_appointment_details, name='get_appointment_details'),
     path('reply-appointment/<int:appointment_id>/', views.reply_appointment, name='reply_appointment'),
 

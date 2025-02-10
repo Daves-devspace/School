@@ -2,43 +2,51 @@
 {% load static %}
 <style>
     @media print {
+        /* Hide everything by default */
         body * {
-            visibility: hidden; /* Hide everything */
+            display: none !important;
         }
 
+        /* Show only the PDF content */
         #pdf-content, #pdf-content * {
-            visibility: visible; /* Show only the printable content */
+            display: block !important;
+            visibility: visible !important;
         }
 
+        /* Ensure correct positioning */
         #pdf-content {
             position: absolute;
             left: 0;
             top: 0;
             width: 100%;
-            page-break-before: always; /* Start content on a new page */
-            page-break-inside: avoid; /* Avoid breaking inside sections */
         }
 
-        /* Table Styling */
+        /* Table Formatting */
         table {
             width: 100%;
             border-collapse: collapse;
-            page-break-inside: auto; /* Allow the table rows to break */
+            page-break-inside: auto;
         }
 
-        tr {
-            page-break-inside: avoid; /* Prevent breaking in the middle of a row */
+        tr, td {
+            page-break-inside: avoid;
         }
 
-        td {
-            page-break-inside: avoid; /* Prevent breaking inside table cells */
+        /* Hide the Print Button */
+        .no-print {
+            display: none !important;
         }
     }
+
 </style>
 
 
 <body>
 {% block body %}
+
+
+
+
     <div class="page-wrapper">
         <div class="content container-fluid">
             <div class="row justify-content-center">
@@ -99,6 +107,26 @@
                                                     Date: {{ payment_date }} <br>
                                                     Ref: {{ payment_reference }}
                                                 </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="invoice-issues-box">
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="invoice-issues-date">
+                                                <p>Issue Date : 27 Jul 2022</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="invoice-issues-date">
+                                                <p>Due Date : 27 Aug 2022</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="invoice-issues-date">
+                                                <p>Due Amount :600 </p>
                                             </div>
                                         </div>
                                     </div>

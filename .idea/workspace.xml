@@ -4,9 +4,56 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="clubs">
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="clubs1">
+      <change afterPath="$PROJECT_DIR$/School/celery.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.prod.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/nginx/nginx.prod.conf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/js/gender_revenue_chart.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Home/partials/print_header.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/notifications/notification_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/DjangoProject4.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/DjangoProject4.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/render-build.sh" beforeDir="false" afterPath="$PROJECT_DIR$/render-build.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/School/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/School/asgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/asgi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/website/tasks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/celery.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/signals.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/students/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/signals.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/teachers/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/website/routing.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/website/routing.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/js/calender.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/assets/js/calender.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/plugins/apexchart/chart-data.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/assets/plugins/apexchart/chart-data.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/assets/plugins/fullcalendar/jquery.fullcalendar.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/assets/plugins/fullcalendar/jquery.fullcalendar.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_files/assets/plugins/apexchart/chart-data.js" beforeDir="false" afterPath="$PROJECT_DIR$/static_files/assets/plugins/apexchart/chart-data.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/Admin/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/Admin/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/Teacher/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/Teacher/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/Teacher/teacher-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/Teacher/teacher-dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/website/about.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/website/about.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/event.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/event.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/inbox.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/inbox.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/accounts/receipt.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/receipt.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/accounts/students_with_balances.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/students_with_balances.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/performance/class_results_view.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/class_results_view.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/performance/view_results_table.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/view_results_table.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/query_students.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/query_students.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/students.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/students.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/students/students_graduated.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/students_graduated.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/teachers/teachers.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teachers.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,10 +66,10 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="CSS File" />
+        <option value="JavaScript File" />
         <option value="Python Script" />
         <option value="HTML File" />
-        <option value="JavaScript File" />
-        <option value="CSS File" />
       </list>
     </option>
   </component>
@@ -63,38 +110,38 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Django Server.DjangoProject4.executor": "Run",
-    "Docker.School.executor": "Run",
-    "Docker.Unnamed.executor": "Run",
-    "HTTP Request.generated-requests | #1.executor": "Run",
-    "Python.views.executor": "Profiler",
-    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/HP/PycharmProjects/DjangoProject4/static/assets",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settingsdialog.project.grazie",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Django Server.DjangoProject4.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.School.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.Unnamed.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.generated-requests | #1.executor&quot;: &quot;Run&quot;,
+    &quot;Python.views.executor&quot;: &quot;Profiler&quot;,
+    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.pycharm.django.structure.promotion.once.per.project&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/HP/PycharmProjects/DjangoProject4/static/assets&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.grazie&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\static\assets" />
@@ -104,11 +151,11 @@
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home\Admin" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home\partials" />
+      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\School" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home\Student" />
       <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home\Admin" />
-      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\templates\Home\Teacher" />
-      <recent name="C:\Users\HP\PycharmProjects\DjangoProject4\apps" />
     </key>
   </component>
   <component name="RunManager" selected="Python.views">
@@ -269,7 +316,8 @@
       <workItem from="1738559973603" duration="118525000" />
       <workItem from="1738851318314" duration="22955000" />
       <workItem from="1738905181249" duration="47688000" />
-      <workItem from="1739005317348" duration="61903000" />
+      <workItem from="1739005317348" duration="78922000" />
+      <workItem from="1739162494390" duration="46357000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -631,7 +679,15 @@
       <option name="project" value="LOCAL" />
       <updated>1739111931604</updated>
     </task>
-    <option name="localTasksCounter" value="46" />
+    <task id="LOCAL-00046" summary="clubs1">
+      <option name="closed" value="true" />
+      <created>1739113208260</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1739113208260</updated>
+    </task>
+    <option name="localTasksCounter" value="47" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -649,7 +705,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="render9" />
     <MESSAGE value="render10" />
     <MESSAGE value="render11" />
     <MESSAGE value="render12" />
@@ -674,7 +729,8 @@
     <MESSAGE value="render-migrations" />
     <MESSAGE value="communication portal" />
     <MESSAGE value="clubs" />
-    <option name="LAST_COMMIT_MESSAGE" value="clubs" />
+    <MESSAGE value="clubs1" />
+    <option name="LAST_COMMIT_MESSAGE" value="clubs1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -697,7 +753,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/students/models.py</url>
-          <line>36</line>
+          <line>38</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -707,17 +763,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/models.py</url>
-          <line>255</line>
+          <line>275</line>
           <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>1082</line>
+          <line>1091</line>
           <option name="timeStamp" value="28" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>920</line>
+          <line>929</line>
           <option name="timeStamp" value="29" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -756,7 +812,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/models.py</url>
-          <line>177</line>
+          <line>170</line>
           <option name="timeStamp" value="49" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -776,12 +832,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/forms.py</url>
-          <line>127</line>
+          <line>129</line>
           <option name="timeStamp" value="65" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/models.py</url>
-          <line>596</line>
+          <line>613</line>
           <option name="timeStamp" value="71" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -791,22 +847,22 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>894</line>
+          <line>875</line>
           <option name="timeStamp" value="77" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>1046</line>
+          <line>1027</line>
           <option name="timeStamp" value="81" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>757</line>
+          <line>738</line>
           <option name="timeStamp" value="82" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>251</line>
+          <line>253</line>
           <option name="timeStamp" value="90" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -840,22 +896,22 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>721</line>
+          <line>723</line>
           <option name="timeStamp" value="101" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>2433</line>
+          <line>2430</line>
           <option name="timeStamp" value="102" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>2482</line>
+          <line>2480</line>
           <option name="timeStamp" value="104" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/models.py</url>
-          <line>258</line>
+          <line>278</line>
           <option name="timeStamp" value="107" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -865,12 +921,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/management/views.py</url>
-          <line>461</line>
+          <line>451</line>
           <option name="timeStamp" value="111" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>742</line>
+          <line>744</line>
           <option name="timeStamp" value="119" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -882,6 +938,11 @@
           <url>file://$PROJECT_DIR$/apps/Manage/views.py</url>
           <line>83</line>
           <option name="timeStamp" value="126" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/management/models.py</url>
+          <line>179</line>
+          <option name="timeStamp" value="129" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="django-line">
           <url>file://$PROJECT_DIR$/templates/performance/class_results_view.html</url>
@@ -896,12 +957,10 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/static/assets/js/script.js</url>
           <line>210</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="118" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/static/assets/js/script.js</url>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="122" />
         </line-breakpoint>
       </breakpoints>

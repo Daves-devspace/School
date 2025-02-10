@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.utils.timezone import now
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.phonenumber import PhoneNumber
@@ -13,34 +15,28 @@ from ..management.models import Profile
 
 
 class TeacherForm(forms.ModelForm):
-    email = forms.EmailField(widget=forms.EmailInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Enter email'
-    }))
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter email'}),
+        required=True
+    )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter password'
-        }),
-        required=False  # Password is optional for updates
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter password'}),
+        required=False  # Optional for updates
     )
     phone = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'})
-    )  # Handle as a normal CharField for better validation
-
-    address = forms.CharField(widget=forms.Textarea(attrs={
-        'class': 'form-control',
-        'rows': 3,
-        'placeholder': 'Address'
-    }), required=False)
+    )
+    address = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Address'}),
+        required=False
+    )
 
     class Meta:
         model = Teacher
         fields = [
             'first_name', 'last_name', 'id_No', 'staff_number', 'phone', 'gender',
-            'qualification', 'experience', 'joining_date',
-            'subjects', 'country', 'address'
+            'qualification', 'experience', 'joining_date', 'subjects', 'country', 'address', 'email'
         ]
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}),
@@ -55,27 +51,19 @@ class TeacherForm(forms.ModelForm):
             'country': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Country'}),
         }
 
-    def __init__(self, *args, **kwargs):
-        self.instance = kwargs.get('instance', None)
-        super().__init__(*args, **kwargs)
-
-        # Populate email for updates
-        if self.instance and self.instance.user:
-            self.fields['email'].initial = self.instance.user.email
-            self.fields['password'].widget = forms.HiddenInput()  # Hide password field in updates
-
-        # Auto-generate staff number only for new teachers
-        if not self.instance or not self.instance.pk:
-            self.fields['staff_number'].initial = Teacher.generate_staff_number()
-
     def clean_email(self):
         email = self.cleaned_data.get("email", "").strip().lower()
         if not email:
-            raise forms.ValidationError("Email is required.")
+            raise ValidationError("Email is required.")
 
-        # Ensure email is unique
-        if Teacher.objects.filter(user__email=email).exclude(pk=self.instance.pk if self.instance else None).exists():
-            raise forms.ValidationError("This email is already associated with another teacher.")
+        validate_email(email)  # Built-in validation
+
+        # Check if the email already exists (excluding the current teacher)
+        existing_user = User.objects.filter(email=email).exclude(
+            pk=self.instance.user.pk if self.instance and self.instance.user else None
+        )
+        if existing_user.exists():
+            raise ValidationError("This email is already associated with another teacher.")
 
         return email
 
@@ -85,16 +73,14 @@ class TeacherForm(forms.ModelForm):
             if phone.startswith('07'):
                 phone = '+254' + phone[1:]  # Convert '07' to '+2547'
             elif not phone.startswith('+254'):
-                raise forms.ValidationError("Enter a valid Kenyan number starting with +254 or 07.")
+                raise ValidationError("Enter a valid Kenyan number starting with +254 or 07.")
 
             try:
                 parsed_number = parse(phone, 'KE')
                 if not is_valid_number(parsed_number):
-                    raise forms.ValidationError("Invalid phone number format.")
+                    raise ValidationError("Invalid phone number format.")
             except NumberParseException:
-                raise forms.ValidationError("Invalid phone number format.")
-
-            validate_international_phonenumber(phone)  # Additional validation
+                raise ValidationError("Invalid phone number format.")
 
         return phone
 
@@ -106,26 +92,22 @@ class TeacherForm(forms.ModelForm):
         if not teacher.staff_number:
             teacher.staff_number = Teacher.generate_staff_number()
 
-        # Handle User instance
-        if teacher.user:
-            user = teacher.user
-            user.email = email
-            user.username = teacher.staff_number
-            if password:
-                user.set_password(password)
-            if commit:
-                user.save()
-        else:
-            user = User.objects.create_user(username=teacher.staff_number, email=email,
-                                            password=password if password else None)
+        if not teacher.user:
+            user = User.objects.create_user(
+                username=teacher.staff_number, email=email, password=password or None
+            )
             teacher.user = user
+        else:
+            teacher.user.email = email
+            if password:
+                teacher.user.set_password(password)
 
         if commit:
+            teacher.user.save()
             teacher.save()
             self.save_m2m()
 
         return teacher
-
 
 class TeacherAssignmentForm(forms.ModelForm):
     class Meta:

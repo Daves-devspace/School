@@ -181,7 +181,7 @@ def director_dashboard(request):
         total_revenue = FeePayment.objects.filter(date__year=current_year).aggregate(
             total=Sum('amount')
         )['total'] or 0
-        total_students = Student.objects.filter(status="active").count()
+        total_students = Student.objects.filter(status="Active").count()
         total_teachers = Teacher.objects.count()
         total_departments = Department.objects.count()
 
@@ -379,16 +379,21 @@ def website_page(request):
     return render(request, 'Home/website/index.html', {'form': form})
 
 
+
+
 @login_required
-# View to render the inbox
-def inbox_view(request):
-    successful_replies = []
-    failed_replies = []
+def notifications_inbox_view(request):
+    # Fetch user notifications
+    notifications = request.user.notifications.all().order_by('-created_at')
+
+    # Fetch all appointments
     appointments = Appointment.objects.all().order_by('-created_at')
 
-    # Example of fetching replies related to appointments
+    successful_replies = []
+    failed_replies = []
+
+    # Categorize appointment replies
     for appointment in appointments:
-        # Assuming `appointment` has an associated reply with a status field
         if appointment.reply_status == 'success':
             successful_replies.append({
                 'phone': appointment.phone,  # Adjust field name accordingly
@@ -401,6 +406,7 @@ def inbox_view(request):
             })
 
     return render(request, 'Manage/inbox.html', {
+        'notifications': notifications,
         'appointments': appointments,
         'successful_replies': successful_replies,
         'failed_replies': failed_replies

@@ -124,7 +124,7 @@
         // Fetch Events from API
         function fetchEvents(callback) {
             $.ajax({
-                url: "/management/api/events/", // Update with your Django API endpoint
+                url: "/management/events/", // Update with your Django API endpoint
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem("authToken")}`,

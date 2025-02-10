@@ -87,7 +87,7 @@ class AddResultForm(forms.ModelForm):
 #     grade_section = forms.ModelChoiceField(queryset=GradeSection.objects.all(), required=False)
 #     subject = forms.ModelChoiceField(queryset=Subject.objects.all(), required=False)
 
-class PerformanceFilterForm(forms.Form):
+class ReportCardFilterForm(forms.Form):
     grade = forms.ModelChoiceField(
         queryset=Grade.objects.all(),
         required=False,
@@ -118,10 +118,12 @@ class PerformanceFilterForm(forms.Form):
         grade = cleaned_data.get('grade')
         grade_section = cleaned_data.get('grade_section')
 
+        if grade and grade_section:
+            raise forms.ValidationError("Select either Grade or Grade Section, not both.")
         if not grade and not grade_section:
-            raise forms.ValidationError("Please select either a Grade or a Grade Section.")
-
+            raise forms.ValidationError("Select a Grade or Grade Section.")
         return cleaned_data
+
 
 
 

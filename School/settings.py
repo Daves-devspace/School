@@ -41,6 +41,7 @@ ALLOWED_HOSTS = ['school-kbah.onrender.com', 'www.stitchngalore.com',
 # Application definition
 
 INSTALLED_APPS = [
+
     'apps.Manage.apps.ManageConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -60,6 +61,8 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'django_daraja',
     'channels',
+
+    'django_celery_beat',
     'apps.schedules',
     'rest_framework',
     'rest_framework.authtoken',
@@ -134,33 +137,42 @@ except redis.exceptions.ConnectionError as e:
 
 #
 # # Initialize environment variables
-env = environ.Env()
-environ.Env.read_env()  # Read from .env (for local dev)
+# env = environ.Env()
+# environ.Env.read_env()  # Read from .env (for local dev)
+#
+# DATABASE_URL = env.str("DATABASE_URL", default="")  # Read DATABASE_URL
+#
+# if DATABASE_URL:
+#     DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
+# else:
+#     print("Warning: No DATABASE_URL set!")
+#     DATABASES = {}
 
-DATABASE_URL = env.str("DATABASE_URL", default="")  # Read DATABASE_URL
-
-if DATABASE_URL:
-    DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
-else:
-    print("Warning: No DATABASE_URL set!")
-    DATABASES = {}
-
-
-# Database Configuration
+# # #celery test
 # DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": config("DB_NAME"),
-#         "USER": config("DB_USER"),
-#         "PASSWORD": config("DB_PASSWORD"),
-#         "HOST": config("DB_HOST", default="localhost"),
-#         "PORT": config("DB_PORT", default="5432"),
-#     }
+#     'default': dj_database_url.parse(os.getenv("DATABASE_URL", "postgresql://davedevspace:f2CN8IZAIL7zFg7LjhTgHyxZTtlJe4hL@dpg-cu6pc4i3esus73fcve20-a.oregon-postgres.render.com/school_db_1j40"))
 # }
 
+
+
+
+# # # Database Configuration
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "HOST": config("DB_HOST", default="localhost"),
+        "PORT": config("DB_PORT", default="5432"),
+    }
+}
+
 # If using Celery
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_BROKER_URL = 'redis://redis:6379/1'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/1'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
 
 # Redis setup for Django Channels (if using WebSockets)
 CHANNEL_LAYERS = {
@@ -176,10 +188,13 @@ CSRF_COOKIE_HTTPONLY = False  # Must be False for frontend to access CSRF token
 CSRF_COOKIE_SAMESITE = 'Lax'
 
 # Ensure session cookies are secure and HTTP-only
-SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Default: store in the database
-SESSION_COOKIE_SECURE = True  # Set to True in production (HTTPS required)
-SESSION_COOKIE_HTTPONLY = True  # Prevents JavaScript from accessing it
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Use database to store sessions
+SESSION_COOKIE_AGE = 86400  # Session expires after 24 hours
+SESSION_SAVE_EVERY_REQUEST = True  # Refresh session on each request
+SESSION_COOKIE_SAMESITE = None  # Allow cross-page session usage
+SESSION_COOKIE_SECURE = False  # Set to True if using HTTPS
+SESSION_COOKIE_HTTPONLY = False  # Allow JavaScript to access sessionid
+SESSION_COOKIE_NAME = "sessionid"
 
 CKEDITOR_5_CONFIGS = {
     'default': {

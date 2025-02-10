@@ -1,0 +1,87 @@
+{% extends 'Home/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Notifications</h2>
+    <button class="btn btn-primary mark-all-read">Mark All as Read</button>
+    <ul class="list-group mt-3">
+        {% for notification in notifications %}
+            <li class="list-group-item {% if not notification.read %}unread{% endif %}">
+                <a href="{{ notification.link|default:'#' }}" class="mark-as-read" data-id="{{ notification.id }}">
+                    {{ notification.message }}
+                </a>
+                <span class="text-muted float-end">{{ notification.created_at|timesince }} ago</span>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-center">No notifications</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+        <div class="pagination mt-3">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="btn btn-sm btn-outline-primary">First</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-outline-primary">Previous</a>
+            {% endif %}
+            
+            <span class="current-page btn btn-sm btn-primary">{{ page_obj.number }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-outline-primary">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm btn-outline-primary">Last</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- CSRF Token -->
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    // Mark individual notification as read
+    document.querySelectorAll('.mark-as-read').forEach(item => {
+        item.addEventListener('click', function () {
+            const notificationId = this.getAttribute('data-id');
+
+            if (!notificationId) return;
+
+            fetch(`/notifications/mark-as-read/${notificationId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    this.closest('li').classList.remove('unread');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+
+    // Mark all notifications as read
+    document.querySelector('.mark-all-read').addEventListener('click', function () {
+        fetch("/notifications/mark-all-read/", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.querySelectorAll('.list-group-item.unread').forEach(item => item.classList.remove('unread'));
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+});
+</script>
+{% endblock %}

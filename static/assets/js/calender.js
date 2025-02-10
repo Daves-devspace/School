@@ -35,9 +35,18 @@ document.addEventListener("DOMContentLoaded", function () {
     async function fetchEvents(successCallback, failureCallback) {
         try {
             const eventType = eventTypeFilter ? eventTypeFilter.value : "all";
-            const response = await fetch(`/management/events/?event_type=${eventType}`, {
-                headers: { "Authorization": `Bearer ${authToken}` },
+
+            const response = await fetch("/management/events/?event_type=" + eventType, {
+                method: "GET",
+                credentials: "include",  // ✅ Include session cookie in request
+                headers: {"X-Requested-With": "XMLHttpRequest"}
             });
+
+            if (response.status === 403 || response.status === 401) {
+                alert("Session expired. Redirecting to login.");
+                window.location.href = "/login/";
+                return;
+            }
 
             if (!response.ok) throw new Error("Failed to fetch events.");
             const events = await response.json();
@@ -48,6 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
             failureCallback(error);
         }
     }
+
 
     // Event type filter
     if (eventTypeFilter) {

@@ -167,7 +167,7 @@
                                                     <tr>
                                                         <td>
                                                             <div class="date">
-                                                                <b>{{ slot.teacher_assignment.subject.name }}</b>
+                                                                <b>{{ slot.teacher_assignment.subject.name }} {{ slot.teacher_assignment.grade_section }}</b>
                                                                 <p>{{ slot.room.room_name }}</p>
                                                                 <ul class="teacher-date-list">
                                                                     <li>
@@ -183,14 +183,16 @@
                                                         <td>
                                                             <div class="lesson-confirm">
                                                                 <a href="#">Confirmed</a>
+                                                                <p>id:{{ slot.id }}</p>
                                                             </div>
                                                             {% if not slot.is_rescheduled %}
-                                                                <a href="{% url 'reschedule_slot' slot.id %}"
-                                                                   class="reschedule-btn"
-                                                                   data-toggle="modal"
-                                                                   data-target="#rescheduleModal{{ slot.id }}">
+                                                                <a href="#" class="reschedule-btn"
+                                                                   data-bs-toggle="modal"
+                                                                   data-bs-target="#rescheduleModal{{ slot.id }}">
                                                                     Reschedule
                                                                 </a>
+
+
                                                             {% endif %}
 
                                                         </td>
@@ -208,6 +210,7 @@
                                                                     <li>|</li>
                                                                     <li>
                                                                         <i class="fas fa-clock me-2"></i>{{ current_time }}
+                                                                        
                                                                     </li>
                                                                 </ul>
                                                             </div>
@@ -218,11 +221,11 @@
                                                             </div>
                                                             {% for slot in slots %}
                                                                 {% if not slot.is_rescheduled %}
-                                                                    <a href="#" class="reschedule-btn btn btn-warning"
-                                                                       data-toggle="modal"
-                                                                       data-target="#rescheduleModal{{ slot.id }}">
+                                                                    <button class="reschedule-btn btn-success"
+                                                                            data-toggle="modal"
+                                                                            data-target="#rescheduleModal{{ slot.id }}">
                                                                         Reschedule
-                                                                    </a>
+                                                                    </button>
 
                                                                     <!-- Bootstrap Modal -->
                                                                     <div class="modal fade"
@@ -249,7 +252,8 @@
                                                                                         <div class="form-group">
                                                                                             <label for="new_day">Select
                                                                                                 Day:</label>
-                                                                                            <select class="form-control" name="new_day">
+                                                                                            <select class="form-control"
+                                                                                                    name="new_day">
                                                                                                 <option value="Monday">
                                                                                                     Monday
                                                                                                 </option>
@@ -291,8 +295,9 @@
                                                                                     </div>
                                                                                     <div class="modal-footer">
                                                                                         <button type="button"
-                                                                                                class="btn btn-secondary"
-                                                                                                data-dismiss="modal">
+                                                                                                class="close"
+                                                                                                data-bs-dismiss="modal"
+                                                                                                aria-label="Close">
                                                                                             Cancel
                                                                                         </button>
                                                                                         <button type="submit"
@@ -616,15 +621,16 @@
 
 
     </div>
-  
+
     <script>
         $(document).ready(function () {
-            $(".reschedule-btn").click(function () {
-                var slotId = $(this).data('slot-id');
-                $("#rescheduleModal" + slotId).modal('show');
+            $('.reschedule-btn').click(function () {
+                var target = $(this).data('target');
+                $(target).modal('show');
             });
         });
     </script>
+
 
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
@@ -744,7 +750,17 @@
     <script src="{% static 'assets/js/feather.min.js' %}"></script>
 
     <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <!-- jQuery (required for Bootstrap) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- jQuery (required for Bootstrap 4) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="{% static 'assets/plugins/simple-calendar/jquery.simple-calendar.js' %}"></script>
     <script src="{% static 'assets/js/calender.js' %}"></script>

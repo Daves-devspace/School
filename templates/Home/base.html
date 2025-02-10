@@ -4,6 +4,8 @@
 
 <head>
     <meta charset="utf-8">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
     <title>Merryland</title>
     <link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}">
@@ -12,6 +14,10 @@
     <link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
+    <!-- Bootstrap CSS (if not already included) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
@@ -38,7 +44,7 @@
 
 <div class="main-wrapper">
 
-    <div class="header">
+    <div class="header shadow ">
 
         <div class="header-left">
             <a href="{% url 'home' %}" class="logo">
@@ -88,11 +94,36 @@
                         <a href="javascript:void(0)" class="clear-noti"> Clear All </a>
                     </div>
                     <div class="noti-content">
-                        <!-- Notification Items -->
-                        <p>some appointments</p>
+                        <ul class="notification-list">
+                            {% for notification in request.user.notifications.all %}
+                                <li class="notification-message {% if not notification.read %}unread{% endif %}">
+                                    <a href="javascript:;" class="mark-as-read" data-id="{{ notification.id }}">
+                                        <div class="media d-flex">
+                                <span class="avatar avatar-sm flex-shrink-0">
+                                    <img class="avatar-img rounded-circle" alt="User Image"
+                                         src="{% static 'assets/img/profiles/avatar-02.jpg' %}">
+                                </span>
+                                            <div class="media-body flex-grow-1">
+                                                <p class="noti-details">
+                                                    <span class="noti-title">{{ notification.title }}</span>
+                                                    - {{ notification.message }}
+                                                </p>
+                                                <p class="noti-time">
+                                                    <span class="notification-time">{{ notification.timestamp|timesince }} ago</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                            {% empty %}
+                                <li class="notification-message">
+                                    <p class="text-center">No new notifications</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                     <div class="topnav-dropdown-footer">
-                        <a href="#">View all Notifications</a>
+                        <a href="{% url 'inbox_page' %}">View all Notifications</a>
                     </div>
                 </div>
             </li>
@@ -127,7 +158,7 @@
                     </div>
                     <a class="dropdown-item" href="{% url 'user_profile' %}">My Profile</a>
                     <a class="dropdown-item" href="{% url 'inbox_page' %}">Inbox<span
-                            id="appointmentCounter">0</span></a>
+                            id="appointmentCounter">{{ notifications.count }}</span></a>
                     <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
                 </div>
             </li>
@@ -137,7 +168,7 @@
     </div>
 
 
-    <div class="sidebar" id="sidebar">
+    <div class="sidebar shadow" id="sidebar">
         <div class="sidebar-inner slimscroll">
             <div id="sidebar-menu" class="sidebar-menu">
                 <ul>
@@ -245,7 +276,7 @@
                             <span class="menu-arrow"></span>
                         </a>
                         <ul>
-                            <li><a href="{% url 'performance_filter' %}">Class results</a></li>
+                            <li><a href="{% url 'report_cards' %}">Class results</a></li>
                             <li><a href="{% url 'manage_exam_types' %}">ExamTypes</a></li>
                             <li><a href="{% url 'view_results' %}">View results</a></li>
                             <li><a href="{% url 'filter_results' %}">Add results</a></li>
@@ -360,70 +391,87 @@
 {% block extra_js %}
 {% endblock %}
 
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Initialize all dropdowns
+        let dropdownElements = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+
+        dropdownElements.forEach(function (dropdownToggleEl) {
+            let dropdown = new bootstrap.Dropdown(dropdownToggleEl);
+
+            dropdownToggleEl.addEventListener("click", function (event) {
+                event.preventDefault(); // Prevent default link behavior
+                event.stopPropagation(); // Prevent event bubbling
+                dropdown.toggle(); // Toggle dropdown visibility
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener("click", function (event) {
+            dropdownElements.forEach(function (dropdownToggleEl) {
+                let parentDropdown = dropdownToggleEl.closest(".dropdown");
+                if (!parentDropdown.contains(event.target)) {
+                    let dropdownInstance = bootstrap.Dropdown.getInstance(dropdownToggleEl);
+                    if (dropdownInstance) {
+                        dropdownInstance.hide();
+                    }
+                }
+            });
+        });
+    });
+
+</script>
+
+
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
-        // Select the notification dropdown element
-        const notiDropdown = document.querySelector('.noti-dropdown');
-        const clearAllBtn = document.querySelector('.clear-noti');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        if (notiDropdown) {
-            // Add a click event listener to the notification dropdown
-            notiDropdown.addEventListener('click', function () {
-                const url = "#";
+        // Mark individual notification as read
+        document.querySelectorAll('.mark-as-read').forEach(item => {
+            item.addEventListener('click', function () {
+                const notificationId = this.getAttribute('data-id');
 
-                // Use the Fetch API to send a POST request to mark notifications as read
-                fetch(url, {
+                if (!notificationId) return;
+
+                fetch(`/notifications/mark-read/${notificationId}/`, {
                     method: 'POST',
                     headers: {
-                        'X-CSRFToken': '{{ csrf_token }}',
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json'
                     }
                 })
-                    .then(response => response.json())  // Parse the JSON response
+                    .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            // Remove the badge if notifications are successfully marked as read
-                            const badge = document.querySelector('.badge');
-                            if (badge) {
-                                badge.remove();
-                            }
+                            this.closest('.notification-message').classList.remove('unread');
                         }
                     })
-                    .catch(error => {
-                        console.error('Error:', error);  // Log any errors
-                    });
+                    .catch(error => console.error('Error:', error));
             });
-        }
+        });
 
-        if (clearAllBtn) {
-            // Add a click event listener to the "Clear All" button
-            clearAllBtn.addEventListener('click', function () {
-                const clearUrl = "#";  // Ensure this URL points to the correct view
-
-                // Use Fetch to send a POST request to clear all notifications
-                fetch(clearUrl, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}',
-                        'Content-Type': 'application/x-www-form-urlencoded',
+        // Mark all notifications as read
+        document.querySelector('.clear-noti')?.addEventListener('click', function () {
+            fetch("{% url 'mark-all-read' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.querySelector('.noti-content .notification-list').innerHTML = '<li class="notification-message"><p class="text-center">No new notifications</p></li>';
                     }
                 })
-                    .then(response => response.json())  // Parse the JSON response
-                    .then(data => {
-                        if (data.status === 'success') {
-                            // Clear all notifications from the dropdown
-                            const notificationList = document.querySelector('.notification-list');
-                            if (notificationList) {
-                                notificationList.innerHTML = '<li>No new notifications</li>';  // Optionally show a "No new notifications" message
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);  // Log any errors
-                    });
-            });
-        }
+                .catch(error => console.error('Error:', error));
+        });
     });
+
+
 </script>
 
 
@@ -433,7 +481,7 @@
         alerts.forEach(alert => alert.classList.remove('show'));
         setTimeout(function () {
             alerts.forEach(alert => alert.remove());
-        }, 500);  // Allow fade-out transition
+        }, 5000);  // Allow fade-out transition
     }, 3000);  // Dismiss after 3 seconds
 </script>
 <script>
@@ -446,10 +494,17 @@
     });
 </script>
 
-<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
-<!-- Bootstrap CSS (if not already included) -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+
+
+<!-- jQuery (required for Bootstrap 4) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Optional Bootstrap JS (required for dropdown functionality) -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
@@ -470,5 +525,7 @@
 <script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
 <script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
 <script src="{% static 'assets/js/script.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-slimScroll/1.3.8/jquery.slimscroll.min.js"></script>
+
 
 </html>

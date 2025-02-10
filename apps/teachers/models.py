@@ -7,14 +7,14 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.validators import RegexValidator
-from django.db import models
+from django.db import models, transaction
 from django.db.models import ManyToManyField
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from phonenumber_field.modelfields import PhoneNumberField
 
-from apps.management.models import  Profile
+from apps.management.models import Profile
 
 
 # Create your models here.
@@ -23,6 +23,7 @@ class Role(models.Model):
 
     def __str__(self):
         return self.name
+
 
 # class Subject(models.Model):
 #     name = models.CharField(max_length=100)  # e.g., "Mathematics", "English", etc.
@@ -49,100 +50,81 @@ class StaffNumberBackend(BaseBackend):
             return None
 
 
-
-
 class Teacher(models.Model):
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True,related_name='teacher_profile')  # Links to User model
-    id_No = models.CharField(max_length=20, unique=True)  # Represents the ID number
-    staff_number = models.CharField(max_length=20, unique=True, default='TCH/000/00')  # This will be used as username
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True,
+                                related_name='teacher_profile')
+    id_No = models.CharField(max_length=20, unique=True)
+    staff_number = models.CharField(max_length=20, unique=True, blank=True)  # Allow auto-generation
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     gender = models.CharField(
         max_length=10,
         choices=[('Male', 'Male'), ('Female', 'Female'), ('Others', 'Others')]
     )
-    email = models.EmailField(unique=True, blank=False, null=False)
-    phone = models.CharField(max_length=15)  # Simplified phone field
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=15)
     qualification = models.CharField(max_length=100)
     experience = models.PositiveIntegerField(help_text="Years of experience")
     country = models.CharField(max_length=50)
     joining_date = models.DateField()
-    subjects = models.ManyToManyField(
-        'schedules.Subject',
-        related_name="teachers"
-    )  # Link to Subject model
+    subjects = models.ManyToManyField('schedules.Subject', related_name="teachers")
     is_headteacher = models.BooleanField(default=False)
 
     def clean(self):
-        """
-        Custom validation for staff_number format.
-        Ensures it follows the format TCH/001/25 (e.g., "TCH/{number}/{last_two_digits_of_year}")
-        """
+        """ Ensure the staff number follows the correct format. """
         if self.staff_number and not re.match(r'^TCH/\d{3}/\d{2}$', self.staff_number):
             raise ValidationError('Invalid staff_number format. Expected format is TCH/001/25.')
 
     def save(self, *args, **kwargs):
-        # Ensure user creation if not present
-        if not self.user:
-            user = User.objects.create(
-                username=self.staff_number,
-                first_name=self.first_name,
-                last_name=self.last_name,
-                email=self.email,
-            )
-            self.user = user
+        with transaction.atomic():  # Ensures all database actions are successful or rolled back
+            if not self.user:
+                # Create or retrieve associated user
+                user, created = User.objects.get_or_create(
+                    email=self.email,
+                    defaults={'username': self.staff_number or self.generate_staff_number(),
+                              'first_name': self.first_name,
+                              'last_name': self.last_name}
+                )
+                self.user = user
 
-        if not self.staff_number:  # Generate staff number only if it doesn't exist
-            self.staff_number = self.generate_staff_number()
+            if not self.staff_number:
+                self.staff_number = self.generate_staff_number()
 
-        # Assign the staff_number as the username for the User
-        self.user.username = self.staff_number
-        self.user.save()
+            # Assign the staff_number as the username for the User
+            self.user.username = self.staff_number
+            self.user.save()
 
-        # Validate and save the teacher instance
-        self.clean()  # Ensure the staff_number format is valid
-        super().save(*args, **kwargs)
+            # Validate before saving
+            self.clean()
+            super().save(*args, **kwargs)
 
     @staticmethod
     def generate_staff_number():
-        """
-        Generate a unique staff number for teachers.
-        Format: TCH/001/25 (e.g., "TCH/{sequential_number}/{last_two_digits_of_year}")
-        """
+        """ Generate a unique staff number in the format TCH/001/25 """
         current_year = date.today().year
         year_suffix = str(current_year)[-2:]
 
-        # Fetch the last registered teacher
-        last_teacher = Teacher.objects.order_by('-id').first()
+        last_teacher = Teacher.objects.filter(staff_number__endswith=f"/{year_suffix}").order_by('-id').first()
+        last_number = int(last_teacher.staff_number.split("/")[1]) if last_teacher else 0
 
-        if last_teacher and last_teacher.staff_number:
-            last_number = int(last_teacher.staff_number.split("/")[1])  # Get the middle number
-        else:
-            last_number = 0  # Default to 0 if no teacher exists
+        for _ in range(1000):  # Prevent infinite loops
+            new_number = f"{last_number + 1:03d}"
+            staff_number = f"TCH/{new_number}/{year_suffix}"
+            if not Teacher.objects.filter(staff_number=staff_number).exists():
+                return staff_number
+            last_number += 1
 
-        new_number = f"{last_number + 1:03d}"  # Increment and format as 3 digits
-        return f"TCH/{new_number}/{year_suffix}"
+        raise Exception("Unable to generate a unique staff number.")
 
     def get_title(self):
-        """
-        Generate the title based on the gender and last name of the teacher.
-        If gender is male, prefix 'Mr.', if female, prefix 'Mrs.'
-        """
-        if self.gender == 'Male':
-            return f"Mr. {self.last_name}"
-        elif self.gender == 'Female':
-            return f"Mrs. {self.last_name}"
-        else:
-            return f"{self.first_name} {self.last_name}"
+        """ Return Mr./Mrs. based on gender """
+        return f"Mr. {self.last_name}" if self.gender == 'Male' else (f"Mrs. {self.last_name}" if self.gender == 'Female' else f"{self.first_name} {self.last_name}")
 
     def __str__(self):
-        return f"{self.staff_number} - {self.first_name}-{self.last_name}"
+        return f"{self.staff_number} - {self.first_name} {self.last_name}"
 
     class Meta:
-        indexes = [
-            models.Index(fields=['staff_number']),
-        ]
-
+        indexes = [models.Index(fields=['staff_number'])]
 
 # # Teacher model remains the same
 # class Teacher(models.Model):
@@ -199,10 +181,6 @@ class Teacher(models.Model):
 #         return f"{self.staff_number} - {self.full_name}"
 
 
-
-
-
-
 class TeacherAssignment(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     subject = models.ForeignKey('schedules.Subject', on_delete=models.CASCADE)
@@ -221,7 +199,6 @@ class TeacherAssignment(models.Model):
         return f"{self.teacher} assigned to {self.subject.name} ({self.grade_section})"
 
 
-
 class Department(models.Model):
     name = models.CharField(max_length=100)
     hod = models.ForeignKey(
@@ -233,14 +210,12 @@ class Department(models.Model):
     )
     teachers = models.ManyToManyField(Teacher, through='TeacherRole', related_name='teaching_departments')
 
-
     def clean(self):
         if self.hod and not Teacher.objects.filter(pk=self.hod.pk).exists():
             raise ValidationError(f"{self.hod} is not a valid teacher.")
 
     def __str__(self):
         return self.name
-
 
 
 class TeacherRole(models.Model):
@@ -253,9 +228,6 @@ class TeacherRole(models.Model):
 
     def __str__(self):
         return f'{self.teacher.full_name} - {self.role}'
-
-
-
 
 #
 # class Teacher(models.Model):
