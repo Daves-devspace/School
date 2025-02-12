@@ -137,16 +137,16 @@ except redis.exceptions.ConnectionError as e:
 
 #
 # # Initialize environment variables
-# env = environ.Env()
-# environ.Env.read_env()  # Read from .env (for local dev)
-#
-# DATABASE_URL = env.str("DATABASE_URL", default="")  # Read DATABASE_URL
-#
-# if DATABASE_URL:
-#     DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
-# else:
-#     print("Warning: No DATABASE_URL set!")
-#     DATABASES = {}
+env = environ.Env()
+environ.Env.read_env()  # Read from .env (for local dev)
+
+DATABASE_URL = env.str("DATABASE_URL", default="")  # Read DATABASE_URL
+
+if DATABASE_URL:
+    DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
+else:
+    print("Warning: No DATABASE_URL set!")
+    DATABASES = {}
 
 # # #celery test
 # DATABASES = {
@@ -157,16 +157,16 @@ except redis.exceptions.ConnectionError as e:
 
 
 # # # Database Configuration
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST", default="localhost"),
-        "PORT": config("DB_PORT", default="5432"),
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": config("DB_NAME"),
+#         "USER": config("DB_USER"),
+#         "PASSWORD": config("DB_PASSWORD"),
+#         "HOST": config("DB_HOST", default="localhost"),
+#         "PORT": config("DB_PORT", default="5432"),
+#     }
+# }
 
 # If using Celery
 CELERY_BROKER_URL = 'redis://redis:6379/1'
