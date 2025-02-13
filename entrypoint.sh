@@ -49,12 +49,12 @@ log "Database is ready!"
 
 # Apply database migrations
 log "Applying database migrations..."
-python manage.py migrate --noinput
+DJANGO_SETTINGS_MODULE=School.settings python manage.py migrate --noinput
 
 # Collect static files
 log "Collecting static files..."
-python manage.py collectstatic --noinput
+DJANGO_SETTINGS_MODULE=School.settings python manage.py collectstatic --noinput
 
-# Start Django server
-log "Starting Django app..."
+# Start Django
+log "Starting Django..."
 exec python manage.py runserver 0.0.0.0:8000

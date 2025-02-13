@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="vercel" />
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="vercel1">
+      <change beforePath="$PROJECT_DIR$/entrypoint.sh" beforeDir="false" afterPath="$PROJECT_DIR$/entrypoint.sh" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -270,7 +272,7 @@
       <workItem from="1739162494390" duration="46357000" />
       <workItem from="1739259136103" duration="944000" />
       <workItem from="1739260226555" duration="42433000" />
-      <workItem from="1739395829921" duration="9148000" />
+      <workItem from="1739395829921" duration="9730000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -656,7 +658,15 @@
       <option name="project" value="LOCAL" />
       <updated>1739436588316</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="vercel1">
+      <option name="closed" value="true" />
+      <created>1739437245916</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1739437245916</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -674,7 +684,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="render12" />
     <MESSAGE value="timetable" />
     <MESSAGE value="teacher assignments" />
     <MESSAGE value="optional fee" />
@@ -699,7 +708,8 @@
     <MESSAGE value="clubs1" />
     <MESSAGE value="clubs3" />
     <MESSAGE value="vercel" />
-    <option name="LAST_COMMIT_MESSAGE" value="vercel" />
+    <MESSAGE value="vercel1" />
+    <option name="LAST_COMMIT_MESSAGE" value="vercel1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

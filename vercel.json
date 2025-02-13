@@ -10,5 +10,8 @@
       "src": "/(.*)",
       "dest": "/api/wsgi.py"
     }
-  ]
+  ],
+  "env": {
+    "DJANGO_SETTINGS_MODULE": "School.settings"
+  }
 }
