@@ -4,37 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="clubs3">
-      <change afterPath="$PROJECT_DIR$/apps/accounts/templatetags/filters.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/DjangoProject4.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/DjangoProject4.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/accounts/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/accounts/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/accounts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/accounts/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/accounts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/accounts/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/management/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/management/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/students/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/students/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/teachers/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/teachers/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/teachers/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/teachers/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/assets/js/messages.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/assets/js/messages.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static_files/assets/plugins/apexchart/chart-data.js" beforeDir="false" afterPath="$PROJECT_DIR$/static_files/assets/plugins/apexchart/chart-data.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Home/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Manage/class_timetable.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/class_timetable.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Manage/send_sms.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/send_sms.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/accounts/all_fee_records.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/all_fee_records.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/accounts/expense.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/expense.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/performance/subjects.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/performance/subjects.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/students/students.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/students/students.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/teachers/assign_class_teachers.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/assign_class_teachers.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/teachers/teacher_assignments.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teacher_assignments.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/teachers/teachers.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/teachers/teachers.html" afterDir="false" />
-    </list>
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="vercel" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -300,7 +270,7 @@
       <workItem from="1739162494390" duration="46357000" />
       <workItem from="1739259136103" duration="944000" />
       <workItem from="1739260226555" duration="42433000" />
-      <workItem from="1739395829921" duration="8386000" />
+      <workItem from="1739395829921" duration="9148000" />
     </task>
     <task id="LOCAL-00001" summary="added teachers crud">
       <option name="closed" value="true" />
@@ -678,7 +648,15 @@
       <option name="project" value="LOCAL" />
       <updated>1739336698775</updated>
     </task>
-    <option name="localTasksCounter" value="48" />
+    <task id="LOCAL-00048" summary="vercel">
+      <option name="closed" value="true" />
+      <created>1739436588316</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1739436588316</updated>
+    </task>
+    <option name="localTasksCounter" value="49" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -696,7 +674,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="render11" />
     <MESSAGE value="render12" />
     <MESSAGE value="timetable" />
     <MESSAGE value="teacher assignments" />
@@ -721,7 +698,8 @@
     <MESSAGE value="clubs" />
     <MESSAGE value="clubs1" />
     <MESSAGE value="clubs3" />
-    <option name="LAST_COMMIT_MESSAGE" value="clubs3" />
+    <MESSAGE value="vercel" />
+    <option name="LAST_COMMIT_MESSAGE" value="vercel" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
