@@ -62,7 +62,7 @@ class Teacher(models.Model):
         choices=[('Male', 'Male'), ('Female', 'Female'), ('Others', 'Others')]
     )
     email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=15)
+    phone = models.CharField(max_length=15,unique=True)
     qualification = models.CharField(max_length=100)
     experience = models.PositiveIntegerField(help_text="Years of experience")
     country = models.CharField(max_length=50)
@@ -190,9 +190,14 @@ class TeacherAssignment(models.Model):
         related_name="teacher_assignments"  # Add related_name here
     )
     assigned_date = models.DateField(auto_now=True)
-
+#ensure no duplicate assignments
     class Meta:
-        unique_together = ['teacher', 'subject', 'grade_section']  # Ensure no duplicate assignments
+        constraints = [
+            models.UniqueConstraint(
+                fields=['subject', 'grade_section'],
+                name='unique_subject_in_grade_section'
+            )
+        ]
         ordering = ['grade_section__grade', 'subject__name']
 
     def __str__(self):

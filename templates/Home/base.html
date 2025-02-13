@@ -215,14 +215,46 @@
                         <ul>
                             <li><a href="{% url 'departments' %}">Department List</a></li>
                             <li><a href="{% url 'club_list' %}">Clubs</a></li>
-                            <li><a href="{% url 'teachers_department' %}">Department Asign</a></li>
+                            <li><a href="{% url 'teachers_department' %}">Department Assign</a></li>
                         </ul>
                     </li>
-                    <li>
-                        <a href="{% url 'subjects_list' %}"><i class="fas fa-book-reader custom-color"></i> <span
-                                class="custom-color"> Subjects</span> <span
+                    <li class="menu-title">
+                        <span>Academics</span>
+                    </li>
+                    <li class="submenu">
+                        <a href="#"><i class="fas fa-book-reader custom-color"></i> <span
+                                class="custom-color">Class</span> <span
                                 class="menu-arrow"></span></a>
+                        <ul>
+                            <li><a href="{% url 'student_query' %}">All Classes</a></li>
+                            <li><a href="{% url 'get_filtered_timetable' %}">Schedules</a></li>
+                            <li><a href="{% url 'teachers_department' %}">Sections</a></li>
+                            <li><a href="{% url 'add_edit_room_and_list' %}">Rooms</a></li>
+                        </ul>
 
+                    </li>
+
+                    <li class="submenu">
+                        <a href="#"><i class="fa fa-newspaper custom-color"></i> <span
+                                class="custom-color">Examinations</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <ul>
+                            <li><a href="{% url 'report_cards' %}">Class results</a></li>
+                            <li><a href="{% url 'manage_exam_types' %}">ExamTypes</a></li>
+                            <li><a href="{% url 'view_results' %}">View results</a></li>
+                            <li><a href="{% url 'filter_results' %}">Add results</a></li>
+                            <li><a href="{% url 'top_students' %}">Start Students</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="{% url 'subjects_list' %}"><i class="fas fa-clipboard-list custom-color"></i> <span
+                                class="custom-color">Subjects</span></a>
+                    </li>
+                    <li>
+                        <a href="{% url 'timetable_page' %}"><i class="fas fa-clipboard-list custom-color"></i> <span
+                                class="custom-color">Timetable</span></a>
                     </li>
                     {% if perms.students.view_invoice %}
                         <li class="submenu">
@@ -240,7 +272,7 @@
                         </li>
                     {% endif %}
                     <li class="menu-title">
-                        <span>Management</span>
+                        <span>Finance & Accounts</span>
                     </li>
 
                     {% if perms.students.view_fee_payment %}
@@ -256,67 +288,32 @@
                                 <li><a href="#">transport</a></li>
                                 <li><a href="{% url 'all_records' %}">Fee records</a></li>
                                 <li><a href="{% url 'expense_view' %}">Expenses</a></li>
-                                <li><a href="salary.html">Salary</a></li>
                                 <li><a href="{% url 'add_fee_structure' %}">Add Fees Structure</a></li>
                                 <li><a href="{% url 'fee_structure_list' %}">fees structure</a></li>
-                                <li><a href="add-salary.html">Add Salary</a></li>
                             </ul>
                         </li>
                     {% endif %}
+
+                    <li class="menu-title">
+                        <span>Management</span>
+                    </li>
                     <li>
                         <a href="{% url 'books_in_store' %}"><i class="fas fa-book custom-color"></i> <span
                                 class="custom-color">Library</span><span
                                 class="menu-arrow"></span> </a>
 
                     </li>
-
-                    <li class="submenu">
-                        <a href="#"><i class="fa fa-newspaper custom-color"></i> <span
-                                class="custom-color">Academics</span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <ul>
-                            <li><a href="{% url 'report_cards' %}">Class results</a></li>
-                            <li><a href="{% url 'manage_exam_types' %}">ExamTypes</a></li>
-                            <li><a href="{% url 'view_results' %}">View results</a></li>
-                            <li><a href="{% url 'filter_results' %}">Add results</a></li>
-                            <li><a href="{% url 'top_students' %}">Start Students</a></li>
-                        </ul>
+                    <li>
+                        <a href="{% url 'transport' %}"><i class="fas fa-bus custom-color"></i> <span
+                                class="custom-color">Transport</span></a>
                     </li>
-
-                    {% if perms.students.view_fee_payment %}
-                        <li>
-                            <a href="{% url 'all_records' %}"><i class="fas fa-comment-dollar custom-color"></i> <span
-                                    class="custom-color">Fees</span></a>
-                        </li>
-                    {% endif %}
                     <li>
                         <a href="{% url 'unified_sms' %}"><i class="fas fa-inbox custom-color"></i> <span
                                 class="custom-color"> Communication</span>
                             <span class="menu-arrow"></span>
                         </a>
-                        <ul>
-
-                            <li><a href="{% url 'unified_sms' %}">ALL</a></li>
-                            {#                            <li><a href="{% url 'result_sms' %}">Results</a></li>#}
-                        </ul>
                     </li>
-                    <li>
-                        <a href="{% url 'exam_list' %}"><i class="fas fa-clipboard-list custom-color"></i> <span
-                                class="custom-color">Exam list</span></a>
-                    </li>
-                    <li class="submenu">
-                        <a href="{% url 'event' %}"><i class="fas fa-inbox custom-color"></i> <span
-                                class="custom-color"> Events</span>
-                            <span class="menu-arrow"></span>
-                        </a>
 
-                        <ul>
-                            <li><a href="{% url 'event' %}"> Events</a></li>
-
-
-                        </ul>
-                    </li>
                     <li class="submenu">
                         <a href="#">
                             <i class="fas fa-table custom-color"></i>
@@ -324,11 +321,13 @@
                         </a>
                         <ul>
                             <li><a href="{% url 'terms' %}">Terms</a></li>
+                            <li><a href="{% url 'event' %}"> Events</a></li>
 
-                            <li><a href="{% url 'add_edit_room_and_list' %}">Rooms</a></li>
-                            <li><a href="{% url 'timetable_page' %}">Generate Timetable</a></li>
-                            <!-- Other sidebar links -->
-                            <li><a href="{% url 'get_filtered_timetable' %}">Class</a></li>
+
+                            {#                            <li><a href="{% url 'add_edit_room_and_list' %}">Rooms</a></li>#}
+                            {#                            <li><a href="{% url 'timetable_page' %}">Generate Timetable</a></li>#}
+                            {#                            <!-- Other sidebar links -->#}
+                            {#                            <li><a href="{% url 'get_filtered_timetable' %}">Class</a></li>#}
 
 
                         </ul>
@@ -336,13 +335,9 @@
 
                     </li>
                     <li class="menu-title">
-                        <span>Staff</span>
+                        <span>User Management</span>
                     </li>
 
-                    <li>
-                        <a href="{% url 'transport' %}"><i class="fas fa-bus custom-color"></i> <span
-                                class="custom-color">Transport</span></a>
-                    </li>
                     <li class="submenu">
                         <a href="#"><i class="fas fa-shield-alt custom-color"></i> <span class="custom-color"> Authentication </span>
                             <span
@@ -364,11 +359,6 @@
                         <a href="{% url 'settings_page' %}"><i class="fas fa-baseball-ball custom-color"></i> <span
                                 class="custom-color">Settings</span></a>
                     </li>
-                    <li>
-                        <a href="sports.html"><i class="fas fa-baseball-ball custom-color"></i> <span
-                                class="custom-color">Sports</span></a>
-                    </li>
-
 
                 </ul>
             </div>

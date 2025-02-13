@@ -217,7 +217,7 @@ class ReportCard(models.Model):
         """Calculate the average marks per exam type, counting subjects with marks=None as 0."""
         total_marks = self.calculate_total_marks()
         total_subjects = SubjectMark.objects.filter(report_card=self).count()
-        return round(total_marks / total_subjects, 2) if total_subjects > 0 else 0.0
+        return round(total_marks / total_subjects) if total_subjects > 0 else 0.0
 
     def performance_grade(self):
         """Determine the grade based on the average marks."""

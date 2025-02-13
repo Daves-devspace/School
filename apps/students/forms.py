@@ -113,9 +113,10 @@ class StudentForm(forms.ModelForm):
         # Get or create the parent
         parent = self._get_or_create_parent(parent_data)
 
-        # Link parent to the student
-        relationship = self.cleaned_data["parent_relationship"]
-        StudentParent.objects.get_or_create(student=student, parent=parent, relationship=relationship)
+        # Check if the student-parent relationship already exists
+        if not StudentParent.objects.filter(student=student, parent=parent).exists():
+            StudentParent.objects.create(student=student, parent=parent,
+                                         relationship=self.cleaned_data["parent_relationship"])
 
         return student
 

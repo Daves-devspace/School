@@ -18,42 +18,44 @@
                 </div>
             </div>
 
-
-            <div class="student-group-form">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Search by ID ...">
+            <div class="card">
+                <div class="student-group-form">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search by ID ...">
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Search by Name ...">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search by Name ...">
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Search by Phone ...">
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search by Phone ...">
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-lg-2">
-                        <div class="search-student-btn">
-                            <button type="btn" class="btn btn-success ">Search</button>
+                        <div class="col-lg-2">
+                            <div class="search-student-btn">
+                                <button type="btn" class="btn btn-success ">Search</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {% if messages %}
-                <div class="container-fluid">
-                    <div class="alert-container">
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                </div>
-            {% endif %}
+
+                {% endfor %}
+
+            </div>
+
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card card-table">

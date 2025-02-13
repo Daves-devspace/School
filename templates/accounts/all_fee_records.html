@@ -64,66 +64,60 @@
                                         <th>Balance</th>
                                         <th>Status</th>
                                         <th>Records</th>
-
                                         <th>Action</th>
-
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for item in fee_record %}
+                                    {% for item in fee_records %}
                                         <tr>
-                                            <td>MFS/{{ item.record.student.admission_number }}</td>
+                                            <td>{{ item.record.student.admission_number }}</td>
                                             <td>
                                                 <h2 class="table-avatar">
-
-                                                    <a href="#">{{ item.record.student.first_name }}
-                                                        {{ item.record.student.last_name }}</a>
+                                                    <a href="#">
+                                                        {{ item.record.student.first_name }} {{ item.record.student.last_name }}
+                                                    </a>
                                                 </h2>
                                             </td>
                                             <td>{{ item.record.student.grade }}</td>
-
                                             <td>{{ item.record.term.name }}</td>
                                             <td>{{ item.record.total_fee }}</td>
                                             <td>{{ item.record.paid_amount }}</td>
-
                                             <td>{{ item.record.balance }}</td>
                                             <td>
                                                 {% if item.status == "Cleared" %}
-                                                    <span style="color: green;">{{ item.status }}</span>
+                                                    <span class="text-success">{{ item.status }}</span>
                                                 {% elif item.status == "Unpaid" %}
-                                                    <span style="color: red;">{{ item.status }}</span>
+                                                    <span class="text-danger">{{ item.status }}</span>
                                                 {% elif item.status == "Overpayment" %}
-                                                    <span style="color: blue;">{{ item.status }}</span>
+                                                    <span class="text-primary">{{ item.status }}</span>
+                                                {% else %}
+                                                    <span class="text-muted">Unknown</span>
                                                 {% endif %}
                                             </td>
                                             <td>
                                                 <a href="{% url 'student_payments' item.record.student.id %}"
-                                                   class="btn btn-outline-sm text-white mr-2 custom-bg "><i
-                                                        class="fas fa-eye  "></i></a>
+                                                   class="btn btn-outline-sm text-white custom-bg">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
                                             </td>
-
-
-                                            {% if perms.students.view_student %}
-                                                <td>
+                                            <td>
+                                                {% if perms.students.view_student %}
                                                     <a href="{% url 'collect_fees' item.record.id %}"
-                                                       class="btn btn-outline-sm  text-white custom-bg mr-2">
+                                                       class="btn btn-outline-sm text-white custom-bg">
                                                         Collect Fee
                                                     </a>
-                                                </td>
-                                            {% endif %}
-
-
+                                                {% endif %}
+                                            </td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
-
-
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
         <footer>
             <p>Copyright © 2024 Davedev</p>

@@ -113,7 +113,7 @@
                                             </div>
                                         </div>
                                         <div class="card-body">
-                                            <form method="POST" id="smsForm"  data-url="{% url 'recipient_count' %}">
+                                            <form method="POST" id="smsForm" data-url="{% url 'recipient_count' %}">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="sms_type" id="smsTypeInput"
                                                        value="{{ sms_type|default:'bulk' }}">
@@ -180,11 +180,14 @@
                                                         <span id="charCount">0</span>/160 characters
                                                         {% if sms_type == 'results' %}
                                                             <span class="text-muted ms-2">
-                Available variables: {{ template_keys.results|join:", "|default:"None" }}
+              Available variables: {% if template_keys.results %}{{ template_keys.results|join:", " }}{% else %}
+                                                                None{% endif %}
+
             </span>
                                                         {% elif sms_type == 'class' %}
                                                             <span class="text-muted ms-2">
-                Available variables: {{ template_keys.class|join:", " }}
+                Available variables: {% if template_keys.class %}{{ template_keys.class|join:", " }}{% else %}None{% endif %}
+
             </span>
                                                         {% endif %}
                                                     </div>
@@ -276,66 +279,66 @@
     </div>
 
 
-{#        <script>#}
-{#            document.addEventListener('DOMContentLoaded', function () {#}
-{#                // Initialize Bootstrap tooltips on variable buttons.#}
-{#                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));#}
-{#                tooltipTriggerList.map(function (tooltipTriggerEl) {#}
-{#                    return new bootstrap.Tooltip(tooltipTriggerEl);#}
-{#                });#}
-{##}
-{#                const messageTextarea = document.querySelector('textarea[name="message"]');#}
-{#                const messagePreview = document.getElementById('messagePreview');#}
-{#                const charCount = document.getElementById('charCount');#}
-{##}
-{#                // Update live character count and preview as the user types.#}
-{#                messageTextarea.addEventListener('input', function () {#}
-{#                    charCount.textContent = this.value.length;#}
-{#                    // Simple live preview: replace variables with example values.#}
-{#                    let preview = this.value;#}
-{#                    preview = preview.replace(/{parent_name}/g, "John");#}
-{#                    preview = preview.replace(/{student_name}/g, "Alice");#}
-{#                    preview = preview.replace(/{total_marks}/g, "95");#}
-{#                    preview = preview.replace(/{term}/g, "Term 1");#}
-{#                    messagePreview.textContent = preview;#}
-{#                });#}
-{##}
-{#                // Handle clicks on variable buttons to insert them at the cursor position.#}
-{#                document.querySelectorAll('.template-var').forEach(button => {#}
-{#                    button.addEventListener('click', function () {#}
-{#                        const variable = this.dataset.var;#}
-{#                        insertAtCursor(messageTextarea, variable);#}
-{#                    });#}
-{#                });#}
-{##}
-{#                // Function to insert text at the cursor position.#}
-{#                function insertAtCursor(field, value) {#}
-{#                    if (field.selectionStart || field.selectionStart === 0) {#}
-{#                        const startPos = field.selectionStart;#}
-{#                        const endPos = field.selectionEnd;#}
-{#                        field.value = field.value.substring(0, startPos) + value + field.value.substring(endPos);#}
-{#                        field.selectionStart = startPos + value.length;#}
-{#                        field.selectionEnd = startPos + value.length;#}
-{#                    } else {#}
-{#                        field.value += value;#}
-{#                    }#}
-{#                    field.focus();#}
-{#                }#}
-{##}
-{#                // Optionally, you can show/hide the available variables section via a button.#}
-{#                const toggleVarsButton = document.getElementById('toggleVars');#}
-{#                if (toggleVarsButton) {#}
-{#                    toggleVarsButton.addEventListener('click', function () {#}
-{#                        const varsSection = document.getElementById('templateVarsSection');#}
-{#                        if (varsSection.style.display === 'none' || varsSection.style.display === '') {#}
-{#                            varsSection.style.display = 'block';#}
-{#                        } else {#}
-{#                            varsSection.style.display = 'none';#}
-{#                        }#}
-{#                    });#}
-{#                }#}
-{#            });#}
-{#        </script>#}
+    {#        <script>#}
+    {#            document.addEventListener('DOMContentLoaded', function () {#}
+    {#                // Initialize Bootstrap tooltips on variable buttons.#}
+    {#                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));#}
+    {#                tooltipTriggerList.map(function (tooltipTriggerEl) {#}
+    {#                    return new bootstrap.Tooltip(tooltipTriggerEl);#}
+    {#                });#}
+    {##}
+    {#                const messageTextarea = document.querySelector('textarea[name="message"]');#}
+    {#                const messagePreview = document.getElementById('messagePreview');#}
+    {#                const charCount = document.getElementById('charCount');#}
+    {##}
+    {#                // Update live character count and preview as the user types.#}
+    {#                messageTextarea.addEventListener('input', function () {#}
+    {#                    charCount.textContent = this.value.length;#}
+    {#                    // Simple live preview: replace variables with example values.#}
+    {#                    let preview = this.value;#}
+    {#                    preview = preview.replace(/{parent_name}/g, "John");#}
+    {#                    preview = preview.replace(/{student_name}/g, "Alice");#}
+    {#                    preview = preview.replace(/{total_marks}/g, "95");#}
+    {#                    preview = preview.replace(/{term}/g, "Term 1");#}
+    {#                    messagePreview.textContent = preview;#}
+    {#                });#}
+    {##}
+    {#                // Handle clicks on variable buttons to insert them at the cursor position.#}
+    {#                document.querySelectorAll('.template-var').forEach(button => {#}
+    {#                    button.addEventListener('click', function () {#}
+    {#                        const variable = this.dataset.var;#}
+    {#                        insertAtCursor(messageTextarea, variable);#}
+    {#                    });#}
+    {#                });#}
+    {##}
+    {#                // Function to insert text at the cursor position.#}
+    {#                function insertAtCursor(field, value) {#}
+    {#                    if (field.selectionStart || field.selectionStart === 0) {#}
+    {#                        const startPos = field.selectionStart;#}
+    {#                        const endPos = field.selectionEnd;#}
+    {#                        field.value = field.value.substring(0, startPos) + value + field.value.substring(endPos);#}
+    {#                        field.selectionStart = startPos + value.length;#}
+    {#                        field.selectionEnd = startPos + value.length;#}
+    {#                    } else {#}
+    {#                        field.value += value;#}
+    {#                    }#}
+    {#                    field.focus();#}
+    {#                }#}
+    {##}
+    {#                // Optionally, you can show/hide the available variables section via a button.#}
+    {#                const toggleVarsButton = document.getElementById('toggleVars');#}
+    {#                if (toggleVarsButton) {#}
+    {#                    toggleVarsButton.addEventListener('click', function () {#}
+    {#                        const varsSection = document.getElementById('templateVarsSection');#}
+    {#                        if (varsSection.style.display === 'none' || varsSection.style.display === '') {#}
+    {#                            varsSection.style.display = 'block';#}
+    {#                        } else {#}
+    {#                            varsSection.style.display = 'none';#}
+    {#                        }#}
+    {#                    });#}
+    {#                }#}
+    {#            });#}
+    {#        </script>#}
 
 
 

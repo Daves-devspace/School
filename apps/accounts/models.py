@@ -193,8 +193,8 @@ class FeeRecord(models.Model):
     total_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    previous_term_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # New field for previous term balance
-    previous_term_overpayment = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # New field for previous term overpayment
+    previous_term_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    previous_term_overpayment = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     overpayment = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     due_date = models.DateField(null=True, blank=True)
 
@@ -207,20 +207,27 @@ class FeeRecord(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Override the save method to recalculate total fees, balance, overpayment,
-        and previous term balance/overpayment. This ensures the object is always in a consistent state.
+        Override the save method to ensure previous term balances are carried forward
+        and the total fees, balances, and overpayments are correctly calculated.
         """
-        self.apply_fee_statuses()  # Ensure fee statuses are applied
-        self.previous_term_balance, self.previous_term_overpayment = self.get_previous_term_balance_and_overpayment()  # Fetch previous term balance and overpayment
-        self.total_fee = self.calculate_total_fee()  # Recalculate total fee using the previous term balance/overpayment
-        self.update_balance_and_overpayment()  # Recalculate balance and overpayment
-        super().save(*args, **kwargs)  # Save the object after recalculations
+        self.apply_fee_statuses()
 
+        # Fetch previous term balance and overpayment **before calculating total fees**
+        previous_balance, previous_overpayment = self.get_previous_term_balance_and_overpayment()
+
+        self.previous_term_balance = previous_balance
+        self.previous_term_overpayment = previous_overpayment
+
+        # Recalculate total fee using previous term balance/overpayment
+        self.total_fee = self.calculate_total_fee()
+
+        # Recalculate balance and overpayment
+        self.update_balance_and_overpayment()
+
+        super().save(*args, **kwargs)
 
     def apply_fee_statuses(self):
-        """
-        Ensure optional fees are applied or reset based on their activation statuses.
-        """
+        """ Ensure optional fees are applied or reset based on their activation statuses. """
         if self.transport_active and not self.transport_fee:
             self.transport_fee = self.get_fee_from_structure('transport_fee')
 
@@ -231,9 +238,7 @@ class FeeRecord(models.Model):
             self.remedial_fee = self.get_fee_from_structure('remedial_fee')
 
     def get_fee_from_structure(self, fee_type):
-        """
-        Fetch the fee from the FeeStructure model if available.
-        """
+        """ Fetch the fee from the FeeStructure model if available. """
         try:
             fee_structure = FeeStructure.objects.get(
                 grade=self.student.grade.grade,
@@ -255,11 +260,7 @@ class FeeRecord(models.Model):
         )
 
         # Add previous term balance (if any) and subtract previous term overpayment (if any)
-        total_fee = self.tuition_fee + sum(optional_fees)
-        if self.previous_term_balance > 0:
-            total_fee += self.previous_term_balance  # Add balance from previous term
-        elif self.previous_term_overpayment > 0:
-            total_fee -= self.previous_term_overpayment  # Subtract overpayment from previous term
+        total_fee = self.tuition_fee + sum(optional_fees) + self.previous_term_balance - self.previous_term_overpayment
 
         return total_fee
 
@@ -272,24 +273,20 @@ class FeeRecord(models.Model):
 
     def get_previous_term_balance_and_overpayment(self):
         """
-        Fetch the previous term's balance and overpayment if available, to be used in the total fee calculation.
+        Fetch the previous term's balance and overpayment, ensuring that if no record exists,
+        the values default to 0.0.
         """
         previous_term = self.term.get_previous_term()
         if previous_term:
-            # Fetch the fee record for the previous term
             try:
                 previous_fee_record = FeeRecord.objects.get(student=self.student, term=previous_term)
-                return previous_fee_record.balance, previous_fee_record.overpayment  # Return both balance and overpayment
+                return previous_fee_record.balance, previous_fee_record.overpayment
             except FeeRecord.DoesNotExist:
-                return Decimal("0.0"), Decimal("0.0")  # No balance or overpayment from previous term
-        return Decimal("0.0"), Decimal("0.0")  # No previous term balance/overpayment if no previous term
+                return Decimal("0.0"), Decimal("0.0")
+        return Decimal("0.0"), Decimal("0.0")
 
     def __str__(self):
         return f"FeeRecord for {self.student} (Term: {self.term})"
-
-
-
-
 
 
 class FeeAdjustment(models.Model):

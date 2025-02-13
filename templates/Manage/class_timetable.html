@@ -4,6 +4,34 @@
 {% load static %}
 {% block body %}
 
+    <style>
+        .form-select {
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .card {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            font-size: 18px;
+            padding: 10px 15px;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+
+
     <div class="page-wrapper">
         <div class="content container-fluid">
             <div class="page-header">
@@ -31,78 +59,55 @@
 
                             <!-- Grade Sections Dropdown -->
                             <div class="container mt-4">
-                                <h2 class="mb-4">Class Timetable</h2>
+                                <h2 class="mb-4"><i class="fas fa-calendar-alt"></i> Class Timetable</h2>
 
                                 <!-- Grade Section Selector -->
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <select class="form-select" id="gradeSectionSelect">
-                                            <option value="">Select Grade Section</option>
-                                            {% for grade_section in grade_sections %}
-                                                <option value="{{ grade_section.id }}">{{ grade_section }}</option>
-                                            {% endfor %}
-                                        </select>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="gradeSectionSelect" class="fw-bold"><i
+                                                    class="fas fa-graduation-cap"></i> Select
+                                                Grade Section:</label>
+                                            <select class="form-select" id="gradeSectionSelect">
+                                                <option value="">Choose...</option>
+                                                {% for grade_section in grade_sections %}
+                                                    <option value="{{ grade_section.id }}">{{ grade_section }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
                                     </div>
+                                    <button id="refreshButton" class="btn btn-primary">
+                                        <i class="fas fa-sync-alt"></i> Refresh Timetable
+                                    </button>
                                 </div>
 
                                 <!-- Timetable Display Area -->
                                 <div id="timetableDisplay"></div>
+
+
+                                <!-- Timetable Results Table -->
+                                <div id="timetable-results">
+                                    <div id="timetableDisplay"></div>
+
+                                    <!-- Loading Indicator -->
+                                    <div id="loadingMessage" class="text-center mt-3" style="display: none;">
+                                        <div class="spinner-border text-primary" role="status"></div>
+                                        <p>Loading timetable...</p>
+                                    </div>
+
+                                    <!-- Error Message -->
+                                    <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
+
+                                </div>
+
                             </div>
-
-                            <!-- Timetable Results Table -->
-                            <div id="timetable-results">
-                                <h3 id="sectionTitle">Timetable for Grade 1 North</h3>
-
-                                <!-- Loading Message -->
-                                <div id="loadingMessage" style="display:none;">Loading...</div>
-
-                                <!-- Error Message -->
-                                <div id="errorMessage" style="display:none;"></div>
-
-                                <!-- Timetable Table -->
-                                <table id="timetable" style="display:none;">
-                                    <thead>
-                                    <tr id="time-range-header">
-                                        <th>Time</th>
-                                        <!-- Time range columns will be dynamically populated here -->
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <!-- Days of the week will be rendered here -->
-                                    <tr id="monday">
-                                        <td>Monday</td>
-                                        <!-- Time slot columns will be populated dynamically -->
-                                    </tr>
-                                    <tr id="tuesday">
-                                        <td>Tuesday</td>
-                                        <!-- Time slot columns will be populated dynamically -->
-                                    </tr>
-                                    <tr id="wednesday">
-                                        <td>Wednesday</td>
-                                        <!-- Time slot columns will be populated dynamically -->
-                                    </tr>
-                                    <tr id="thursday">
-                                        <td>Thursday</td>
-                                        <!-- Time slot columns will be populated dynamically -->
-                                    </tr>
-                                    <tr id="friday">
-                                        <td>Friday</td>
-                                        <!-- Time slot columns will be populated dynamically -->
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-
-                            <!-- Error Message -->
-                            <div id="errorMessage" style="display: none; color: red;"></div>
-
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     <script>
         function getCookie(name) {
@@ -122,60 +127,50 @@
 
         function renderTimetable(data) {
             const timetableDisplay = document.getElementById('timetableDisplay');
-            timetableDisplay.innerHTML = '';
+            timetableDisplay.innerHTML = ''; // Clear previous timetable
 
             if (!data.timetable_by_day) {
-                timetableDisplay.innerHTML = '<div class="alert alert-info">No timetable found for this grade section.</div>';
+                timetableDisplay.innerHTML = `
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-circle"></i> No timetable found for this grade section.
+            </div>`;
                 return;
             }
 
-            // Add grade section heading
-            const heading = document.createElement('h3');
-            heading.className = 'mb-3';
-            heading.textContent = data.grade_section_name;
-            timetableDisplay.appendChild(heading);
-
-            // Create timetable cards for each day
             Object.entries(data.timetable_by_day).forEach(([day, timeSlots]) => {
                 const card = document.createElement('div');
-                card.className = 'card mb-4';
+                card.className = 'card shadow-sm mb-4';
 
-                // Card Header with day name
                 const cardHeader = document.createElement('div');
-                cardHeader.className = 'card-header bg-primary text-white';
-                cardHeader.textContent = day;
+                cardHeader.className = 'card-header bg-success text-white fw-bold';
+                cardHeader.innerHTML = `<i class="fas fa-calendar-day"></i> ${day}`;
                 card.appendChild(cardHeader);
 
-                // Card Body with timetable table
                 const cardBody = document.createElement('div');
                 cardBody.className = 'card-body';
 
                 const table = document.createElement('table');
                 table.className = 'table table-bordered table-hover';
 
-                // Table Header
                 const thead = document.createElement('thead');
                 thead.innerHTML = `
-                    <tr class="table-light">
-                        <th>Time</th>
-                        <th>Subject</th>
-                        <th>Teacher</th>
-                        <th>Room</th>
-                    </tr>
-                `;
+            <tr class="table-light">
+                <th><i class="far fa-clock"></i> Time</th>
+                <th><i class="fas fa-book"></i> Subject</th>
+                <th><i class="fas fa-user-tie"></i> Teacher</th>
+                <th><i class="fas fa-door-open"></i> Room</th>
+            </tr>`;
                 table.appendChild(thead);
 
-                // Table Body
                 const tbody = document.createElement('tbody');
                 Object.entries(timeSlots).forEach(([timeRange, entries]) => {
                     entries.forEach(entry => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${timeRange}</td>
-                            <td>${entry.subject}</td>
-                            <td>${entry.teacher}</td>
-                            <td>${entry.room}</td>
-                        `;
+                    <td>${timeRange}</td>
+                    <td>${entry.subject}</td>
+                    <td>${entry.teacher}</td>
+                    <td>${entry.room}</td>`;
                         tbody.appendChild(row);
                     });
                 });
@@ -187,20 +182,23 @@
             });
         }
 
-        // Event listener for grade section selection
-        document.getElementById('gradeSectionSelect').addEventListener('change', function () {
-            const gradeSectionId = this.value;
+        function fetchTimetable() {
+            const gradeSectionId = document.getElementById('gradeSectionSelect').value;
             const timetableDisplay = document.getElementById('timetableDisplay');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const errorMessage = document.getElementById('errorMessage');
 
             if (!gradeSectionId) {
-                timetableDisplay.innerHTML = '';
+                timetableDisplay.innerHTML = ''; // Clear when no selection
                 return;
             }
 
-            // Show loading state
-            timetableDisplay.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>';
+            // Show loading message
+            timetableDisplay.innerHTML = '';
+            loadingMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
 
-            fetch(window.location.href, {
+            fetch(window.location.href + "?t=" + new Date().getTime(), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -213,6 +211,9 @@
                     return response.json();
                 })
                 .then(data => {
+                    loadingMessage.style.display = 'none';
+                    console.log('Fetched Data:', data);
+
                     if (data.status === 'success') {
                         renderTimetable(data);
                     } else {
@@ -220,14 +221,147 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    timetableDisplay.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+                    loadingMessage.style.display = 'none';
+                    errorMessage.style.display = 'block';
+                    errorMessage.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${error.message}`;
                 });
+        }
+
+        // Ensure new data is fetched every time a new grade is selected
+        document.addEventListener("DOMContentLoaded", function () {
+            const gradeSectionSelect = document.getElementById('gradeSectionSelect');
+            gradeSectionSelect.addEventListener('change', function () {
+                fetchTimetable();
+            });
+
+            // Fetch timetable on page load
+            fetchTimetable();
         });
+
     </script>
 
 
-
+    {#    <script>#}
+    {#        function getCookie(name) {#}
+    {#            let cookieValue = null;#}
+    {#            if (document.cookie && document.cookie !== '') {#}
+    {#                const cookies = document.cookie.split(';');#}
+    {#                for (let i = 0; i < cookies.length; i++) {#}
+    {#                    const cookie = cookies[i].trim();#}
+    {#                    if (cookie.startsWith(name + '=')) {#}
+    {#                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));#}
+    {#                        break;#}
+    {#                    }#}
+    {#                }#}
+    {#            }#}
+    {#            return cookieValue;#}
+    {#        }#}
+    {##}
+    {#        function renderTimetable(data) {#}
+    {#            const timetableDisplay = document.getElementById('timetableDisplay');#}
+    {#            timetableDisplay.innerHTML = '';#}
+    {##}
+    {#            if (!data.timetable_by_day) {#}
+    {#                timetableDisplay.innerHTML = '<div class="alert alert-info">No timetable found for this grade section.</div>';#}
+    {#                return;#}
+    {#            }#}
+    {##}
+    {#            // Add grade section heading#}
+    {#            const heading = document.createElement('h3');#}
+    {#            heading.className = 'mb-3';#}
+    {#            heading.textContent = data.grade_section_name;#}
+    {#            timetableDisplay.appendChild(heading);#}
+    {##}
+    {#            // Create timetable cards for each day#}
+    {#            Object.entries(data.timetable_by_day).forEach(([day, timeSlots]) => {#}
+    {#                const card = document.createElement('div');#}
+    {#                card.className = 'card mb-4';#}
+    {##}
+    {#                // Card Header with day name#}
+    {#                const cardHeader = document.createElement('div');#}
+    {#                cardHeader.className = 'card-header bg-primary text-white';#}
+    {#                cardHeader.textContent = day;#}
+    {#                card.appendChild(cardHeader);#}
+    {##}
+    {#                // Card Body with timetable table#}
+    {#                const cardBody = document.createElement('div');#}
+    {#                cardBody.className = 'card-body';#}
+    {##}
+    {#                const table = document.createElement('table');#}
+    {#                table.className = 'table table-bordered table-hover';#}
+    {##}
+    {#                // Table Header#}
+    {#                const thead = document.createElement('thead');#}
+    {#                thead.innerHTML = `#}
+    {#                    <tr class="table-light">#}
+    {#                        <th>Time</th>#}
+    {#                        <th>Subject</th>#}
+    {#                        <th>Teacher</th>#}
+    {#                        <th>Room</th>#}
+    {#                    </tr>#}
+    {#                `;#}
+    {#                table.appendChild(thead);#}
+    {##}
+    {#                // Table Body#}
+    {#                const tbody = document.createElement('tbody');#}
+    {#                Object.entries(timeSlots).forEach(([timeRange, entries]) => {#}
+    {#                    entries.forEach(entry => {#}
+    {#                        const row = document.createElement('tr');#}
+    {#                        row.innerHTML = `#}
+    {#                            <td>${timeRange}</td>#}
+    {#                            <td>${entry.subject}</td>#}
+    {#                            <td>${entry.teacher}</td>#}
+    {#                            <td>${entry.room}</td>#}
+    {#                        `;#}
+    {#                        tbody.appendChild(row);#}
+    {#                    });#}
+    {#                });#}
+    {##}
+    {#                table.appendChild(tbody);#}
+    {#                cardBody.appendChild(table);#}
+    {#                card.appendChild(cardBody);#}
+    {#                timetableDisplay.appendChild(card);#}
+    {#            });#}
+    {#        }#}
+    {##}
+    {#        // Event listener for grade section selection#}
+    {#        document.getElementById('gradeSectionSelect').addEventListener('change', function () {#}
+    {#            const gradeSectionId = this.value;#}
+    {#            const timetableDisplay = document.getElementById('timetableDisplay');#}
+    {##}
+    {#            if (!gradeSectionId) {#}
+    {#                timetableDisplay.innerHTML = '';#}
+    {#                return;#}
+    {#            }#}
+    {##}
+    {#            // Show loading state#}
+    {#            timetableDisplay.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>';#}
+    {##}
+    {#            fetch(window.location.href, {#}
+    {#                method: 'POST',#}
+    {#                headers: {#}
+    {#                    'Content-Type': 'application/json',#}
+    {#                    'X-CSRFToken': getCookie('csrftoken'),#}
+    {#                },#}
+    {#                body: JSON.stringify({grade_section_id: gradeSectionId})#}
+    {#            })#}
+    {#                .then(response => {#}
+    {#                    if (!response.ok) throw new Error('Network response was not ok');#}
+    {#                    return response.json();#}
+    {#                })#}
+    {#                .then(data => {#}
+    {#                    if (data.status === 'success') {#}
+    {#                        renderTimetable(data);#}
+    {#                    } else {#}
+    {#                        throw new Error(data.error || 'Unknown error occurred');#}
+    {#                    }#}
+    {#                })#}
+    {#                .catch(error => {#}
+    {#                    console.error('Error:', error);#}
+    {#                    timetableDisplay.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;#}
+    {#                });#}
+    {#        });#}
+    {#    </script>#}
 
 
     {#    <script>#}

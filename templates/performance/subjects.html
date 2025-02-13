@@ -13,19 +13,31 @@
                             <li class="breadcrumb-item active">Subjects</li>
                         </ul>
                     </div>
-                  
+
                 </div>
             </div>
+            <div class="container-fluid">
+                {% for message in messages %}
+
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p>{{ message }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card card-table">
                         <div class="card-body">
-                          <div class="col-auto text-right float-right ml-auto">
-                        <a href="#" class="btn btn-success mr-2"><i class="fas fa-download"></i>
-                            Download</a>
-                        <a href="{% url 'add_subject' %}" class="btn btn-success text-white"><i
-                                class="fas fa-plus"></i></a>
-                    </div>
+                            <div class="col-auto text-right float-right ml-auto">
+                                <a href="#" class="btn btn-success mr-2"><i class="fas fa-download"></i>
+                                    Download</a>
+                                <a href="{% url 'add_subject' %}" class="btn btn-success text-white"><i
+                                        class="fas fa-plus"></i></a>
+                            </div>
                             <div class="table-responsive">
                                 <table class="table table-hover table-center mb-0 datatable">
                                     <thead>
@@ -40,7 +52,7 @@
                                     <tbody>
                                     {% for subject in subjects %}
                                         <tr>
-                                        <td>{{ forloop.counter }}</td>
+                                            <td>{{ forloop.counter }}</td>
                                             <td>{{ subject.name }}</td>
                                             <td>
                                                 {% if subject.single_grade %}
@@ -54,7 +66,8 @@
                                                     No grades assigned
                                                 {% endif %}
                                             </td>
-                                        <td><a href="{% url 'edit_subject' subject.id %}" class="btn btn-success"> <i class="fas fa-edit"></i> </a></td>
+                                            <td><a href="{% url 'edit_subject' subject.id %}" class="btn btn-success">
+                                                <i class="fas fa-edit"></i> </a></td>
                                         </tr>
                                     {% endfor %}
 

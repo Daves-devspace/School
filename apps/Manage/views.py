@@ -175,7 +175,7 @@ def director_dashboard(request):
     try:
         current_year = date.today().year
         current_term = get_current_term()
-        term_year = current_term.start_date.year if current_term else current_year
+        term_year = current_year if not current_term else (current_term.start_date.year if current_term.start_date else current_year)
 
         # Aggregate data
         total_revenue = FeePayment.objects.filter(date__year=current_year).aggregate(

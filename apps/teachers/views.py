@@ -63,9 +63,12 @@ def add_teacher(request):
         else:
             messages.error(request, "Form validation failed. Please correct the errors below.")
     else:
-        form = TeacherForm()
+        # Generate a staff number before rendering the form
+        initial_staff_number = Teacher.generate_staff_number()
+        form = TeacherForm(initial={'staff_number': initial_staff_number})
 
     return render(request, 'teachers/add-teacher.html', {'form': form})
+
 
 
 @login_required

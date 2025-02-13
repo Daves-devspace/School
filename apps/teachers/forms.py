@@ -84,11 +84,15 @@ class TeacherForm(forms.ModelForm):
 
         return phone
 
+    def clean_staff_number(self):
+        return self.initial.get('staff_number', self.cleaned_data.get('staff_number'))
+
     def save(self, commit=True):
         teacher = super().save(commit=False)
         email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')
 
+        # Ensure staff_number is set before saving
         if not teacher.staff_number:
             teacher.staff_number = Teacher.generate_staff_number()
 
@@ -108,6 +112,7 @@ class TeacherForm(forms.ModelForm):
             self.save_m2m()
 
         return teacher
+
 
 class TeacherAssignmentForm(forms.ModelForm):
     class Meta:

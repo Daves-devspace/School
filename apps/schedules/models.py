@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -75,28 +76,40 @@ class Room(models.Model):
 class TimeSlot(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
-    time_range = models.CharField(max_length=20)
+    time_range = models.CharField(max_length=20, editable=False)  # Prevent manual entry
+    is_break = models.BooleanField(default=False)  # Optional: Mark breaks
 
     class Meta:
-        ordering = ['start_time']  # Critical for time-based operations
+        ordering = ['start_time', 'end_time']  # Ensure proper slot ordering
 
     @property
     def is_morning(self):
-        """Determine if slot is in the morning (before 12:00)"""
+        """Determine if slot is in the morning (before 12:00 PM)"""
         return self.start_time.hour < 12
 
     @property
     def is_afternoon(self):
-        """Determine if slot is in the afternoon (12:00 or later)"""
+        """Determine if slot is in the afternoon (12:00 PM or later)"""
         return self.start_time.hour >= 12
 
+    def clean(self):
+        """Validate time slot before saving."""
+        if self.end_time <= self.start_time:
+            raise ValidationError("End time must be after start time.")
+
     def save(self, *args, **kwargs):
+        """Auto-generate time_range before saving."""
+        self.full_clean()  # Ensures clean() is called before saving
+
+        # Format as 24-hour format (e.g., 10:30-11:30)
         self.time_range = f"{self.start_time.strftime('%H:%M')}-{self.end_time.strftime('%H:%M')}"
+
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.time_range
-
+        """Return formatted time slot string."""
+        break_label = " (Break)" if self.is_break else ""
+        return f"{self.time_range}{break_label}"
 
 
 

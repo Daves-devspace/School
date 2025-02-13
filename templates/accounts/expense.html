@@ -124,7 +124,7 @@
 
         // Fetch the chart data
         $.ajax({
-            url: "{% url 'revenue_line_chart' %}", // URL to fetch data
+            url: "/management/revenue-trend/", // URL to fetch data
             type: "GET",
             dataType: "json",
             success: function (response) {
@@ -135,8 +135,93 @@
             }
         });
     </script>
+    <script>
 
+        if ($('#revenue_chart').length > 0) {
+            $.ajax({
+                url: "/management/revenue-trend/", // Django view URL for chart data
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    // Chart options and configuration
+                    var options = {
+                        chart: {
+                            height: 350,
+                            type: 'line', // Chart type
+                            toolbar: {
+                                show: false // Hide the toolbar
+                            },
+                        },
+                        dataLabels: {
+                            enabled: false // Disable data labels on points
+                        },
+                        stroke: {
+                            curve: 'smooth' // Smooth curve for lines
+                        },
+                        title: {
+                            text: response.title, // Dynamic chart title from the response
+                            align: 'left', // Align title to the left
+                            style: {
+                                fontSize: '16px',
+                                fontWeight: 'bold',
+                            }
+                        },
+                        series: [
+                            {
+                                name: 'Revenue', // Revenue dataset
+                                data: response.data.datasets[0].data
+                            },
+                            {
+                                name: 'Expenses', // Expenses dataset
+                                data: response.data.datasets[1].data
+                            }
+                        ],
+                        xaxis: {
+                            categories: response.data.labels, // Dynamic x-axis labels
+                            title: {
+                                text: 'Months' // Label for x-axis
+                            }
+                        },
+                        yaxis: {
+                            title: {
+                                text: 'Amount (in Ksh)' // Y-axis label
+                            }
+                        },
+                        colors: ['#4e73df', '#ff6384'], // Colors for each dataset
+                        tooltip: {
+                            shared: true, // Shared tooltip for better clarity
+                            intersect: false // Avoid overlapping tooltips
+                        },
+                        fill: {
+                            type: 'gradient',
+                            gradient: {
+                                shadeIntensity: 1,
+                                opacityFrom: 0.5,
+                                opacityTo: 0,
+                                stops: [0, 90, 100]
+                            }
+                        }
+                    };
+
+                    // Render the chart in the specified element
+                    var chart = new ApexCharts(document.querySelector("#revenue_chart"), options);
+                    chart.render();
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching chart data:', error); // Log errors
+                }
+            });
+        }
+
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+
 
 
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>

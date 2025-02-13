@@ -460,7 +460,7 @@ def unified_sms_view(request):
         .order_by('grade__level', 'section__name'),
         'template_keys': {
             'results': {'parent_name', 'student_name', 'student_class',
-                        'total_marks', 'rank', 'subject_results', 'term', 'exam_type'},
+                       'average_marks','overall_grade', 'rank', 'subject_results', 'term', 'exam_type'},
             'class': {'class_name', 'teacher_name', 'student_name'},
             'bulk': set()
         }

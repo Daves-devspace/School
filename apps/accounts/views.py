@@ -8,7 +8,7 @@ from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction, IntegrityError
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Max, OuterRef, Subquery
 from django.db.models.expressions import result
 from django.db.models.functions.datetime import TruncMonth
 from django.http import JsonResponse, HttpResponse
@@ -33,6 +33,7 @@ import json
 from django.shortcuts import render
 #
 from apps.students.views import get_current_term
+logger = logging.getLogger(__name__)
 
 
 # from apps.students.views import active_students
@@ -400,8 +401,10 @@ def update_student_fee(request, student_id):
         fee_record.save()
 
         # Debugging: Log the updated fee record after saving
-        print(f"Updated FeeRecord: Transport: {fee_record.transport_fee}, Lunch: {fee_record.lunch_fee}, Remedial: {fee_record.remedial_fee}")
-        print(f"Total Fee: {fee_record.total_fee}, Balance: {fee_record.balance}, Overpayment: {fee_record.overpayment}")
+        print(
+            f"Updated FeeRecord: Transport: {fee_record.transport_fee}, Lunch: {fee_record.lunch_fee}, Remedial: {fee_record.remedial_fee}")
+        print(
+            f"Total Fee: {fee_record.total_fee}, Balance: {fee_record.balance}, Overpayment: {fee_record.overpayment}")
 
         # Provide a success message
         if action == "deactivate":
@@ -415,9 +418,6 @@ def update_student_fee(request, student_id):
     return redirect('students_with_balances')
 
 
-
-
-
 def roll_over_fees_for_new_term(new_term):
     """
     Updates or rolls over the fees for all active students when opening a new term.
@@ -427,45 +427,49 @@ def roll_over_fees_for_new_term(new_term):
     updated_students = 0
 
     for student in active_students:
-        # Check if a FeeRecord already exists for the new term, if so, skip this student
+        # Skip students who already have a FeeRecord for the new term
         if FeeRecord.objects.filter(student=student, term=new_term).exists():
             continue
 
         # Retrieve the previous term
         previous_term = new_term.get_previous_term()
         if not previous_term:
-            continue  # Skip if there's no previous term
+            continue
 
         # Fetch the previous term's fee record
         previous_fee_record = None
+        previous_term_balance = Decimal("0.0")
+        previous_term_overpayment = Decimal("0.0")
+
         try:
             previous_fee_record = FeeRecord.objects.get(student=student, term=previous_term)
             previous_term_balance = previous_fee_record.balance
             previous_term_overpayment = previous_fee_record.overpayment
         except FeeRecord.DoesNotExist:
-            previous_term_balance = Decimal("0.0")
-            previous_term_overpayment = Decimal("0.0")
+            pass  # previous_term_balance and previous_term_overpayment remain 0.0
 
-        # Fetch tuition fee from the FeeStructure model linked to the student's grade
-        tuition_fee = FeeStructure.objects.filter(grade=student.grade.grade, term=new_term).values_list("tuition_fee", flat=True).first() or Decimal("0.0")
-        print(f"Tuition Fee for Term {new_term.name}: {tuition_fee}")
+        # Fetch tuition fee from FeeStructure
+        tuition_fee = FeeStructure.objects.filter(grade=student.grade.grade, term=new_term).values_list("tuition_fee",
+                                                                                                        flat=True).first() or Decimal(
+            "0.0")
 
         # Initialize optional fees
         transport_fee = Decimal("0.0")
         lunch_fee = Decimal("0.0")
         remedial_fee = Decimal("0.0")
 
-        # Only include active optional fees in the total
+        # Include only active optional fees
         if previous_fee_record:
-            if previous_fee_record.transport_active:
-                transport_fee = previous_fee_record.transport_fee  # Use previous term's transport fee
-            if previous_fee_record.lunch_active:
-                lunch_fee = previous_fee_record.lunch_fee  # Use previous term's lunch fee
-            if previous_fee_record.remedial_active:
-                remedial_fee = previous_fee_record.remedial_fee  # Use previous term's remedial fee
+            transport_fee = previous_fee_record.transport_fee if previous_fee_record.transport_active else Decimal(
+                "0.0")
+            lunch_fee = previous_fee_record.lunch_fee if previous_fee_record.lunch_active else Decimal("0.0")
+            remedial_fee = previous_fee_record.remedial_fee if previous_fee_record.remedial_active else Decimal("0.0")
 
-        # Create or update the FeeRecord for the current term
-        # Create or update the FeeRecord for the current term
+        # Ensure previous balances are correctly applied
+        previous_term_balance = max(previous_term_balance, Decimal("0.0"))
+        previous_term_overpayment = max(previous_term_overpayment, Decimal("0.0"))
+
+        # Create or update the FeeRecord for the new term
         fee_record, created = FeeRecord.objects.update_or_create(
             student=student,
             term=new_term,
@@ -482,113 +486,38 @@ def roll_over_fees_for_new_term(new_term):
             }
         )
 
-        # Calculate the new total fee (including only active optional fees)
-        fee_record.total_fee = tuition_fee + transport_fee + lunch_fee + remedial_fee
-        print(f"Total Fee after Adding Active Optional Fees: {fee_record.total_fee}")
-
-        # Add previous term balance or subtract overpayment
-        if previous_term_balance > 0:
-            fee_record.total_fee += previous_term_balance
-        elif previous_term_overpayment > 0:
+        # Apply previous term balance or overpayment to total fee
+        fee_record.total_fee = tuition_fee + transport_fee + lunch_fee + remedial_fee + previous_term_balance
+        if previous_term_overpayment > 0:
             fee_record.total_fee -= previous_term_overpayment
 
-        print(f"Total Fee after Previous Term Adjustments: {fee_record.total_fee}")
+        # Recalculate balance and overpayment
+        fee_record.balance = max(fee_record.total_fee - (fee_record.paid_amount or Decimal("0.0")), Decimal("0.0"))
+        fee_record.overpayment = max((fee_record.paid_amount or Decimal("0.0")) - fee_record.total_fee, Decimal("0.0"))
 
-        # Recalculate the balance and overpayment based on the new total fee
-        fee_record.balance = max(fee_record.total_fee - fee_record.paid_amount, Decimal("0.0"))
-        fee_record.overpayment = max(fee_record.paid_amount - fee_record.total_fee, Decimal("0.0"))
-
-        fee_record.save()
+        # Save final calculations
+        fee_record.save(update_fields=[
+            "total_fee", "balance", "overpayment",
+            "previous_term_balance", "previous_term_overpayment"
+        ])
         updated_students += 1
 
+        # Debugging logs
+        # logger.info(f"Processed {student.first_name} for {new_term.name}")
+        # logger.debug(
+        #     f"{student.first_name} - Prev Balance: {previous_term_balance}, Overpayment: {previous_term_overpayment}")
+        # logger.debug(
+        #     f"{student.first_name} - New Term Fee: {tuition_fee}, Total Fee After Rollover: {fee_record.total_fee}")
+        # logger.debug(
+        #     f"{student.first_name} - Final Balance: {fee_record.balance}, Overpayment: {fee_record.overpayment}")
+
+        # Debugging logs
+        if created:
+            print(f"Created new FeeRecord for {student.first_name} - {new_term.name}")
+        else:
+            print(f"Updated existing FeeRecord for {student.first_name} - {new_term.name}")
+
     return {"updated_students": updated_students, "term_name": new_term.name}
-
-
-
-
-
-
-# def roll_over_fees_for_new_term(new_term):
-#     """
-#     Updates or rolls over the fees for all active students when opening a new term.
-#     Fetches tuition fees from the FeeStructure associated with the student's grade.
-#     Ensures that students who already have a fee record for the new term are not duplicated.
-#     """
-#
-#     # Fetch all active students
-#     active_students = Student.objects.filter(status="Active")
-#
-#     updated_students = 0
-#
-#     for student in active_students:
-#         # Skip students who already have a fee record for the new term
-#         if FeeRecord.objects.filter(student=student, term=new_term).exists():
-#             continue
-#
-#         # Retrieve the previous term
-#         previous_term = new_term.get_previous_term()
-#         if not previous_term:
-#             continue  # Skip if there's no previous term
-#
-#         # Fetch the previous term's fee record
-#         previous_fee_record = FeeRecord.objects.filter(student=student, term=previous_term).first()
-#
-#         if previous_fee_record:
-#             previous_term_balance = max(previous_fee_record.balance, Decimal("0.0"))
-#             previous_term_overpayment = max(previous_fee_record.overpayment, Decimal("0.0"))
-#         else:
-#             previous_term_balance = Decimal("0.0")
-#             previous_term_overpayment = Decimal("0.0")
-#
-#         # Fetch tuition fee from the FeeStructure model based on the student's grade
-#         #tuition_fee = FeeStructure.objects.filter(grade=student.grade.grade).values_list("tuition_fee", flat=True).first() or Decimal("0.0")
-#         tuition_fee = (
-#                           FeeStructure.objects.filter(grade=student.grade.grade, term=new_term)
-#                           .values_list("tuition_fee", flat=True)
-#                           .first()
-#                       ) or Decimal("0.0")
-#
-#         # Fetch transport, lunch, and remedial fees from the previous term, or default to 0
-#         transport_fee = FeeRecord.objects.filter(student=student, term=previous_term).values_list("transport_fee", flat=True).first() or Decimal("0.0")
-#         lunch_fee = FeeRecord.objects.filter(student=student, term=previous_term).values_list("lunch_fee", flat=True).first() or Decimal("0.0")
-#         remedial_fee = FeeRecord.objects.filter(student=student, term=previous_term).values_list("remedial_fee", flat=True).first() or Decimal("0.0")
-#
-#         # Calculate the total fee for the new term
-#         total_fee = tuition_fee + transport_fee + lunch_fee + remedial_fee
-#
-#         # Adjust total fee based on previous term balance/overpayment
-#         total_fee += previous_term_balance  # Carry forward previous balance
-#         total_fee -= previous_term_overpayment  # Deduct any overpayment
-#
-#         # Ensure total fee doesn't become negative
-#         total_fee = max(total_fee, Decimal("0.0"))
-#
-#         # Create or update the FeeRecord for the new term
-#         fee_record, created = FeeRecord.objects.update_or_create(
-#             student=student,
-#             term=new_term,
-#             defaults={
-#                 "tuition_fee": tuition_fee,
-#                 "transport_fee": transport_fee,
-#                 "lunch_fee": lunch_fee,
-#                 "remedial_fee": remedial_fee,
-#                 "total_fee": total_fee,
-#                 "previous_term_balance": previous_term_balance,
-#                 "previous_term_overpayment": previous_term_overpayment,
-#             }
-#         )
-#
-#         # Recalculate the balance and overpayment based on the new total fee
-#         fee_record.balance = max(total_fee - fee_record.paid_amount, Decimal("0.0"))
-#         fee_record.overpayment = max(fee_record.paid_amount - total_fee, Decimal("0.0"))
-#         print(
-#             f"Student: {student.admission_number} | Previous Balance: {previous_term_balance} | Overpayment: {previous_term_overpayment} | New Term Fee: {tuition_fee} | Expected Total Fee: {total_fee}")
-#
-#         fee_record.save()
-#         updated_students += 1
-#
-#     return {"updated_students": updated_students, "term_name": new_term.name}
-
 
 
 
@@ -623,7 +552,6 @@ def start_new_term_with_rollover_view(request):
     else:
         terms = Term.objects.all()
         return render(request, "accounts/start_term_fees.html", {"terms": terms})
-
 
 
 @csrf_exempt
@@ -682,9 +610,6 @@ def edit_fee_structure(request, pk):
     else:
         form = FeeStructureForm(instance=fee_structure)
     return render(request, 'accounts/update_fee_structure.html', {'form': form, 'fee_structure': fee_structure})
-
-
-
 
 
 # def student_fee_statement(request,id):
@@ -819,58 +744,57 @@ def edit_fee_structure(request, pk):
 #     return render(request, "accounts/fee_statement.html", {"statement_data": statement_data})
 
 
-
 def student_fee_statement(request, id):
     student = get_object_or_404(Student, pk=id)
 
-    # Fetch fee records for the student, ordered by term start date
-    fee_records = FeeRecord.objects.filter(student=student).order_by("term__start_date")
+    # Optimize query to fetch terms and payments in one go
+    fee_records = FeeRecord.objects.filter(student=student).select_related("term").prefetch_related(
+        "payments").order_by("term__start_date")
 
-    statement_data = []  # List to store grouped data with term name and transactions
+    statement_data = []  # Holds grouped fee records
 
-    # Prepare the terms list with term name and term_id
-    terms = Term.objects.all()
+    if not fee_records.exists():
+        return render(request, "accounts/fee_statement.html",
+                      {"student": student, "statement_data": [], "terms": Term.objects.all()})
 
     for fee_record in fee_records:
         term = fee_record.term
-        term_name = term.name  # Get the term name
-        term_id = term.id  # Get the term id
+        term_name = term.name
+        term_id = term.id
 
-        # Get the opening balance (this should match the total fee at the start of the term)
-        opening_balance = fee_record.total_fee  # Set opening balance to the term's fee (e.g., 9000.00)
-
-        # Initially set running_balance to the opening_balance
+        # Default opening balance
+        opening_balance = fee_record.total_fee if fee_record.total_fee else Decimal("0.0")
         running_balance = opening_balance
 
-        # Group opening balance under the term name
+        # Opening Balance Entry
         statement_data.append({
             "term_id": term_id,
             "term_name": term_name,
             "date": term.start_date,
             "ref": "Opening Balance",
-            "description": f"Balance from {term_name}",
-            "debit": fee_record.total_fee,
+            "description": f"Opening Balance (Arrears + {term_name} Fees)",
+            "debit": opening_balance,
             "credit": Decimal("0.0"),
-            "balance": running_balance,  # Opening balance as the term's total fee
+            "balance": running_balance,
         })
 
-        # Fetch payments related to the fee record for this term
+        # Fetch payments and ensure they exist
         payments = fee_record.payments.all()
+        if payments.exists():
+            for payment in payments:
+                running_balance -= payment.amount
+                statement_data.append({
+                    "term_id": term_id,
+                    "term_name": term_name,
+                    "date": payment.date,
+                    "ref": payment.id,
+                    "description": f"Payment ({payment.payment_method})",
+                    "debit": Decimal("0.0"),
+                    "credit": payment.amount,
+                    "balance": running_balance,
+                })
 
-        for payment in payments:
-            running_balance -= payment.amount  # Subtract payment from running balance
-            statement_data.append({
-                "term_id": term_id,
-                "term_name": term_name,
-                "date": payment.date,
-                "ref": payment.id,
-                "description": f"Payment ({payment.payment_method})",
-                "debit": Decimal("0.0"),
-                "credit": payment.amount,
-                "balance": running_balance,  # Updated running balance after payment
-            })
-
-        # Closing balance entry for this term
+        # Closing Balance Entry
         statement_data.append({
             "term_id": term_id,
             "term_name": term_name,
@@ -879,18 +803,16 @@ def student_fee_statement(request, id):
             "description": f"End of {term_name}",
             "debit": Decimal("0.0"),
             "credit": Decimal("0.0"),
-            "balance": running_balance,  # Use updated balance here after payments
+            "balance": running_balance,
         })
 
     context = {
         "student": student,
         "statement_data": statement_data,
-        "terms": terms,
+        "terms": Term.objects.all(),
     }
 
     return render(request, "accounts/fee_statement.html", context)
-
-
 
 
 @login_required
@@ -917,7 +839,7 @@ def student_payments(request, id):
 
         for payment in related_payments:
             paid_so_far += payment.amount  # Increment cumulative payments
-            fee_balance = total_fee - paid_so_far   # Calculate the remaining balance
+            fee_balance = total_fee - paid_so_far  # Calculate the remaining balance
 
             payment_details.append({
                 'fee_record': fee_record,
@@ -986,7 +908,7 @@ def students_fee_records(request):
 def collect_fees(request, fee_record_id):
     fee_record = get_object_or_404(FeeRecord, id=fee_record_id)
     # previous_record = fee_record.
-    #previous_term = previous_record.term.name if previous_record else "No previous Term Fee",
+    # previous_term = previous_record.term.name if previous_record else "No previous Term Fee",
 
     if request.method == 'POST':
         amount = Decimal(request.POST.get('amount'))
@@ -1021,7 +943,6 @@ def generate_receipt(request, fee_record_id):
     institution = Institution.objects.last()
 
     # Fetch the previous term's record
-
 
     # Calculate balances
     previous_balance = fee_record.previous_term_balance if fee_record else 0.0
@@ -1133,45 +1054,6 @@ def generate_receipt(request, fee_record_id):
 
 
 
-@login_required
-def assign_fees_to_grade(request, grade_id):
-    # Fetch the grade
-    grade = get_object_or_404(Class, id=grade_id)
-
-    # Fetch the current term
-    current_term = Term.objects.filter(start_date__lte=request.today, end_date__gte=request.today).first()
-    if not current_term:
-        return redirect("term_list")  # Redirect if no active term
-
-    # Fetch the fee structure for the grade and term
-    try:
-        fee_structure = FeeStructure.objects.get(grade=grade, term=current_term)
-        term_fee = fee_structure.tuition_fee
-    except FeeStructure.DoesNotExist:
-        return redirect("fee_structure_list")  # Redirect if fee structure not set
-
-    # Get all students in the grade
-    students = Student.objects.filter(grade=grade)
-
-    for student in students:
-        # Check if FeeRecord already exists for the current term and student
-        fee_record, created = FeeRecord.objects.get_or_create(
-            student=student,
-            term=current_term,
-            defaults={
-                "total_fee": term_fee,
-                "paid_amount": Decimal("0.00"),
-                "balance": term_fee
-            }
-        )
-
-        if not created:
-            # Update existing record if necessary
-            fee_record.total_fee = term_fee
-            fee_record.balance = term_fee - fee_record.paid_amount
-            fee_record.save()
-
-    return redirect("success_page")  # Redirect to confirmation page
 
 
 # handling fees paid through mpesa
@@ -1209,9 +1091,14 @@ def mpesa_payment_callback(request):
 
 @login_required
 def students_with_balances(request):
-    # Query fee records with outstanding balances for active students
+    # Get the most recent term
+    latest_term = Term.objects.latest("start_date")  # Adjust based on your model
+
+    # Query only fee records for the latest term with outstanding balances
     fee_records = FeeRecord.objects.select_related('student').filter(
-        student__status="Active", balance__gt=0
+        student__status="Active",
+        term=latest_term,  # Only fetch records for the latest term
+        balance__gt=0
     )
 
     return render(request, 'accounts/students_with_balances.html', {
@@ -1220,74 +1107,49 @@ def students_with_balances(request):
 
 
 
-def fee_record_view(request, fee_record_id):
-    fee_record = get_object_or_404(FeeRecord, id=fee_record_id)
-    return render(request, 'accounts/additional_fee.html', {'fee_record': fee_record})
-
-
-def update_student_fee_structure(request, student_id):
-    student = get_object_or_404(Student, id=student_id)
-    term_id = request.POST.get("term_id")
-    if request.method == "POST":
-        student_id = student
-        transport_fee = float(request.POST.get("transport_fee", 0))
-        lunch_fee = float(request.POST.get("lunch_fee", 0))
-        remedial_fee = float(request.POST.get("remedial_fee", 0))
-        withdraw_transport = request.POST.get("withdraw_transport", False)
-        withdraw_remedial = request.POST.get("withdraw_remedial", False)
-
-        try:
-            # Get the current term
-            current_term = get_current_term()
-        except Exception as e:
-            return HttpResponse(f"Error: {e}")  # Handle no active term scenario gracefully
-
-        # Fetch the student's fee record for the current term
-        fee_record = get_object_or_404(FeeRecord, student_id=student_id, term=current_term)
-
-        # Update the fees
-        fee_record.transport_fee = 0 if withdraw_transport else transport_fee
-        fee_record.remedial_fee = 0 if withdraw_remedial else remedial_fee
-        fee_record.lunch_fee = lunch_fee
-        fee_record.balance = fee_record.calculate_balance()
-        fee_record.overpayment = fee_record.calculate_overpayment()
-        fee_record.save()
-        messages.success(request, f"Fee record updated successfully!")
-
-        return redirect("students_with_balances")
-    return render(request, "accounts/additional_fee.html")
-
-
 
 
 def all_students_fee_records(request):
-    # Get all fee records
-    fee_records = FeeRecord.objects.all()
+    from django.db.models import Subquery, OuterRef
+    from decimal import Decimal
 
-    # Prepare statuses
+    # Get the latest term per student (handling students who rolled over)
+    latest_term_per_student = (
+        FeeRecord.objects.filter(student=OuterRef("student"))
+        .order_by("-term__start_date")
+        .values("term_id")[:1]
+    )
+
+    # Get the latest fee record per student
+    fee_records = FeeRecord.objects.filter(
+        term__id=Subquery(latest_term_per_student)
+    ).select_related("student", "term")
+
     all_students_fee_records = []
     for record in fee_records:
-        # Assuming the update_balance_and_overpayment method returns the balance due
-        balance_due = record.update_balance_and_overpayment()
+        record.update_balance_and_overpayment()  # Ensure correct balance update
 
-        # Ensure balance_due is a valid number (fallback to 0 if None)
-        if balance_due is None:
-            balance_due = 0
+        # Fetch updated balance
+        balance_due = record.balance or Decimal("0.0")
+        paid_amount = record.paid_amount or Decimal("0.0")
 
-        # Determine status based on balance
-        if balance_due == 0:
-            status = "Cleared"
-        elif balance_due > 0:
+        # Assign fee status properly
+        if balance_due > 0 and paid_amount == 0:
             status = "Unpaid"
+        elif balance_due > 0 and paid_amount > 0:
+            status = "Partially Paid"
+        elif balance_due == 0 and record.overpayment > 0:
+            status = "Overpaid"
+        elif balance_due == 0 and paid_amount >= record.total_fee:
+            status = "Cleared"
         else:
-            status = "Overpayment"
+            status = "Unknown"  # This should never happen if the logic is correct
 
         all_students_fee_records.append({
             "record": record,
             "status": status,
         })
 
-    # Pass data to the template
     return render(request, 'accounts/all_fee_records.html', {
         "fee_records": all_students_fee_records
     })
@@ -1295,68 +1157,24 @@ def all_students_fee_records(request):
 
 
 
-# def update_transport_lunch(request):
-#     # check if it's a POST request to update the students
-#     if request.method == "POST":
-#         # Get the list of selected students IDS
-#         selected_students_ids = request.POST.getlist('selected_students')
-#
-#         # Get transport and lunch fees from the form
-#         transport_fee = float(request.POST.get("transport_fee", 0))
-#         lunch_fee = float(request.POST.get("lunch_fee", 0))
-#
-#         # Get checkbox values for transport and lunch
-#         is_transport_selected = request.POST.get("is_transport_selected", False) == 'on'
-#         is_lunch_selected = request.POST.get("is_lunch_selected", False) == 'on'
-#
-#         # Update the selected student's fee records
-#         for student_id in selected_students_ids:
-#             student = get_object_or_404(Student, id=student_id)
-#             if student.status == "Active" and not student.sponsored:
-#                 fee_record = FeeRecord.objects.filter(
-#                     student=student).last()  # Assuming one fee record per student per term
-#
-#                 if fee_record:
-#                     # update transport and lunch fees based on selected checkboxes
-#                     if is_transport_selected:
-#                         fee_record.transport_fee = transport_fee
-#                     else:
-#                         fee_record.transport_fee = 0
-#                     if is_lunch_selected:
-#                         fee_record.lunch_fee = lunch_fee
-#                     else:
-#                         fee_record.lunch_fee = 0
-#
-#                     # save the updated FeeRecord
-#                     fee_record.save()
-#         # redirect to a success page back o the student list
-#         return redirect('students_with_balances')
-#     # if the request method is Get ,retrieve all students to display in the form
-#     # students = Student.objects.all
-#     return render(request, 'accounts/students_with_balances.html', {'students': students})
-
 
 # handle overpayments and credit them to next term
 def get_students_with_overpayments():
-    students_with_balances = FeeRecord.objects.select_related('student')
+    """
+    Fetch students who have made overpayments, including their term and balance details.
+    """
+    students_with_overpayments = FeeRecord.objects.filter(overpayment__gt=Decimal("0.0")).select_related("student",
+                                                                                                         "term")
 
-    students_with_overpayments = []
-
-    for fee_record in students_with_balances:
-        # check overpayments
-        balance_due = fee_record.calculate_balance()
-
-        # add to overpayment lists
-        if fee_record.paid_amount > fee_record.calculate_total_fee():
-            overpayment = fee_record.paid_amount - fee_record.total_fee
-            students_with_overpayments.append({
-                'student': fee_record.student,
-                'overpayment': overpayment,
-                'term': fee_record.term,
-                'balance_due': balance_due
-            })
-
-    return students_with_overpayments
+    return [
+        {
+            "student": fee_record.student,
+            "overpayment": fee_record.overpayment,
+            "term": fee_record.term,
+            "balance_due": fee_record.balance,
+        }
+        for fee_record in students_with_overpayments
+    ]
 
 
 def students_with_overpayments_view(request):
