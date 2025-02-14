@@ -11,6 +11,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Prefetch
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -26,6 +27,8 @@ import logging
 from .serializers import TeacherAssignmentSerializer
 from .utils import generate_room_name_from_grade_section
 from ..students.models import GradeSection
+from ..website.models import Appointment
+from .models import Notification
 
 logger = logging.getLogger(__name__)
 
@@ -822,20 +825,62 @@ class NotificationListView(LoginRequiredMixin, ListView):
             return self.request.user.notifications.all()
         return Notification.objects.none()  # Return an empty queryset for anonymous users
 
-
-class MarkAsReadView(LoginRequiredMixin, ListView):
+@method_decorator(csrf_exempt, name='dispatch')
+class MarkAsReadView(LoginRequiredMixin, View):
     def post(self, request, pk):
-        notification = get_object_or_404(Notification, id=pk, user=request.user)
-        if not notification.read:
-            notification.read = True
-            notification.save()
-        return JsonResponse({'status': 'success'})
+        print(f"User: {request.user}, PK: {pk}")  # Debugging
+        notification = Notification.objects.filter(id=pk, user=request.user).first()
 
-class MarkAllReadView(LoginRequiredMixin, ListView):
+        if notification:
+            print(f"Notification Found: {notification}")
+            if not notification.read:
+                notification.read = True
+                notification.save()
+                return JsonResponse({'status': 'success', 'type': 'notification'})
+
+        appointment = Appointment.objects.filter(id=pk, user=request.user).first()
+        if appointment:
+            print(f"Appointment Found: {appointment}")
+            if appointment.reply_status == 'pending':
+                appointment.reply_status = 'acknowledged'
+                appointment.save()
+                return JsonResponse({'status': 'success', 'type': 'appointment'})
+
+        print("Invalid ID or No Matching Record Found")
+        return JsonResponse({'status': 'error', 'message': 'Invalid ID'})
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MarkAllReadView(LoginRequiredMixin, View):
     def post(self, request):
-        request.user.notifications.filter(read=False).update(read=True)
-        return JsonResponse({'status': 'success'})
+        try:
+            print(f"User: {request.user}")
 
+            # Mark all notifications as read
+            updated_notifications = Notification.objects.filter(user=request.user, read=False).update(read=True)
+
+            # Mark all appointments as acknowledged
+            updated_appointments = Appointment.objects.filter(reply_status='pending').update(reply_status='sent')
+
+            print(f"Updated Notifications: {updated_notifications}, Updated Appointments: {updated_appointments}")
+
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            print(f"Error in MarkAllReadView: {e}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@login_required
+def notification_count(request):
+    unread_notifications = request.user.notifications.filter(read=False).count()
+    unread_appointments = Appointment.objects.filter(reply_status='failed').count()  # Assuming unread appointments are those without replies
+
+    total_unread = unread_notifications + unread_appointments
+
+    return JsonResponse({
+        'unread_notifications': unread_notifications,
+        'unread_appointments': unread_appointments,
+        'total_unread': total_unread
+    })
 
 # def generate_timetable_for_all(request):
 #     if request.method == "GET":

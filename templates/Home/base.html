@@ -83,19 +83,28 @@
                     </div>
                 </div>
             </li>
-
+            <!-- Bell Icon with Modal Trigger -->
+            <!-- Bell Icon with Dropdown -->
             <li class="nav-item dropdown noti-dropdown me-2">
-                <a href="#" class="dropdown-toggle nav-link header-nav-list" data-bs-toggle="dropdown">
-                    <img src="{% static 'assets/img/icons/header-icon-05.svg' %}" alt="">
+                <a href="#" class="dropdown-toggle nav-link header-nav-list" data-bs-toggle="dropdown"
+                   aria-expanded="false">
+                    <i class="fas fa-bell fa-lg"></i> <!-- FontAwesome Bell Icon -->
+                    <span class="badge badge-pill bg-danger" id="notificationCounter">
+            {{ unread_notifications|default:0|add:unread_appointments|default:0 }}
+        </span>
                 </a>
-                <div class="dropdown-menu notifications">
-                    <div class="topnav-dropdown-header">
+
+                <!-- Dropdown Menu -->
+                <div class="dropdown-menu dropdown-menu-end notifications">
+                    <div class="topnav-dropdown-header d-flex justify-content-between align-items-center">
                         <span class="notification-title">Notifications</span>
-                        <a href="javascript:void(0)" class="clear-noti"> Clear All </a>
+                        <a href="javascript:void(0)" class="clear-noti" id="markAllRead">Clear All</a>
                     </div>
+
                     <div class="noti-content">
                         <ul class="notification-list">
-                            {% for notification in request.user.notifications.all %}
+                            <!-- Display Latest Notifications -->
+                            {% for notification in notifications|slice:":3" %}
                                 <li class="notification-message {% if not notification.read %}unread{% endif %}">
                                     <a href="javascript:;" class="mark-as-read" data-id="{{ notification.id }}">
                                         <div class="media d-flex">
@@ -116,17 +125,45 @@
                                     </a>
                                 </li>
                             {% empty %}
+                                <li class="notification-message text-center">
+                                    <p>No new notifications</p>
+                                </li>
+                            {% endfor %}
+
+                            <!-- Display Latest Appointments -->
+                            {% for appointment in appointments|slice:":2" %}
                                 <li class="notification-message">
-                                    <p class="text-center">No new notifications</p>
+                                    <a href="{% url 'inbox_page' %}">
+                                        <div class="media d-flex">
+                                <span class="avatar avatar-sm flex-shrink-0">
+                                    <i class="fas fa-calendar-alt fa-lg text-primary"></i>
+                                </span>
+                                            <div class="media-body flex-grow-1">
+                                                <p class="noti-details">
+                                                    <span class="noti-title">New Appointment</span>
+                                                    - Scheduled at {{ appointment.date }} {{ appointment.time }}
+                                                </p>
+                                                <p class="noti-time">
+                                                    <span class="notification-time">{{ appointment.created_at|timesince }} ago</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                            {% empty %}
+                                <li class="notification-message text-center">
+                                    <p>No new appointments</p>
                                 </li>
                             {% endfor %}
                         </ul>
                     </div>
+
                     <div class="topnav-dropdown-footer">
-                        <a href="{% url 'inbox_page' %}">View all Notifications</a>
+                        <a href="{% url 'inbox_page' %}">View All</a>
                     </div>
                 </div>
             </li>
+
 
             <li class="nav-item zoom-screen me-2">
                 <a href="#" class="nav-link header-nav-list win-maximize">
@@ -515,6 +552,7 @@
 <script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
 <script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
 <script src="{% static 'assets/js/script.js' %}"></script>
+<script src="{% static 'assets/js/counter.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-slimScroll/1.3.8/jquery.slimscroll.min.js"></script>
 
 

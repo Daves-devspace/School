@@ -4,8 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="vercel1">
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="vercel build">
+      <change afterPath="$PROJECT_DIR$/apps/Manage/context_processors.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/js/counter.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/assets/js/notification.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/Manage/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/management/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/website/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/website/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entrypoint.sh" beforeDir="false" afterPath="$PROJECT_DIR$/entrypoint.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/inbox.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/inbox.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/accounts/expense.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/expense.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,8 +33,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="CSS File" />
-        <option value="JavaScript File" />
         <option value="HTML File" />
+        <option value="JavaScript File" />
         <option value="Python Script" />
       </list>
     </option>
@@ -272,15 +286,11 @@
       <workItem from="1739162494390" duration="46357000" />
       <workItem from="1739259136103" duration="944000" />
       <workItem from="1739260226555" duration="42433000" />
-      <workItem from="1739395829921" duration="9730000" />
-    </task>
-    <task id="LOCAL-00001" summary="added teachers crud">
-      <option name="closed" value="true" />
-      <created>1733233502938</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1733233502938</updated>
+      <workItem from="1739395829921" duration="34229000" />
+      <workItem from="1739518636085" duration="308000" />
+      <workItem from="1739525418197" duration="587000" />
+      <workItem from="1739531754416" duration="982000" />
+      <workItem from="1739557031054" duration="442000" />
     </task>
     <task id="LOCAL-00002" summary="added departments">
       <option name="closed" value="true" />
@@ -666,7 +676,15 @@
       <option name="project" value="LOCAL" />
       <updated>1739437245916</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="vercel build">
+      <option name="closed" value="true" />
+      <created>1739437894435</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1739437894435</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -684,7 +702,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="timetable" />
     <MESSAGE value="teacher assignments" />
     <MESSAGE value="optional fee" />
     <MESSAGE value="print" />
@@ -709,7 +726,8 @@
     <MESSAGE value="clubs3" />
     <MESSAGE value="vercel" />
     <MESSAGE value="vercel1" />
-    <option name="LAST_COMMIT_MESSAGE" value="vercel1" />
+    <MESSAGE value="vercel build" />
+    <option name="LAST_COMMIT_MESSAGE" value="vercel build" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -747,12 +765,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>1091</line>
+          <line>1136</line>
           <option name="timeStamp" value="28" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>929</line>
+          <line>974</line>
           <option name="timeStamp" value="29" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -821,7 +839,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>253</line>
+          <line>256</line>
           <option name="timeStamp" value="90" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -850,7 +868,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>723</line>
+          <line>726</line>
           <option name="timeStamp" value="101" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -880,7 +898,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/apps/schedules/views.py</url>
-          <line>744</line>
+          <line>747</line>
           <option name="timeStamp" value="119" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -927,6 +945,16 @@
           <url>file://$PROJECT_DIR$/apps/accounts/views.py</url>
           <line>1111</line>
           <option name="timeStamp" value="144" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/Manage/views.py</url>
+          <line>384</line>
+          <option name="timeStamp" value="145" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/students/views.py</url>
+          <line>29</line>
+          <option name="timeStamp" value="146" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="django-line">
           <url>file://$PROJECT_DIR$/templates/performance/class_results_view.html</url>

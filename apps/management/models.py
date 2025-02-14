@@ -527,16 +527,16 @@ class Feedback(models.Model):
         return f"Feedback by {self.user.username} on {self.presentation.title}"
 
 
-class Notification(models.Model):
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_notifications")
-    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_notifications")
-    title = models.CharField(max_length=255)
-    message = models.TextField()
-    created_at = models.DateTimeField(default=now)
-    is_read = models.BooleanField(default=False)  # To track if the notification has been read
-
-    def __str__(self):
-        return f"Notification from {self.sender.username} to {self.recipient.username}"
+# class Notification(models.Model):
+#     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_notifications")
+#     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_notifications")
+#     title = models.CharField(max_length=255)
+#     message = models.TextField()
+#     created_at = models.DateTimeField(default=now)
+#     is_read = models.BooleanField(default=False)  # To track if the notification has been read
+#
+#     def __str__(self):
+#         return f"Notification from {self.sender.username} to {self.recipient.username}"
 
 
 # # Model for a Teacher (Assumes you have a teacher model or user system in place)

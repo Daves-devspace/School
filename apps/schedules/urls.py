@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import MarkAsReadView, MarkAllReadView, RescheduleSlot
+from .views import MarkAllReadView, RescheduleSlot, MarkAsReadView
 
 # from .views import generate_timetable_for_all
 
@@ -28,6 +28,7 @@ urlpatterns = [
 
     path('notifications/mark-read/<int:pk>/', MarkAsReadView.as_view(), name='mark-read'),
     path('notifications/mark-all-read/', MarkAllReadView.as_view(), name='mark-all-read'),
+    path('notifications/count/', views.notification_count, name='notification_count'),
 ]
 
 # from django.urls import path

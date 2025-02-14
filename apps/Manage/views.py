@@ -383,11 +383,14 @@ def website_page(request):
 
 @login_required
 def notifications_inbox_view(request):
-    # Fetch user notifications
+    # Fetch all notifications (Ensure `related_name="notifications"` in User model)
     notifications = request.user.notifications.all().order_by('-created_at')
 
     # Fetch all appointments
     appointments = Appointment.objects.all().order_by('-created_at')
+
+    # Count unread (pending) appointments
+    unread_appointments = appointments.filter(reply_status="pending").count()  # Adjust status as needed
 
     successful_replies = []
     failed_replies = []
@@ -396,21 +399,23 @@ def notifications_inbox_view(request):
     for appointment in appointments:
         if appointment.reply_status == 'success':
             successful_replies.append({
-                'phone': appointment.phone,  # Adjust field name accordingly
-                'message': appointment.reply_message  # Adjust field name accordingly
+                'phone': appointment.phone,
+                'message': appointment.reply_message
             })
         else:
             failed_replies.append({
-                'phone': appointment.phone,  # Adjust field name accordingly
-                'reason': appointment.reply_failure_reason  # Adjust field name accordingly
+                'phone': appointment.phone,
+                'reason': appointment.reply_failure_reason
             })
 
     return render(request, 'Manage/inbox.html', {
         'notifications': notifications,
         'appointments': appointments,
+        'unread_appointments': unread_appointments,  # ✅ Added to context
         'successful_replies': successful_replies,
         'failed_replies': failed_replies
     })
+
 
 
 # View to fetch appointment details as JSON
