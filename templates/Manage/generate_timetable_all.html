@@ -56,51 +56,72 @@
                                 <!-- For displaying success/error messages -->
 
                                 <hr>
+                                <div class="row">
+                                    <h3>Configure Subject Preferences</h3>
+                                    <div class="col-md-8 col-lg-6">
+                                        <form method="post" novalidate>
+                                            {% csrf_token %}
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        {{ form.subject.label_tag }}
+                                                        {{ form.subject }}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        {{ form.grade_section.label_tag }}
+                                                        {{ form.grade_section }}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        {{ form.sessions_per_week.label_tag }}
+                                                        {{ form.sessions_per_week }}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 d-flex align-items-center">
+                                                    <div class="form-check">
+                                                        {{ form.is_core_subject }}
+                                                        <label class="form-check-label">{{ form.is_core_subject.label }}</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-success">Submit</button>
+                                        </form>
+                                    </div>
 
-                                <h3>Configure Subject Preferences</h3>
-                                <div class="col-md-8">
-                                    <form method="post" novalidate>
-                                        {% csrf_token %}
-                                        <div class="form-group">
-                                            <label class="form-label">Subject Preferences</label>
-                                            {{ form.as_p }}
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">
-                                            Save Preferences
-                                        </button>
-                                    </form>
+                                    <div class="mt-4 col-md-8 col-lg-6">
+                                        <h3>Subject Preferences</h3>
+                                        <table class="table table-bordered">
+                                            <thead>
+                                            <tr>
+                                                <th>Subject</th>
+                                                <th>Grade Section</th>
+                                                <th>Sessions/Week</th>
+                                                <th>Core Subject</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for pref in subject_preferences %}
+                                                <tr>
+                                                    <td>{{ pref.subject.name }}</td>
+                                                    <td>{{ pref.grade_section }}</td>
+                                                    <td>{{ pref.sessions_per_week }}</td>
+                                                    <td>{{ pref.is_core_subject }}</td>
+                                                </tr>
+                                            {% empty %}
+                                                <tr>
+                                                    <td colspan="4" class="text-center text-muted">No subject
+                                                        preferences found.
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
 
-
-                                <div class="mt-4">
-                                    <h3>Subject Preferences</h3>
-                                    <table class="table table-bordered">
-                                        <thead>
-                                        <tr>
-                                            <th>Subject</th>
-                                            <th>Grade Section</th>
-                                            <th>Sessions/Week</th>
-                                            <th>Core Subject</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {% for pref in subject_preferences %}
-                                            <tr>
-                                                <td>{{ pref.subject.name }}</td>
-                                                <td>{{ pref.grade_section }}</td>
-                                                <td>{{ pref.sessions_per_week }}</td>
-                                                <td>{{ pref.is_core_subject }}</td>
-                                            </tr>
-                                        {% empty %}
-                                            <tr>
-                                                <td colspan="4" class="text-center text-muted">No subject preferences
-                                                    found.
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
                                 <div class="card-body">
                                     <!-- Preference Form -->
                                     <div class="row mb-5">

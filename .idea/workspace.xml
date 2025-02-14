@@ -5,21 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="vercel build">
-      <change afterPath="$PROJECT_DIR$/apps/Manage/context_processors.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/assets/js/counter.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/assets/js/notification.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/Manage/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/Manage/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/management/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/management/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/website/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/website/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entrypoint.sh" beforeDir="false" afterPath="$PROJECT_DIR$/entrypoint.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Home/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/schedules/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Manage/generate_timetable_all.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/generate_timetable_all.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/Manage/inbox.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/inbox.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/accounts/expense.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/expense.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/schedules/add_rooms.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/schedules/add_rooms.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -291,6 +281,9 @@
       <workItem from="1739525418197" duration="587000" />
       <workItem from="1739531754416" duration="982000" />
       <workItem from="1739557031054" duration="442000" />
+      <workItem from="1739560577616" duration="1019000" />
+      <workItem from="1739561859993" duration="2125000" />
+      <workItem from="1739564547499" duration="1939000" />
     </task>
     <task id="LOCAL-00002" summary="added departments">
       <option name="closed" value="true" />

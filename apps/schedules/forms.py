@@ -59,25 +59,26 @@ class RoomForm(forms.ModelForm):
 
     room_name = forms.CharField(
         max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'Enter room name'})
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter room name'})
     )
 
     is_special = forms.BooleanField(
         required=False,
         initial=False,
-        widget=forms.CheckboxInput()
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
 
     related_subjects = forms.ModelMultipleChoiceField(
         queryset=Subject.objects.all(),
-        widget=forms.SelectMultiple,
+        widget=forms.SelectMultiple(attrs={'class': 'form-select'}),
         required=False
     )
 
     grade_section = forms.ModelChoiceField(
         queryset=GradeSection.objects.all(),
         required=False,
-        empty_label="Select a grade section (optional)"
+        empty_label="Select a grade section (optional)",
+        widget=forms.Select(attrs={'class': 'form-select'})
     )
 
 
@@ -86,8 +87,12 @@ class SubjectPreferenceForm(forms.ModelForm):
     class Meta:
         model = SubjectPreference
         fields = ['subject', 'grade_section', 'sessions_per_week', 'is_core_subject']
-
-
+        widgets = {
+            'subject': forms.Select(attrs={'class': 'form-control'}),
+            'grade_section': forms.Select(attrs={'class': 'form-control'}),
+            'sessions_per_week': forms.NumberInput(attrs={'class': 'form-control'}),
+            'is_core_subject': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
 
 
 

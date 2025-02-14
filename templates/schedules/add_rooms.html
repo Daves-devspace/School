@@ -45,7 +45,26 @@
                             <h3>{% if edit_mode %}Edit Room{% else %}Add a Room{% endif %}</h3>
                             <form method="post">
                                 {% csrf_token %}
-                                {{ form.as_p }}
+                                <div class="mb-3">
+                                    {{ form.room_name.label_tag }}
+                                    {{ form.room_name }}
+                                </div>
+
+                                <div class="form-check">
+                                    {{ form.is_special }}
+                                    <label class="form-check-label">{{ form.is_special.label }}</label>
+                                </div>
+
+                                <div class="mb-3">
+                                    {{ form.related_subjects.label_tag }}
+                                    {{ form.related_subjects }}
+                                </div>
+
+                                <div class="mb-3">
+                                    {{ form.grade_section.label_tag }}
+                                    {{ form.grade_section }}
+                                </div>
+
                                 <button type="submit">{% if edit_mode %}Update Room{% else %}Save
                                     Room{% endif %}</button>
                             </form>
@@ -100,7 +119,7 @@
                                                         <span class="text-muted">Not Assigned</span>
                                                     {% endif %}
                                                 </td>
-                                                <td>    
+                                                <td>
                                                     <a href="{% url 'edit_room' room.id %}"
                                                        class="btn btn-sm btn-outline-primary">Edit</a>
                                                 </td>
