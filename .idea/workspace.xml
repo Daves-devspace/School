@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="vercel build">
+    <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="ui">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/schedules/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/schedules/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Manage/generate_timetable_all.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/generate_timetable_all.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Manage/inbox.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Manage/inbox.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/schedules/add_rooms.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/schedules/add_rooms.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -283,15 +279,8 @@
       <workItem from="1739557031054" duration="442000" />
       <workItem from="1739560577616" duration="1019000" />
       <workItem from="1739561859993" duration="2125000" />
-      <workItem from="1739564547499" duration="1939000" />
-    </task>
-    <task id="LOCAL-00002" summary="added departments">
-      <option name="closed" value="true" />
-      <created>1733310776593</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1733310776593</updated>
+      <workItem from="1739564547499" duration="2309000" />
+      <workItem from="1739624509246" duration="889000" />
     </task>
     <task id="LOCAL-00003" summary="added the chart data and dashbaoard revenue count">
       <option name="closed" value="true" />
@@ -677,7 +666,15 @@
       <option name="project" value="LOCAL" />
       <updated>1739437894435</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="ui">
+      <option name="closed" value="true" />
+      <created>1739566544822</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1739566544822</updated>
+    </task>
+    <option name="localTasksCounter" value="52" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -695,7 +692,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="teacher assignments" />
     <MESSAGE value="optional fee" />
     <MESSAGE value="print" />
     <MESSAGE value="feestatement" />
@@ -720,7 +716,8 @@
     <MESSAGE value="vercel" />
     <MESSAGE value="vercel1" />
     <MESSAGE value="vercel build" />
-    <option name="LAST_COMMIT_MESSAGE" value="vercel build" />
+    <MESSAGE value="ui" />
+    <option name="LAST_COMMIT_MESSAGE" value="ui" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
