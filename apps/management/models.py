@@ -442,7 +442,7 @@ class Attendance(models.Model):
     section = models.ForeignKey('students.GradeSection', on_delete=models.CASCADE,default='section')
     teacher = models.ForeignKey('teachers.Teacher', on_delete=models.CASCADE,default="class_teacher")
     date = models.DateField()
-    term = models.ForeignKey(Term, on_delete=models.CASCADE)
+    term = models.ForeignKey(Term, on_delete=models.CASCADE,default=None)
     is_present = models.BooleanField(default=False)
     absence_reason = models.TextField(blank=True, null=True)
 
