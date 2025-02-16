@@ -439,8 +439,8 @@ class EventParticipant(models.Model):
 
 class Attendance(models.Model):
     student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
-    section = models.ForeignKey('students.GradeSection', on_delete=models.CASCADE)
-    teacher = models.ForeignKey('teachers.Teacher', on_delete=models.CASCADE)
+    section = models.ForeignKey('students.GradeSection', on_delete=models.CASCADE,default='section')
+    teacher = models.ForeignKey('teachers.Teacher', on_delete=models.CASCADE,default="class_teacher")
     date = models.DateField()
     term = models.ForeignKey(Term, on_delete=models.CASCADE)
     is_present = models.BooleanField(default=False)
