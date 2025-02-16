@@ -183,7 +183,7 @@ class ReportCard(models.Model):
     exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name="report_cards", null=True,
                                   blank=True)
     year = models.IntegerField(editable=False)  # Auto-set based on Term
-    created_at = models.DateField(auto_now_add=True)
+    created_at = models.DateField(auto_now_add=True,default=now)
     total_marks = models.FloatField(null=True, blank=True)
     average_marks = models.FloatField(null=True, blank=True)
     grade = models.CharField(max_length=2, null=True, blank=True)
