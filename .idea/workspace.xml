@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="63fb504e-d434-4971-b1d2-f87a1387f4c3" name="Changes" comment="ui">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/School/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/School/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -281,6 +282,8 @@
       <workItem from="1739561859993" duration="2125000" />
       <workItem from="1739564547499" duration="2309000" />
       <workItem from="1739624509246" duration="889000" />
+      <workItem from="1739635942490" duration="423000" />
+      <workItem from="1739721313794" duration="335000" />
     </task>
     <task id="LOCAL-00003" summary="added the chart data and dashbaoard revenue count">
       <option name="closed" value="true" />
