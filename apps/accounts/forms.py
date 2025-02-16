@@ -31,7 +31,7 @@ class FeeAdjustmentForm(forms.Form):
         ("subtract", "Subtract"),
     ]
 
-    fee_type = forms.ChoiceField(choices=FEE_CHOICES, label="Fee Type" ,null=True, blank=True)
+    fee_type = forms.ChoiceField(choices=FEE_CHOICES, label="Fee Type")
     adjustment_type = forms.ChoiceField(choices=ADJUSTMENT_CHOICES, label="Adjustment Type")
     amount = forms.DecimalField(max_digits=10, decimal_places=2, label="Amount")
     description = forms.CharField(widget=forms.Textarea, label="Description", required=False)

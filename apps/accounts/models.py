@@ -306,7 +306,7 @@ class FeeAdjustment(models.Model):
 
     fee_record = models.ForeignKey(FeeRecord, on_delete=models.CASCADE, related_name="adjustments")
     adjustment_type = models.CharField(max_length=50, choices=ADJUSTMENT_TYPES)
-    fee_type = models.CharField(max_length=20, choices=FEE_TYPES)
+    fee_type = models.CharField(max_length=20, choices=FEE_TYPES,null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.CharField(max_length=255, null=True, blank=True)
 
