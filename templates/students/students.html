@@ -2,6 +2,7 @@
 {% load static %}
 {% block body %}
 
+
     <div class="page-wrapper">
         <div class="content container-fluid">
 
@@ -9,37 +10,44 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="page-sub-header">
-                            <h3 class="page-title">Students</h3>
-                            <ul class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="students.html">Student</a></li>
-                                <li class="breadcrumb-item active">All Students</li>
-                            </ul>
+                            <div class="#">
+                                <h3 class="page-title">Students</h3>
+                                <ul class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="students.html">Student</a></li>
+                                    <li class="breadcrumb-item active">All Students</li>
+                                </ul>
+                            </div>
+                            <div class="breadcrumb">
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <a href="{% url 'print_students' %}" class="btn btn-outline custom-bg  text-white me-2">
+                                            <i class="fas fa-print"></i> Print Students
+                                        </a>
+
+                                    </div>
+                                    <div class="dropdown me-2"> <!-- Added 'me-2' for margin between buttons -->
+                                        <button class="btn btn-outline custom-bg text-white dropdown-toggle" type="button"
+                                                id="exportDropdown"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-file-export"></i> Export
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                            <li><a class="dropdown-item" href="{% url 'export_students_pdf' %}"><i
+                                                    class="fas fa-file-pdf text-danger"></i> Export as PDF</a></li>
+                                            <li><a class="dropdown-item" href="{% url 'export_students_excel' %}"><i
+                                                    class="fas fa-file-excel text-success"></i> Export as Excel</a></li>
+                                        </ul>
+                                    </div>
+
+                                    <div>
+                                        <a href="{% url 'add_student' %}" class="btn btn-outline custom-bg text-white">
+                                            <i class="fas fa-plus-circle"></i> add student
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
-                        <div class="col-auto text-end float-end ms-auto download-grp shadow">
-
-                            <!-- Action Buttons -->
-                            <a href="{% url 'students' %}" class="btn btn-success me-2 active">
-                                <i class="fas fa-user-check"></i> Active
-                            </a>
-
-                            <a href="{% url 'reverse_student_status' %}" class="btn btn-success me-2">
-                                <i class="fas fa-user-graduate"></i> Graduated
-                            </a>
-
-                            <a href="{% url 'students_grid' %}" class="btn btn-success me-2">
-                                <i class="fas fa-th-large"></i>
-                            </a>
-
-                            <a href="{% url 'student_query' %}" class="btn btn-success me-2">
-                                <i class="fas fa-download"></i> Download
-                            </a>
-
-                            <a href="{% url 'add_student' %}" class="btn btn-success">
-                                <i class="fas fa-plus"></i>
-                            </a>
-                        </div>
-
-
                     </div>
                 </div>
             </div>
@@ -48,7 +56,8 @@
 
                     <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
                         <p>{{ message }}</p>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
                     </div>
 
                 {% endfor %}
@@ -57,50 +66,107 @@
 
 
             <div class="row">
-                <div class="col-sm-12">
+                <div class="col-12">
                     <div class="card card-table shadow">
                         <div class="card-body">
 
+                            <!-- Card Header -->
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h3 class="page-title m-0">Students</h3>
 
-                            <div class="table-responsive ">
+                                <div class="btn-group">
+                                    <a href="{% url 'students' %}" class="btn btn-success active me-2">
+                                        <i class="fas fa-user-check"></i> Active
+                                    </a>
+                                    <a href="{% url 'reverse_student_status' %}" class="btn btn-success me-2">
+                                        <i class="fas fa-user-graduate"></i> Graduated
+                                    </a>
+                                    <a href="{% url 'students_grid' %}" class="btn btn-success me-2">
+                                        <i class="fas fa-th-large"></i>
+                                    </a>
 
-                                <div class="container">
-                                    <form method="POST" action="{% url 'promote_students' %}"
-                                          class="d-flex align-items-center gap-2">
-                                        {% csrf_token %}
-
-                                        <!-- Custom Checkbox -->
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" name="confirm" id="confirm"
-                                                   required>
-                                            <label class="form-check-label fw-bold" for="confirm">Confirm</label>
-                                        </div>
-
-                                        <!-- Stylish Submit Button -->
-                                        <button type="submit" class="btn btn-success d-flex align-items-center">
-                                            <i class="fas fa-arrow-up me-2"></i> Promotion
+                                    <!-- Filter Button with Dropdown -->
+                                    <div class="dropdown">
+                                        <button class="btn btn-success dropdown-toggle" type="button"
+                                                id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-filter"></i> Filter
                                         </button>
-                                    </form>
-                                    <div class="row justify-content-end">
-                                        <div class="col-md-6">
-                                            <form class="d-flex">
-                                                <div class="input-group">
-                                                    <input class="form-control form-control-lg" type="search"
-                                                           placeholder="Search" aria-label="Search">
-                                                    <button class="btn btn-success px-4" type="submit">
-                                                        <i class="fas fa-search"></i>
-                                                    </button>
+                                        <div class="dropdown-menu dropdown-menu-end p-3"
+                                             aria-labelledby="filterDropdown">
+                                            <form method="GET" action="{% url 'students' %}">
+                                                <label for="grade">Class</label>
+                                                <select name="grade" id="grade" class="form-control">
+                                                    <option value="">Select</option>
+                                                    {% for grade in grades %}
+                                                        <option value="{{ grade.id }}">{{ grade.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+
+                                                <label for="section" class="mt-2">Section</label>
+                                                <select name="section" id="section" class="form-control">
+                                                    <option value="">Select</option>
+                                                    {% for section in sections %}
+                                                        <option value="{{ section.id }}">{{ section.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+
+                                                <label for="gender" class="mt-2">Gender</label>
+                                                <select name="gender" id="gender" class="form-control">
+                                                    <option value="">Select</option>
+                                                    <option value="Male">Male</option>
+                                                    <option value="Female">Female</option>
+                                                </select>
+
+                                                <label for="status" class="mt-2">Status</label>
+                                                <select name="status" id="status" class="form-control">
+                                                    <option value="">Select</option>
+                                                    <option value="Active">Active</option>
+                                                    <option value="Inactive">Inactive</option>
+                                                </select>
+
+                                                <div class="d-grid gap-2 mt-3">
+                                                    <button type="submit" class="btn btn-primary">Apply</button>
+                                                    <a href="{% url 'students' %}"
+                                                       class="btn btn-secondary">Reset</a>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
                                 </div>
-                                <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                            </div>
 
-                                    <thead class="student-thread">
+                            <!-- Search and Promotion Section -->
+                            <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
+                                <form method="POST" action="{% url 'promote_students' %}"
+                                      class="d-flex align-items-center gap-2">
+                                    {% csrf_token %}
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" name="confirm" id="confirm"
+                                               required>
+                                        <label class="form-check-label fw-bold" for="confirm">Confirm</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-success d-flex align-items-center">
+                                        <i class="fas fa-arrow-up me-2"></i> Promote
+                                    </button>
+                                </form>
+
+                                <form class="d-flex">
+                                    <div class="input-group">
+                                        <input class="form-control" type="search" placeholder="Search">
+                                        <button class="btn btn-success" type="submit">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Table -->
+                            <div class="table-responsive mt-3">
+                                <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                    <thead class="table-success ">
                                     <tr>
                                         <th>
-                                            <div class="form-check check-tables">
+                                            <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="select-all">
                                             </div>
                                         </th>
@@ -110,71 +176,60 @@
                                         <th>DOB</th>
                                         <th>Parent Name</th>
                                         <th>Mobile Number</th>
-
                                         <th class="text-end">View</th>
                                         <th class="text-end">Edit</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-
                                     {% for student in student_list %}
-
-
-                                        {#                              <td>{{ student.date_of_birth|date:"d M Y" }}</td>#}
-
-
-                                        <td>
-                                            <div class="form-check check-tables">
-                                                <input class="form-check-input" type="checkbox" value="something">
-                                            </div>
-                                        </td>
-                                        <td>{{ student.admission_number }}</td>
-                                        <td>
-                                            <h2 class="table-avatar">
-                                                <a href="{% url 'student_details' student.id %}">{{ student.first_name }}
-                                                    {{ student.last_name }}</a>
-                                            </h2>
-                                        </td>
-                                        <td>{{ student.grade }}</td>
-                                        <td>{{ student.date_of_birth }}</td>
-                                        <td>{{ student.parent.first.first_name }}
-                                            &nbsp; {{ student.parent.first.last_name }} </td>
-                                        <td>{{ student.parent.first.mobile }}</td>
-                                        <td class="text-end">
-                                            <div class="actions ">
+                                        <tr>
+                                            <td>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox">
+                                                </div>
+                                            </td>
+                                            <td>{{ student.admission_number }}</td>
+                                            <td>
+                                                <h2 class="table-avatar">
+                                                    <a href="{% url 'student_details' student.id %}">{{ student.first_name }} {{ student.last_name }}</a>
+                                                </h2>
+                                            </td>
+                                            <td>{{ student.grade }}</td>
+                                            <td>{{ student.date_of_birth }}</td>
+                                            <td>{{ student.parent.first.first_name }} {{ student.parent.first.last_name }}</td>
+                                            <td>{{ student.parent.first.mobile }}</td>
+                                            <td class="text-end">
                                                 <a href="{% url 'student_details' student.id %}"
-                                                   class="btn btn-sm custom-bg text-white me-2 ">
-                                                    <i class="fas fa-eye-slash"></i>
+                                                   class="btn btn-sm btn-info">
+                                                    <i class="fas fa-eye"></i>
                                                 </a>
-                                            </div>
-                                        </td>
-
-                                        <td class="text-end">
-                                            <div class="actions ">
+                                            </td>
+                                            <td class="text-end">
                                                 {% if perms.students.view_change_student %}
                                                     <a href="{% url 'edit_student' student.id %}"
-                                                       class="btn btn-sm custom-bg text-white">
+                                                       class="btn btn-sm btn-warning">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
                                                 {% endif %}
-                                            </div>
-                                        </td>
+                                            </td>
                                         </tr>
                                     {% endfor %}
-
-
                                     </tbody>
                                 </table>
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <footer>
-            <p>Copyright © 2024 davedev </p>
-        </footer>
+        </div>
+    </div>
+
+
+    <footer>
+        <p>Copyright © 2024 davedev </p>
+    </footer>
 
     </div>
 
@@ -184,7 +239,6 @@
             checkboxes.forEach(cb => cb.checked = this.checked);
         });
     </script>
-
 
 
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>

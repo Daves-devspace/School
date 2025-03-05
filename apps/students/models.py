@@ -58,12 +58,14 @@ class Section(models.Model):
         ordering = ['name']
 
 
+
 class GradeSection(models.Model):
     grade = models.ForeignKey(
         Grade, on_delete=models.CASCADE, related_name="grade_sections"
     )
     section = models.ForeignKey(
-        Section, on_delete=models.CASCADE, related_name="section_grade_sections"
+        Section, on_delete=models.SET_NULL, related_name="section_grade_sections",
+        null=True, blank=True  # Allow grades without sections
     )
     class_teacher = models.OneToOneField(
         Teacher,
@@ -74,15 +76,13 @@ class GradeSection(models.Model):
     )
 
     class Meta:
-        unique_together = ("grade", "section")
-        ordering = ["grade", "grade__level", "section__name"]
+        constraints = [
+            models.UniqueConstraint(fields=["grade", "section"], name="unique_grade_section")
+        ]
+        ordering = ["grade__name", "section__name"]  # Fixed ordering
 
     def __str__(self):
-        return f"{self.grade.name} {self.section.name}"
-
-    # def get_default_room(self):
-    #     """Get the generated default room"""
-    #     return self.rooms.filter(is_special=False).first()  # Use 'rooms' instead of 'room_set'
+        return f"{self.grade.name} {self.section.name if self.section else ''}".strip()
 
     def save(self, *args, **kwargs):
         with transaction.atomic():
@@ -90,38 +90,38 @@ class GradeSection(models.Model):
             self._ensure_default_room()
 
     def _ensure_default_room(self):
-        """Guarantee a default room exists for this grade section"""
+        """Ensure a default room exists for this grade section"""
         try:
             room = self.rooms.filter(is_special=False).first()
             if not room:
-                room_name = generate_room_name_from_grade_section(self.grade, self.section)
-                Room.objects.create(
-                    room_name=room_name,
-                    is_special=False,
-                    grade_section=self
-                )
+                self._create_default_room()
             elif not room.room_name.startswith(self.grade.name[0].upper()):
                 room.room_name = generate_room_name_from_grade_section(self.grade, self.section)
                 room.save()
         except Exception as e:
             logger.error(f"Failed to ensure room for {self}: {str(e)}")
-            raise
 
     def get_default_room(self):
-        """Get the generated default room with fallback"""
+        """Get or create the default room"""
         return self.rooms.filter(is_special=False).first() or self._create_default_room()
 
     def _create_default_room(self):
-        """Emergency room creation if missing"""
-        grade_name = self.grade.name.strip() if self.grade.name else "Grade"
-        section_name = self.section.name.strip() if self.section.name else "Section"
-        room_name = f"{grade_name[0].upper()}{self.grade.level}{section_name[0].upper()}".strip().upper()
+        """Create a default room if missing"""
+        try:
+            grade_name = self.grade.name.strip() if self.grade.name else "Grade"
+            section_name = self.section.name.strip() if self.section else "General"
+            room_name = f"{grade_name[0].upper()}{self.grade.level}{section_name[0].upper()}".strip().upper()
 
-        return Room.objects.create(
-            room_name=room_name,
-            is_special=False,
-            grade_section=self
-        )
+            room, _ = Room.objects.get_or_create(
+                room_name=room_name,
+                is_special=False,
+                grade_section=self
+            )
+            return room
+        except Exception as e:
+            logger.error(f"Error creating default room for {self}: {str(e)}")
+            return None  # Prevent crashes
+
 
 
 class Parent(models.Model):

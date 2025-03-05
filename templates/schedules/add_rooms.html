@@ -5,7 +5,7 @@
 
     <div class="page-wrapper">
         <div class="content container-fluid">
-            <div class="page-header">
+            <div class="page-header align-items-center shadow bg-white">
                 <div class="row align-items-center">
                     <div class="col">
                         <ul class="breadcrumb">
@@ -21,10 +21,10 @@
                         <a href="{% url 'students_grid' %}"
                            class="btn btn-outline custom-bg text-white me-2"><i
                                 class="fas fa-th-large"></i></a>
-                        <a href="#" class="btn btn-success text-white me-2"><i
+                        <a href="#" class="btn btn-outline custom-bg text-white me-2"><i
                                 class="fas fa-download"></i>
                             Download</a>
-                        <a href="{% url 'terms' %}" class="btn btn-success text-white"><i
+                        <a href="{% url 'terms' %}" class="btn btn-outline custom-bg text-white"><i
                                 class="fas fa-plus"></i></a>
                     </div>
                 </div>
@@ -45,22 +45,22 @@
                             <h3>{% if edit_mode %}Edit Room{% else %}Add a Room{% endif %}</h3>
                             <form method="post">
                                 {% csrf_token %}
-                                <div class="mb-3">
+                                <div class="mb-3 col-md-6">
                                     {{ form.room_name.label_tag }}
                                     {{ form.room_name }}
                                 </div>
 
-                                <div class="form-check">
+                                <div class="form-check col-md-6">
                                     {{ form.is_special }}
                                     <label class="form-check-label">{{ form.is_special.label }}</label>
                                 </div>
 
-                                <div class="mb-3">
+                                <div class="mb-3 col-md-6">
                                     {{ form.related_subjects.label_tag }}
                                     {{ form.related_subjects }}
                                 </div>
 
-                                <div class="mb-3">
+                                <div class="mb-3 col-md-6">
                                     {{ form.grade_section.label_tag }}
                                     {{ form.grade_section }}
                                 </div>
@@ -79,7 +79,7 @@
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <h5>School Lesson/Exam Rooms</h5>
-                                    <table class="table table-hover table-center mb-0 datatable">
+                                    <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
                                         <thead>
                                         <tr>
                                             <th>Room Name</th>
@@ -148,7 +148,10 @@
     <script src="{% static 'assets/js/popper.min.js' %}"></script>
     <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
     <script src="{% static 'assets/js/script.js' %}"></script>
+    <script src="{% static 'assets/js/feather.min.js' %}"></script>
+
     </body>
 
     </html>

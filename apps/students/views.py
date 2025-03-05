@@ -1,3 +1,4 @@
+import os
 from collections import defaultdict
 from datetime import date, timedelta, datetime, timezone
 from decimal import Decimal
@@ -8,22 +9,195 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.files.storage import FileSystemStorage
-from django.db import transaction
+from django.db import transaction, IntegrityError
+from django.db.models import Count
 from django.db.transaction import atomic
 from django.http import JsonResponse, Http404
 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
+from reportlab.lib.utils import ImageReader
 
+from School import settings
 from apps.accounts.models import FeeStructure, FeeRecord
-from apps.management.models import Term, SubjectMark, ReportCard, ExamType, Attendance
-from apps.students.forms import StudentForm, PromoteStudentsForm, SendSMSForm, DocumentUploadForm,  \
-    StudentSearchForm
+from apps.management.models import Term, SubjectMark, ReportCard, ExamType, Attendance, Institution
+from apps.students.forms import StudentForm, PromoteStudentsForm, SendSMSForm, DocumentUploadForm, \
+    StudentSearchForm, GradeSectionForm, GradeForm, SectionForm
 # from apps.students.forms import StudentForm
-from apps.students.models import Student, Parent, StudentParent, Grade, GradeSection, StudentDocument
+from apps.students.models import Student, Parent, StudentParent, Grade, GradeSection, StudentDocument, Section
+from apps.teachers.models import Teacher
 
 logger = logging.getLogger(__name__)
+
+
+# Add Grade
+
+
+def add_grade(request):
+    if request.method == "POST":
+        form = GradeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Grade added successfully!")
+        else:
+            logger.error(f"Grade Form Errors: {form.errors}")  # Log errors
+            messages.error(request, f"Error: Invalid grade data. {form.errors}")  # Show actual error
+    return redirect(reverse("class_details"))
+
+
+def add_section(request):
+    if request.method == "POST":
+        form = SectionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Section added successfully!")
+        else:
+            logger.error(f"Section Form Errors: {form.errors}")  # Log errors
+            messages.error(request, f"Error: Invalid section data. {form.errors}")  # Show actual error
+    return redirect(reverse("class_details"))
+
+
+def update_class_section(request, section_id):
+    grade_section = get_object_or_404(GradeSection, id=section_id)
+
+    if request.method == "POST":
+        section_id = request.POST.get("section")
+        if section_id:
+            section = get_object_or_404(Section, id=section_id)
+            grade_section.section = section
+        else:
+            grade_section.section = None  # Allow removing section
+
+        grade_section.save()
+        messages.success(request, "Class section updated successfully!")
+        return redirect("class_details")  # Redirect back to class list
+
+    # return render(request, "teachers/class_teachers.html", {"grade_section": grade_section})
+    return redirect("class_details")
+
+def split_class(request, grade_section_id):
+    grade_section = get_object_or_404(GradeSection, id=grade_section_id)
+
+    # ✅ Fetch all sections in the database
+    available_sections = Section.objects.all()
+
+    if request.method == "POST":
+        section1_id = request.POST.get("section1")
+        section2_id = request.POST.get("section2")
+
+        if not section1_id or not section2_id:
+            messages.error(request, "Both section selections are required for splitting!")
+            return redirect("class_details")
+
+        section1 = get_object_or_404(Section, id=section1_id)
+        section2 = get_object_or_404(Section, id=section2_id)
+
+        with transaction.atomic():
+            # Create new GradeSections with selected sections
+            new_section1 = GradeSection.objects.create(
+                grade=grade_section.grade,
+                section=section1,
+                class_teacher=grade_section.class_teacher
+            )
+
+            new_section2 = GradeSection.objects.create(
+                grade=grade_section.grade,
+                section=section2,
+                class_teacher=grade_section.class_teacher
+            )
+
+            # Split students between the new sections
+            students = list(grade_section.students.all())  # Assuming ManyToMany relationship
+            mid = len(students) // 2
+            for student in students[:mid]:
+                student.grade_section = new_section1
+                student.save()
+            for student in students[mid:]:
+                student.grade_section = new_section2
+                student.save()
+
+            # Delete the original class
+            grade_section.delete()
+
+        messages.success(request, "Class successfully split into selected sections!")
+        return redirect("class_details")
+
+    return render(request, "teachers/class_details.html", {
+        "grade_section": grade_section,
+        "available_sections": available_sections
+    })
+
+
+
+
+def merge_class(request, grade_section_id):
+    grade_section = get_object_or_404(GradeSection, id=grade_section_id)
+
+    # ✅ Ensure available sections are populated
+    available_sections = GradeSection.objects.filter(grade=grade_section.grade).exclude(id=grade_section_id)
+
+    if request.method == "POST":
+        target_section_id = request.POST.get("target_section")
+        if not target_section_id:
+            messages.error(request, "Please select a section to merge into!")
+            return redirect("class_details")
+
+        target_section = get_object_or_404(GradeSection, id=target_section_id)
+
+        with transaction.atomic():
+            # Move students to the selected section
+            for student in grade_section.students.all():
+                student.grade_section = target_section
+                student.save()
+
+            # Delete the old section
+            grade_section.delete()
+
+        messages.success(request, f"Class section successfully merged into {target_section.section.name}!")
+        return redirect("class_details")
+
+    # ✅ Pass available_sections to the template
+    return render(request, "teachers/class_details.html", {
+        "grade_section": grade_section,
+        "available_sections": available_sections
+    })
+
+
+
+
+
+
+# Handle Class Details
+def class_details(request):
+    if request.method == "POST":
+        form = GradeSectionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Class details saved successfully!")
+        else:
+            messages.error(request, "Error saving class details. Please check the form.")
+        return redirect("class_details")
+
+    form = GradeSectionForm()
+
+    # Fetch required data for the page
+    grade_sections = GradeSection.objects.annotate(student_count=Count("students"))
+    grades = Grade.objects.all()
+    sections = Section.objects.all()
+    teachers = Teacher.objects.all()
+
+    return render(request, "teachers/class_teachers.html", {
+        "form": form,
+        "grades": grades,
+        "sections": sections,
+        "teachers": teachers,
+        "grade_sections": grade_sections,
+    })
+
+
+
 
 
 # Create your views here.
@@ -53,7 +227,6 @@ def student_query(request):
         'student_count': students.count()
     }
     return render(request, 'students/query_students.html', context)
-
 
 
 

@@ -299,17 +299,17 @@ def assign_grade(request):
     return redirect('class_teachers')
 
 
-@login_required
-def class_teachers(request):
-    # Subquery to fetch the student count for the GradeSection where the teacher is assigned.
-    assigned_class_qs = (
-        GradeSection.objects
-        .filter(class_teacher=OuterRef('pk'))
-        .annotate(num_students=Count('students'))
-        .values('num_students')[:1]
-    )
-    teachers = Teacher.objects.annotate(student_count=Subquery(assigned_class_qs))
-    return render(request, "teachers/class_teachers.html", {"teachers": teachers})
+# @login_required
+# def class_teachers(request):
+#     # Subquery to fetch the student count for the GradeSection where the teacher is assigned.
+#     assigned_class_qs = (
+#         GradeSection.objects
+#         .filter(class_teacher=OuterRef('pk'))
+#         .annotate(num_students=Count('students'))
+#         .values('num_students')[:1]
+#     )
+#     teachers = Teacher.objects.annotate(student_count=Subquery(assigned_class_qs))
+#     return render(request, "teachers/class_teachers.html", {"teachers": teachers})
 
 
 # def assign_grade(request, teacher_id):

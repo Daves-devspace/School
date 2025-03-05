@@ -26,7 +26,7 @@ urlpatterns = [
 
     path('teachers/department-asign', views.teachers_department, name='teachers_department'),
     path('assign-grade/', views.assign_grade, name='assign_grade'),
-    path('class-teachers/', views.class_teachers, name='class_teachers'),
+    # path('class-teachers/', views.class_teachers, name='class_teachers'),
 
     path("departments/", views.department_list, name="departments"),
     path("departments/add", views.add_department, name="add_department"),

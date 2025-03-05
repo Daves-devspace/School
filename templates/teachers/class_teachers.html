@@ -4,98 +4,382 @@
 
     <div class="page-wrapper">
         <div class="content container-fluid">
-            <div class="page-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="page-title">Assign Class</h3>
-                        <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Class</li>
-                        </ul>
-                    </div>
-                    
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12">
-                
-                        <div class="page-header">
-                                <div class="row align-items-center">
-                                    <div class="col">
-                                        <h3 class="page-title">Teachers</h3>
-                                    </div>
-                                    <div class="col-auto text-end float-end ms-auto download-grp">
-                                        <a href="{% url 'teachers' %}"
-                                           class="btn btn-success me-2 active"><i
-                                                class="fas fa-list"></i></a>
-                                        <a href="{% url 'teachers' %}"
-                                           class="btn btn-success me-2"><i
-                                                class="fas fa-th-large"></i></a>
-                                        <a href="#" class="btn btn-success me-2"><i
-                                                class="fas fa-download"></i>
-                                            Download</a>
-                                        <a href="{% url 'class_teachers' %}" class="btn btn-success me-2"><i
-                                                class="fas fa-chalkboard-teacher"></i>
-                                            Class Teachers</a>
-                                        
+            <div class="page-header bg-white  align-items-center shadow">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="page-sub-header">
+                            <div class="ms-2">
+                                <h3 class="page-title">Classes</h3>
+                                <ul class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="students.html">Dashboard</a></li>
+                                    <li class="breadcrumb-item active">classes</li>
+                                </ul>
+                            </div>
+                            <div class="breadcrumb">
+                                <div class="d-flex align-items-center">
+
+                                    <div class="me-2">
+                                        <button class="btn btn-success text-white" data-bs-toggle="modal"
+                                                data-bs-target="#addClassModal">
+                                            <i class="fas fa-plus-circle"></i> add class
+                                        </button>
                                     </div>
                                 </div>
+
                             </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover table-center mb-0 datatable">
-                                    <thead>
-                                    <tr>
-                                        <th>STF.NO</th>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+
+            <!-- Add Class Modal -->
+            <!-- Add Class Modal -->
+            <div class="modal fade" id="addClassModal" tabindex="-1" aria-labelledby="addClassModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add New Class</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form id="addClassForm" method="POST">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="gradeSelect" class="form-label">Grade</label>
+                                    <div class="input-group">
+                                        <select name="grade" id="gradeSelect" class="form-select" required>
+                                            {% for grade in grades %}
+                                                <option value="{{ grade.id }}">{{ grade.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                                data-bs-target="#addGradeModal">
+                                            <i class="fas fa-plus-circle"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="sectionSelect" class="form-label">Section (Optional)</label>
+                                    <div class="input-group">
+                                        <select name="section" id="sectionSelect" class="form-select">
+                                            <option value="">No Section</option>
+                                            {% for section in sections %}
+                                                <option value="{{ section.id }}">{{ section.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                                data-bs-target="#addSectionModal">
+                                            <i class="fas fa-plus-circle"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="class_teacher" class="form-label">Class Teacher (Optional)</label>
+                                    <select name="class_teacher" id="class_teacher" class="form-select">
+                                        <option value="">No Teacher</option>
+                                        {% for teacher in teachers %}
+                                            <option value="{{ teacher.id }}">{{ teacher.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Class</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Add Grade Modal -->
+            <div class="modal fade" id="addGradeModal" tabindex="-1" aria-labelledby="addGradeModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add New Grade</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form id="addGradeForm" method="POST" action="{% url 'add_grade' %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="gradeName" class="form-label">Grade Name</label>
+                                    <input type="text" id="gradeName" name="name" class="form-control" required
+                                           placeholder="Enter Grade Name">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="gradeLevel" class="form-label">Grade Level</label>
+                                    <input type="number" id="gradeLevel" name="level" class="form-control" required
+                                           placeholder="Enter Grade Level">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-success">Add Grade</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Add Section Modal -->
+            <div class="modal fade" id="addSectionModal" tabindex="-1" aria-labelledby="addSectionModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add New Section</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form id="addSectionForm" method="POST" action="{% url 'add_section' %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="sectionName" class="form-label">Section Name</label>
+                                    <input type="text" id="sectionName" name="name" class="form-control" required
+                                           placeholder="Enter Section Name">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-success">Add Section</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table shadow">
+                        <div class="card-body">
+
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h3 class="page-title m-0">Classes</h3>
+
+                                <div class="btn-group">
+                                    <a href="{% url 'teachers' %}"
+                                       class="btn btn-success me-2 active"><i
+                                            class="fas fa-list"></i></a>
+                                    <a href="{% url 'teachers' %}"
+                                       class="btn btn-success me-2"><i
+                                            class="fas fa-th-large"></i></a>
+                                    <button class="btn btn-outline-success dropdown-toggle" type="button"
+                                            id="exportDropdown"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-file-export"></i> Export
+                                    </button>
+
+                                </div>
+                            </div>
+
+                            <div class="table-responsive mt-3">
+                                <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                    <thead class="table-success ">
+                                    <tr class="student-thread">
+                                        <th>Class Teacher <br> STF.NO</th>
                                         <th>Name</th>
-
-                                        <th>Assign Grade</th>
-                                        <th>No.Student</th>
-
                                         <th>Mobile Number</th>
-
-
-                                        <th class="text-right">Assign</th>
+                                        <th>Grade</th>
+                                        <th>Section</th>
+                                        <th>No.Student</th>
+                                        <th>Action</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-
-                                    {% for teacher in teachers %}
+                                    {% for section in grade_sections %}
                                         <tr>
+                                            <td>{{ section.class_teacher.staff_number|default:"No Teacher Assigned" }}</td>
+                                            <td>{{ section.class_teacher.get_title|default:"No Teacher Assigned" }}</td>
+                                            <td>{{ section.class_teacher.phone|default:"No Teacher Assigned" }}</td>
 
-                                            <td>{{ teacher.staff_number }}</td>
-                                            <td>{{ teacher.get_title }}</td>
-                                            <td>
-                                                {% if teacher.assigned_class %}
-                                                    {{ teacher.assigned_class }}
-                                                {% else %}
-                                                    No class assigned
-                                                {% endif %}
-                                            </td>
-                                        <td>{{ teacher.student_count|default:0 }}</td>
-
-                                            <td>{{ teacher.phone|default:"No phone number" }}</td>
-
-
+                                            <td>{{ section.grade.name }}</td>
+                                            <td>{{ section.section.name|default:"-" }}</td>
+                                            <td>{{ section.student_count|default:0 }}</td>
                                             <td class="text-right">
                                                 <div class="actions">
-                                                    <button class="btn btn-success assign-btn"
-                                                            data-teacher-id="{{ teacher.id }}"
-                                                            data-teacher-name="{{ teacher.user.get_full_name }}"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#assignModal">
-                                                        Assign Class
+                                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                                            data-bs-target="#editModal{{ section.id }}">Edit
                                                     </button>
+                                                    <!-- Button to trigger Split Modal -->
+                                                    <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                                            data-bs-target="#splitClassModal{{ grade_section.id }}">
+                                                        Split Class
+                                                    </button>
+
+                                                    <!-- Button to trigger Merge Modal -->
+                                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                                            data-bs-target="#mergeClassModal{{ grade_section.id }}">
+                                                        Merge Class
+                                                    </button>
+
                                                 </div>
                                             </td>
                                         </tr>
 
+                                        <!-- Edit Modal -->
+                                        <div class="modal fade" id="editModal{{ section.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Edit Class Section</h5>
+                                                        <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form method="POST"
+                                                              action="{% url 'update_class_section' section.id %}">
+                                                            {% csrf_token %}
+                                                            <label for="section">Change Section:</label>
+                                                            <select name="section" class="form-control">
+                                                                <option value="">No Section</option>
+                                                                {% for sec in sections %}
+                                                                    <option value="{{ sec.id }}"
+                                                                            {% if sec == section.section %}selected{% endif %}>
+                                                                        {{ sec.name }}
+                                                                    </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                            <button type="submit" class="btn btn-primary mt-3">Save
+                                                                Changes
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- Split Modal -->
+                                        <div class="modal fade" id="splitClassModal{{ grade_section.id }}" tabindex="-1"
+                                             aria-labelledby="splitClassModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Split Class</h5>
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    {% if grade_section and grade_section.id %}
+                                                        <form method="POST"
+                                                              action="{% url 'split_class' grade_section.id %}">
+                                                            {% csrf_token %}
+                                                            <div class="modal-body">
+                                                                <label for="section1">Select First Section:</label>
+                                                                <select name="section1" id="section1"
+                                                                        class="form-control"
+                                                                        required>
+                                                                    <option value="" disabled selected>-- Select Section
+                                                                        --
+                                                                    </option>
+                                                                    {% for section in available_sections %}
+                                                                        <option value="{{ section.id }}">{{ section.name }}</option>
+                                                                    {% empty %}
+                                                                        <option disabled>No available sections</option>
+                                                                    {% endfor %}
+                                                                </select>
+
+                                                                <label for="section2" class="mt-3">Select Second
+                                                                    Section:</label>
+                                                                <select name="section2" id="section2"
+                                                                        class="form-control"
+                                                                        required>
+                                                                    <option value="" disabled selected>-- Select Section
+                                                                        --
+                                                                    </option>
+                                                                    {% for section in available_sections %}
+                                                                        <option value="{{ section.id }}">{{ section.name }}</option>
+                                                                    {% empty %}
+                                                                        <option disabled>No available sections</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="submit" class="btn btn-primary">Split
+                                                                </button>
+                                                                <button type="button" class="btn btn-secondary"
+                                                                        data-dismiss="modal">Cancel
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    {% else %}
+                                                        <p>No class available for merging.</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- Merge Modal -->
+                                        <!-- Merge Modal -->
+                                        <div class="modal fade" id="mergeClassModal{{ grade_section.id }}" tabindex="-1"
+                                             aria-labelledby="mergeClassModalLabel" aria-hidden="true">
+
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Merge Class</h5>
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    {% if grade_section.id %}
+                                                        <form method="POST"
+                                                              action="{% url 'merge_class' grade_section.id %}">
+                                                            {% csrf_token %}
+                                                            <div class="modal-body">
+                                                                <label for="target_section">Select a section to merge
+                                                                    into:</label>
+                                                                <select name="target_section" id="target_section"
+                                                                        class="form-control" required>
+                                                                    <option value="" disabled selected>-- Select Section
+                                                                        --
+                                                                    </option>
+                                                                    {% for section in available_sections %}
+                                                                        <option value="{{ section.id }}">{{ section.section.name }}</option>
+                                                                    {% empty %}
+                                                                        <option disabled>No available sections</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="submit" class="btn btn-primary">Merge
+                                                                </button>
+                                                                <button type="button" class="btn btn-secondary"
+                                                                        data-dismiss="modal">Cancel
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    {% else %}
+                                                        <p>No class available for merging.</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     {% endfor %}
                                     </tbody>
+
+
                                 </table>
-
                                 <!-- Assignment Modal -->
-                           
-
                             </div>
                         </div>
                     </div>
@@ -107,14 +391,18 @@
         </footer>
     </div>
 
-  
 
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/feather.min.js' %}"></script>
     <script src="{% static 'assets/js/popper.min.js' %}"></script>
     <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
     <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
     <script src="{% static 'assets/js/script.js' %}"></script>
+    {#    <script src="{% static 'assets/js/class-details.js' %}"></script>#}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     </body>
 
     </html>

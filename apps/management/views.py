@@ -499,7 +499,7 @@ def unified_sms_view(request):
         'exam_type_count': context['exam_types'].count()
     })
 
-    return render(request, 'manage/send_sms.html', context)
+    return render(request, 'Manage/send_sms.html', context)
 
 
 @login_required

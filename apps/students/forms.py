@@ -3,8 +3,9 @@ from django.db.models.fields import CharField
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.validators import validate_international_phonenumber
 
-from .models import Student, Parent, StudentParent, Grade, StudentDocument, GradeSection
+from .models import Student, Parent, StudentParent, Grade, StudentDocument, GradeSection, Section
 from ..management.models import ExamType, Term
+from ..teachers.models import Teacher
 
 # Define Choices
 GENDER_CHOICES = [("Male", "Male"), ("Female", "Female")]
@@ -15,35 +16,38 @@ RELATIONSHIP_CHOICES = [("Father", "Father"), ("Mother", "Mother"), ("Guardian",
 class StudentForm(forms.ModelForm):
     gender = forms.ChoiceField(
         choices=GENDER_CHOICES,
-        widget=forms.Select(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
     )
     religion = forms.ChoiceField(
         choices=RELIGION_CHOICES,
-        widget=forms.Select(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
     )
+
+
     parent_relationship = forms.ChoiceField(
         choices=RELATIONSHIP_CHOICES,
-        widget=forms.Select(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
     )
+
 
     parent_first_name = forms.CharField(
         max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'Parent First Name'}),
+        widget=forms.TextInput(attrs={'class': 'form-control','placeholder': 'Parent First Name'}),
     )
     parent_last_name = forms.CharField(
         max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'Parent Last Name'}),
+        widget=forms.TextInput(attrs={'class': 'form-control','placeholder': 'Parent Last Name'}),
     )
     parent_mobile = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Parent Mobile'}),
+        widget=forms.TextInput(attrs={'class': 'form-control','placeholder': 'Parent Mobile'}),
     )
     parent_email = forms.EmailField(
         required=False,
-        widget=forms.EmailInput(attrs={'placeholder': 'Parent Email'}),
+        widget=forms.EmailInput(attrs={'class': 'form-control','placeholder': 'Parent Email'}),
     )
     parent_address = forms.CharField(
         required=False,
-        widget=forms.Textarea(attrs={'placeholder': 'Parent Address'}),
+        widget=forms.Textarea(attrs={'class': 'form-control','placeholder': 'Parent Address'}),
     )
 
     class Meta:
@@ -54,11 +58,12 @@ class StudentForm(forms.ModelForm):
             'admission_number', 'student_image',
         ]
         widgets = {
-            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
-            'joining_date': forms.DateInput(attrs={'type': 'date'}),
-            'first_name': forms.TextInput(attrs={'placeholder': 'Student First Name'}),
-            'last_name': forms.TextInput(attrs={'placeholder': 'Student Last Name'}),
-            'admission_number': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'grade': forms.Select(attrs={'class': 'form-control'}),
+            'date_of_birth': forms.DateInput(attrs={'class': 'form-control','type': 'date'}),
+            'joining_date': forms.DateInput(attrs={'class': 'form-control','type': 'date'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Student First Name'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Student Last Name'}),
+            'admission_number': forms.TextInput(attrs={'class': 'form-control','readonly': 'readonly'}),
             'student_image': forms.FileInput(),
 
         }
@@ -120,6 +125,55 @@ class StudentForm(forms.ModelForm):
 
         return student
 
+
+
+class GradeSectionForm(forms.ModelForm):
+    class Meta:
+        model = GradeSection
+        fields = ["grade", "section", "class_teacher"]
+        widgets = {
+            "grade": forms.Select(attrs={"class": "form-select"}),
+            "section": forms.Select(attrs={"class": "form-select"}),
+            "class_teacher": forms.Select(attrs={"class": "form-select"}),
+        }
+
+    section = forms.ModelChoiceField(
+        queryset=Section.objects.all(),
+        required=False,
+        empty_label="No Section",
+        widget=forms.Select(attrs={"class": "form-select"})
+    )
+
+    class_teacher = forms.ModelChoiceField(
+        queryset=Teacher.objects.all(),
+        required=False,
+        empty_label="No Teacher",
+        widget=forms.Select(attrs={"class": "form-select"})
+    )
+
+class GradeForm(forms.ModelForm):
+    class Meta:
+        model = Grade
+        fields = ["name", "level"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter Grade Name"}),
+            "level": forms.NumberInput(attrs={"class": "form-control", "placeholder": "Enter Grade Level"}),
+        }
+
+class SectionForm(forms.ModelForm):
+    def clean_name(self):
+        name = self.cleaned_data["name"].strip().title()  # Remove extra spaces & format
+        if Section.objects.filter(name=name).exists():
+            raise forms.ValidationError("This section already exists.")
+        return name
+
+    class Meta:
+        model = Section
+        fields = ["name"]
+
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter Section Name"}),
+        }
 
 class DocumentUploadForm(forms.ModelForm):
     class Meta:

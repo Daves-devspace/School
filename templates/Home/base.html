@@ -8,7 +8,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
     <title>Merryland</title>
-    <link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}">
+    <link rel="shortcut icon" href="{% static 'assets/img/logosmall.png' %}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700&display=swap"
           rel="stylesheet">
     <link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}">
@@ -28,6 +28,9 @@
 
 
     <link rel="stylesheet" href="{% static 'assets/plugins/simple-calendar/simple-calendar.css' %}">
+
+    <!--ajax load library -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
@@ -213,7 +216,7 @@
                         <span>Main Menu</span>
                     </li>
                     <li class="submenu active">
-                        <a href="#"><i class="feather-grid"></i> <span> Dashboard</span> <span
+                        <a href="#"><i class="fas fa-dashboard"></i> <span> Dashboard</span> <span
                                 class="menu-arrow"></span></a>
                         <ul>
                             <li class="submenu ">
@@ -231,6 +234,9 @@
                             <li><a href="student-dashboard.html">Student Dashboard</a></li>
                         </ul>
                     </li>
+                    <li class="menu-title">
+                        <span>PEOPLES</span>
+                    </li>
                     <li>
                         <a href="{% url 'students' %}"><i class="fas fa-graduation-cap custom-color"></i> <span
                                 class="custom-color"> Students</span>
@@ -245,16 +251,7 @@
                                     class="menu-arrow"></span></a>
 
                     </li>
-                    <li class="submenu">
-                        <a href="#"><i class="fas fa-building custom-color toggle-menu"></i> <span
-                                class="custom-color"> Departments</span> <span
-                                class="menu-arrow"></span></a>
-                        <ul>
-                            <li><a href="{% url 'departments' %}">Department List</a></li>
-                            <li><a href="{% url 'club_list' %}">Clubs</a></li>
-                            <li><a href="{% url 'teachers_department' %}">Department Assign</a></li>
-                        </ul>
-                    </li>
+
                     <li class="menu-title">
                         <span>Academics</span>
                     </li>
@@ -263,7 +260,8 @@
                                 class="custom-color">Class</span> <span
                                 class="menu-arrow"></span></a>
                         <ul>
-                            <li><a href="{% url 'student_query' %}">All Classes</a></li>
+                            <li><a href="{% url 'class_details' %}"><i class="fas fa-user-friends  custom-colo me-2"></i>All
+                                Classes</a></li>
                             <li><a href="{% url 'get_filtered_timetable' %}">Schedules</a></li>
                             <li><a href="{% url 'teachers_department' %}">Sections</a></li>
                             <li><a href="{% url 'add_edit_room_and_list' %}">Rooms</a></li>
@@ -293,6 +291,29 @@
                         <a href="{% url 'timetable_page' %}"><i class="fas fa-clipboard-list custom-color"></i> <span
                                 class="custom-color">Timetable</span></a>
                     </li>
+
+                    <li class="menu-title">
+                        <span>MANAGEMENT</span>
+                    </li>
+
+                    {% if perms.students.view_fee_payment %}
+                        <li class="submenu">
+                            <a href="#"><i class="fas fa-file-invoice-dollar custom-color"></i> <span
+                                    class="custom-color">Fee Collection</span>
+                                <span
+                                        class="menu-arrow"></span></a>
+                            <ul>
+                                <li><a href="{% url 'students_with_balances' %}">Collect Fees</li>
+                                <li><a href="{% url 'start_new_term' %}">Term Fee Update</a></li>
+                                <li><a href="{% url 'overpayments' %}">Overpayments</a></li>
+                                <li><a href="#">transport</a></li>
+                                <li><a href="{% url 'all_records' %}">Fee records</a></li>
+                                <li><a href="{% url 'expense_view' %}">Expenses</a></li>
+                                <li><a href="{% url 'add_fee_structure' %}">Add Fees Structure</a></li>
+                                <li><a href="{% url 'fee_structure_list' %}">fees structure</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
                     {% if perms.students.view_invoice %}
                         <li class="submenu">
                             <a href="#"><i class="fas fa-clipboard custom-color"></i> <span
@@ -308,32 +329,7 @@
                             </ul>
                         </li>
                     {% endif %}
-                    <li class="menu-title">
-                        <span>Finance & Accounts</span>
-                    </li>
 
-                    {% if perms.students.view_fee_payment %}
-                        <li class="submenu">
-                            <a href="#"><i class="fas fa-file-invoice-dollar custom-color"></i> <span
-                                    class="custom-color"> Accounts</span>
-                                <span
-                                        class="menu-arrow"></span></a>
-                            <ul>
-                                <li><a href="{% url 'students_with_balances' %}">Fees Collection</a></li>
-                                <li><a href="{% url 'start_new_term' %}">Term Fee Update</a></li>
-                                <li><a href="{% url 'overpayments' %}">Overpayments</a></li>
-                                <li><a href="#">transport</a></li>
-                                <li><a href="{% url 'all_records' %}">Fee records</a></li>
-                                <li><a href="{% url 'expense_view' %}">Expenses</a></li>
-                                <li><a href="{% url 'add_fee_structure' %}">Add Fees Structure</a></li>
-                                <li><a href="{% url 'fee_structure_list' %}">fees structure</a></li>
-                            </ul>
-                        </li>
-                    {% endif %}
-
-                    <li class="menu-title">
-                        <span>Management</span>
-                    </li>
                     <li>
                         <a href="{% url 'books_in_store' %}"><i class="fas fa-book custom-color"></i> <span
                                 class="custom-color">Library</span><span
@@ -344,13 +340,44 @@
                         <a href="{% url 'transport' %}"><i class="fas fa-bus custom-color"></i> <span
                                 class="custom-color">Transport</span></a>
                     </li>
+                    <li class="menu-title">
+                        <span>HRM</span>
+                    </li>
+                    <li class="submenu">
+                        <a href="#"><i class="fas fa-building custom-color toggle-menu"></i> <span
+                                class="custom-color"> Departments</span> <span
+                                class="menu-arrow"></span></a>
+                        <ul>
+                            <li><a href="{% url 'departments' %}">Department List</a></li>
+                            <li><a href="{% url 'club_list' %}">Clubs</a></li>
+                            <li><a href="{% url 'teachers_department' %}">Department Assign</a></li>
+                        </ul>
+                    </li>
+                    <li class="submenu">
+                        <a href="#"><i class="fas fa-building custom-color toggle-menu"></i> <span
+                                class="custom-color"> Attendance</span> <span
+                                class="menu-arrow"></span></a>
+                        <ul>
+                            <li><a href="{% url 'departments' %}">Student Attendance</a></li>
+                            <li><a href="{% url 'club_list' %}">Teacher Attendance</a></li>
+                            <li><a href="{% url 'teachers_department' %}">Staff Attendance/a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-title">
+                        <span>ANNOUNCEMENTS</span>
+                    </li>
                     <li>
                         <a href="{% url 'unified_sms' %}"><i class="fas fa-inbox custom-color"></i> <span
                                 class="custom-color"> Communication</span>
                             <span class="menu-arrow"></span>
                         </a>
                     </li>
-
+                    <li>
+                        <a href="{% url 'event' %}"><i class="fas fa-inbox custom-color"></i> <span
+                                class="custom-color"> Events</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                    </li>
                     <li class="submenu">
                         <a href="#">
                             <i class="fas fa-table custom-color"></i>
@@ -358,7 +385,6 @@
                         </a>
                         <ul>
                             <li><a href="{% url 'terms' %}">Terms</a></li>
-                            <li><a href="{% url 'event' %}"> Events</a></li>
 
 
                             {#                            <li><a href="{% url 'add_edit_room_and_list' %}">Rooms</a></li>#}

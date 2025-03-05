@@ -28,6 +28,8 @@ GRADE_MAPPING = [
     (30, "AE"),
 ]
 
+def get_current_year():
+    return datetime.now().year  # This should return an integer
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -98,7 +100,7 @@ class Term(models.Model):
     end_date = models.DateField()
     midterm_start_date = models.DateField(null=True, blank=True)
     midterm_end_date = models.DateField(null=True, blank=True)
-    year = models.PositiveIntegerField(default=timezone.now().year)  # Default to current year
+    year = models.PositiveIntegerField(default=get_current_year)  # Default to current year
 
     class Meta:
         verbose_name = "Term"
@@ -200,7 +202,7 @@ class ReportCard(models.Model):
     def save(self, *args, **kwargs):
         """Ensure year is set from the term before saving."""
         if self.term and not self.year:
-            self.year = self.term.year  # Auto-set year from the Term model
+            self.year = int(self.term.year)  # Auto-set year from the Term model
         super().save(*args, **kwargs)  # Save instance first
 
     def calculate_total_marks(self):
@@ -439,10 +441,10 @@ class EventParticipant(models.Model):
 
 class Attendance(models.Model):
     student = models.ForeignKey('students.Student', on_delete=models.CASCADE)
-    section = models.ForeignKey('students.GradeSection', on_delete=models.CASCADE,default='section')
-    teacher = models.ForeignKey('teachers.Teacher', on_delete=models.CASCADE,default="class_teacher")
+    section = models.ForeignKey('students.GradeSection', on_delete=models.CASCADE, null=True, blank=True)
+    teacher = models.ForeignKey('teachers.Teacher', on_delete=models.CASCADE, null=True, blank=True)
     date = models.DateField()
-    term = models.ForeignKey(Term, on_delete=models.CASCADE,default=None)
+    term = models.ForeignKey('management.Term', on_delete=models.CASCADE, null=True, blank=True)
     is_present = models.BooleanField(default=False)
     absence_reason = models.TextField(blank=True, null=True)
 
