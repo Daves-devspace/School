@@ -1,0 +1,328 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+    <div class="page-wrapper">
+        <div class="content container-fluid">
+            <div class="page-header bg-white  align-items-center shadow">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="page-sub-header">
+                            <div class="ms-2">
+                                <h3 class="page-title">Classes</h3>
+                                <ul class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="students.html">Dashboard</a></li>
+                                    <li class="breadcrumb-item active">classes</li>
+                                </ul>
+                            </div>
+                            <div class="breadcrumb mb-3">
+                                <div class="d-flex align-items-center">
+                                    <!-- Use the grade_section variable passed from the view -->
+                                    <button class="btn btn-success me-2" data-bs-toggle="modal"
+                                            data-bs-target="#editModal{{ grade_section.id }}">
+                                        <i class="fas fa-edit"></i> Edit Class
+                                    </button>
+                                    <button class="btn btn-success me-2" data-bs-toggle="modal"
+                                            data-bs-target="#splitClassModal{{ grade_section.id }}">
+                                        <i class="fas fa-divide"></i> Split Class
+                                    </button>
+                                    <button class="btn btn-success" data-bs-toggle="modal"
+                                            data-bs-target="#mergeClassModal{{ grade_section.id }}">
+                                        <i class="fa-solid fa-code-merge"></i> Merge Class
+                                    </button>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+
+            <!-- Edit Modal -->
+            <div class="modal fade" id="editModal{{ grade_section.id }}" tabindex="-1"
+                 aria-labelledby="editModalLabel{{ grade_section.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editModalLabel{{ grade_section.id }}">Edit Class Section</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="POST" action="{% url 'update_class_section' grade_section.id %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="edit_section_{{ grade_section.id }}" class="form-label">Change
+                                        Section:</label>
+                                    <select name="section" id="edit_section_{{ grade_section.id }}" class="form-select">
+                                        <option value="">No Section</option>
+                                        {% for sec in sections %}
+                                            <option value="{{ sec.id }}"
+                                                    {% if grade_section.section and sec.id == grade_section.section.id %}selected{% endif %}>
+                                                {{ sec.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Split Modal -->
+            <div class="modal fade" id="splitClassModal{{ grade_section.id }}" tabindex="-1"
+                 aria-labelledby="splitClassModalLabel{{ grade_section.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="splitClassModalLabel{{ grade_section.id }}">Split Class</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{% url 'split_class' grade_section.id %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="section1_{{ grade_section.id }}" class="form-label">Select First
+                                        Section:</label>
+                                    <select name="section1" id="section1_{{ grade_section.id }}" class="form-select"
+                                            required>
+                                        <option value="" disabled selected>-- Select Section --</option>
+                                        {% for section in available_sections %}
+                                            <option value="{{ section.id }}">{{ section.name }}</option>
+                                        {% empty %}
+                                            <option disabled>No available sections</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="section2_{{ grade_section.id }}" class="form-label">Select Second
+                                        Section:</label>
+                                    <select name="section2" id="section2_{{ grade_section.id }}" class="form-select"
+                                            required>
+                                        <option value="" disabled selected>-- Select Section --</option>
+                                        {% for section in available_sections %}
+                                            <option value="{{ section.id }}">{{ section.name }}</option>
+                                        {% empty %}
+                                            <option disabled>No available sections</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Split</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Merge Modal -->
+            <div class="modal fade" id="mergeClassModal{{ grade_section.id }}" tabindex="-1"
+                 aria-labelledby="mergeClassModalLabel{{ grade_section.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="mergeClassModalLabel{{ grade_section.id }}">Merge Class</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{% url 'merge_class' grade_section.id %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="target_section_{{ grade_section.id }}" class="form-label">Select a
+                                        section to merge into:</label>
+                                    <select name="target_section" id="target_section_{{ grade_section.id }}"
+                                            class="form-select" required>
+                                        <option value="" disabled selected>-- Select Section --</option>
+                                        {% for section in available_sections %}
+                                            <option value="{{ section.id }}">{{ section.name }}</option>
+                                        {% empty %}
+                                            <option disabled>No available sections</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="chosen_section_{{ grade_section.id }}" class="form-label">Keep Section
+                                        Name:</label>
+                                    <select name="chosen_section" id="chosen_section_{{ grade_section.id }}"
+                                            class="form-select">
+                                        <option value="">None (General)</option>
+                                        {% if grade_section.section %}
+                                            <option value="{{ grade_section.section.id }}">{{ grade_section.section.name }}</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Merge</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Confirmation Modal -->
+            <div class="modal fade" id="confirmMergeModal" tabindex="-1"
+                 aria-labelledby="confirmMergeModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirm Merge</h5>
+                            <button type="button" class="close" data-dismiss="modal"
+                                    aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to merge this class?</p>
+                            <p><strong>Merging into:</strong> <span
+                                    id="selectedSection"></span></p>
+                            <p><strong>Keeping section name:</strong> <span
+                                    id="selectedSectionName"></span></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success"
+                                    id="confirmMergeBtn">Confirm
+                            </button>
+                            <button type="button" class="btn btn-secondary"
+                                    data-dismiss="modal">Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card card-table shadow">
+                        <div class="card-body">
+
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h2>Class Details - {{ grade_section.grade.name }} {{ grade_section.section.name }}</h2>
+
+                                <div class="btn-group">
+                                    <a href="{% url 'teachers' %}"
+                                       class="btn btn-success me-2 active"><i
+                                            class="fas fa-list"></i></a>
+                                    <a href="{% url 'teachers' %}"
+                                       class="btn btn-success me-2"><i
+                                            class="fas fa-th-large"></i></a>
+                                    <button class="btn btn-outline-success dropdown-toggle" type="button"
+                                            id="exportDropdown"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-file-export"></i> Export
+                                    </button>
+
+                                </div>
+                            </div>
+
+                            <div class="table-responsive mt-3">
+                                <table class="table border-0 star-student table-hover table-center mb-0 datatable table-striped">
+                                    <thead class="table-success ">
+                                    <tr class="student-thread">
+                                        <th>ADM.NO</th>
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
+                                        <th>Grade</th>
+                                        <th>Gender</th>
+                                        <th>Joining Date</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% if students %}
+                                        {% for student in students %}
+                                            <tr>
+                                                <td>{{ student.admission_number }}</td>
+                                                <td>{{ student.first_name }}</td>
+                                                <td>{{ student.last_name }}</td>
+                                                <td>{{ student.grade }}</td>
+                                                <td>{{ student.gender }}</td>
+                                                <td>{{ student.joining_date }}</td>
+                                                {#                                                <td class="text-right">#}
+                                                {#                                                    <div class="actions">#}
+                                                {#                                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal"#}
+                                                {#                                                                data-bs-target="#editModal{{ section.id }}">Edit#}
+                                                {#                                                        </button>#}
+                                                {#                                                        <!-- Button to trigger Split Modal -->#}
+                                                {#                                                        <button type="button" class="btn btn-warning"#}
+                                                {#                                                                data-bs-toggle="modal"#}
+                                                {#                                                                data-bs-target="#splitClassModal{{ grade_section.id }}">#}
+                                                {#                                                            Split Class#}
+                                                {#                                                        </button>#}
+                                                {##}
+                                                {#                                                        <!-- Button to trigger Merge Modal -->#}
+                                                {#                                                        <button type="button" class="btn btn-danger"#}
+                                                {#                                                                data-bs-toggle="modal"#}
+                                                {#                                                                data-bs-target="#mergeClassModal{{ grade_section.id }}">#}
+                                                {#                                                            Merge Class#}
+                                                {#                                                        </button>#}
+                                                {##}
+                                                {#                                                    </div>#}
+                                                {#                                                </td>#}
+                                            </tr>
+
+
+                                        {% endfor %}
+                                        </tbody>
+                                    {% else %}
+                                        <p>No students assigned to this class.</p>
+                                    {% endif %}
+
+
+                                </table>
+                                <!-- Assignment Modal -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <p>Copyright © 2024 Davedev</p>
+        </footer>
+    </div>
+    {#    <script>#}
+    {#        document.addEventListener("DOMContentLoaded", function () {#}
+    {#            // If you have a default grade_section, use its id#}
+    {#            const defaultId = "{{ grade_section.id }}";  // Ensure this variable is available in context#}
+    {#            if (defaultId) {#}
+    {#                document.querySelector('[data-bs-target="#editModal"]').setAttribute("data-bs-target", "#editModal" + defaultId);#}
+    {#                document.querySelector('[data-bs-target="#splitClassModal"]').setAttribute("data-bs-target", "#splitClassModal" + defaultId);#}
+    {#                document.querySelector('[data-bs-target="#mergeClassModal"]').setAttribute("data-bs-target", "#mergeClassModal" + defaultId);#}
+    {#            }#}
+    {#        });#}
+    {#    </script>#}
+
+
+
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/feather.min.js' %}"></script>
+    <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    {#    <script src="{% static 'assets/js/class-details.js' %}"></script>#}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    </body>
+
+    </html>
+
+
+{% endblock %}

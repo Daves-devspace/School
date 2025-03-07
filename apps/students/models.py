@@ -59,6 +59,7 @@ class Section(models.Model):
 
 
 
+
 class GradeSection(models.Model):
     grade = models.ForeignKey(
         Grade, on_delete=models.CASCADE, related_name="grade_sections"
@@ -67,7 +68,7 @@ class GradeSection(models.Model):
         Section, on_delete=models.SET_NULL, related_name="section_grade_sections",
         null=True, blank=True  # Allow grades without sections
     )
-    class_teacher = models.OneToOneField(
+    class_teacher = models.OneToOneField(  # Keep or change to ForeignKey if needed
         Teacher,
         on_delete=models.SET_NULL,
         null=True,
@@ -79,7 +80,7 @@ class GradeSection(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["grade", "section"], name="unique_grade_section")
         ]
-        ordering = ["grade__name", "section__name"]  # Fixed ordering
+        ordering = ["grade__name", "section__name"]
 
     def __str__(self):
         return f"{self.grade.name} {self.section.name if self.section else ''}".strip()
@@ -121,6 +122,7 @@ class GradeSection(models.Model):
         except Exception as e:
             logger.error(f"Error creating default room for {self}: {str(e)}")
             return None  # Prevent crashes
+
 
 
 

@@ -22,12 +22,15 @@ from reportlab.lib.utils import ImageReader
 
 from School import settings
 from apps.accounts.models import FeeStructure, FeeRecord
-from apps.management.models import Term, SubjectMark, ReportCard, ExamType, Attendance, Institution
+from apps.management.models import Term, SubjectMark, ReportCard, ExamType, Attendance, Institution, AcademicYear
 from apps.students.forms import StudentForm, PromoteStudentsForm, SendSMSForm, DocumentUploadForm, \
     StudentSearchForm, GradeSectionForm, GradeForm, SectionForm
 # from apps.students.forms import StudentForm
 from apps.students.models import Student, Parent, StudentParent, Grade, GradeSection, StudentDocument, Section
 from apps.teachers.models import Teacher
+
+# Ensure the next academic session exists
+
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +47,7 @@ def add_grade(request):
         else:
             logger.error(f"Grade Form Errors: {form.errors}")  # Log errors
             messages.error(request, f"Error: Invalid grade data. {form.errors}")  # Show actual error
-    return redirect(reverse("class_details"))
+    return redirect(reverse("grade_sections_details"))
 
 
 def add_section(request):
@@ -56,7 +59,7 @@ def add_section(request):
         else:
             logger.error(f"Section Form Errors: {form.errors}")  # Log errors
             messages.error(request, f"Error: Invalid section data. {form.errors}")  # Show actual error
-    return redirect(reverse("class_details"))
+    return redirect(reverse("grade_sections_details"))
 
 
 def update_class_section(request, section_id):
@@ -72,16 +75,14 @@ def update_class_section(request, section_id):
 
         grade_section.save()
         messages.success(request, "Class section updated successfully!")
-        return redirect("class_details")  # Redirect back to class list
+        return redirect("class_details", grade_section_id=grade_section.id)  # Redirect back to class list
 
     # return render(request, "teachers/class_teachers.html", {"grade_section": grade_section})
-    return redirect("class_details")
+    return redirect("class_details", grade_section_id=grade_section.id)
+
 
 def split_class(request, grade_section_id):
     grade_section = get_object_or_404(GradeSection, id=grade_section_id)
-
-    # ✅ Fetch all sections in the database
-    available_sections = Section.objects.all()
 
     if request.method == "POST":
         section1_id = request.POST.get("section1")
@@ -89,88 +90,120 @@ def split_class(request, grade_section_id):
 
         if not section1_id or not section2_id:
             messages.error(request, "Both section selections are required for splitting!")
-            return redirect("class_details")
+            return redirect("class_details", grade_section_id=grade_section_id)
+
+        if section1_id == section2_id:
+            messages.error(request, "The selected sections must be different!")
+            return redirect("class_details", grade_section_id=grade_section_id)
 
         section1 = get_object_or_404(Section, id=section1_id)
         section2 = get_object_or_404(Section, id=section2_id)
 
-        with transaction.atomic():
-            # Create new GradeSections with selected sections
-            new_section1 = GradeSection.objects.create(
-                grade=grade_section.grade,
-                section=section1,
-                class_teacher=grade_section.class_teacher
-            )
+        try:
+            with transaction.atomic():
+                new_section1, created1 = GradeSection.objects.get_or_create(
+                    grade=grade_section.grade,
+                    section=section1,
+                    defaults={"class_teacher": grade_section.class_teacher},
+                )
 
-            new_section2 = GradeSection.objects.create(
-                grade=grade_section.grade,
-                section=section2,
-                class_teacher=grade_section.class_teacher
-            )
+                new_section2, created2 = GradeSection.objects.get_or_create(
+                    grade=grade_section.grade,
+                    section=section2,
+                    defaults={"class_teacher": None},
+                )
 
-            # Split students between the new sections
-            students = list(grade_section.students.all())  # Assuming ManyToMany relationship
-            mid = len(students) // 2
-            for student in students[:mid]:
-                student.grade_section = new_section1
-                student.save()
-            for student in students[mid:]:
-                student.grade_section = new_section2
-                student.save()
+                # If both sections already exist for this grade, warn the user.
+                if not created1 and not created2:
+                    messages.error(request, "One or both sections already exist for this grade!")
+                    return redirect("class_details", grade_section_id=grade_section_id)
 
-            # Delete the original class
-            grade_section.delete()
+                students = list(grade_section.students.all())
+                mid = len(students) // 2
 
-        messages.success(request, "Class successfully split into selected sections!")
-        return redirect("class_details")
+                for student in students[:mid]:
+                    student.grade_section = new_section1  # Correct field: Student model's FK is named 'grade'
+                for student in students[mid:]:
+                    student.grade_section = new_section2
 
-    return render(request, "teachers/class_details.html", {
-        "grade_section": grade_section,
-        "available_sections": available_sections
-    })
+                Student.objects.bulk_update(students, ["grade"])
 
+                if students:
+                    grade_section.delete()
 
+            messages.success(request, "Class successfully split into selected sections!")
+            # Redirect back to class_details for one of the new sections.
+            return redirect("class_details", grade_section_id=new_section1.id)
+
+        except IntegrityError:
+            messages.error(request, "A section with this grade already exists!")
+        except Exception as e:
+            messages.error(request, f"An error occurred while splitting: {str(e)}")
+
+        return redirect("class_details", grade_section_id=grade_section_id)
+
+    # For non-POST requests, simply redirect back.
+    return redirect("class_details", grade_section_id=grade_section_id)
 
 
 def merge_class(request, grade_section_id):
-    grade_section = get_object_or_404(GradeSection, id=grade_section_id)
-
-    # ✅ Ensure available sections are populated
-    available_sections = GradeSection.objects.filter(grade=grade_section.grade).exclude(id=grade_section_id)
+    # Retrieve the GradeSection to be merged
+    try:
+        grade_section = GradeSection.objects.get(id=grade_section_id)
+    except GradeSection.DoesNotExist:
+        messages.error(request, "The class section you are trying to merge does not exist.")
+        return redirect("class_details")  # or to your class list page
 
     if request.method == "POST":
         target_section_id = request.POST.get("target_section")
+        chosen_section_id = request.POST.get("chosen_section")  # Optional: chosen section name to keep
+
         if not target_section_id:
             messages.error(request, "Please select a section to merge into!")
-            return redirect("class_details")
+            return redirect("class_details", grade_section_id=grade_section_id)
 
         target_section = get_object_or_404(GradeSection, id=target_section_id)
 
-        with transaction.atomic():
-            # Move students to the selected section
-            for student in grade_section.students.all():
-                student.grade_section = target_section
-                student.save()
+        if grade_section.id == target_section.id:
+            messages.error(request, "You cannot merge a class section into itself!")
+            return redirect("class_details", grade_section_id=grade_section_id)
 
-            # Delete the old section
-            grade_section.delete()
+        try:
+            with transaction.atomic():
+                # Reassign all students from the merging GradeSection to the target GradeSection.
+                students = list(grade_section.students.all())
+                for student in students:
+                    student.grade = target_section  # Note: 'grade' is the field in Student model.
+                Student.objects.bulk_update(students, ["grade"])
 
-        messages.success(request, f"Class section successfully merged into {target_section.section.name}!")
-        return redirect("class_details")
+                # Optionally update the target section's name based on admin choice.
+                if chosen_section_id:
+                    chosen_section = get_object_or_404(Section, id=chosen_section_id)
+                    # Update target_section only if it is different or currently None.
+                    if not target_section.section or target_section.section.id != chosen_section.id:
+                        target_section.section = chosen_section
+                        target_section.save()
 
-    # ✅ Pass available_sections to the template
-    return render(request, "teachers/class_details.html", {
-        "grade_section": grade_section,
-        "available_sections": available_sections
-    })
+                # Delete the merged GradeSection if it had students.
+                if students:
+                    grade_section.delete()
 
+            section_name = target_section.section.name if target_section.section else "General"
+            messages.success(request, f"Class successfully merged into {target_section.grade.name} {section_name}.")
+            return redirect("class_details", grade_section_id=target_section.id)
 
+        except IntegrityError:
+            messages.error(request, "A class section with this Grade & Section already exists!")
+        except Exception as e:
+            messages.error(request, f"An error occurred while merging: {str(e)}")
 
+        return redirect("class_details", grade_section_id=grade_section_id)
 
+    return redirect("class_details", grade_section_id=grade_section_id)
 
 
 # Handle Class Details
-def class_details(request):
+def grade_sections_details(request):
     if request.method == "POST":
         form = GradeSectionForm(request.POST)
         if form.is_valid():
@@ -178,26 +211,40 @@ def class_details(request):
             messages.success(request, "Class details saved successfully!")
         else:
             messages.error(request, "Error saving class details. Please check the form.")
-        return redirect("class_details")
+        # Redirect to the listing page (which doesn't require an ID)
+        return redirect("grade_sections_details")
 
     form = GradeSectionForm()
-
-    # Fetch required data for the page
     grade_sections = GradeSection.objects.annotate(student_count=Count("students"))
     grades = Grade.objects.all()
     sections = Section.objects.all()
     teachers = Teacher.objects.all()
 
-    return render(request, "teachers/class_teachers.html", {
+    context = {
         "form": form,
         "grades": grades,
         "sections": sections,
         "teachers": teachers,
         "grade_sections": grade_sections,
+    }
+    return render(request, "teachers/class_teachers.html", context)
+
+
+def class_details(request, grade_section_id):
+    """Display details (students) for a specific GradeSection and provide modals for editing, splitting, and merging."""
+    grade_section = get_object_or_404(GradeSection, id=grade_section_id)
+    # Get students in this grade section. (Student model's foreign key field is named 'grade'.)
+    students = Student.objects.filter(grade=grade_section)
+    sections = Section.objects.all()
+    # Exclude the current section from available sections if one is assigned
+    available_sections = sections.exclude(id=grade_section.section.id) if grade_section.section else sections
+
+    return render(request, "teachers/class_details.html", {
+        "grade_section": grade_section,
+        "students": students,
+        "sections": sections,
+        "available_sections": available_sections,
     })
-
-
-
 
 
 # Create your views here.
@@ -205,7 +252,6 @@ def class_details(request):
 def students(request):
     student_list = Student.objects.filter(status="Active")
     return render(request, "students/students.html", {"student_list": student_list})
-
 
 
 def student_query(request):
@@ -227,8 +273,6 @@ def student_query(request):
         'student_count': students.count()
     }
     return render(request, 'students/query_students.html', context)
-
-
 
 
 def update_student_status(request):
@@ -253,8 +297,6 @@ def update_student_status(request):
         # handle get request(students)
         students_active = Student.objects.filter(status="active")
         return render(request, "students/All-students.html", {"students_active": students_active})
-
-
 
 
 def reverse_student_status(request):
@@ -366,6 +408,98 @@ def promote_students_view(request):
         return render(request, "students/confirm_promotion.html")
 
 
+def get_students(request):
+    """Fetch students for the selected class (AJAX request)"""
+    class_id = request.GET.get("class_id")
+    if class_id:
+        students = Student.objects.filter(grade_id=class_id, status="Active").values(
+            "id", "adm_number", "name", "grade__name", "dob"
+        )
+        return JsonResponse({"students": list(students)})
+    return JsonResponse({"students": []})
+
+
+
+def students_promotion(request):
+    """Handles student promotion and renders the student promotion page."""
+    # Fetch current and next academic sessions
+    current_academic_year = AcademicYear.objects.order_by('-id').first()
+    next_academic_year = AcademicYear.get_or_create_next_academic_year()
+
+    # Get available classes (GradeSection objects)
+    classes = GradeSection.objects.all()
+    students = None  # Initialize students variable
+
+    # Get selected class from GET parameters
+    from_class_id = request.GET.get("from_class")
+    if from_class_id:
+        try:
+            from_class_id = int(from_class_id)  # Ensure it's an integer
+            print("Filtering Students in Class ID:", from_class_id)
+            # Filter students by the correct field (grade_id)
+            students = Student.objects.filter(grade_id=from_class_id, status="Active")
+            print("Students Found:", students.count())
+        except ValueError:
+            print("Invalid Class ID:", from_class_id)
+
+    if request.method == "POST":
+        from_class_id = request.POST.get("from_class")  # Selected "from class"
+        to_class_id = request.POST.get("to_class")        # Selected "to class"
+
+        if not from_class_id:
+            messages.error(request, "Please select the class to promote from.")
+            return redirect("promote_students")
+
+        # Fetch students from the selected class
+        students = Student.objects.filter(grade_id=from_class_id, status="Active")
+
+        if "promote" in request.POST:
+            if not to_class_id:
+                messages.error(request, "Please select the destination class.")
+                return redirect("promote_students")
+
+            if not students.exists():
+                messages.warning(request, "No active students found in the selected class.")
+                return redirect("promote_students")
+
+            promoted_count = 0
+            graduated_count = 0
+            errors = []
+
+            for student in students:
+                try:
+                    result = student.promote(to_class_id)  # Assume promote() accepts destination class id
+                    if result == "Promoted":
+                        promoted_count += 1
+                    elif result == "Graduated":
+                        graduated_count += 1
+                    else:
+                        errors.append(f"{student.first_name} {student.last_name}: {result}")
+                except Exception as e:
+                    errors.append(f"{student.first_name} {student.last_name}: {str(e)}")
+
+            if promoted_count > 0:
+                messages.success(request, f"{promoted_count} students promoted successfully!")
+            if graduated_count > 0:
+                messages.success(request, f"{graduated_count} students graduated!")
+            if errors:
+                messages.warning(request, "Some students couldn't be promoted:<br>" + "<br>".join(errors))
+
+            return redirect("promote_students")
+
+    context = {
+        "current_session": current_academic_year.name if current_academic_year else "N/A",
+        "next_session": next_academic_year.name if next_academic_year else "N/A",
+        "classes": classes,
+        "students": students,  # This will be None or a queryset
+        "selected_class": from_class_id,  # For pre-selecting the dropdown if needed
+    }
+    return render(request, "students/confirm_promotion.html", context)
+
+
+
+
+
 # # current term
 # def get_current_term():
 #     # Get today's date
@@ -467,6 +601,7 @@ def add_student(request):
 
     return render(request, "students/add-student.html", {"form": form})
 
+
 # def student_details(request, id):
 #     student = Student.objects.get(pk=id)
 #     report_cards = ReportCard.objects.filter(student=student)  # Fetch all report cards for the student
@@ -492,7 +627,6 @@ def add_student(request):
 def get_student_performance_data(request, term_id, year, student_id):
     try:
         term = Term.objects.get(id=term_id, start_date__year=year)
-
 
         # Fetch subject marks for the student in the selected term
         subject_marks = SubjectMark.objects.filter(
@@ -548,7 +682,6 @@ def get_student_chart_data(request, student_id, term, year):
 
     except Exception as e:
         return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
-
 
 
 def student_details(request, id):
@@ -637,21 +770,12 @@ def student_details(request, id):
     return render(request, 'students/student-details.html', context)
 
 
-
-
-
-
-
-
-
-
 def delete_document(request, document_id):
     document = get_object_or_404(StudentDocument, pk=document_id)
     student_id = document.student.id
     document.delete()
     messages.success(request, "Document deleted successfully.")
     return redirect('student_details', id=student_id)
-
 
 
 # def student_details(request, id):

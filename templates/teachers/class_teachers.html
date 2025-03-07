@@ -201,178 +201,21 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for section in grade_sections %}
+                                    {% for gs in grade_sections %}
                                         <tr>
-                                            <td>{{ section.class_teacher.staff_number|default:"No Teacher Assigned" }}</td>
-                                            <td>{{ section.class_teacher.get_title|default:"No Teacher Assigned" }}</td>
-                                            <td>{{ section.class_teacher.phone|default:"No Teacher Assigned" }}</td>
+                                            <td>{{ gs.class_teacher.staff_number|default:"No Teacher Assigned" }}</td>
+                                            <td>{{ gs.class_teacher.get_title|default:"No Teacher Assigned" }}</td>
+                                            <td>{{ gs.class_teacher.phone|default:"No Teacher Assigned" }}</td>
 
-                                            <td>{{ section.grade.name }}</td>
-                                            <td>{{ section.section.name|default:"-" }}</td>
-                                            <td>{{ section.student_count|default:0 }}</td>
-                                            <td class="text-right">
-                                                <div class="actions">
-                                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                                            data-bs-target="#editModal{{ section.id }}">Edit
-                                                    </button>
-                                                    <!-- Button to trigger Split Modal -->
-                                                    <button type="button" class="btn btn-warning" data-bs-toggle="modal"
-                                                            data-bs-target="#splitClassModal{{ grade_section.id }}">
-                                                        Split Class
-                                                    </button>
+                                            <td>{{ gs.grade.name }}</td>
+                                            <td>{{ gs.section.name|default:"-" }}</td>
+                                            <td>{{ gs.student_count|default:0 }}</td>
+                                            <td>
+                                                    <a href="{% url 'class_details' gs.id %}"
+                                                       class="btn btn custom-bg text-white">View Details</a>
 
-                                                    <!-- Button to trigger Merge Modal -->
-                                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                                                            data-bs-target="#mergeClassModal{{ grade_section.id }}">
-                                                        Merge Class
-                                                    </button>
-
-                                                </div>
                                             </td>
                                         </tr>
-
-                                        <!-- Edit Modal -->
-                                        <div class="modal fade" id="editModal{{ section.id }}" tabindex="-1">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Edit Class Section</h5>
-                                                        <button type="button" class="btn-close"
-                                                                data-bs-dismiss="modal"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <form method="POST"
-                                                              action="{% url 'update_class_section' section.id %}">
-                                                            {% csrf_token %}
-                                                            <label for="section">Change Section:</label>
-                                                            <select name="section" class="form-control">
-                                                                <option value="">No Section</option>
-                                                                {% for sec in sections %}
-                                                                    <option value="{{ sec.id }}"
-                                                                            {% if sec == section.section %}selected{% endif %}>
-                                                                        {{ sec.name }}
-                                                                    </option>
-                                                                {% endfor %}
-                                                            </select>
-                                                            <button type="submit" class="btn btn-primary mt-3">Save
-                                                                Changes
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <!-- Split Modal -->
-                                        <div class="modal fade" id="splitClassModal{{ grade_section.id }}" tabindex="-1"
-                                             aria-labelledby="splitClassModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Split Class</h5>
-                                                        <button type="button" class="close" data-dismiss="modal"
-                                                                aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    {% if grade_section and grade_section.id %}
-                                                        <form method="POST"
-                                                              action="{% url 'split_class' grade_section.id %}">
-                                                            {% csrf_token %}
-                                                            <div class="modal-body">
-                                                                <label for="section1">Select First Section:</label>
-                                                                <select name="section1" id="section1"
-                                                                        class="form-control"
-                                                                        required>
-                                                                    <option value="" disabled selected>-- Select Section
-                                                                        --
-                                                                    </option>
-                                                                    {% for section in available_sections %}
-                                                                        <option value="{{ section.id }}">{{ section.name }}</option>
-                                                                    {% empty %}
-                                                                        <option disabled>No available sections</option>
-                                                                    {% endfor %}
-                                                                </select>
-
-                                                                <label for="section2" class="mt-3">Select Second
-                                                                    Section:</label>
-                                                                <select name="section2" id="section2"
-                                                                        class="form-control"
-                                                                        required>
-                                                                    <option value="" disabled selected>-- Select Section
-                                                                        --
-                                                                    </option>
-                                                                    {% for section in available_sections %}
-                                                                        <option value="{{ section.id }}">{{ section.name }}</option>
-                                                                    {% empty %}
-                                                                        <option disabled>No available sections</option>
-                                                                    {% endfor %}
-                                                                </select>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="submit" class="btn btn-primary">Split
-                                                                </button>
-                                                                <button type="button" class="btn btn-secondary"
-                                                                        data-dismiss="modal">Cancel
-                                                                </button>
-                                                            </div>
-                                                        </form>
-                                                    {% else %}
-                                                        <p>No class available for merging.</p>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <!-- Merge Modal -->
-                                        <!-- Merge Modal -->
-                                        <div class="modal fade" id="mergeClassModal{{ grade_section.id }}" tabindex="-1"
-                                             aria-labelledby="mergeClassModalLabel" aria-hidden="true">
-
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Merge Class</h5>
-                                                        <button type="button" class="close" data-dismiss="modal"
-                                                                aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    {% if grade_section.id %}
-                                                        <form method="POST"
-                                                              action="{% url 'merge_class' grade_section.id %}">
-                                                            {% csrf_token %}
-                                                            <div class="modal-body">
-                                                                <label for="target_section">Select a section to merge
-                                                                    into:</label>
-                                                                <select name="target_section" id="target_section"
-                                                                        class="form-control" required>
-                                                                    <option value="" disabled selected>-- Select Section
-                                                                        --
-                                                                    </option>
-                                                                    {% for section in available_sections %}
-                                                                        <option value="{{ section.id }}">{{ section.section.name }}</option>
-                                                                    {% empty %}
-                                                                        <option disabled>No available sections</option>
-                                                                    {% endfor %}
-                                                                </select>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="submit" class="btn btn-primary">Merge
-                                                                </button>
-                                                                <button type="button" class="btn btn-secondary"
-                                                                        data-dismiss="modal">Cancel
-                                                                </button>
-                                                            </div>
-                                                        </form>
-                                                    {% else %}
-                                                        <p>No class available for merging.</p>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
 
                                     {% endfor %}
                                     </tbody>
@@ -399,7 +242,7 @@
     <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
     <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
     <script src="{% static 'assets/js/script.js' %}"></script>
-    {#    <script src="{% static 'assets/js/class-details.js' %}"></script>#}
+    <script src="{% static 'assets/js/class-details.js' %}"></script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 

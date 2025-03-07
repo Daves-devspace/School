@@ -11,12 +11,14 @@ urlpatterns = [
     path("add-grade/", views.add_grade, name="add_grade"),
     path("students/add-section/", views.add_section, name="add_section"),
 
-    path('update-class-section/<int:section_id>/', views.update_class_section, name='update_class_section'),
+    # path("classes/", views.class_teachers, name="class_teachers"),  # List of all classes
+    path("classes/<int:grade_section_id>/", views.class_details, name="class_details"),  # Details page
+    path("update-class-section/<int:section_id>/", views.update_class_section, name="update_class_section"),
+    path("split-class/<int:grade_section_id>/", views.split_class, name="split_class"),
+    path("merge-class/<int:grade_section_id>/", views.merge_class, name="merge_class"),
 
-    path('split-class/<int:grade_section_id>/', views.split_class, name='split_class'),
-    path('merge-class/<int:grade_section_id>/', views.merge_class, name='merge_class'),
+    path("classes/", views.grade_sections_details, name="grade_sections_details"),
 
-    path("classes/", views.class_details, name="class_details"),
     path('export/pdf/', print.export_students_pdf, name='export_students_pdf'),
 
     path('export/students/excel/', print.export_students_excel, name='export_students_excel'),
@@ -25,7 +27,9 @@ urlpatterns = [
     path('students/update-status/', views.update_student_status, name='update_student_status'),
     path('students/reverse-status/', views.reverse_student_status, name='reverse_student_status'),
 
-    path('promote-students/', views.promote_students_view, name='promote_students'),
+    path('promote-student/', views.promote_students_view, name='promote_students'),
+    path('promote-students/', views.students_promotion, name='student_prmt'),
+    path("get_students/", views.get_students, name="get_students"),
 
     path('students/', views.students_grid, name='students_grid'),
     path('query-students/', views.student_query, name='student_query'),

@@ -237,11 +237,18 @@
                     <li class="menu-title">
                         <span>PEOPLES</span>
                     </li>
-                    <li>
+                    <li class="submenu">
                         <a href="{% url 'students' %}"><i class="fas fa-graduation-cap custom-color"></i> <span
                                 class="custom-color"> Students</span>
                             <span
                                     class="menu-arrow"></span></a>
+                        <ul>
+                            <li><a href="{% url 'students' %}"><i class="fas fa-group  custom-colo me-2"></i>All
+                                Students</a></li>
+                            <li><a href="{% url 'student_prmt' %}"><i class="fas fa-group  custom-colo me-2"></i>All
+                                Promotions</a></li>
+
+                        </ul>
 
                     </li>
                     <li>
@@ -260,7 +267,7 @@
                                 class="custom-color">Class</span> <span
                                 class="menu-arrow"></span></a>
                         <ul>
-                            <li><a href="{% url 'class_details' %}"><i class="fas fa-user-friends  custom-colo me-2"></i>All
+                            <li><a href="{% url 'grade_sections_details' %}"><i class="fas fa-group  custom-colo me-2"></i>All
                                 Classes</a></li>
                             <li><a href="{% url 'get_filtered_timetable' %}">Schedules</a></li>
                             <li><a href="{% url 'teachers_department' %}">Sections</a></li>

@@ -41,7 +41,7 @@ from apps.management.forms import BookForm, TimetableForm, LessonExchangeForm, P
     HolidayPresentationForm, FeedbackForm, TermForm, ExamTypeForm, AddResultForm, ClubForm, \
     ReportCardFilterForm
 from apps.management.models import Term, ReportCard, SubjectMark, ExamType, \
-    Attendance, Timetable, LessonExchangeRequest, HolidayPresentation, Club, Event, ClubEvent
+    Attendance, Timetable, LessonExchangeRequest, HolidayPresentation, Club, Event, ClubEvent, AcademicYear
 from apps.management.serializers import EventSerializer, ClubEventSerializer
 from apps.schedules.forms import SubjectForm
 from apps.schedules.models import Subject
@@ -56,6 +56,12 @@ from apps.students.views import get_current_term
 from apps.teachers.models import Department, Teacher  # Revenue
 
 logger = logging.getLogger(__name__)
+
+from datetime import datetime
+from .models import AcademicYear
+
+
+
 
 
 def manage_terms(request, id=None):

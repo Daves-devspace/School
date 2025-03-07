@@ -94,21 +94,73 @@ class Institution(models.Model):
         return details
 
 
+
+
+
+class AcademicYear(models.Model):
+    start_date = models.DateField(null=True, blank=True)  # Allow NULL values
+    end_date = models.DateField(null=True, blank=True)
+    name = models.CharField(max_length=20, unique=True, blank=True,default="Unknown")  # Auto-generated
+
+    class Meta:
+        ordering = ['-start_date']  # Show the latest academic year first
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        """Auto-generate academic year name from start_date and end_date."""
+        if self.start_date and self.end_date:
+            self.name = f"{self.start_date.year}/{self.end_date.year}"
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_current_academic_year():
+        """Retrieve the active academic year based on today's date."""
+        today = date.today()
+        return AcademicYear.objects.filter(start_date__lte=today, end_date__gte=today).first()
+
+    @classmethod
+    def get_or_create_next_academic_year(cls):
+        """Fetch or create the next academic year based on the latest available session."""
+
+        # Get the most recent academic year
+        latest_year = cls.objects.order_by('-start_date').first()
+
+        if latest_year:
+            # Extract years from the auto-generated `name` (e.g., "2024/2025")
+            try:
+                current_start, current_end = map(int, latest_year.name.split("/"))
+                next_session = f"{current_end}/{current_end + 1}"
+            except ValueError:
+                raise ValueError(f"Invalid academic year format: {latest_year.name}")
+        else:
+            # If no academic year exists, start from the current year
+            current_year = datetime.now().year
+            next_session = f"{current_year}/{current_year + 1}"
+
+        # Get or create the academic year using the `name`
+        year_obj, created = cls.objects.get_or_create(name=next_session)
+
+        return year_obj
+
+
 class Term(models.Model):
     name = models.CharField(max_length=100)  # e.g., "Term 1", "Term 2"
     start_date = models.DateField()
     end_date = models.DateField()
     midterm_start_date = models.DateField(null=True, blank=True)
     midterm_end_date = models.DateField(null=True, blank=True)
-    year = models.PositiveIntegerField(default=get_current_year)  # Default to current year
+
+    academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE, related_name="terms",default=AcademicYear.get_or_create_next_academic_year)
 
     class Meta:
         verbose_name = "Term"
         verbose_name_plural = "Terms"
-        ordering = ['-year']  # Display terms in reverse chronological order (latest first)
+        ordering = ['-academic_year__start_date', '-start_date']  # Latest first
 
     def __str__(self):
-        return f"{self.name}-{self.year}"
+        return f"{self.name} ({self.academic_year.name})"
 
     def get_previous_term(self):
         return Term.objects.filter(start_date__lt=self.start_date).order_by('-start_date').first()

@@ -1,73 +1,619 @@
 {% extends 'Home/base.html' %}
-{% load crispy_forms_filters %}
-{% load crispy_forms_tags %}
 {% load static %}
-
 {% block body %}
 
     <div class="page-wrapper">
         <div class="content container-fluid">
+            <!-- Page Header and Breadcrumbs -->
             <div class="page-header">
-                <div class="row align-items-center">
+                <div class="row">
                     <div class="col-sm-12">
                         <div class="page-sub-header">
-                            <h3 class="page-title">promote Students</h3>
+                            <h3 class="page-title">Students</h3>
                             <ul class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{% url 'students' %}">Students</a></li>
-                                <li class="breadcrumb-item active">Add Students</li>
+                                <li class="breadcrumb-item"><a href="students.html">Student</a></li>
+                                <li class="breadcrumb-item active">All Students</li>
                             </ul>
+                            <div class="breadcrumb d-flex align-items-center">
+                                <a href="{% url 'print_students' %}" class="btn btn-outline custom-bg text-white me-2">
+                                    <i class="fas fa-print"></i> Print Students
+                                </a>
+                                <div class="dropdown me-2">
+                                    <button class="btn btn-outline custom-bg text-white dropdown-toggle" type="button"
+                                            id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-file-export"></i> Export
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                        <li><a class="dropdown-item" href="{% url 'export_students_pdf' %}">
+                                            <i class="fas fa-file-pdf text-danger"></i> Export as PDF</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'export_students_excel' %}">
+                                            <i class="fas fa-file-excel text-success"></i> Export as Excel</a></li>
+                                    </ul>
+                                </div>
+                                <a href="{% url 'add_student' %}" class="btn btn-outline custom-bg text-white">
+                                    <i class="fas fa-plus-circle"></i> Add Student
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="container-fluid">
-                {% for message in messages %}
 
-                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-                        <p>{{ message }}</p>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <!-- Display Messages -->
+            {% for message in messages %}
+                <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                    <p>{{ message }}</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <!-- If no class is selected, show the Promotion Selection Card -->
+            {% if not selected_class %}
+                <div class="container mt-4">
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Note:</strong> Promoting students to the next class will create an enrollment for the
+                        next session.
                     </div>
-
-                {% endfor %}
-
-            </div>
-
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="card comman-shadow">
-                        <div class="card-body">
-                            <h2>Promote Students</h2>
-                            <p>Are you sure you want to promote all active students to the next grade?</p>
-                            <form method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-primary">Confirm Promotion</button>
-                                <a href="{% url 'students' %}" class="btn btn-secondary">Cancel</a>
-                            </form>
-
+                    <div class="card shadow-sm p-4">
+                        <h4 class="card-title">Promotion</h4>
+                        <p class="text-muted">Select a class to promote for the next session.</p>
+                        <div class="row align-items-center">
+                            <!-- Promotion from Class -->
+                            <div class="col-md-5">
+                                <h6 class="fw-bold">Current Session *</h6>
+                                <p>{{ current_session }}</p>
+                                <label class="form-label">Promotion from Class *</label>
+                                <select class="form-select" name="from_class" id="from_class"
+                                        onchange="updatePromotionURL()">
+                                    <option value="">Select Class</option>
+                                    {% for grade in classes %}
+                                        <option value="{{ grade.id }}">{{ grade.grade.name }}
+                                            {% if grade.section %}{{ grade.section.name }}{% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <!-- Arrow Button -->
+                            <div class="col-md-2 text-center">
+                                <button class="btn btn-primary rounded-circle">
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                            <!-- Promotion to Class -->
+                            <div class="col-md-5">
+                                <h6 class="fw-bold">Promote to Session *</h6>
+                                <p>{{ next_session }}</p>
+                                <label class="form-label">Promotion to Class *</label>
+                                <select class="form-select" name="to_class" id="to-class">
+                                    <option value="">Select Class</option>
+                                    {% for grade in classes %}
+                                        <option value="{{ grade.id }}">{{ grade.grade.name }}
+                                            {% if grade.section %}{{ grade.section.name }}{% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-4 d-flex justify-content-between">
+                            <button class="btn btn-secondary">Reset Promotion</button>
+                            <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#promotionSection"
+                                    id="manage-promotion">
+                                Manage Promotion
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
+
+            <!-- Mapping & Student Selection Section (always show if selected_class is present) -->
+            {% if selected_class %}
+                <div id="promotionSection" class="collapse show mt-4">
+                    <div class="card shadow-sm p-3">
+                        <div class="card-header bg-light fw-bold">Map Class Sections</div>
+                        <div class="row align-items-center mt-3">
+                            <!-- Promote from Section -->
+                            <div class="col-md-5">
+                                <div class="card p-3 shadow-sm">
+                                    <label class="fw-bold">Promote from Session *</label>
+                                    <p>{{ current_session }}</p>
+                                    <label class="fw-bold">From Class *</label>
+                                    <p id="selected-from-class">
+                                        {% if selected_class %}
+                                            {% for grade in classes %}
+                                                {% if grade.id|stringformat:"s" == selected_class %}
+                                                    {{ grade }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            Select a class
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Swap Button -->
+                            <div class="col-md-2 text-center">
+                                <button class="btn btn-primary rounded-circle p-3">
+                                    <i class="fas fa-arrow-left"></i>
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                            <!-- Promote to Section -->
+                            <div class="col-md-5">
+                                <div class="card p-3 shadow-sm">
+                                    <label class="fw-bold">Promote to Session *</label>
+                                    <p>{{ next_session }}</p>
+                                    <label class="fw-bold mt-2">Assign to Class *</label>
+                                    <p id="selected-to-class">
+                                        {% if request.GET.to_class %}
+                                            {% for grade in classes %}
+                                                {% if grade.id|stringformat:"s" == request.GET.to_class %}
+                                                    {{ grade }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            Select a class
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Student Selection Table -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card card-table shadow">
+                                <div class="card-body">
+                                    <h3 class="page-title">Students - Promoting from <span id="selected-class">
+                                    {% for grade in classes %}
+                                        {% if grade.id|stringformat:"s" == selected_class %}
+                                            {{ grade.grade.name }}
+                                            {% if grade.section %}{{ grade.section.name }}{% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </span></h3>
+                                    <button class="btn btn-success">Promote Selected</button>
+                                    <div class="table-responsive mt-3">
+                                        {% if students %}
+                                            <table class="table table-hover table-striped">
+                                                <thead class="table-success">
+                                                <tr>
+                                                    <th><input class="form-check-input" type="checkbox" id="select-all">
+                                                    </th>
+                                                    <th>ADM</th>
+                                                    <th>Name</th>
+                                                    <th>Class</th>
+                                                    <th>DOB</th>
+                                                    <th>Parent Name</th>
+                                                    <th>Mobile Number</th>
+                                                    <th class="text-end">View</th>
+                                                    <th class="text-end">Edit</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="student-list">
+                                                {% for student in students %}
+                                                    <tr data-class-id="{{ student.grade.id }}">
+                                                        <td><input type="checkbox" name="selected_students"
+                                                                   value="{{ student.id }}"></td>
+                                                        <td>{{ student.admission_number }}</td>
+                                                        <td>{{ student.first_name }} {{ student.last_name }}</td>
+                                                        <td>{{ student.grade.grade.name }}
+                                                            {% if student.grade.section %}
+                                                                {{ student.grade.section.name }}{% endif %}</td>
+                                                        <td>{{ student.dob }}</td>
+                                                        <td>{{ student.parent.first_name }}</td>
+                                                        <td>{{ student.parent.first.mobile }}</td>
+                                                        <td class="text-end"><a
+                                                                href="{% url 'student_details' student.id %}"
+                                                                class="btn btn-info btn-sm">View</a></td>
+                                                        <td class="text-end"><a
+                                                                href="{% url 'edit_student' student.id %}"
+                                                                class="btn btn-warning btn-sm">Edit</a></td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        {% else %}
+                                            <p>No students found for this class.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
         </div>
     </div>
 
+    <footer>
+        <p>Copyright © 2024 davedev</p>
+    </footer>
+
+    <!-- Merged JavaScript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get elements
+            const fromClassDropdown = document.getElementById("from_class");
+            const toClassDropdown = document.getElementById("to-class");
+            const managePromotionBtn = document.getElementById("manage-promotion");
+            const selectedFromClassText = document.getElementById("selected-from-class");
+            const selectedToClassText = document.getElementById("selected-to-class");
+            const selectedClassDisplay = document.getElementById("selected-class");
+            const studentTable = document.getElementById("student-list");
+            const selectAllCheckbox = document.getElementById("select-all");
+
+            // Function to update mapping section
+                function updateMappingSection() {
+                    // Get selected texts from dropdowns
+                    const fromText = fromClassDropdown.options[fromClassDropdown.selectedIndex].text;
+                    const toText = toClassDropdown.options[toClassDropdown.selectedIndex].text;
+
+                    // Directly update the corresponding <p> elements with the selected values.
+                    // If the text is "Select Class", we default to "Not Selected".
+                    selectedFromClassText.textContent = (fromText !== "Select Class") ? fromText : "Not Selected";
+                    selectedToClassText.textContent = (toText !== "Select Class") ? toText : "Not Selected";
+
+                    // Optionally, update another element (like a span) that displays the "from" class.
+                    selectedClassDisplay.textContent = (fromText !== "Select Class") ? fromText : "Class";
+                }
+
+
+                // Function to filter student list by selected class
+                function updateStudentList() {
+                    let selectedClassId = fromClassDropdown.value;
+                    let rows = studentTable.querySelectorAll("tr");
+                    rows.forEach(row => {
+                        let rowClassId = row.getAttribute("data-class-id");
+                        row.style.display = (rowClassId === selectedClassId || selectedClassId === "") ? "" : "none";
+                    });
+                }
+
+                // Function to update URL with selected class (force page reload)
+                function updatePromotionURL() {
+                    let classId = fromClassDropdown.value;
+                    if (classId) {
+                        window.location.href = window.location.pathname + "?from_class=" + encodeURIComponent(classId);
+                    }
+                }
+
+                // Attach event listeners
+                fromClassDropdown.addEventListener("change", function () {
+                    updateMappingSection();
+                    updateStudentList();
+                });
+                toClassDropdown.addEventListener("change", updateMappingSection);
+
+                managePromotionBtn.addEventListener("click", function (event) {
+                    if (!fromClassDropdown.value || !toClassDropdown.value) {
+                        event.preventDefault();
+                        alert("Please select both 'From Class' and 'To Class' before managing promotion.");
+                    } else {
+                        // After clicking, update the URL to reload the page with the selected from_class parameter.
+                        updatePromotionURL();
+                    }
+                });
+
+                selectAllCheckbox.addEventListener("change", function () {
+                    document.querySelectorAll('input[name="selected_students"]').forEach(cb => {
+                        cb.checked = this.checked;
+                    });
+                });
+            }
+        )
+            ;
+    </script>
 
     <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'assets/js/feather.min.js' %}"></script>
     <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
     <script src="{% static 'assets/js/script.js' %}"></script>
-    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('.datetimepicker').datepicker({
-                format: 'yyyy-mm-dd',
-                autoclose: true
-            });
-        });
-    </script>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </body>
+    </html>
 
 {% endblock %}
+
+{##}
+{#{% extends 'Home/base.html' %}#}
+{#{% load static %}#}
+{#{% block body %}#}
+{##}
+{#<div class="page-wrapper">#}
+{#    <div class="content container-fluid">#}
+{#        <!-- Page Header and Breadcrumbs -->#}
+{#        <div class="page-header">#}
+{#            <div class="row">#}
+{#                <div class="col-sm-12">#}
+{#                    <div class="page-sub-header">#}
+{#                        <h3 class="page-title">Students</h3>#}
+{#                        <ul class="breadcrumb">#}
+{#                            <li class="breadcrumb-item"><a href="students.html">Student</a></li>#}
+{#                            <li class="breadcrumb-item active">All Students</li>#}
+{#                        </ul>#}
+{#                        <div class="breadcrumb d-flex align-items-center">#}
+{#                            <a href="{% url 'print_students' %}" class="btn btn-outline custom-bg text-white me-2">#}
+{#                                <i class="fas fa-print"></i> Print Students#}
+{#                            </a>#}
+{#                            <div class="dropdown me-2">#}
+{#                                <button class="btn btn-outline custom-bg text-white dropdown-toggle" type="button"#}
+{#                                        id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">#}
+{#                                    <i class="fas fa-file-export"></i> Export#}
+{#                                </button>#}
+{#                                <ul class="dropdown-menu" aria-labelledby="exportDropdown">#}
+{#                                    <li>#}
+{#                                        <a class="dropdown-item" href="{% url 'export_students_pdf' %}">#}
+{#                                            <i class="fas fa-file-pdf text-danger"></i> Export as PDF#}
+{#                                        </a>#}
+{#                                    </li>#}
+{#                                    <li>#}
+{#                                        <a class="dropdown-item" href="{% url 'export_students_excel' %}">#}
+{#                                            <i class="fas fa-file-excel text-success"></i> Export as Excel#}
+{#                                        </a>#}
+{#                                    </li>#}
+{#                                </ul>#}
+{#                            </div>#}
+{#                            <a href="{% url 'add_student' %}" class="btn btn-outline custom-bg text-white">#}
+{#                                <i class="fas fa-plus-circle"></i> Add Student#}
+{#                            </a>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{##}
+{#        <!-- Display Messages -->#}
+{#        {% for message in messages %}#}
+{#            <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">#}
+{#                <p>{{ message }}</p>#}
+{#                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>#}
+{#            </div>#}
+{#        {% endfor %}#}
+{##}
+{#        <!-- If no class is selected, show the Promotion Selection Card -->#}
+{#        {% if not selected_class %}#}
+{#            <div class="container mt-4">#}
+{#                <div class="alert alert-info d-flex align-items-center" role="alert">#}
+{#                    <i class="bi bi-info-circle me-2"></i>#}
+{#                    <strong>Note:</strong> Promoting students to the next class will create an enrollment for the next session.#}
+{#                </div>#}
+{##}
+{#                <div class="card shadow-sm p-4">#}
+{#                    <h4 class="card-title">Promotion</h4>#}
+{#                    <p class="text-muted">Select a class to promote for the next session.</p>#}
+{#                    <div class="row align-items-center">#}
+{#                        <!-- Promotion from Class -->#}
+{#                        <div class="col-md-5">#}
+{#                            <h6 class="fw-bold">Current Session *</h6>#}
+{#                            <p>{{ current_session }}</p>#}
+{#                            <label class="form-label">Promotion from Class *</label>#}
+{#                            <select class="form-select" name="from_class" id="from_class" onchange="updatePromotionURL()">#}
+{#                                <option value="">Select Class</option>#}
+{#                                {% for grade in classes %}#}
+{#                                    <option value="{{ grade.id }}">{{ grade.grade.name }} {% if grade.section %}{{ grade.section.name }}{% endif %}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </div>#}
+{#                        <!-- Arrow Button -->#}
+{#                        <div class="col-md-2 text-center">#}
+{#                            <button class="btn btn-primary rounded-circle">#}
+{#                                <i class="fas fa-arrow-right"></i>#}
+{#                            </button>#}
+{#                        </div>#}
+{#                        <!-- Promotion to Class -->#}
+{#                        <div class="col-md-5">#}
+{#                            <h6 class="fw-bold">Promote to Session *</h6>#}
+{#                            <p>{{ next_session }}</p>#}
+{#                            <label class="form-label">Promotion to Class *</label>#}
+{#                            <select class="form-select" name="to_class" id="to-class">#}
+{#                                <option value="">Select Class</option>#}
+{#                                {% for grade in classes %}#}
+{#                                    <option value="{{ grade.id }}">{{ grade.grade.name }} {% if grade.section %}{{ grade.section.name }}{% endif %}</option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="mt-4 d-flex justify-content-between">#}
+{#                        <button class="btn btn-secondary">Reset Promotion</button>#}
+{#                        <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#promotionSection"#}
+{#                                id="manage-promotion">#}
+{#                            Manage Promotion#}
+{#                        </button>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        {% endif %}#}
+{##}
+{#        <!-- Mapping & Student Selection Section (shown if selected_class is present) -->#}
+{#        {% if selected_class %}#}
+{#            <div id="promotionSection" class="collapse show mt-4">#}
+{#                <div class="card shadow-sm p-3">#}
+{#                    <div class="card-header bg-light fw-bold">Map Class Sections</div>#}
+{#                    <div class="row align-items-center mt-3">#}
+{#                        <!-- Promote from Section -->#}
+{#                        <div class="col-md-5">#}
+{#                            <div class="card p-3 shadow-sm">#}
+{#                                <label class="fw-bold">Promote from Session *</label>#}
+{#                                <p>{{ current_session }}</p>#}
+{#                                <label class="fw-bold">From Class *</label>#}
+{#                                <p id="selected-from-class">#}
+{#                                    {% for grade in classes %}#}
+{#                                        {% if grade.id|stringformat:"s" == selected_class %}#}
+{#                                            {{ grade.grade.name }} {% if grade.section %}{{ grade.section.name }}{% endif %}#}
+{#                                        {% endif %}#}
+{#                                    {% endfor %}#}
+{#                                </p>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <!-- Swap Button -->#}
+{#                        <div class="col-md-2 text-center">#}
+{#                            <button class="btn btn-primary rounded-circle p-3">#}
+{#                                <i class="bi bi-arrow-left-right"></i>#}
+{#                            </button>#}
+{#                        </div>#}
+{#                        <!-- Promote to Section -->#}
+{#                        <div class="col-md-5">#}
+{#                            <div class="card p-3 shadow-sm">#}
+{#                                <label class="fw-bold">Promote to Session *</label>#}
+{#                                <p>{{ next_session }}</p>#}
+{#                                <label class="fw-bold mt-2">Assign to Class *</label>#}
+{#                                <p id="selected-to-class">#}
+{#                                    {% if request.GET.to_class %}#}
+{#                                        {% for grade in classes %}#}
+{#                                            {% if grade.id|stringformat:"s" == request.GET.to_class %}#}
+{#                                                {{ grade.grade.name }} {% if grade.section %}{{ grade.section.name }}{% endif %}#}
+{#                                            {% endif %}#}
+{#                                        {% endfor %}#}
+{#                                    {% else %}Select a class{% endif %}#}
+{#                                </p>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{##}
+{#                <!-- Student Selection Table -->#}
+{#                <div class="row mt-4">#}
+{#                    <div class="col-12">#}
+{#                        <div class="card card-table shadow">#}
+{#                            <div class="card-body">#}
+{#                                <h3 class="page-title">Students - Promoting from <span id="selected-class">#}
+{#                                    {% for grade in classes %}#}
+{#                                        {% if grade.id|stringformat:"s" == selected_class %}#}
+{#                                            {{ grade.grade.name }} {% if grade.section %}{{ grade.section.name }}{% endif %}#}
+{#                                        {% endif %}#}
+{#                                    {% endfor %}#}
+{#                                </span></h3>#}
+{#                                <button class="btn btn-success">Promote Selected</button>#}
+{#                                <div class="table-responsive mt-3">#}
+{#                                    {% if students %}#}
+{#                                        <table class="table table-hover table-striped">#}
+{#                                            <thead class="table-success">#}
+{#                                                <tr>#}
+{#                                                    <th><input class="form-check-input" type="checkbox" id="select-all"></th>#}
+{#                                                    <th>ADM</th>#}
+{#                                                    <th>Name</th>#}
+{#                                                    <th>Class</th>#}
+{#                                                    <th>DOB</th>#}
+{#                                                    <th>Parent Name</th>#}
+{#                                                    <th>Mobile Number</th>#}
+{#                                                    <th class="text-end">View</th>#}
+{#                                                    <th class="text-end">Edit</th>#}
+{#                                                </tr>#}
+{#                                            </thead>#}
+{#                                            <tbody id="student-list">#}
+{#                                                {% for student in students %}#}
+{#                                                    <tr data-class-id="{{ student.grade.id }}">#}
+{#                                                        <td><input type="checkbox" name="selected_students" value="{{ student.id }}"></td>#}
+{#                                                        <td>{{ student.admission_number }}</td>#}
+{#                                                        <td>{{ student.first_name }} {{ student.last_name }}</td>#}
+{#                                                        <td>{{ student.grade.grade.name }} {% if student.grade.section %}{{ student.grade.section.name }}{% endif %}</td>#}
+{#                                                        <td>{{ student.joining_date }}</td>#}
+{#                                                        <td>{{ student.parent.first_name }}</td>#}
+{#                                                        <td>{{ student.parent.first.mobile }}</td>#}
+{#                                                        <td class="text-end"><a href="{% url 'student_details' student.id %}" class="btn btn-info btn-sm">View</a></td>#}
+{#                                                        <td class="text-end"><a href="{% url 'edit_student' student.id %}" class="btn btn-warning btn-sm">Edit</a></td>#}
+{#                                                    </tr>#}
+{#                                                {% endfor %}#}
+{#                                            </tbody>#}
+{#                                        </table>#}
+{#                                    {% else %}#}
+{#                                        <p>No students found for this class.</p>#}
+{#                                    {% endif %}#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        {% endif %}#}
+{##}
+{#    </div>#}
+{#</div>#}
+{##}
+{#<footer>#}
+{#    <p>Copyright © 2024 davedev</p>#}
+{#</footer>#}
+{##}
+{#<!-- Merged JavaScript -->#}
+{#<script>#}
+{#    document.addEventListener("DOMContentLoaded", function () {#}
+{#        // Get elements#}
+{#        const fromClassDropdown = document.getElementById("from_class");#}
+{#        const toClassDropdown = document.getElementById("to-class");#}
+{#        const managePromotionBtn = document.getElementById("manage-promotion");#}
+{#        const selectedFromClassText = document.getElementById("selected-from-class");#}
+{#        const selectedToClassText = document.getElementById("selected-to-class");#}
+{#        const selectedClassDisplay = document.getElementById("selected-class");#}
+{#        const studentTable = document.getElementById("student-list");#}
+{#        const selectAllCheckbox = document.getElementById("select-all");#}
+{##}
+{#        // Function to update mapping section with the selected values#}
+{#        function updateMappingSection() {#}
+{#            let fromText = fromClassDropdown.options[fromClassDropdown.selectedIndex].text;#}
+{#            let toText = toClassDropdown.options[toClassDropdown.selectedIndex].text;#}
+{#            selectedFromClassText.textContent = (fromText !== "Select Class") ? fromText : "Not Selected";#}
+{#            selectedToClassText.textContent = (toText !== "Select Class") ? toText : "Not Selected";#}
+{#            selectedClassDisplay.textContent = (fromText !== "Select Class") ? fromText : "Class";#}
+{#        }#}
+{##}
+{#        // Function to filter student list by selected class#}
+{#        function updateStudentList() {#}
+{#            let selectedClassId = fromClassDropdown.value;#}
+{#            let rows = studentTable.querySelectorAll("tr");#}
+{#            rows.forEach(row => {#}
+{#                let rowClassId = row.getAttribute("data-class-id");#}
+{#                row.style.display = (rowClassId === selectedClassId || selectedClassId === "") ? "" : "none";#}
+{#            });#}
+{#        }#}
+{##}
+{#        // Function to update URL with selected class (force page reload)#}
+{#        function updatePromotionURL() {#}
+{#            let classId = fromClassDropdown.value;#}
+{#            if (classId) {#}
+{#                window.location.href = window.location.pathname + "?from_class=" + encodeURIComponent(classId);#}
+{#            }#}
+{#        }#}
+{##}
+{#        // Attach event listeners#}
+{#        fromClassDropdown.addEventListener("change", function () {#}
+{#            updateMappingSection();#}
+{#            updateStudentList();#}
+{#        });#}
+{#        toClassDropdown.addEventListener("change", updateMappingSection);#}
+{##}
+{#        managePromotionBtn.addEventListener("click", function (event) {#}
+{#            if (!fromClassDropdown.value || !toClassDropdown.value) {#}
+{#                event.preventDefault();#}
+{#                alert("Please select both 'From Class' and 'To Class' before managing promotion.");#}
+{#            } else {#}
+{#                updateMappingSection();#}
+{#                updateStudentList();#}
+{#                updatePromotionURL();#}
+{#            }#}
+{#        });#}
+{##}
+{#        selectAllCheckbox.addEventListener("change", function () {#}
+{#            document.querySelectorAll('input[name="selected_students"]').forEach(cb => {#}
+{#                cb.checked = this.checked;#}
+{#            });#}
+{#        });#}
+{#    });#}
+{#</script>#}
+{##}
+{#<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>#}
+{#<script src="{% static 'assets/js/popper.min.js' %}"></script>#}
+{#<script src="{% static 'assets/js/feather.min.js' %}"></script>#}
+{#<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>#}
+{#<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>#}
+{#<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>#}
+{#<script src="{% static 'assets/js/script.js' %}"></script>#}
+{#<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>#}
+{#</body>#}
+{#</html>#}
+{##}
+{#{% endblock %}#}
+{##}

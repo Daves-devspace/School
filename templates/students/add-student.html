@@ -91,7 +91,10 @@
                                             <div class="card-body">
 
                                                 <p><strong>Parent/Guardian information</strong></p>
-
+                                                <div class="mb-3 ">
+                                                    {{ form.parent_relationship.label_tag }}
+                                                    {{ form.parent_relationship }}
+                                                </div>
                                                 <div class="mb-3 ">
                                                     {{ form.parent_first_name.label_tag }}
                                                     {{ form.parent_first_name }}
